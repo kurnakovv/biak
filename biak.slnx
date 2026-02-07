@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <File Path="Directory.Build.props" />
+    <Project Path="src/Biak.ConsoleApp/Biak.ConsoleApp.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Biak.ConsoleApp.IntegrationTests/Biak.ConsoleApp.IntegrationTests.csproj" />
+  </Folder>
+</Solution>
