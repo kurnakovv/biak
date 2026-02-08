@@ -29,6 +29,22 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(IS_DEPLOY_NUGET_FOR_PR)' == 'true'">
+    <PackageId>kurnakovv.biak-pr</PackageId>
+    <Product>biak-pr</Product>
+    <AssemblyName>kurnakovv.biak-pr</AssemblyName>
+    <Title>biak-pr</Title>
+    <ToolCommandName>dotnet-biak-pr</ToolCommandName>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(IS_DEPLOY_NUGET_ORG_ACTION_PREVIEW)' == 'true' Or '$(IS_DEPLOY_NUGET_GH_PACKAGE_ACTION_PREVIEW)' == 'true'">
+    <PackageId>kurnakovv.biak-preview</PackageId>
+    <Product>biak-preview</Product>
+    <AssemblyName>kurnakovv.biak-preview</AssemblyName>
+    <Title>biak-preview</Title>
+    <ToolCommandName>dotnet-biak-preview</ToolCommandName>
+  </PropertyGroup>
+
   <ItemGroup>
     <None Include="..\..\docs\images\biak-icon.png">
       <Pack>True</Pack>
@@ -40,7 +56,7 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(IS_DEPLOY_NUGET_ORG_ACTION_PREVIEW)' != 'true' And '$(IS_DEPLOY_NUGET_GH_PACKAGE_ACTION_PREVIEW)' != 'true' And '$(IS_DEPLOY_NUGET_FOR_PR)' != 'true'">
     <PackageReference Include="DotNet.ReproducibleBuilds" Version="2.0.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -57,5 +73,17 @@
       <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
+
+  <Target Name="PrepareReleaseNotesNugetOrg" BeforeTargets="GenerateNuspec" Condition="$(IS_DEPLOY_NUGET_ORG_ACTION) == 'true'">
+    <PropertyGroup>
+      <PackageReleaseNotes>$([System.IO.File]::ReadAllText("$(MSBuildProjectDirectory)/../../docs/RELEASE-NOTES"))</PackageReleaseNotes>
+    </PropertyGroup>
+  </Target>
+
+  <Target Name="PrepareReleaseNotesGitHubPackage" BeforeTargets="GenerateNuspec" Condition="$(IS_DEPLOY_NUGET_GH_PACKAGE_ACTION) == 'true'">
+    <PropertyGroup>
+      <PackageDescription>$([System.IO.File]::ReadAllText("$(MSBuildProjectDirectory)/../../docs/RELEASE-NOTES"))</PackageDescription>
+    </PropertyGroup>
+  </Target>
 
 </Project>
