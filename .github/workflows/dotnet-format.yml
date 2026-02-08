@@ -1,0 +1,31 @@
+# https://learn.microsoft.com/en-us/community/content/how-to-enforce-dotnet-format-using-editorconfig-github-actions
+name: .NET format
+
+on:
+  push:
+    branches:
+      - '*'
+    paths-ignore:
+      - 'ReadMe.md'
+      - 'docs/**'
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths-ignore:
+      - 'ReadMe.md'
+      - 'docs/**'
+
+jobs:
+  dotnet-format:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 10.0.x
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Format
+      run: dotnet format --verify-no-changes --verbosity diagnostic
