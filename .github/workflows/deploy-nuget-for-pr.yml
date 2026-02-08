@@ -1,0 +1,97 @@
+name: Deploy NuGet for PR
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  pull-requests: write
+
+env:
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+  DOTNET_NOLOGO: true
+  NuGetDirectory: ${{ github.workspace }}/nuget
+  IS_DEPLOY_NUGET_FOR_PR: true
+
+defaults:
+  run:
+    shell: pwsh
+
+jobs:
+  pack-and-deploy:
+    if: >
+      github.event.issue.pull_request != null &&
+      github.event.comment.body == '/deploy' &&
+      github.event.comment.author_association == 'OWNER'
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Calculate deploy number for PR
+        id: deploy
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $comments = gh api repos/${{ github.repository }}/issues/${{ github.event.issue.number }}/comments `
+            --jq '[.[] | select(.body == "/deploy" and .author_association == "OWNER")]'
+
+          $deployNumber = ($comments | ConvertFrom-Json).Count
+
+          echo "DEPLOY_NUMBER=$deployNumber" >> $env:GITHUB_ENV
+
+      - name: Resolve PR head SHA
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $pr = gh api repos/${{ github.repository }}/pulls/${{ github.event.issue.number }}
+          $sha = ($pr | ConvertFrom-Json).head.sha
+          echo "PR_HEAD_SHA=$sha" >> $env:GITHUB_ENV
+
+      - name: Checkout PR
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.PR_HEAD_SHA }}
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+
+      - name: Run build
+        run: dotnet build --configuration Release
+
+      - name: Pack NuGet
+        env:
+          PACKAGE_VERSION: 0.0.${{ env.DEPLOY_NUMBER }}-pr-${{ github.event.issue.number }}
+        run: |
+          dotnet pack `
+            --configuration Release `
+            --output ${{ env.NuGetDirectory }} `
+            /p:PackageVersion=$env:PACKAGE_VERSION `
+            --no-build
+
+      - name: Publish NuGet
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_PR_APIKEY }}
+        run: |
+          foreach ($file in Get-ChildItem "${{ env.NuGetDirectory }}/*.nupkg") {
+            dotnet nuget push $file `
+              --api-key "$env:NUGET_API_KEY" `
+              --source https://api.nuget.org/v3/index.json `
+              --skip-duplicate
+          }
+      - name: Send report message
+        uses: mshick/add-pr-comment@v2
+        with:
+          refresh-message-position: true
+          message: |
+            🚀 NuGet package has been published! You now have early access to the latest changes and can test them before they reach production. Please try this version in your project(s) and let us know if you encounter any issues. If everything works as expected, we'd also appreciate your confirmation. Thank you for your feedback ❤️
+
+            🔗 Package link:
+            https://www.nuget.org/packages/kurnakovv.biak-pr/0.0.${{ env.DEPLOY_NUMBER }}-pr-${{ github.event.issue.number }}
+
+            ⌨️ Install dotnet tool via terminal:
+            ```bash
+            dotnet tool install --global kurnakovv.biak-pr --version 0.0.${{ env.DEPLOY_NUMBER }}-pr-${{ github.event.issue.number }}
+            ```
+
+            ⏰ Note: Please allow a few minutes for NuGet.org to validate and deploy the package. If the link returns a 404 error, the package is still being processed - just wait a little and try again.

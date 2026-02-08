@@ -1,0 +1,51 @@
+name: publish-preview
+
+on:
+  push:
+    branches:
+      - dev
+    paths-ignore:
+      - 'ReadMe.md'
+      - 'docs/wiki/**'
+
+env:
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+  DOTNET_NOLOGO: true
+  NuGetDirectory: ${{ github.workspace }}/nuget
+  PACKAGE_VERSION: 0.0.${{ github.run_number }}-preview
+  IS_DEPLOY_NUGET_ORG_ACTION_PREVIEW: true
+
+defaults:
+  run:
+    shell: pwsh
+
+jobs:
+  build_test_pack_publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+
+      - name: Run tests
+        run: dotnet test --configuration Release
+
+      - name: Pack NuGet (preview)
+        run: |
+          dotnet pack `
+            --configuration Release `
+            --output ${{ env.NuGetDirectory }} `
+            /p:PackageVersion=${{ env.PACKAGE_VERSION }}
+
+      - name: Publish NuGet preview
+        run: |
+          foreach ($file in Get-ChildItem "${{ env.NuGetDirectory }}/*.nupkg") {
+            dotnet nuget push $file `
+              --api-key "${{ secrets.NUGET_PREVIEW_APIKEY }}" `
+              --source https://api.nuget.org/v3/index.json `
+              --skip-duplicate
+          }

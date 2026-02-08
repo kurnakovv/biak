@@ -1,0 +1,54 @@
+name: publish-gh-package-preview
+
+on:
+  push:
+    branches:
+      - dev
+    paths-ignore:
+      - 'ReadMe.md'
+      - 'docs/wiki/**'
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  IS_DEPLOY_NUGET_GH_PACKAGE_ACTION_PREVIEW: true
+  PACKAGE_VERSION: 0.0.${{ github.run_number }}-preview
+
+defaults:
+  run:
+    shell: pwsh
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+
+      - name: Build
+        run: dotnet build --configuration Release /p:Version=${{ env.PACKAGE_VERSION }}
+
+      - name: Test
+        run: dotnet test --configuration Release /p:Version=${{ env.PACKAGE_VERSION }} --no-build
+
+      - name: Pack
+        run: |
+          dotnet pack `
+            --configuration Release `
+            /p:Version=${{ env.PACKAGE_VERSION }} `
+            --no-build `
+            --output .
+
+      - name: Push to GitHub Packages (preview)
+        run: |
+          dotnet nuget push kurnakovv.biak-preview.${{ env.PACKAGE_VERSION }}.nupkg `
+            --source https://nuget.pkg.github.com/kurnakovv/index.json `
+            --api-key ${{ secrets.NUGET_GH_PACKAGE_TOKEN }} `
+            --skip-duplicate

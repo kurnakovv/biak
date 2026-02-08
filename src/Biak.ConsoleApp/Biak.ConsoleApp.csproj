@@ -1,10 +1,89 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <PackAsTool>True</PackAsTool>
+    <ToolCommandName>dotnet-biak</ToolCommandName>
+    <NoWarn>NETSDK1138</NoWarn>
+    <EnablePackageValidation>true</EnablePackageValidation>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <Version>0.0.1</Version>
+    <PackageId>kurnakovv.biak</PackageId>
+    <Authors>kurnakovv</Authors>
+    <Company>kurnakovv</Company>
+    <Product>biak</Product>
+    <Description>biak is a C# tool for managing .editorconfig rules via a centralized, modular configuration with enable/disable modes, imports, variables, and conflict-aware formatting checks</Description>
+    <RepositoryUrl>https://github.com/kurnakovv/biak</RepositoryUrl>
+    <PackageTags>csharp;dotnet;developer-tools;dotnet-tool;cli;command-line;cross-platform;editorconfig;configuration;productivity</PackageTags>
+    <NeutralLanguage>en</NeutralLanguage>
+    <AssemblyName>kurnakovv.biak</AssemblyName>
+    <PackageProjectUrl>https://github.com/kurnakovv/biak</PackageProjectUrl>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <Title>biak</Title>
+    <RepositoryType>git</RepositoryType>
+    <PackageIcon>biak-icon.png</PackageIcon>
+    <PackageReadmeFile>ReadMeNuget.md</PackageReadmeFile>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
   </PropertyGroup>
+
+  <PropertyGroup Condition="'$(IS_DEPLOY_NUGET_FOR_PR)' == 'true'">
+    <PackageId>kurnakovv.biak-pr</PackageId>
+    <Product>biak-pr</Product>
+    <AssemblyName>kurnakovv.biak-pr</AssemblyName>
+    <Title>biak-pr</Title>
+    <ToolCommandName>dotnet-biak-pr</ToolCommandName>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(IS_DEPLOY_NUGET_ORG_ACTION_PREVIEW)' == 'true' Or '$(IS_DEPLOY_NUGET_GH_PACKAGE_ACTION_PREVIEW)' == 'true'">
+    <PackageId>kurnakovv.biak-preview</PackageId>
+    <Product>biak-preview</Product>
+    <AssemblyName>kurnakovv.biak-preview</AssemblyName>
+    <Title>biak-preview</Title>
+    <ToolCommandName>dotnet-biak-preview</ToolCommandName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\docs\images\biak-icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(IS_DEPLOY_NUGET_ORG_ACTION_PREVIEW)' != 'true' And '$(IS_DEPLOY_NUGET_GH_PACKAGE_ACTION_PREVIEW)' != 'true' And '$(IS_DEPLOY_NUGET_FOR_PR)' != 'true'">
+    <PackageReference Include="DotNet.ReproducibleBuilds" Version="2.0.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="MinVer" Version="8.0.0-alpha.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="ReadMeNuget.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <Target Name="PrepareReleaseNotesNugetOrg" BeforeTargets="GenerateNuspec" Condition="$(IS_DEPLOY_NUGET_ORG_ACTION) == 'true'">
+    <PropertyGroup>
+      <PackageReleaseNotes>$([System.IO.File]::ReadAllText("$(MSBuildProjectDirectory)/../../docs/RELEASE-NOTES"))</PackageReleaseNotes>
+    </PropertyGroup>
+  </Target>
+
+  <Target Name="PrepareReleaseNotesGitHubPackage" BeforeTargets="GenerateNuspec" Condition="$(IS_DEPLOY_NUGET_GH_PACKAGE_ACTION) == 'true'">
+    <PropertyGroup>
+      <PackageDescription>$([System.IO.File]::ReadAllText("$(MSBuildProjectDirectory)/../../docs/RELEASE-NOTES"))</PackageDescription>
+    </PropertyGroup>
+  </Target>
 
 </Project>
