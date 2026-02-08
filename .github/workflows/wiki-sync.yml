@@ -1,0 +1,51 @@
+# https://github.com/newrelic/wiki-sync-action
+name: Sync GitHub wiki with docs/wiki/** content
+
+on:
+  push:
+    branches:
+      - dev
+    paths:
+      - "docs/wiki/**"
+  repository_dispatch:
+    types: [docs]
+  gollum:
+
+env:
+  GIT_AUTHOR_NAME: Actionbot
+  GIT_AUTHOR_EMAIL: actions@github.com
+
+jobs:
+  job-sync-docs-to-wiki:
+    runs-on: ubuntu-latest
+    if: github.event_name != 'gollum'
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v6
+      - name: Sync docs to wiki
+        uses: newrelic/wiki-sync-action@main
+        with:
+          source: docs/wiki
+          destination: wiki
+          token: ${{ secrets.SYNC_WIKI }}
+          gitAuthorName: ${{ env.GIT_AUTHOR_NAME }}
+          gitAuthorEmail: ${{ env.GIT_AUTHOR_EMAIL }}
+  
+  job-sync-wiki-to-docs:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'gollum'
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v6
+        with:
+          token: ${{ secrets.SYNC_WIKI }} # allows us to push back to repo https://github.com/newrelic/wiki-sync-action/pull/17
+          ref: dev
+      - name: Sync Wiki to Docs
+        uses: newrelic/wiki-sync-action@main
+        with:
+          source: wiki
+          destination: docs/wiki
+          token: ${{ secrets.SYNC_WIKI }}
+          gitAuthorName: ${{ env.GIT_AUTHOR_NAME }}
+          gitAuthorEmail: ${{ env.GIT_AUTHOR_EMAIL }}
+          branch: dev
