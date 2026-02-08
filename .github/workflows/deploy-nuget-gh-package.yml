@@ -21,9 +21,9 @@ jobs:
 
       - name: Set release notes
         run: |
-          echo "https://github.com/biak/kuker/releases/tag/${{ github.event.release.tag_name }}" > docs/RELEASE-NOTES
+          echo "https://github.com/kurnakovv/biak/releases/tag/${{ github.event.release.tag_name }}" > docs/RELEASE-NOTES
           echo "" >> docs/RELEASE-NOTES
-          echo "[Other releases](https://github.com/biak/kuker/releases)" >> docs/RELEASE-NOTES
+          echo "[Other releases](https://github.com/kurnakovv/biak/releases)" >> docs/RELEASE-NOTES
 
       - name: Verify commit exists in origin/main
         run: |
@@ -45,6 +45,6 @@ jobs:
         run: dotnet pack --configuration Release /p:Version=${VERSION} --no-build --output .
 
       - name: Push
-        run: dotnet nuget push biak.kuker.${VERSION}.nupkg --source https://nuget.pkg.github.com/biak/index.json --api-key ${NUGET_GH_PACKAGE_TOKEN}
+        run: dotnet nuget push kurnakovv.biak.${VERSION}.nupkg --source https://nuget.pkg.github.com/kurnakovv/index.json --api-key ${NUGET_GH_PACKAGE_TOKEN}
         env:
           NUGET_GH_PACKAGE_TOKEN: ${{ secrets.NUGET_GH_PACKAGE_TOKEN }}
