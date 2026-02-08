@@ -1,5 +1,5 @@
 <div align="center">
- <img src="docs/images/biak-icon.png" weight="250px" height="250" />
+ <img src="docs/images/biak-icon.png" weight="175px" height="175px" />
  <h1>biak</h1>
  
  ![Visitors](https://api.visitorbadge.io/api/VisitorHit?user=kurnakovv&repo=biak&countColor=%237B1E7A&style=flat)
