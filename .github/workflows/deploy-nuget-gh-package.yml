@@ -1,0 +1,50 @@
+# https://acraven.medium.com/a-nuget-package-workflow-using-github-actions-7da8c6557863
+on:
+  release:
+    types: [created]
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  IS_DEPLOY_NUGET_GH_PACKAGE_ACTION: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set release notes
+        run: |
+          echo "https://github.com/kurnakovv/biak/releases/tag/${{ github.event.release.tag_name }}" > docs/RELEASE-NOTES
+          echo "" >> docs/RELEASE-NOTES
+          echo "[Other releases](https://github.com/kurnakovv/biak/releases)" >> docs/RELEASE-NOTES
+
+      - name: Verify commit exists in origin/main
+        run: |
+          git fetch --no-tags --prune --depth=1 origin +refs/heads/*:refs/remotes/origin/*
+          git branch --remote --contains | grep origin/main
+
+      - name: Set VERSION variable from release tag
+        run: |
+          TAG="${{ github.event.release.tag_name }}"
+          echo "VERSION=${TAG#v}" >> $GITHUB_ENV
+
+      - name: Build
+        run: dotnet build --configuration Release /p:Version=${VERSION}
+
+      - name: Test
+        run: dotnet test --configuration Release /p:Version=${VERSION} --no-build
+
+      - name: Pack
+        run: dotnet pack --configuration Release /p:Version=${VERSION} --no-build --output .
+
+      - name: Push
+        run: dotnet nuget push kurnakovv.biak.${VERSION}.nupkg --source https://nuget.pkg.github.com/kurnakovv/index.json --api-key ${NUGET_GH_PACKAGE_TOKEN}
+        env:
+          NUGET_GH_PACKAGE_TOKEN: ${{ secrets.NUGET_GH_PACKAGE_TOKEN }}
