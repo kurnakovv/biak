@@ -49,7 +49,7 @@ public class ProgramTests
         string output = await process.StandardOutput.ReadToEndAsync();
         await process.WaitForExitAsync();
 
-        Assert.Equal(0, process.ExitCode);
+        Assert.True(process.ExitCode == 0, output);
         Assert.Contains(DocsConstant.GREETING, output, StringComparison.OrdinalIgnoreCase);
     }
 
@@ -70,7 +70,7 @@ public class ProgramTests
         string output = await process.StandardOutput.ReadToEndAsync();
         await process.WaitForExitAsync();
 
-        Assert.Equal(0, process.ExitCode);
+        Assert.True(process.ExitCode == 0, output);
         Assert.Contains(DocsConstant.NO_COMMAND, output, StringComparison.OrdinalIgnoreCase);
     }
 }
