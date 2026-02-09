@@ -15,7 +15,22 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Biak.ConsoleApp\Biak.ConsoleApp.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Using Include="Xunit" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <ToolProjectPath>$(MSBuildProjectDirectory)\..\..\src\Biak.ConsoleApp\Biak.ConsoleApp.csproj</ToolProjectPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+      <_Parameter1>ToolProjectPath</_Parameter1>
+      <_Parameter2>$(ToolProjectPath)</_Parameter2>
+    </AssemblyAttribute>
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,79 @@
+﻿// Copyright (c) 2026 kurnakovv
+// This file is licensed under the MIT License.
+// See the LICENSE file in the project root for full license information.
+
+using System.Diagnostics;
+using System.Reflection;
+using Biak.ConsoleApp.Constants;
+
+namespace Biak.ConsoleApp.IntegrationTests;
+
+public class ProgramTests
+{
+    private readonly string _ddlPath;
+
+    public ProgramTests()
+    {
+        string toolProjectPath = Path.GetFullPath(ToolProjectPath);
+        _ddlPath = Path.Combine(
+            Path.GetDirectoryName(toolProjectPath)!,
+            "bin",
+#if DEBUG
+            "Debug",
+#endif
+#if RELEASE
+            "Release",
+#endif
+            "net8.0",
+            "kurnakovv.biak.dll"
+        );
+    }
+
+    public static string ToolProjectPath =>
+        typeof(ProgramTests).Assembly
+            .GetCustomAttributes<AssemblyMetadataAttribute>()
+            .Single(x => x.Key == "ToolProjectPath")
+            .Value!;
+
+    [Fact]
+    public async Task NoArgumentsGreetingAsync()
+    {
+        ProcessStartInfo psi = new()
+        {
+            FileName = "dotnet",
+            Arguments = $"\"{_ddlPath}\"",
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+        };
+
+        // Act
+        using Process process = Process.Start(psi)!;
+        string output = await process.StandardOutput.ReadToEndAsync();
+        await process.WaitForExitAsync();
+
+        Assert.Equal(0, process.ExitCode);
+        Assert.Contains(DocsConstant.GREETING, output, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task InvalidCommandNoCommandMessageAsync()
+    {
+        ProcessStartInfo psi = new()
+        {
+            FileName = "dotnet",
+            Arguments = $"\"{_ddlPath}\" invalidCommand",
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+        };
+
+        // Act
+        using Process process = Process.Start(psi)!;
+        string output = await process.StandardOutput.ReadToEndAsync();
+        await process.WaitForExitAsync();
+
+        Assert.Equal(0, process.ExitCode);
+        Assert.Contains(DocsConstant.NO_COMMAND, output, StringComparison.OrdinalIgnoreCase);
+    }
+}
