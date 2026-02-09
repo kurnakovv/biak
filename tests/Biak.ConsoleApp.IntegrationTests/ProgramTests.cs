@@ -15,18 +15,15 @@ public class ProgramTests
     public ProgramTests()
     {
         string toolProjectPath = Path.GetFullPath(ToolProjectPath);
-        _ddlPath = Path.Combine(
-            Path.GetDirectoryName(toolProjectPath)!,
-            "bin",
-#if DEBUG
-            "Debug",
-#endif
-#if RELEASE
-            "Release",
-#endif
-            "net8.0",
-            "kurnakovv.biak.dll"
-        );
+
+        // ToDo: Get correct .net version
+        _ddlPath = Directory
+            .EnumerateFiles(
+                Path.GetDirectoryName(toolProjectPath)!,
+                "kurnakovv.biak.*",
+                SearchOption.AllDirectories
+            )
+            .First(f => f.EndsWith(".exe") || f.EndsWith(".dll"));
     }
 
     public static string ToolProjectPath =>
