@@ -25,7 +25,7 @@ public class ProgramTests
                 "kurnakovv.biak.*",
                 SearchOption.AllDirectories
             )
-            .First(f => f.EndsWith(".exe") || f.EndsWith(".dll"));
+            .Last(f => f.EndsWith(".exe") || f.EndsWith(".dll"));
         _output = output;
     }
 
