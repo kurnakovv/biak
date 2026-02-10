@@ -5,14 +5,16 @@
 using System.Diagnostics;
 using System.Reflection;
 using Biak.ConsoleApp.Constants;
+using Xunit.Abstractions;
 
 namespace Biak.ConsoleApp.IntegrationTests;
 
 public class ProgramTests
 {
     private readonly string _ddlPath;
+    private readonly ITestOutputHelper _output;
 
-    public ProgramTests()
+    public ProgramTests(ITestOutputHelper output)
     {
         string toolProjectPath = Path.GetFullPath(ToolProjectPath);
 
@@ -24,6 +26,7 @@ public class ProgramTests
                 SearchOption.AllDirectories
             )
             .First(f => f.EndsWith(".exe") || f.EndsWith(".dll"));
+        _output = output;
     }
 
     public static string ToolProjectPath =>
@@ -49,6 +52,8 @@ public class ProgramTests
         string output = await process.StandardOutput.ReadToEndAsync();
         await process.WaitForExitAsync();
 
+        _output.WriteLine(output);
+
         Assert.True(process.ExitCode == 0, output);
         Assert.Contains(DocsConstant.GREETING, output, StringComparison.OrdinalIgnoreCase);
     }
@@ -69,6 +74,8 @@ public class ProgramTests
         using Process process = Process.Start(psi)!;
         string output = await process.StandardOutput.ReadToEndAsync();
         await process.WaitForExitAsync();
+
+        _output.WriteLine(output);
 
         Assert.True(process.ExitCode == 0, output);
         Assert.Contains(DocsConstant.NO_COMMAND, output, StringComparison.OrdinalIgnoreCase);
