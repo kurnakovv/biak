@@ -18,14 +18,18 @@ public class ProgramTests
     {
         string toolProjectPath = Path.GetFullPath(ToolProjectPath);
 
-        // ToDo: Get correct .net version
-        _ddlPath = Directory
-            .EnumerateFiles(
-                Path.GetDirectoryName(toolProjectPath)!,
-                "kurnakovv.biak.*",
-                SearchOption.AllDirectories
-            )
-            .Last(f => f.EndsWith(".exe") || f.EndsWith(".dll"));
+        _ddlPath = Path.Combine(
+            Path.GetDirectoryName(toolProjectPath)!,
+            "bin",
+#if DEBUG
+            "Debug",
+#endif
+#if RELEASE
+            "Release",
+#endif
+            "net8.0",
+            "kurnakovv.biak.dll"
+        );
         _output = output;
     }
 
