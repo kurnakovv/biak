@@ -38,6 +38,8 @@ public class ProgramTests
     [Fact]
     public async Task NoArgumentsGreetingAsync()
     {
+        _output.WriteLine("Test message from biak!");
+
         ProcessStartInfo psi = new()
         {
             FileName = "dotnet",
@@ -52,8 +54,6 @@ public class ProgramTests
         string output = await process.StandardOutput.ReadToEndAsync();
         await process.WaitForExitAsync();
 
-        _output.WriteLine(output);
-
         Assert.True(process.ExitCode == 0, output);
         Assert.Contains(DocsConstant.GREETING, output, StringComparison.OrdinalIgnoreCase);
     }
@@ -61,6 +61,8 @@ public class ProgramTests
     [Fact]
     public async Task InvalidCommandNoCommandMessageAsync()
     {
+        _output.WriteLine("Test message from biak!");
+
         ProcessStartInfo psi = new()
         {
             FileName = "dotnet",
