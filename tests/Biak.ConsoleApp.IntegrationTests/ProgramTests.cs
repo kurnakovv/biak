@@ -38,8 +38,6 @@ public class ProgramTests
     [Fact]
     public async Task NoArgumentsGreetingAsync()
     {
-        _output.WriteLine("Test message from biak!");
-
         ProcessStartInfo psi = new()
         {
             FileName = "dotnet",
@@ -52,7 +50,11 @@ public class ProgramTests
         // Act
         using Process process = Process.Start(psi)!;
         string output = await process.StandardOutput.ReadToEndAsync();
+        string standardError = await process.StandardError.ReadToEndAsync();
         await process.WaitForExitAsync();
+
+        _output.WriteLine($"{nameof(output)}: {output}");
+        _output.WriteLine($"{nameof(standardError)}: {standardError}");
 
         Assert.True(process.ExitCode == 0, output);
         Assert.Contains(DocsConstant.GREETING, output, StringComparison.OrdinalIgnoreCase);
@@ -61,8 +63,6 @@ public class ProgramTests
     [Fact]
     public async Task InvalidCommandNoCommandMessageAsync()
     {
-        _output.WriteLine("Test message from biak!");
-
         ProcessStartInfo psi = new()
         {
             FileName = "dotnet",
@@ -75,9 +75,11 @@ public class ProgramTests
         // Act
         using Process process = Process.Start(psi)!;
         string output = await process.StandardOutput.ReadToEndAsync();
+        string standardError = await process.StandardError.ReadToEndAsync();
         await process.WaitForExitAsync();
 
-        _output.WriteLine(output);
+        _output.WriteLine($"{nameof(output)}: {output}");
+        _output.WriteLine($"{nameof(standardError)}: {standardError}");
 
         Assert.True(process.ExitCode == 0, output);
         Assert.Contains(DocsConstant.NO_COMMAND, output, StringComparison.OrdinalIgnoreCase);
