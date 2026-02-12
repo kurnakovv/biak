@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Biak.ConsoleApp": {
+      "commandName": "Project",
+      "commandLineArgs": "setup"
+    }
+  }
+}
