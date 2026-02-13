@@ -5,15 +5,31 @@
 using Biak.ConsoleApp.Commands;
 using Biak.ConsoleApp.Constants;
 
-if (args.Length == 0)
+namespace Biak.ConsoleApp;
+
+/// <summary>
+/// Program.
+/// </summary>
+public static class Program
 {
-    Console.WriteLine(DocsConstant.GREETING);
-}
-else if (SetupCommand.IsRunnable(args))
-{
-    await SetupCommand.RunAsync();
-}
-else
-{
-    Console.WriteLine(DocsConstant.NO_COMMAND);
+    /// <summary>
+    /// Main.
+    /// </summary>
+    /// <param name="args">args.</param>
+    /// <returns><placeholder>A <see cref="Task"/> representing the asynchronous operation.</placeholder></returns>
+    public static async Task Main(string[] args)
+    {
+        if (args.Length == 0)
+        {
+            Console.WriteLine(DocsConstant.GREETING);
+        }
+        else if (SetupCommand.IsRunnable(args))
+        {
+            await SetupCommand.RunAsync();
+        }
+        else
+        {
+            Console.WriteLine(DocsConstant.NO_COMMAND);
+        }
+    }
 }

@@ -2,36 +2,38 @@
 // This file is licensed under the MIT License.
 // See the LICENSE file in the project root for full license information.
 
-using Biak.ConsoleApp.Constants;
+using Biak.ConsoleApp.Commands;
 using Biak.ConsoleApp.IntegrationTests.Mock;
-using Biak.ConsoleApp.IntegrationTests.Tools;
-using Xunit.Abstractions;
 
 namespace Biak.ConsoleApp.IntegrationTests.Commands;
 
 public class SetupCommandTests
 {
-    private readonly IProcessRunner _processRunner;
-
-    public SetupCommandTests(
-        ITestOutputHelper output
-    )
-    {
-        _processRunner = new ProcessRunner(output);
-    }
-
     [Fact]
     public async Task RunWithoutEditorconfigFileAsync()
     {
-        ProcessResult result = await _processRunner.RunAsync(CommandArgumentConstant.SETUP);
+        TextWriter originalOut = Console.Out;
+        await using StringWriter output = new();
+        Console.SetOut(output);
 
-        Assert.Equal(0, result.ExitCode);
-        Assert.Contains(".editorconfig not found:", result.Output, StringComparison.OrdinalIgnoreCase);
+        try
+        {
+            await SetupCommand.RunAsync();
+
+            string result = output.ToString();
+            Assert.Contains(".editorconfig not found:", result, StringComparison.OrdinalIgnoreCase);
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+        }
     }
 
     [Fact]
     public async Task RunWithEditorconfigAsync()
     {
+        string originalDirectory = Directory.GetCurrentDirectory();
+
         TestDirectory testDir = new(nameof(RunWithEditorconfigAsync));
 
         string template = Path.Combine(
@@ -41,30 +43,49 @@ public class SetupCommandTests
         );
         testDir.CopyTemplateEditorconfig(template);
 
-        ProcessResult result = await _processRunner.RunAsync(
-            command: CommandArgumentConstant.SETUP,
-            workingDirectory: testDir.Value
-        );
+        try
+        {
+            Directory.SetCurrentDirectory(testDir.Value);
 
-        Assert.Equal(0, result.ExitCode);
-        Assert.Contains("Setup .biak folder...", result.Output, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("Folder .biak was created successfully.", result.Output, StringComparison.OrdinalIgnoreCase);
+            TextWriter originalOut = Console.Out;
+            await using StringWriter output = new();
+            Console.SetOut(output);
 
-        string editorconfigMainFile = Path.Combine(testDir.Value, ".biak", ".editorconfig-main");
-        bool editorconfigFileExists = File.Exists(editorconfigMainFile);
+            try
+            {
+                await SetupCommand.RunAsync();
 
-        Assert.True(editorconfigFileExists);
-        using StreamReader readerTemplate = new(template);
-        using StreamReader readerEditorconfigMain = new(editorconfigMainFile);
-        string templateContent = await readerTemplate.ReadToEndAsync();
-        string editorconfigMainContent = await readerEditorconfigMain.ReadToEndAsync();
+                string result = output.ToString();
+                Assert.Contains("Setup .biak folder...", result, StringComparison.OrdinalIgnoreCase);
+                Assert.Contains("Folder .biak was created successfully.", result, StringComparison.OrdinalIgnoreCase);
+            }
+            finally
+            {
+                Console.SetOut(originalOut);
+            }
 
-        Assert.Equal(templateContent, editorconfigMainContent);
+            string editorconfigMainFile = Path.Combine(testDir.Value, ".biak", ".editorconfig-main");
+            bool editorconfigFileExists = File.Exists(editorconfigMainFile);
+
+            Assert.True(editorconfigFileExists);
+            using StreamReader readerTemplate = new(template);
+            using StreamReader readerEditorconfigMain = new(editorconfigMainFile);
+            string templateContent = await readerTemplate.ReadToEndAsync();
+            string editorconfigMainContent = await readerEditorconfigMain.ReadToEndAsync();
+
+            Assert.Equal(templateContent, editorconfigMainContent);
+        }
+        finally
+        {
+            Directory.SetCurrentDirectory(originalDirectory);
+        }
     }
 
     [Fact]
     public async Task RunWhenBiakFolderExistsAndUserPressesEnterShouldNotRecreateAsync()
     {
+        string originalDirectory = Directory.GetCurrentDirectory();
+
         TestDirectory testDir = new(nameof(RunWhenBiakFolderExistsAndUserPressesEnterShouldNotRecreateAsync));
 
         string template = Path.Combine(
@@ -79,22 +100,47 @@ public class SetupCommandTests
         string oldFile = Path.Combine(biakDir, "old.txt");
         await File.WriteAllTextAsync(oldFile, "old");
 
-        ProcessResult result = await _processRunner.RunAsync(
-            command: CommandArgumentConstant.SETUP,
-            workingDirectory: testDir.Value,
-            standardInput: string.Empty
-        );
+        try
+        {
+            Directory.SetCurrentDirectory(testDir.Value);
 
-        Assert.Equal(0, result.ExitCode);
-        Assert.Contains("Folder .biak already exists", result.Output, StringComparison.OrdinalIgnoreCase);
+            TextWriter originalOut = Console.Out;
+            TextReader originalIn = Console.In;
 
-        Assert.True(File.Exists(oldFile));
-        Assert.False(File.Exists(Path.Combine(biakDir, ".editorconfig-main")));
+            await using StringWriter output = new();
+            using StringReader input = new(string.Empty);
+
+            Console.SetOut(output);
+            Console.SetIn(input);
+
+            try
+            {
+                await SetupCommand.RunAsync();
+
+                string result = output.ToString();
+                Assert.Contains("Folder .biak already exists", result, StringComparison.OrdinalIgnoreCase);
+                Assert.Contains("Folder .biak already exists. Recreate it? Type 'y' to confirm, or press Enter to cancel:", result, StringComparison.OrdinalIgnoreCase);
+            }
+            finally
+            {
+                Console.SetOut(originalOut);
+                Console.SetIn(originalIn);
+            }
+
+            Assert.True(File.Exists(oldFile));
+            Assert.False(File.Exists(Path.Combine(biakDir, ".editorconfig-main")));
+        }
+        finally
+        {
+            Directory.SetCurrentDirectory(originalDirectory);
+        }
     }
 
     [Fact]
     public async Task RunWhenBiakFolderExistsAndUserTypesYShouldRecreateAsync()
     {
+        string originalDirectory = Directory.GetCurrentDirectory();
+
         TestDirectory testDir = new(nameof(RunWhenBiakFolderExistsAndUserTypesYShouldRecreateAsync));
 
         string template = Path.Combine(
@@ -109,17 +155,41 @@ public class SetupCommandTests
         string oldFile = Path.Combine(biakDir, "old.txt");
         await File.WriteAllTextAsync(oldFile, "old");
 
-        ProcessResult result = await _processRunner.RunAsync(
-            command: CommandArgumentConstant.SETUP,
-            workingDirectory: testDir.Value,
-            standardInput: "y"
-        );
+        try
+        {
+            Directory.SetCurrentDirectory(testDir.Value);
 
-        Assert.Equal(0, result.ExitCode);
-        Assert.Contains("Setup .biak folder", result.Output, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("was created successfully", result.Output, StringComparison.OrdinalIgnoreCase);
+            TextWriter originalOut = Console.Out;
+            TextReader originalIn = Console.In;
 
-        Assert.False(File.Exists(oldFile));
-        Assert.True(File.Exists(Path.Combine(biakDir, ".editorconfig-main")));
+            await using StringWriter output = new();
+            using StringReader input = new("y");
+
+            Console.SetOut(output);
+            Console.SetIn(input);
+
+            try
+            {
+                await SetupCommand.RunAsync();
+
+                string result = output.ToString();
+                Assert.Contains("Folder .biak already exists", result, StringComparison.OrdinalIgnoreCase);
+                Assert.Contains("Folder .biak already exists. Recreate it? Type 'y' to confirm, or press Enter to cancel:", result, StringComparison.OrdinalIgnoreCase);
+                Assert.Contains("Setup .biak folder", result, StringComparison.OrdinalIgnoreCase);
+                Assert.Contains("was created successfully", result, StringComparison.OrdinalIgnoreCase);
+            }
+            finally
+            {
+                Console.SetOut(originalOut);
+                Console.SetIn(originalIn);
+            }
+
+            Assert.False(File.Exists(oldFile));
+            Assert.True(File.Exists(Path.Combine(biakDir, ".editorconfig-main")));
+        }
+        finally
+        {
+            Directory.SetCurrentDirectory(originalDirectory);
+        }
     }
 }
