@@ -26,9 +26,9 @@ jobs:
       - name: Build
         run: dotnet build --no-restore
       - name: Test
-        run: dotnet test --no-build --verbosity normal --collect:"XPlat Code Coverage"
+        run: dotnet test --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutput=TestResults\Coverage\coverage.xml /p:CoverletOutputFormat=cobertura
       - name: Report Codecov
         uses: codecov/codecov-action@v5
         with:
-          files: ./coverage/codecov1.xml
+          files: ./TestResults/**/coverage.cobertura.xml
           verbose: true

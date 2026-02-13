@@ -3,37 +3,88 @@
 // See the LICENSE file in the project root for full license information.
 
 using Biak.ConsoleApp.Constants;
-using Biak.ConsoleApp.IntegrationTests.Tools;
-using Xunit.Abstractions;
 
 namespace Biak.ConsoleApp.IntegrationTests;
 
 public class ProgramTests
 {
-    private readonly IProcessRunner _processRunner;
-
-    public ProgramTests(
-        ITestOutputHelper output
-    )
-    {
-        _processRunner = new ProcessRunner(output);
-    }
-
     [Fact]
     public async Task NoArgumentsGreetingAsync()
     {
-        ProcessResult result = await _processRunner.RunAsync(string.Empty);
+        TextWriter originalOut = Console.Out;
+        await using StringWriter output = new();
+        Console.SetOut(output);
 
-        Assert.Equal(0, result.ExitCode);
-        Assert.Contains(DocsConstant.GREETING, result.Output, StringComparison.OrdinalIgnoreCase);
+        try
+        {
+            await Program.Main([]);
+
+            string result = output.ToString().Trim();
+            Assert.Equal(DocsConstant.GREETING.Trim(), result);
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+        }
+    }
+
+    [Fact]
+    public async Task SetupCommandNoEditorconfigMessageAsync()
+    {
+        TextWriter originalOut = Console.Out;
+        await using StringWriter output = new();
+        Console.SetOut(output);
+
+        try
+        {
+            await Program.Main([CommandArgumentConstant.SETUP]);
+
+            string result = output.ToString().Trim();
+            Assert.Contains(".editorconfig not found:", result, StringComparison.OrdinalIgnoreCase);
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+        }
+    }
+
+    [Fact]
+    public async Task SetupWithInvalidCommandNoCommandMessageAsync()
+    {
+        TextWriter originalOut = Console.Out;
+        await using StringWriter output = new();
+        Console.SetOut(output);
+
+        try
+        {
+            await Program.Main([CommandArgumentConstant.SETUP, "invalidCommand"]);
+
+            string result = output.ToString().Trim();
+            Assert.Contains(DocsConstant.NO_COMMAND, result, StringComparison.OrdinalIgnoreCase);
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+        }
     }
 
     [Fact]
     public async Task InvalidCommandNoCommandMessageAsync()
     {
-        ProcessResult result = await _processRunner.RunAsync("invalidCommand");
+        TextWriter originalOut = Console.Out;
+        await using StringWriter output = new();
+        Console.SetOut(output);
 
-        Assert.Equal(0, result.ExitCode);
-        Assert.Contains(DocsConstant.NO_COMMAND, result.Output, StringComparison.OrdinalIgnoreCase);
+        try
+        {
+            await Program.Main(["invalidCommand"]);
+
+            string result = output.ToString().Trim();
+            Assert.Equal(DocsConstant.NO_COMMAND, result);
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+        }
     }
 }
