@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for full license information.
 
 using Biak.ConsoleApp.Commands;
+using Biak.ConsoleApp.Constants;
 using Biak.ConsoleApp.IntegrationTests.Mock;
 
 namespace Biak.ConsoleApp.IntegrationTests.Commands;
@@ -21,7 +22,7 @@ public class SetupCommandTests
             await SetupCommand.RunAsync();
 
             string result = output.ToString();
-            Assert.Contains(".editorconfig not found:", result, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains(UIConstant.EDITORCONFIG_NOT_FOUND, result, StringComparison.OrdinalIgnoreCase);
         }
         finally
         {
@@ -56,8 +57,8 @@ public class SetupCommandTests
                 await SetupCommand.RunAsync();
 
                 string result = output.ToString();
-                Assert.Contains("Setup .biak folder...", result, StringComparison.OrdinalIgnoreCase);
-                Assert.Contains("Folder .biak was created successfully.", result, StringComparison.OrdinalIgnoreCase);
+                Assert.Contains(UIConstant.START_SETUP, result, StringComparison.OrdinalIgnoreCase);
+                Assert.Contains(UIConstant.END_SETUP, result, StringComparison.OrdinalIgnoreCase);
             }
             finally
             {
@@ -118,8 +119,7 @@ public class SetupCommandTests
                 await SetupCommand.RunAsync();
 
                 string result = output.ToString();
-                Assert.Contains("Folder .biak already exists", result, StringComparison.OrdinalIgnoreCase);
-                Assert.Contains("Folder .biak already exists. Recreate it? Type 'y' to confirm, or press Enter to cancel:", result, StringComparison.OrdinalIgnoreCase);
+                Assert.Contains(UIConstant.BIAK_FOLDER_ALREADY_EXISTS, result, StringComparison.OrdinalIgnoreCase);
             }
             finally
             {
@@ -163,7 +163,7 @@ public class SetupCommandTests
             TextReader originalIn = Console.In;
 
             await using StringWriter output = new();
-            using StringReader input = new("y");
+            using StringReader input = new(UIConstant.CONFIRM);
 
             Console.SetOut(output);
             Console.SetIn(input);
@@ -173,10 +173,9 @@ public class SetupCommandTests
                 await SetupCommand.RunAsync();
 
                 string result = output.ToString();
-                Assert.Contains("Folder .biak already exists", result, StringComparison.OrdinalIgnoreCase);
-                Assert.Contains("Folder .biak already exists. Recreate it? Type 'y' to confirm, or press Enter to cancel:", result, StringComparison.OrdinalIgnoreCase);
-                Assert.Contains("Setup .biak folder", result, StringComparison.OrdinalIgnoreCase);
-                Assert.Contains("was created successfully", result, StringComparison.OrdinalIgnoreCase);
+                Assert.Contains(UIConstant.BIAK_FOLDER_ALREADY_EXISTS, result, StringComparison.OrdinalIgnoreCase);
+                Assert.Contains(UIConstant.START_SETUP, result, StringComparison.OrdinalIgnoreCase);
+                Assert.Contains(UIConstant.END_SETUP, result, StringComparison.OrdinalIgnoreCase);
             }
             finally
             {
