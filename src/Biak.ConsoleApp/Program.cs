@@ -29,7 +29,7 @@ public static class Program
         }
         else
         {
-            Console.WriteLine(DocsConstant.NO_COMMAND);
+            Console.WriteLine(UIConstant.NO_COMMAND);
         }
     }
 }

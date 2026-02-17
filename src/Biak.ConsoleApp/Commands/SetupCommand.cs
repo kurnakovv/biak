@@ -32,7 +32,7 @@ public static class SetupCommand
 
         if (!File.Exists(editorConfigPath))
         {
-            Console.WriteLine($".editorconfig not found: {editorConfigPath}");
+            Console.WriteLine(UIConstant.EDITORCONFIG_NOT_FOUND + editorConfigPath);
             return;
         }
 
@@ -40,10 +40,10 @@ public static class SetupCommand
 
         if (Directory.Exists(targetDir))
         {
-            Console.WriteLine("Folder .biak already exists. Recreate it? Type 'y' to confirm, or press Enter to cancel:");
+            Console.WriteLine(UIConstant.BIAK_FOLDER_ALREADY_EXISTS);
 
             string? userInput = Console.ReadLine();
-            bool recreateFolder = string.Equals(userInput, "y", StringComparison.OrdinalIgnoreCase);
+            bool recreateFolder = string.Equals(userInput, UIConstant.CONFIRM, StringComparison.OrdinalIgnoreCase);
 
             if (!recreateFolder)
             {
@@ -53,7 +53,7 @@ public static class SetupCommand
             Directory.Delete(targetDir, recursive: true);
         }
 
-        Console.WriteLine("Setup .biak folder...");
+        Console.WriteLine(UIConstant.START_SETUP);
 
         Directory.CreateDirectory(targetDir);
 
@@ -68,6 +68,6 @@ public static class SetupCommand
             await writer.WriteLineAsync(line);
         }
 
-        Console.WriteLine("Folder .biak was created successfully.");
+        Console.WriteLine(UIConstant.END_SETUP);
     }
 }
