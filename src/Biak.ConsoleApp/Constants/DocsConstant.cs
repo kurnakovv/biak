@@ -62,9 +62,4 @@ public class DocsConstant
                                                                  | dotnet biak --help                |
                                                                  |___________________________________|
 ";
-
-    /// <summary>
-    /// Message when user enters an invalid command.
-    /// </summary>
-    public const string NO_COMMAND = "Command not found";
 }
