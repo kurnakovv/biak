@@ -40,7 +40,7 @@ public class ProgramTests
             await Program.Main([CommandArgumentConstant.SETUP]);
 
             string result = output.ToString().Trim();
-            Assert.Contains(".editorconfig not found:", result, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains(UIConstant.EDITORCONFIG_NOT_FOUND, result, StringComparison.OrdinalIgnoreCase);
         }
         finally
         {
@@ -60,7 +60,7 @@ public class ProgramTests
             await Program.Main([CommandArgumentConstant.SETUP, "invalidCommand"]);
 
             string result = output.ToString().Trim();
-            Assert.Contains(DocsConstant.NO_COMMAND, result, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains(UIConstant.NO_COMMAND, result, StringComparison.OrdinalIgnoreCase);
         }
         finally
         {
@@ -80,7 +80,7 @@ public class ProgramTests
             await Program.Main(["invalidCommand"]);
 
             string result = output.ToString().Trim();
-            Assert.Equal(DocsConstant.NO_COMMAND, result);
+            Assert.Equal(UIConstant.NO_COMMAND, result);
         }
         finally
         {
