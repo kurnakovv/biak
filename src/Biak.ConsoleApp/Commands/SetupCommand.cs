@@ -28,7 +28,7 @@ public static class SetupCommand
     public static async Task RunAsync()
     {
         string currentDirectory = Directory.GetCurrentDirectory();
-        string editorConfigPath = Path.Combine(currentDirectory, ".editorconfig");
+        string editorConfigPath = Path.Join(currentDirectory, ".editorconfig");
 
         if (!File.Exists(editorConfigPath))
         {
@@ -57,16 +57,12 @@ public static class SetupCommand
 
         Directory.CreateDirectory(targetDir);
 
-        string targetFile = Path.Combine(targetDir, ".editorconfig-main");
+        string targetFile = Path.Join(targetDir, ".editorconfig-main");
 
-        using StreamReader reader = new(editorConfigPath);
-        await using StreamWriter writer = new(targetFile, append: false);
-
-        string? line;
-        while ((line = await reader.ReadLineAsync()) != null)
-        {
-            await writer.WriteLineAsync(line);
-        }
+        await File.WriteAllTextAsync(
+            targetFile,
+            await File.ReadAllTextAsync(editorConfigPath)
+        );
 
         Console.WriteLine(UIConstant.END_SETUP);
     }

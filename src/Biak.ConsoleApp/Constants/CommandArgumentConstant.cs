@@ -7,7 +7,7 @@ namespace Biak.ConsoleApp.Constants;
 /// <summary>
 /// All consts command argumets.
 /// </summary>
-public class CommandArgumentConstant
+public static class CommandArgumentConstant
 {
     /// <summary>
     /// Setup biak env (create .biak folder with .editorconfig-main file).
