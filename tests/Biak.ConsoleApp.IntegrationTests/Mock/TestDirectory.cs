@@ -8,7 +8,7 @@ public class TestDirectory
 {
     public TestDirectory(string methodName)
     {
-        Value = Path.Combine(
+        Value = Path.Join(
             AppContext.BaseDirectory,
             "_tests",
             methodName,
@@ -24,7 +24,7 @@ public class TestDirectory
     {
         File.Copy(
             sourceFileName: filePath,
-            destFileName: Path.Combine(Value, ".editorconfig"),
+            destFileName: Path.Join(Value, ".editorconfig"),
             overwrite: true
         );
     }
