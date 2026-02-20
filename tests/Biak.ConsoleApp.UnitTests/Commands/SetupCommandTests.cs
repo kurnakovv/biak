@@ -21,6 +21,7 @@ public class SetupCommandTests
         Assert.False(SetupCommand.IsRunnable(["blabla"]), "`blabla` is invalid param");
         Assert.False(SetupCommand.IsRunnable([CommandArgumentConstant.SETUP, "invalid"]), "`setup` + `invalid` is invalid");
         Assert.False(SetupCommand.IsRunnable(["invalid", CommandArgumentConstant.SETUP]), "`invalid` + `setup` is invalid");
+        Assert.False(SetupCommand.IsRunnable([CommandArgumentConstant.DISABLE]), "`disable` is invalid");
     }
 
     [Fact]

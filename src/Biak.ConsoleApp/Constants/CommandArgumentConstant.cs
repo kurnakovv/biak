@@ -13,4 +13,9 @@ public static class CommandArgumentConstant
     /// Setup biak env (create .biak folder with .editorconfig-main file).
     /// </summary>
     public const string SETUP = "setup";
+
+    /// <summary>
+    /// Disable .editorconfig rules.
+    /// </summary>
+    public const string DISABLE = "disable";
 }

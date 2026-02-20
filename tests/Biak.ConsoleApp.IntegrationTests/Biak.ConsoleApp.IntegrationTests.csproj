@@ -40,4 +40,8 @@
     </AssemblyAttribute>
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="Templates\Disabled\.biak\.editorconfig-main" />
+  </ItemGroup>
+
 </Project>
