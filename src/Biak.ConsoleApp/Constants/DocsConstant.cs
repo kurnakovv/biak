@@ -7,7 +7,7 @@ namespace Biak.ConsoleApp.Constants;
 /// <summary>
 /// All docs constants here.
 /// </summary>
-public class DocsConstant
+public static class DocsConstant
 {
     /// <summary>
     /// `dotnet biak` greeting text.

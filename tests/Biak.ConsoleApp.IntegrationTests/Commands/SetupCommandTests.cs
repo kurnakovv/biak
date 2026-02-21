@@ -37,7 +37,7 @@ public class SetupCommandTests
 
         TestDirectory testDir = new(nameof(RunWithEditorconfigAsync));
 
-        string template = Path.Combine(
+        string template = Path.Join(
             AppContext.BaseDirectory,
             "Templates",
             ".editorconfig"
@@ -65,7 +65,7 @@ public class SetupCommandTests
                 Console.SetOut(originalOut);
             }
 
-            string editorconfigMainFile = Path.Combine(testDir.Value, ".biak", ".editorconfig-main");
+            string editorconfigMainFile = Path.Join(testDir.Value, ".biak", ".editorconfig-main");
             bool editorconfigFileExists = File.Exists(editorconfigMainFile);
 
             Assert.True(editorconfigFileExists);
@@ -89,16 +89,16 @@ public class SetupCommandTests
 
         TestDirectory testDir = new(nameof(RunWhenBiakFolderExistsAndUserPressesEnterShouldNotRecreateAsync));
 
-        string template = Path.Combine(
+        string template = Path.Join(
             AppContext.BaseDirectory,
             "Templates",
             ".editorconfig"
         );
         testDir.CopyTemplateEditorconfig(template);
 
-        string biakDir = Path.Combine(testDir.Value, ".biak");
+        string biakDir = Path.Join(testDir.Value, ".biak");
         Directory.CreateDirectory(biakDir);
-        string oldFile = Path.Combine(biakDir, "old.txt");
+        string oldFile = Path.Join(biakDir, "old.txt");
         await File.WriteAllTextAsync(oldFile, "old");
 
         try
@@ -128,7 +128,7 @@ public class SetupCommandTests
             }
 
             Assert.True(File.Exists(oldFile));
-            Assert.False(File.Exists(Path.Combine(biakDir, ".editorconfig-main")));
+            Assert.False(File.Exists(Path.Join(biakDir, ".editorconfig-main")));
         }
         finally
         {
@@ -143,16 +143,16 @@ public class SetupCommandTests
 
         TestDirectory testDir = new(nameof(RunWhenBiakFolderExistsAndUserTypesYShouldRecreateAsync));
 
-        string template = Path.Combine(
+        string template = Path.Join(
             AppContext.BaseDirectory,
             "Templates",
             ".editorconfig"
         );
         testDir.CopyTemplateEditorconfig(template);
 
-        string biakDir = Path.Combine(testDir.Value, ".biak");
+        string biakDir = Path.Join(testDir.Value, ".biak");
         Directory.CreateDirectory(biakDir);
-        string oldFile = Path.Combine(biakDir, "old.txt");
+        string oldFile = Path.Join(biakDir, "old.txt");
         await File.WriteAllTextAsync(oldFile, "old");
 
         try
@@ -184,7 +184,7 @@ public class SetupCommandTests
             }
 
             Assert.False(File.Exists(oldFile));
-            Assert.True(File.Exists(Path.Combine(biakDir, ".editorconfig-main")));
+            Assert.True(File.Exists(Path.Join(biakDir, ".editorconfig-main")));
         }
         finally
         {
