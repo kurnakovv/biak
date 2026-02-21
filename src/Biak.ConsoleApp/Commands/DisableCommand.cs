@@ -30,7 +30,7 @@ public static class DisableCommand
     {
         string currentDirectory = Directory.GetCurrentDirectory();
 
-        string editorconfigMainPath = Path.Join(currentDirectory, ".biak/.editorconfig-main");
+        string editorconfigMainPath = Path.Join(currentDirectory, ".biak", ".editorconfig-main");
 
         if (!File.Exists(editorconfigMainPath))
         {
