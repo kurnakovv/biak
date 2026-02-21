@@ -35,7 +35,7 @@ public class SetupCommandTests
     {
         string originalDirectory = Directory.GetCurrentDirectory();
 
-        TestDirectory testDir = new(nameof(RunWithEditorconfigAsync));
+        TestDirectory testDir = new($"{nameof(SetupCommandTests)}_{nameof(RunWithEditorconfigAsync)}");
 
         string template = Path.Join(
             AppContext.BaseDirectory,
@@ -87,7 +87,7 @@ public class SetupCommandTests
     {
         string originalDirectory = Directory.GetCurrentDirectory();
 
-        TestDirectory testDir = new(nameof(RunWhenBiakFolderExistsAndUserPressesEnterShouldNotRecreateAsync));
+        TestDirectory testDir = new($"{nameof(SetupCommandTests)}_{nameof(RunWhenBiakFolderExistsAndUserPressesEnterShouldNotRecreateAsync)}");
 
         string template = Path.Join(
             AppContext.BaseDirectory,
@@ -141,7 +141,7 @@ public class SetupCommandTests
     {
         string originalDirectory = Directory.GetCurrentDirectory();
 
-        TestDirectory testDir = new(nameof(RunWhenBiakFolderExistsAndUserTypesYShouldRecreateAsync));
+        TestDirectory testDir = new($"{nameof(SetupCommandTests)}_{nameof(RunWhenBiakFolderExistsAndUserTypesYShouldRecreateAsync)}");
 
         string template = Path.Join(
             AppContext.BaseDirectory,

@@ -12,7 +12,7 @@ public static class UIConstant
     /// <summary>
     /// Message when user enters an invalid command.
     /// </summary>
-    public const string NO_COMMAND = "Command not found";
+    public const string NO_COMMAND = "Command not found.";
 
     /// <summary>
     /// Message when .editorconfig not found.
@@ -38,4 +38,24 @@ public static class UIConstant
     /// End setup message.
     /// </summary>
     public const string END_SETUP = "Folder .biak was created successfully.";
+
+    /// <summary>
+    /// Message displayed when biak env is not initialized.
+    /// </summary>
+    public const string BIAK_NOT_INITIALIZED = "Biak is not initialized.";
+
+    /// <summary>
+    /// Message instructing the user to run `dotnet biak setup`.
+    /// </summary>
+    public const string RUN_BIAK_SETUP = "Please run: dotnet biak setup";
+
+    /// <summary>
+    /// Start disable message.
+    /// </summary>
+    public const string START_DISABLE = "Disabling .editorconfig rules...";
+
+    /// <summary>
+    /// End disable message.
+    /// </summary>
+    public const string END_DISABLE = "All rules in .editorconfig have been disabled (error|warning|suggestion -> none).";
 }

@@ -140,9 +140,9 @@ dotnet_diagnostic.SA1217.severity = error # The `using static` directives within
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/NamingRules.md
 dotnet_diagnostic.SA1300.severity = error # The name of a C# element does not begin with an upper-case letter.
 dotnet_diagnostic.SA1302.severity = error # The name of a C# interface does not begin with the capital letter I.
-dotnet_diagnostic.SA1304.severity = none # The name of a non-private readonly C# field should being with an upper-case letter.
+dotnet_diagnostic.SA1304.severity = error # The name of a non-private readonly C# field should being with an upper-case letter.
 dotnet_diagnostic.SA1306.severity = error # The name of a field in C# does not begin with a lower-case letter.
-dotnet_diagnostic.SA1307.severity = none # The name of a public or internal field in C# does not begin with an upper-case letter.
+dotnet_diagnostic.SA1307.severity = error # The name of a public or internal field in C# does not begin with an upper-case letter.
 dotnet_diagnostic.SA1314.severity = error # The name of a C# type parameter does not begin with the capital letter T.
 dotnet_diagnostic.SA1316.severity = error # Element names within a tuple type should have the correct casing.
 
@@ -773,7 +773,7 @@ dotnet_diagnostic.IL3005.severity = default # IL3005 RequiresAssemblyFilesAttrib
 # ✅ Good
 dotnet_diagnostic.CA2000.severity = error # CA2000: Dispose objects before losing scope
 dotnet_diagnostic.CA2002.severity = error # CA2002: Do not lock on objects with weak identity
-dotnet_diagnostic.CA2007.severity = none # CA2007: Do not directly await a Task
+dotnet_diagnostic.CA2007.severity = error # CA2007: Do not directly await a Task
 dotnet_diagnostic.CA2008.severity = error # CA2008: Do not create tasks without passing a TaskScheduler
 dotnet_diagnostic.CA2009.severity = error # CA2009: Do not call ToImmutableCollection on an ImmutableCollection value
 dotnet_diagnostic.CA2011.severity = error # CA2011: Do not assign property within its setter
