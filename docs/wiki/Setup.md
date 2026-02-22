@@ -38,7 +38,7 @@ your-project/
 
 After running `dotnet biak setup`, the root `.editorconfig` should be treated as **read-only** for Biak configuration purposes.
 
-Do not modify project structure or Biak-specific configuration inside `.editorconfig`. All structural or Biak-related changes should now be made in `.biak/.editorconfig-main`
+Do not modify project structure or Biak-specific configuration inside `.editorconfig`. All structural or Biak-related changes should now be made in `.biak/.editorconfig-main`.
 
 ## 🔗 Links
 * Issues: [#10](https://github.com/kurnakovv/biak/issues/10)
