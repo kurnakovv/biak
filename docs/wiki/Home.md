@@ -1,1 +1,1 @@
-Welcome to the biak wiki!
+Welcome to the biak wiki!!
