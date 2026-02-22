@@ -67,5 +67,5 @@ public static class UIConstant
     /// <summary>
     /// End enable message.
     /// </summary>
-    public const string END_ENABLE = "All rules in .editorconfig have been enabled (none -> error|warning|suggestion).";
+    public const string END_ENABLE = ".editorconfig has been restored from backup (.biak/.editorconfig-main).";
 }
