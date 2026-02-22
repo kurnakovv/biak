@@ -8,13 +8,13 @@ on:
       ['*']
     paths-ignore:
       - 'ReadMe.md'
-      - 'docs/wiki'
+      - 'docs/wiki/**'
   pull_request:
     branches:
       - '*'
     paths-ignore:
       - 'ReadMe.md'
-      - 'docs/wiki'
+      - 'docs/wiki/**'
   release:
     types:
       - published
