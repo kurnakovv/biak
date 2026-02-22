@@ -31,6 +31,10 @@ public static class Program
         {
             await DisableCommand.RunAsync();
         }
+        else if (EnableCommand.IsRunnable(args))
+        {
+            await EnableCommand.RunAsync();
+        }
         else
         {
             Console.WriteLine(UIConstant.NO_COMMAND);

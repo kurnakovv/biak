@@ -70,6 +70,27 @@ public class ProgramTests
     }
 
     [Fact]
+    public async Task EnableCommandNoConfigurableMessageAsync()
+    {
+        TextWriter originalOut = Console.Out;
+        await using StringWriter output = new();
+        Console.SetOut(output);
+
+        try
+        {
+            await Program.Main([CommandArgumentConstant.ENABLE]);
+
+            string result = output.ToString().Trim();
+            Assert.Contains(UIConstant.BIAK_NOT_INITIALIZED, result, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains(UIConstant.RUN_BIAK_SETUP, result, StringComparison.OrdinalIgnoreCase);
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+        }
+    }
+
+    [Fact]
     public async Task SetupWithInvalidCommandNoCommandMessageAsync()
     {
         TextWriter originalOut = Console.Out;
