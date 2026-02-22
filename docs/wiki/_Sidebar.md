@@ -1,4 +1,4 @@
-## Enable / Disable `.editorconfig` rules
-* Setup
+### Enable / Disable `.editorconfig` rules
+* [Setup](Setup)
 * Enable
 * Disable
