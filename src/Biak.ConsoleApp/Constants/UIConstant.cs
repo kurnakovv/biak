@@ -58,4 +58,14 @@ public static class UIConstant
     /// End disable message.
     /// </summary>
     public const string END_DISABLE = "All rules in .editorconfig have been disabled (error|warning|suggestion -> none).";
+
+    /// <summary>
+    /// Start enable message.
+    /// </summary>
+    public const string START_ENABLE = "Enabling .editorconfig rules...";
+
+    /// <summary>
+    /// End enable message.
+    /// </summary>
+    public const string END_ENABLE = "All rules in .editorconfig have been enabled (none -> error|warning|suggestion).";
 }
