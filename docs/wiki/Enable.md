@@ -54,5 +54,5 @@ dotnet biak enable
 
 ## 🔗 Links
 
-- Issues: [#23](https://github.com/kurnakovv/biak/issues/23)
-- Source code: [click](https://github.com/kurnakovv/biak/blob/dev/src/Biak.ConsoleApp/Commands/EnableCommand.cs)
+* Issues: [#23](https://github.com/kurnakovv/biak/issues/23)
+* Source code: [click](https://github.com/kurnakovv/biak/blob/dev/src/Biak.ConsoleApp/Commands/EnableCommand.cs)
