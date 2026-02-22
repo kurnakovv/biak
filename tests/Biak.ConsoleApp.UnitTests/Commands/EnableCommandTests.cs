@@ -25,7 +25,7 @@ public class EnableCommandTests
     }
 
     [Fact]
-    public void IsRunnableTrueForSingleDisableParam()
+    public void IsRunnableTrueForSingleEnableParam()
     {
         Assert.True(EnableCommand.IsRunnable([CommandArgumentConstant.ENABLE]));
     }
