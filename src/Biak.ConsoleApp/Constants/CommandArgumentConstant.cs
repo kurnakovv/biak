@@ -15,6 +15,11 @@ public static class CommandArgumentConstant
     public const string SETUP = "setup";
 
     /// <summary>
+    /// Enable .editorconfig rules.
+    /// </summary>
+    public const string ENABLE = "enable";
+
+    /// <summary>
     /// Disable .editorconfig rules.
     /// </summary>
     public const string DISABLE = "disable";

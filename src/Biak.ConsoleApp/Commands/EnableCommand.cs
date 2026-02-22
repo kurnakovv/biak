@@ -9,18 +9,18 @@ using Biak.ConsoleApp.Models;
 namespace Biak.ConsoleApp.Commands;
 
 /// <summary>
-/// `dotnet biak disable` command.
+/// `dotnet biak enable` command.
 /// </summary>
-public static class DisableCommand
+public static class EnableCommand
 {
     /// <summary>
-    /// Can `dotnet biak disable` command be run.
+    /// Can `dotnet biak enable` command be run.
     /// </summary>
     /// <param name="args">User input arguments.</param>
     /// <returns>Can be run or not.</returns>
     public static bool IsRunnable(string[] args)
     {
-        return args.Length == 1 && args.Single() == CommandArgumentConstant.DISABLE;
+        return args.Length == 1 && args.Single() == CommandArgumentConstant.ENABLE;
     }
 
     /// <summary>
@@ -36,13 +36,11 @@ public static class DisableCommand
             return;
         }
 
-        Console.WriteLine(UIConstant.START_DISABLE);
+        Console.WriteLine(UIConstant.START_ENABLE);
 
         string content = await File.ReadAllTextAsync(editorconfigPaths.MainValue);
-        string disabledContent = SeverityHelper.Disable(content);
+        await File.WriteAllTextAsync(editorconfigPaths.Value, content);
 
-        await File.WriteAllTextAsync(editorconfigPaths.Value, disabledContent);
-
-        Console.WriteLine(UIConstant.END_DISABLE);
+        Console.WriteLine(UIConstant.END_ENABLE);
     }
 }
