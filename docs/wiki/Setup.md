@@ -1,6 +1,6 @@
 ## 📙 Description
 
-The `dotnet biak setup` command initializes **Biak** environment in your current project directory by creating a dedicated configuration folder and copying your existing `.editorconfig` into it.
+The `dotnet biak setup` command initializes the **Biak** environment in your current project directory by creating a dedicated configuration folder and copying your existing `.editorconfig` into it.
 
 ## 📌 Overview
 
