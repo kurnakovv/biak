@@ -116,7 +116,7 @@ That's it - biak is configured. Happy coding! 🚀
 If you need more details, please visit the Wiki 📚 ([where?](https://github.com/kurnakovv/biak/wiki))
 
 > [!WARNING]
-> If you install `kurnakovv.biak-preview` ([what?](https://www.nuget.org/packages/kurnakovv.biak-preview/)) use `dotnet biak-preview` instad of `dotnet biak`
+> If you install `kurnakovv.biak-preview` ([what?](https://www.nuget.org/packages/kurnakovv.biak-preview/)) use `dotnet biak-preview` instead of `dotnet biak`
 
 ## ❔ Why
 In large projects with a significant number of files, `.editorconfig` rules may be evaluated with noticeable delay.
