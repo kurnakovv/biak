@@ -27,13 +27,13 @@
 ## 💡 Features
 * ⚙️ Enable / Disable `.editorconfig` rules | Change severity level ([what?](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/configuration-options#severity-level)) with one command without losing the original values ([docs](https://github.com/kurnakovv/biak/wiki/Setup)).
 
-* 🗂️ `.editorconfig` categories | Split specific rule groups (e.g., CA / IDE / SA / Roslynator, etc.) into separate files for better organization and maintainability (soon).
+* 🗂️ `.editorconfig` categories | Split specific rule groups (e.g., CA / IDE / SA / Roslynator, etc.) into separate files for better organization and maintainability (soon 🔜).
 
-* 🔒 Always enabled rules | Override selected rules (e.g., formatting rules) so they remain active even when you run the disable command (soon).
+* 🔒 Always enabled rules | Override selected rules (e.g., formatting rules) so they remain active even when you run the disable command (soon 🔜).
 
-* 🔎 Include/Exclude filter | Apply rules to all C# `[*.cs]` files except selected ones (e.g., `[{TestClass1.cs,TestClass2.cs}]`). While [!name] ([what?](https://editorconfig.org/#wildcards)) is supported, it affects all file types - not just C# files (soon).
+* 🔎 Include/Exclude filter | Apply rules to all C# `[*.cs]` files except selected ones (e.g., `[{TestClass1.cs,TestClass2.cs}]`). While `[!name]` ([what?](https://editorconfig.org/#wildcards)) is supported, it affects all file types - not just C# files (soon 🔜).
 
-* 🕸️ Apply rules without git conflicts | Automatically detect all active branches, run `dotnet format` (no changes), and identify conflicting files. This is especially useful for legacy projects with many rule violations, allowing gradual integration without major conflicts (soon).
+* 🕸️ Apply rules without git conflicts | Automatically detect all active branches, run `dotnet format` (no changes), and identify conflicting files. This is especially useful for legacy projects with many rule violations, allowing gradual integration without major conflicts (soon 🔜).
 
 ## 🚀 Quick start
 1️⃣ Install
@@ -138,9 +138,9 @@ This tool allows you to temporarily enable or disable specific `.editorconfig` r
 ### Subquestions
 * Why not just change the level through any replacer (`error`, `warning`, `suggestion` <-> `none`)? | Firstly, it's not very convenient; secondly, when you want to turn the rules back on, the replacer might replace the lines incorrectly (for example, you need `none` to remain somewhere, but it will change it); thirdly, it's not so easy to integrate in the CI/CD system.
 
-* Why not add the `.editorconfig` file on CI/CD startup? | Some rules are enabled by default, for example [IDE0290](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0290), and you want to keep them disabled all the time. In this case, if there is no editorconfig file, you won't be able to do this.
+* Why not add the `.editorconfig` file on CI/CD startup? | Some rules are enabled by default, for example [IDE0290](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0290), and you want to keep them disabled all the time. In this case, if there is no `.editorconfig` file, you won't be able to do this.
 
-* Why not create 2 `.editorconfig` files (with rules enabled/disabled)? | You will have to duplicate the values ​​in 2 places.
+* Why not create two `.editorconfig` files (one with rules enabled, one disabled)? | This would require duplicating values in two places, which is error-prone and harder to maintain.
 
 ## 🗣️ Recommendations
 * Setup CI/CD integration (e.g., using GitHub Actions) to improve reliability and consistency, since not everyone will run this tool locally.
