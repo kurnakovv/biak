@@ -29,6 +29,26 @@ public class ProgramTests
     }
 
     [Fact]
+    public async Task HelpArgumentAsync()
+    {
+        TextWriter originalOut = Console.Out;
+        await using StringWriter output = new();
+        Console.SetOut(output);
+
+        try
+        {
+            await Program.Main([CommandArgumentConstant.HELP]);
+
+            string result = output.ToString().Trim();
+            Assert.Equal(DocsConstant.HELP.Trim(), result);
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+        }
+    }
+
+    [Fact]
     public async Task SetupCommandNoEditorconfigMessageAsync()
     {
         TextWriter originalOut = Console.Out;

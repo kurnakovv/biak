@@ -62,4 +62,21 @@ public static class DocsConstant
                                                                  | dotnet biak --help                |
                                                                  |___________________________________|
 ";
+
+    /// <summary>
+    /// `dotnet biak --help` text.
+    /// </summary>
+    public const string HELP = @"
+--------------------
+Enable / Disable .editorconfig rules | Change severity level with one command without losing the original values.
+
+---
+
+* dotnet biak setup | The setup command initializes the Biak environment in your current project directory by creating a dedicated configuration folder and copying your existing .editorconfig into it https://github.com/kurnakovv/biak/wiki/Setup
+
+* dotnet biak enable | The enable command activates Biak configuration in your project by copying the managed configuration file from .biak/.editorconfig-main back to the root .editorconfig (enable all rules in .editorconfig file) https://github.com/kurnakovv/biak/wiki/Enable
+
+* dotnet biak disable | The disable command takes the contents of editorconfig-main, disables all rules (error|warning|suggestion -> none) and inserts them into .editorconfig https://github.com/kurnakovv/biak/wiki/Disable
+--------------------
+";
 }

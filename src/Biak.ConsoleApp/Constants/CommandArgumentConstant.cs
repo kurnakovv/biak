@@ -10,6 +10,11 @@ namespace Biak.ConsoleApp.Constants;
 public static class CommandArgumentConstant
 {
     /// <summary>
+    /// Help info.
+    /// </summary>
+    public const string HELP = "--help";
+
+    /// <summary>
     /// Setup biak env (create .biak folder with .editorconfig-main file).
     /// </summary>
     public const string SETUP = "setup";
