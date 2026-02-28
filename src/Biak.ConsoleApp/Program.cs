@@ -23,7 +23,7 @@ public static class Program
         {
             Console.WriteLine(DocsConstant.GREETING);
         }
-        else if (args.Length == 1 && args.Single() == CommandArgumentConstant.HELP)
+        else if (args.Length == 1 && args[0] == CommandArgumentConstant.HELP)
         {
             Console.WriteLine(DocsConstant.HELP);
         }
