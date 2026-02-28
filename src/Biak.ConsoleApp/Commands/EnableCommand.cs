@@ -20,7 +20,7 @@ public static class EnableCommand
     /// <returns>Can be run or not.</returns>
     public static bool IsRunnable(string[] args)
     {
-        return args.Length == 1 && args.Single() == CommandArgumentConstant.ENABLE;
+        return args.Length == 1 && args[0] == CommandArgumentConstant.ENABLE;
     }
 
     /// <summary>
