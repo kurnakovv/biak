@@ -1,3 +1,11 @@
+# ⚠️ Attention ⚠️
+#
+# This project is configured with the "biak" tool, and all work is now managed through the ".biak" folder.
+# As a result, this file is set to read-only.
+# Please avoid modifying it, as any changes you make will be lost.
+#
+# To learn more about biak, visit: https://github.com/kurnakovv/biak
+
 root = true
 
 [*]
@@ -1045,3 +1053,8 @@ resharper_possible_multiple_enumeration_highlighting = none # Code inspection: P
 resharper_inconsistent_naming_highlighting = none # Code inspection: Inconsistent Naming https://www.jetbrains.com/help/resharper/InconsistentNaming.html
 
 ## *END* ReSharper Inspect Code
+
+# ⚠️ Attention ⚠️
+#
+# This file read-only.
+# Please refer to the note at the beginning ☝️ of the file for more information.
