@@ -39,9 +39,9 @@ public static class DisableCommand
         Console.WriteLine(UIConstant.START_DISABLE);
 
         string content = await File.ReadAllTextAsync(editorconfigPaths.MainValue);
-        string disabledContent = SeverityHelper.Disable(content);
-
-        await File.WriteAllTextAsync(editorconfigPaths.Value, disabledContent);
+        content = SeverityHelper.Disable(content);
+        content = EditorconfigConstants.UP_TEXT + content + EditorconfigConstants.BOTTOM_TEXT;
+        await File.WriteAllTextAsync(editorconfigPaths.Value, content);
 
         Console.WriteLine(UIConstant.END_DISABLE);
     }

@@ -59,9 +59,16 @@ public static class SetupCommand
 
         string targetFile = Path.Join(targetDir, ".editorconfig-main");
 
+        string editorconfigContent = await File.ReadAllTextAsync(editorConfigPath);
+
         await File.WriteAllTextAsync(
             targetFile,
-            await File.ReadAllTextAsync(editorConfigPath)
+            editorconfigContent
+        );
+
+        await File.WriteAllTextAsync(
+            editorConfigPath,
+            EditorconfigConstants.UP_TEXT + editorconfigContent + EditorconfigConstants.BOTTOM_TEXT
         );
 
         Console.WriteLine(UIConstant.END_SETUP);
