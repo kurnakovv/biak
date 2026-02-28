@@ -66,15 +66,18 @@ public class SetupCommandTests
             }
 
             string editorconfigMainFile = Path.Join(testDir.Value, ".biak", ".editorconfig-main");
-            bool editorconfigFileExists = File.Exists(editorconfigMainFile);
 
-            Assert.True(editorconfigFileExists);
-            using StreamReader readerTemplate = new(template);
-            using StreamReader readerEditorconfigMain = new(editorconfigMainFile);
-            string templateContent = await readerTemplate.ReadToEndAsync();
-            string editorconfigMainContent = await readerEditorconfigMain.ReadToEndAsync();
+            Assert.True(File.Exists(editorconfigMainFile));
+            string templateContent = await File.ReadAllTextAsync(template);
+            string editorconfigMainContent = await File.ReadAllTextAsync(editorconfigMainFile);
 
             Assert.Equal(templateContent, editorconfigMainContent);
+
+            string editorconfigFile = Path.Join(testDir.Value, ".editorconfig");
+            string editorconfigContent = await File.ReadAllTextAsync(editorconfigFile);
+
+            Assert.Contains(EditorconfigConstants.UP_TEXT, editorconfigContent, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains(EditorconfigConstants.BOTTOM_TEXT, editorconfigContent, StringComparison.OrdinalIgnoreCase);
         }
         finally
         {
@@ -146,6 +149,7 @@ public class SetupCommandTests
         string template = Path.Join(
             AppContext.BaseDirectory,
             "Templates",
+            "Disabled",
             ".editorconfig"
         );
         testDir.CopyTemplateEditorconfig(template);
@@ -183,8 +187,12 @@ public class SetupCommandTests
                 Console.SetIn(originalIn);
             }
 
+            string editorconfigMainPath = Path.Join(biakDir, ".editorconfig-main");
             Assert.False(File.Exists(oldFile));
-            Assert.True(File.Exists(Path.Join(biakDir, ".editorconfig-main")));
+            Assert.True(File.Exists(editorconfigMainPath));
+            string editorconfigMainContent = await File.ReadAllTextAsync(editorconfigMainPath);
+            Assert.DoesNotContain(EditorconfigConstants.UP_TEXT, editorconfigMainContent, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain(EditorconfigConstants.BOTTOM_TEXT, editorconfigMainContent, StringComparison.OrdinalIgnoreCase);
         }
         finally
         {
