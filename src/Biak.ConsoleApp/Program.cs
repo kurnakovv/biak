@@ -23,6 +23,10 @@ public static class Program
         {
             Console.WriteLine(DocsConstant.GREETING);
         }
+        else if (args.Length == 1 && args[0] == CommandArgumentConstant.HELP)
+        {
+            Console.WriteLine(DocsConstant.HELP);
+        }
         else if (SetupCommand.IsRunnable(args))
         {
             await SetupCommand.RunAsync();
