@@ -187,8 +187,11 @@ public class SetupCommandTests
                 Console.SetIn(originalIn);
             }
 
+            string editorconfigMainPath = Path.Join(biakDir, ".editorconfig-main");
             Assert.False(File.Exists(oldFile));
-            Assert.True(File.Exists(Path.Join(biakDir, ".editorconfig-main")));
+            Assert.True(File.Exists(editorconfigMainPath));
+            Assert.DoesNotContain(EditorconfigConstants.UP_TEXT, editorconfigMainPath, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain(EditorconfigConstants.BOTTOM_TEXT, editorconfigMainPath, StringComparison.OrdinalIgnoreCase);
         }
         finally
         {

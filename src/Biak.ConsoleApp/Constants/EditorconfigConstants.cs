@@ -11,7 +11,7 @@ namespace Biak.ConsoleApp.Constants;
 public static class EditorconfigConstants
 {
     /// <summary>
-    /// The text at the beginning of the .editorconfig file, with the biak configured.
+    /// The text at the beginning of the .editorconfig file when biak is configured.
     /// </summary>
     public const string UP_TEXT = @"# ⚠️ Attention ⚠️
 #
@@ -25,7 +25,7 @@ public static class EditorconfigConstants
 ";
 
     /// <summary>
-    /// The text at the bottom of the .editorconfig file, with the biak configured.
+    /// The text at the bottom of the .editorconfig file when biak is configured.
     /// </summary>
     public const string BOTTOM_TEXT = @"
 # ⚠️ Attention ⚠️
