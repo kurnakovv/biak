@@ -136,6 +136,7 @@ public class EnableCommandTests
 
             string contentAfterEnable = await File.ReadAllTextAsync(editorconfigFile);
             string expectedContent = await File.ReadAllTextAsync(templateEditorconfigMain);
+            expectedContent = EditorconfigConstants.UP_TEXT + expectedContent + EditorconfigConstants.BOTTOM_TEXT;
 
             Assert.Equal(expectedContent, contentAfterEnable);
         }
