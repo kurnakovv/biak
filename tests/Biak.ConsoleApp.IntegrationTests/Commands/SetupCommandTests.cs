@@ -149,6 +149,7 @@ public class SetupCommandTests
         string template = Path.Join(
             AppContext.BaseDirectory,
             "Templates",
+            "Disabled",
             ".editorconfig"
         );
         testDir.CopyTemplateEditorconfig(template);

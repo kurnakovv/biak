@@ -66,10 +66,16 @@ public static class SetupCommand
             editorconfigContent
         );
 
-        await File.WriteAllTextAsync(
-            editorConfigPath,
-            EditorconfigConstants.UP_TEXT + editorconfigContent + EditorconfigConstants.BOTTOM_TEXT
-        );
+        if (!(editorconfigContent.Contains(EditorconfigConstants.UP_TEXT, StringComparison.OrdinalIgnoreCase) &&
+              editorconfigContent.Contains(EditorconfigConstants.BOTTOM_TEXT, StringComparison.OrdinalIgnoreCase)
+             )
+        )
+        {
+            await File.WriteAllTextAsync(
+                editorConfigPath,
+                EditorconfigConstants.UP_TEXT + editorconfigContent + EditorconfigConstants.BOTTOM_TEXT
+            );
+        }
 
         Console.WriteLine(UIConstant.END_SETUP);
     }
