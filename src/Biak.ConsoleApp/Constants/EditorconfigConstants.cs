@@ -29,7 +29,7 @@ public static class EditorconfigConstants
     public const string BOTTOM_TEXT = @"
 # ⚠️ Attention ⚠️
 #
-# This file read-only.
+# This file is read-only.
 # Please refer to the note at the beginning ☝️ of the file for more information.
 ";
 }
