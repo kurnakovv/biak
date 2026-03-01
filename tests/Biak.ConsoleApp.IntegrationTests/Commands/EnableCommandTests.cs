@@ -4,6 +4,7 @@
 
 using Biak.ConsoleApp.Commands;
 using Biak.ConsoleApp.Constants;
+using Biak.ConsoleApp.Helpers;
 using Biak.ConsoleApp.IntegrationTests.Mock;
 
 namespace Biak.ConsoleApp.IntegrationTests.Commands;
@@ -136,7 +137,7 @@ public class EnableCommandTests
 
             string contentAfterEnable = await File.ReadAllTextAsync(editorconfigFile);
             string expectedContent = await File.ReadAllTextAsync(templateEditorconfigMain);
-            expectedContent = EditorconfigConstants.UP_TEXT + expectedContent + EditorconfigConstants.BOTTOM_TEXT;
+            expectedContent = EditorconfigHelper.AddAttentionBanners(expectedContent);
 
             Assert.Equal(expectedContent, contentAfterEnable);
         }

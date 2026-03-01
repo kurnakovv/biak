@@ -39,7 +39,7 @@ public static class EnableCommand
         Console.WriteLine(UIConstant.START_ENABLE);
 
         string content = await File.ReadAllTextAsync(editorconfigPaths.MainValue);
-        content = EditorconfigConstants.UP_TEXT + content + EditorconfigConstants.BOTTOM_TEXT;
+        content = EditorconfigHelper.AddAttentionBanners(content);
         await File.WriteAllTextAsync(editorconfigPaths.Value, content);
 
         Console.WriteLine(UIConstant.END_ENABLE);

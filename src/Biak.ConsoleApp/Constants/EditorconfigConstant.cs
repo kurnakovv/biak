@@ -8,7 +8,7 @@ namespace Biak.ConsoleApp.Constants;
 /// <summary>
 /// All .editorconfig constants.
 /// </summary>
-public static class EditorconfigConstants
+public static class EditorconfigConstant
 {
     /// <summary>
     /// The text at the beginning of the .editorconfig file when biak is configured.
