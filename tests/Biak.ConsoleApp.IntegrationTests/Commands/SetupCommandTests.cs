@@ -76,8 +76,15 @@ public class SetupCommandTests
             string editorconfigFile = Path.Join(testDir.Value, ".editorconfig");
             string editorconfigContent = await File.ReadAllTextAsync(editorconfigFile);
 
-            Assert.Contains(EditorconfigConstants.UP_TEXT, editorconfigContent, StringComparison.OrdinalIgnoreCase);
-            Assert.Contains(EditorconfigConstants.BOTTOM_TEXT, editorconfigContent, StringComparison.OrdinalIgnoreCase);
+            string newline = editorconfigContent.Contains("\r\n", StringComparison.Ordinal)
+                ? "\r\n"
+                : "\n";
+
+            string up = EditorconfigConstant.UP_TEXT.Replace("\r\n", newline, StringComparison.Ordinal);
+            string bottom = EditorconfigConstant.BOTTOM_TEXT.Replace("\r\n", newline, StringComparison.Ordinal);
+
+            Assert.Contains(up, editorconfigContent, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains(bottom, editorconfigContent, StringComparison.OrdinalIgnoreCase);
         }
         finally
         {
@@ -191,8 +198,44 @@ public class SetupCommandTests
             Assert.False(File.Exists(oldFile));
             Assert.True(File.Exists(editorconfigMainPath));
             string editorconfigMainContent = await File.ReadAllTextAsync(editorconfigMainPath);
-            Assert.DoesNotContain(EditorconfigConstants.UP_TEXT, editorconfigMainContent, StringComparison.OrdinalIgnoreCase);
-            Assert.DoesNotContain(EditorconfigConstants.BOTTOM_TEXT, editorconfigMainContent, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain(EditorconfigConstant.UP_TEXT, editorconfigMainContent, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain(EditorconfigConstant.BOTTOM_TEXT, editorconfigMainContent, StringComparison.OrdinalIgnoreCase);
+        }
+        finally
+        {
+            Directory.SetCurrentDirectory(originalDirectory);
+        }
+    }
+
+    [Fact]
+    public async Task RunWithLFEditorconfigAsync()
+    {
+        string originalDirectory = Directory.GetCurrentDirectory();
+
+        TestDirectory testDir = new($"{nameof(SetupCommandTests)}_{nameof(RunWithLFEditorconfigAsync)}");
+
+        string template = Path.Join(
+            AppContext.BaseDirectory,
+            "Templates",
+            "LF",
+            ".editorconfig"
+        );
+        testDir.CopyTemplateEditorconfig(template);
+
+        try
+        {
+            Directory.SetCurrentDirectory(testDir.Value);
+
+            await SetupCommand.RunAsync();
+
+            string editorconfigFile = Path.Join(testDir.Value, ".editorconfig");
+            string editorconfigContent = await File.ReadAllTextAsync(editorconfigFile);
+
+            Assert.DoesNotContain("\r\n", editorconfigContent, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain(EditorconfigConstant.UP_TEXT, editorconfigContent, StringComparison.Ordinal);
+            Assert.DoesNotContain(EditorconfigConstant.BOTTOM_TEXT, editorconfigContent, StringComparison.Ordinal);
+            Assert.Contains(EditorconfigConstant.UP_TEXT.Replace("\r\n", "\n", StringComparison.Ordinal), editorconfigContent, StringComparison.Ordinal);
+            Assert.Contains(EditorconfigConstant.BOTTOM_TEXT.Replace("\r\n", "\n", StringComparison.Ordinal), editorconfigContent, StringComparison.Ordinal);
         }
         finally
         {

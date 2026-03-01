@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for full license information.
 
 using Biak.ConsoleApp.Constants;
+using Biak.ConsoleApp.Helpers;
 
 namespace Biak.ConsoleApp.Commands;
 
@@ -61,14 +62,21 @@ public static class SetupCommand
 
         string editorconfigContent = await File.ReadAllTextAsync(editorConfigPath);
 
-        if (editorconfigContent.Contains(EditorconfigConstants.UP_TEXT, StringComparison.Ordinal))
+        string newline = editorconfigContent.Contains("\r\n", StringComparison.Ordinal)
+            ? "\r\n"
+            : "\n";
+
+        string up = EditorconfigConstant.UP_TEXT.Replace("\r\n", newline, StringComparison.Ordinal);
+        string bottom = EditorconfigConstant.BOTTOM_TEXT.Replace("\r\n", newline, StringComparison.Ordinal);
+
+        if (editorconfigContent.Contains(up, StringComparison.Ordinal))
         {
-            editorconfigContent = editorconfigContent.Replace(EditorconfigConstants.UP_TEXT, string.Empty, StringComparison.Ordinal);
+            editorconfigContent = editorconfigContent.Replace(up, string.Empty, StringComparison.Ordinal);
         }
 
-        if (editorconfigContent.Contains(EditorconfigConstants.BOTTOM_TEXT, StringComparison.Ordinal))
+        if (editorconfigContent.Contains(bottom, StringComparison.Ordinal))
         {
-            editorconfigContent = editorconfigContent.Replace(EditorconfigConstants.BOTTOM_TEXT, string.Empty, StringComparison.Ordinal);
+            editorconfigContent = editorconfigContent.Replace(bottom, string.Empty, StringComparison.Ordinal);
         }
 
         await File.WriteAllTextAsync(
@@ -78,7 +86,7 @@ public static class SetupCommand
 
         await File.WriteAllTextAsync(
             editorConfigPath,
-            EditorconfigConstants.UP_TEXT + editorconfigContent + EditorconfigConstants.BOTTOM_TEXT
+            EditorconfigHelper.AddAttentionBanners(editorconfigContent)
         );
 
         Console.WriteLine(UIConstant.END_SETUP);
