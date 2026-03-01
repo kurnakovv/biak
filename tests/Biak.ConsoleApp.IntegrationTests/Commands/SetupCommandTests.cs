@@ -76,8 +76,15 @@ public class SetupCommandTests
             string editorconfigFile = Path.Join(testDir.Value, ".editorconfig");
             string editorconfigContent = await File.ReadAllTextAsync(editorconfigFile);
 
-            Assert.Contains(EditorconfigConstant.UP_TEXT, editorconfigContent, StringComparison.OrdinalIgnoreCase);
-            Assert.Contains(EditorconfigConstant.BOTTOM_TEXT, editorconfigContent, StringComparison.OrdinalIgnoreCase);
+            string newline = editorconfigContent.Contains("\r\n", StringComparison.Ordinal)
+                ? "\r\n"
+                : "\n";
+
+            string up = EditorconfigConstant.UP_TEXT.Replace("\r\n", newline, StringComparison.Ordinal);
+            string bottom = EditorconfigConstant.BOTTOM_TEXT.Replace("\r\n", newline, StringComparison.Ordinal);
+
+            Assert.Contains(up, editorconfigContent, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains(bottom, editorconfigContent, StringComparison.OrdinalIgnoreCase);
         }
         finally
         {
