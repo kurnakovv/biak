@@ -212,7 +212,7 @@ public class SetupCommandTests
     {
         string originalDirectory = Directory.GetCurrentDirectory();
 
-        TestDirectory testDir = new($"{nameof(SetupCommandTests)}_{nameof(RunWithEditorconfigAsync)}");
+        TestDirectory testDir = new($"{nameof(SetupCommandTests)}_{nameof(RunWithLFEditorconfigAsync)}");
 
         string template = Path.Join(
             AppContext.BaseDirectory,
