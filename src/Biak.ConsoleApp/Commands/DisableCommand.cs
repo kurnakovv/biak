@@ -40,7 +40,7 @@ public static class DisableCommand
 
         string content = await File.ReadAllTextAsync(editorconfigPaths.MainValue);
         content = SeverityHelper.Disable(content);
-        content = EditorconfigConstants.UP_TEXT + content + EditorconfigConstants.BOTTOM_TEXT;
+        content = EditorconfigHelper.AddAttentionBanners(content);
         await File.WriteAllTextAsync(editorconfigPaths.Value, content);
 
         Console.WriteLine(UIConstant.END_DISABLE);

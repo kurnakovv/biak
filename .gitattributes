@@ -61,3 +61,5 @@
 #*.PDF   diff=astextplain
 #*.rtf   diff=astextplain
 #*.RTF   diff=astextplain
+
+tests/Biak.ConsoleApp.IntegrationTests/Templates/LF/.editorconfig text eol=lf
