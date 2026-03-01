@@ -9,7 +9,7 @@ namespace Biak.ConsoleApp.UnitTests.Constants;
 public class EditorconfigConstantTests
 {
     [Fact]
-    public void UpAndBottomConsntsContainsCrlf()
+    public void UpAndBottomConstantsContainCrLf()
     {
         Assert.Contains("\r\n", EditorconfigConstant.UP_TEXT, StringComparison.Ordinal);
         Assert.Contains("\r\n", EditorconfigConstant.BOTTOM_TEXT, StringComparison.Ordinal);
