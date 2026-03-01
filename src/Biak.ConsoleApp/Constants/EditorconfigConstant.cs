@@ -4,7 +4,6 @@
 
 namespace Biak.ConsoleApp.Constants;
 
-#pragma warning disable RCS1266 // Use raw string literal
 /// <summary>
 /// All .editorconfig constants.
 /// </summary>
@@ -29,5 +28,3 @@ public static class EditorconfigConstant
         + "# Do not edit it manually - your changes will be overwritten.\r\n"
         + "# See the note at the top ☝️ of the file for details.\r\n";
 }
-
-#pragma warning restore RCS1266 // Use raw string literal
