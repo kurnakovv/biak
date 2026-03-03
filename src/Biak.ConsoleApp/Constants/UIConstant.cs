@@ -1,0 +1,71 @@
+﻿// Copyright (c) 2026 kurnakovv
+// This file is licensed under the MIT License.
+// See the LICENSE file in the project root for full license information.
+
+namespace Biak.ConsoleApp.Constants;
+
+/// <summary>
+/// UI constants.
+/// </summary>
+public static class UIConstant
+{
+    /// <summary>
+    /// Message when user enters an invalid command.
+    /// </summary>
+    public const string NO_COMMAND = "Command not found.";
+
+    /// <summary>
+    /// Message when .editorconfig not found.
+    /// </summary>
+    public const string EDITORCONFIG_NOT_FOUND = ".editorconfig not found: ";
+
+    /// <summary>
+    /// The text that the user must enter when agreeing to perform an action.
+    /// </summary>
+    public const string CONFIRM = "y";
+
+    /// <summary>
+    /// Message when user call `dotnet biak setup` command with biak folder.
+    /// </summary>
+    public const string BIAK_FOLDER_ALREADY_EXISTS = $"Folder .biak already exists. Recreate it? Type '{CONFIRM}' to confirm, or press Enter to cancel:";
+
+    /// <summary>
+    /// Start setup message.
+    /// </summary>
+    public const string START_SETUP = "Setup .biak folder...";
+
+    /// <summary>
+    /// End setup message.
+    /// </summary>
+    public const string END_SETUP = "Folder .biak was created successfully.";
+
+    /// <summary>
+    /// Message displayed when biak env is not initialized.
+    /// </summary>
+    public const string BIAK_NOT_INITIALIZED = "Biak is not initialized.";
+
+    /// <summary>
+    /// Message instructing the user to run `dotnet biak setup`.
+    /// </summary>
+    public const string RUN_BIAK_SETUP = "Please run: dotnet biak setup";
+
+    /// <summary>
+    /// Start disable message.
+    /// </summary>
+    public const string START_DISABLE = "Disabling .editorconfig rules...";
+
+    /// <summary>
+    /// End disable message.
+    /// </summary>
+    public const string END_DISABLE = "All rules in .editorconfig have been disabled (error|warning|suggestion -> none).";
+
+    /// <summary>
+    /// Start enable message.
+    /// </summary>
+    public const string START_ENABLE = "Enabling .editorconfig rules...";
+
+    /// <summary>
+    /// End enable message.
+    /// </summary>
+    public const string END_ENABLE = ".editorconfig has been restored from backup (.biak/.editorconfig-main).";
+}
