@@ -24,6 +24,12 @@
 ## 📙 Description
 👁️🟣👁️ biak is a C# tool for managing `.editorconfig` rules via a centralized, modular configuration with enable/disable modes, imports, variables, and conflict-aware formatting checks
 
+## 📺 Preview
+
+<!-- ![preview](docs/images/preview.gif) -->
+
+<kbd><img src="docs/images/preview.gif" /></kbd>
+
 ## 💡 Features
 * ⚙️ Enable / Disable `.editorconfig` rules | Change severity level ([what?](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/configuration-options#severity-level)) with one command without losing the original values ([docs](https://github.com/kurnakovv/biak/wiki/Setup)).
 
