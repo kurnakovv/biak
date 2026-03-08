@@ -31,6 +31,9 @@ public class BiakConfigHelperTests
     [InlineData(/*lang=json,strict*/ "{\"severityWhenDisabled\": \"none\"}", SeverityLevelType.None)]
     [InlineData(/*lang=json,strict*/ "{\"severityWhenDisabled\": \"suggestion\"}", SeverityLevelType.Suggestion)]
     [InlineData(/*lang=json,strict*/ "{\"severityWhenDisabled\": \"silent\"}", SeverityLevelType.Silent)]
+    [InlineData(/*lang=json,strict*/ "{\"severityWhenDisabled\": \"error\"}", SeverityLevelType.Error)]
+    [InlineData(/*lang=json,strict*/ "{\"severityWhenDisabled\": \"warning\"}", SeverityLevelType.Warning)]
+    [InlineData(/*lang=json,strict*/ "{\"severityWhenDisabled\": \"default\"}", SeverityLevelType.Default)]
     public async Task GetValidStringsAsync(string? json, SeverityLevelType expectedSeverity)
     {
         (string? resultMessage, BiakConfig resultConfig) = await BiakConfigHelper.GetAsync(json);

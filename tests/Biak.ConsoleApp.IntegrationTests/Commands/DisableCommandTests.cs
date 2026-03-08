@@ -116,7 +116,7 @@ public class DisableCommandTests
             string templateConfig = Path.Join(
                 AppContext.BaseDirectory,
                 "Templates",
-                $"default-config.json"
+                "default-config.json"
             );
 
             File.Copy(
