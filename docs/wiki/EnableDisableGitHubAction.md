@@ -7,8 +7,8 @@
     - name: Install and run biak
       run: |
           dotnet tool install --global kurnakovv.biak
-          dotnet biak-preview
-          dotnet biak-preview enable
+          dotnet biak
+          dotnet biak enable
     ```
 
 That's it - happy coding! 🚀
