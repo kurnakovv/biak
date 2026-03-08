@@ -16,5 +16,5 @@ public class BiakConfig
     /// Severity level when `dotnet biak disable`.
     /// </summary>
     [JsonPropertyName("severityWhenDisabled")]
-    public SeverityLevelType SeverityWhenDisabled { get; set; } = SeverityLevelType.None;
+    public SeverityLevelType SeverityWhenDisabled { get; init; } = SeverityLevelType.None;
 }
