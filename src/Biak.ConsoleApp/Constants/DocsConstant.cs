@@ -77,6 +77,6 @@ Enable / Disable .editorconfig rules | Change severity level with one command wi
 
 * dotnet biak disable | The disable command takes the contents of editorconfig-main, disables all rules (error|warning|suggestion -> none) and inserts them into .editorconfig https://github.com/kurnakovv/biak/wiki/Disable
 
-* Config (no command) | Configure biak behavior via the `.biak/config.json` file https://github.com/kurnakovv/biak/wiki/Config
+* Config (no command) | Configure biak behavior via the .biak/config.json file https://github.com/kurnakovv/biak/wiki/Config
 --------------------";
 }
