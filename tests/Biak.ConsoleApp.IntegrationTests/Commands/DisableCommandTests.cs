@@ -116,7 +116,7 @@ public class DisableCommandTests
             string templateConfig = Path.Join(
                 AppContext.BaseDirectory,
                 "Templates",
-                "default-config.json"
+                "custom-config.json"
             );
 
             File.Copy(
@@ -163,7 +163,7 @@ public class DisableCommandTests
                 AppContext.BaseDirectory,
                 "Templates",
                 "Disabled",
-                ".editorconfig"
+                withConfig ? ".editorconfig-with-suggestion" : ".editorconfig"
             );
             string expectedContent = await File.ReadAllTextAsync(templateDisabledEditorconfig);
 
