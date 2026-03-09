@@ -35,7 +35,7 @@ public static class BiakConfigHelper
             string configPath = Path.Join(".biak", "config.json");
             if (!File.Exists(configPath))
             {
-                return new(BiakConfigConstant.FILE_NOT_FOUND, new BiakConfig());
+                return (BiakConfigConstant.FILE_NOT_FOUND, new BiakConfig());
             }
             json = await File.ReadAllTextAsync(configPath);
         }
