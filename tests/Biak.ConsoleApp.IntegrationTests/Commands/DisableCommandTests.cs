@@ -79,8 +79,10 @@ public class DisableCommandTests
         }
     }
 
-    [Fact]
-    public async Task RunWithEditorconfigAsync()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task RunWithEditorconfigAsync(bool withConfig)
     {
         string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new($"{nameof(DisableCommandTests)}_{nameof(RunWithEditorconfigAsync)}");
@@ -109,6 +111,21 @@ public class DisableCommandTests
             overwrite: true
         );
 
+        if (withConfig)
+        {
+            string templateConfig = Path.Join(
+                AppContext.BaseDirectory,
+                "Templates",
+                "custom-config.json"
+            );
+
+            File.Copy(
+                sourceFileName: templateConfig,
+                destFileName: Path.Join(biakDir, "config.json"),
+                overwrite: true
+            );
+        }
+
         try
         {
             Directory.SetCurrentDirectory(testDir.Value);
@@ -124,6 +141,14 @@ public class DisableCommandTests
                 string result = output.ToString();
                 Assert.Contains(UIConstant.START_DISABLE, result, StringComparison.OrdinalIgnoreCase);
                 Assert.Contains(UIConstant.END_DISABLE, result, StringComparison.OrdinalIgnoreCase);
+                if (withConfig)
+                {
+                    Assert.DoesNotContain(BiakConfigConstant.FILE_NOT_FOUND, result, StringComparison.OrdinalIgnoreCase);
+                }
+                else
+                {
+                    Assert.Contains(BiakConfigConstant.FILE_NOT_FOUND, result, StringComparison.OrdinalIgnoreCase);
+                }
             }
             finally
             {
@@ -138,7 +163,7 @@ public class DisableCommandTests
                 AppContext.BaseDirectory,
                 "Templates",
                 "Disabled",
-                ".editorconfig"
+                withConfig ? ".editorconfig-with-suggestion" : ".editorconfig"
             );
             string expectedContent = await File.ReadAllTextAsync(templateDisabledEditorconfig);
 
