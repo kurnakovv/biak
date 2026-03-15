@@ -47,10 +47,10 @@ public static class BiakConfigHelper
             {
                 return (BiakConfigConstant.IS_NULL, new BiakConfig());
             }
-            if (!config.SeveritiesToDisable.Any())
+            if (config.SeveritiesToDisable?.Any() != true)
             {
                 config.SeveritiesToDisable = BiakConfig.s_defaultSeveritiesToDisable;
-                return (BiakConfigConstant.SEVERETIES_TO_DISABLE_IS_EMPTY, config);
+                return (BiakConfigConstant.SEVERETIES_TO_DISABLE_NULL_OR_EMPTY, config);
             }
             if (!config.SeveritiesToDisable.All(new HashSet<SeverityLevelType>().Add))
             {
