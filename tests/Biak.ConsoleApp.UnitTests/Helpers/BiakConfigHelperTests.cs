@@ -16,7 +16,7 @@ public class BiakConfigHelperTests
         {
             null,
             "{}",
-            BiakConfig.s_defaultSeveritiesToDisable
+            BiakConfig.DefaultSeveritiesToDisable
         },
         {
             null,
@@ -52,12 +52,12 @@ public class BiakConfigHelperTests
         {
             BiakConfigConstant.SEVERETIES_TO_DISABLE_NULL_OR_EMPTY,
             /*lang=json,strict*/ "{\"severitiesToDisable\": null}",
-            BiakConfig.s_defaultSeveritiesToDisable
+            BiakConfig.DefaultSeveritiesToDisable
         },
         {
             BiakConfigConstant.SEVERETIES_TO_DISABLE_NULL_OR_EMPTY,
             /*lang=json,strict*/ "{\"severitiesToDisable\": []}",
-            BiakConfig.s_defaultSeveritiesToDisable
+            BiakConfig.DefaultSeveritiesToDisable
         },
     };
 

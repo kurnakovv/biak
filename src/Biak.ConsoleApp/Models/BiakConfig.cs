@@ -11,15 +11,18 @@ namespace Biak.ConsoleApp.Models;
 /// </summary>
 public class BiakConfig
 {
-    /// <summary>
-    /// Default values for <see cref="SeveritiesToDisable"/> property.
-    /// </summary>
-    public static readonly SeverityLevelType[] s_defaultSeveritiesToDisable =
+    private static readonly SeverityLevelType[] s_defaultSeveritiesToDisable =
     {
         SeverityLevelType.Error,
         SeverityLevelType.Warning,
         SeverityLevelType.Suggestion,
     };
+
+    /// <summary>
+    /// Default values for <see cref="SeveritiesToDisable"/> property.
+    /// </summary>
+    public static IReadOnlyList<SeverityLevelType> DefaultSeveritiesToDisable { get; } =
+        Array.AsReadOnly(s_defaultSeveritiesToDisable);
 
     /// <summary>
     /// Severity level when `dotnet biak disable`.
@@ -29,5 +32,5 @@ public class BiakConfig
     /// <summary>
     /// This field will allow users to specify which analyzer severities should be replaced when running the `dotnet biak disable` command.
     /// </summary>
-    public IEnumerable<SeverityLevelType> SeveritiesToDisable { get; set; } = s_defaultSeveritiesToDisable;
+    public IEnumerable<SeverityLevelType> SeveritiesToDisable { get; set; } = DefaultSeveritiesToDisable;
 }
