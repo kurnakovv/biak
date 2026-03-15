@@ -17,7 +17,7 @@ public class SeverityHelperTests
     [InlineData("dotnet_diagnostic.CA9999.severity = NONE", "dotnet_diagnostic.CA9999.severity = NONE")]
     public void DisableReplacesSeverityWithNone(string input, string expected)
     {
-        string result = SeverityHelper.Disable(input, BiakConfig.s_defaultSeveritiesToDisable, SeverityLevelType.None);
+        string result = SeverityHelper.Disable(input, BiakConfig.DefaultSeveritiesToDisable, SeverityLevelType.None);
 
         Assert.Equal(expected, result);
     }
@@ -32,7 +32,7 @@ indent_style = space
 indent_size = 4
 ";
 
-        string result = SeverityHelper.Disable(input, BiakConfig.s_defaultSeveritiesToDisable, SeverityLevelType.None);
+        string result = SeverityHelper.Disable(input, BiakConfig.DefaultSeveritiesToDisable, SeverityLevelType.None);
 
         Assert.Equal(input, result);
     }
@@ -51,7 +51,7 @@ dotnet_diagnostic.CA1001.severity = none
 dotnet_diagnostic.CA1707.severity = none
 ";
 
-        string result = SeverityHelper.Disable(input, BiakConfig.s_defaultSeveritiesToDisable, SeverityLevelType.None);
+        string result = SeverityHelper.Disable(input, BiakConfig.DefaultSeveritiesToDisable, SeverityLevelType.None);
 
         Assert.Equal(expected, result);
     }
@@ -70,7 +70,7 @@ dotnet_diagnostic.CA1001.severity = suggestion
 dotnet_diagnostic.CA1707.severity = suggestion
 ";
 
-        string result = SeverityHelper.Disable(input, BiakConfig.s_defaultSeveritiesToDisable, SeverityLevelType.Suggestion);
+        string result = SeverityHelper.Disable(input, BiakConfig.DefaultSeveritiesToDisable, SeverityLevelType.Suggestion);
 
         Assert.Equal(expected, result);
     }
