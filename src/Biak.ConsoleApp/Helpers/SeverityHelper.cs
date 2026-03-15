@@ -28,8 +28,8 @@ public static class SeverityHelper
 #pragma warning disable SYSLIB1045
         return Regex.Replace(
             content,
-            $@"=\s*({string.Join('|', severitiesToDisable.Select(x => x.ToString().ToLower()))})",
-            $"= {severityWhenDisabled.ToString().ToLower()}"
+            $@"=\s*({string.Join('|', severitiesToDisable.Select(x => x.ToString().ToLowerInvariant()))})",
+            $"= {severityWhenDisabled.ToString().ToLowerInvariant()}"
         );
 #pragma warning restore SYSLIB1045
     }
