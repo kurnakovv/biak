@@ -40,7 +40,7 @@ public class BiakConfigHelperTests
             Enum.GetValues<SeverityLevelType>()
         },
         {
-            BiakConfigConstant.SEVERETIES_TO_DISABLE_DUPLICATES,
+            BiakConfigConstant.SEVERITIES_TO_DISABLE_DUPLICATES,
             /*lang=json,strict*/ "{\"severitiesToDisable\": [\"error\", \"warning\", \"warning\", \"suggestion\", \"silent\"]}",
             [
                 SeverityLevelType.Error,
@@ -50,12 +50,12 @@ public class BiakConfigHelperTests
             ]
         },
         {
-            BiakConfigConstant.SEVERETIES_TO_DISABLE_NULL_OR_EMPTY,
+            BiakConfigConstant.SEVERITIES_TO_DISABLE_NULL_OR_EMPTY,
             /*lang=json,strict*/ "{\"severitiesToDisable\": null}",
             BiakConfig.DefaultSeveritiesToDisable
         },
         {
-            BiakConfigConstant.SEVERETIES_TO_DISABLE_NULL_OR_EMPTY,
+            BiakConfigConstant.SEVERITIES_TO_DISABLE_NULL_OR_EMPTY,
             /*lang=json,strict*/ "{\"severitiesToDisable\": []}",
             BiakConfig.DefaultSeveritiesToDisable
         },

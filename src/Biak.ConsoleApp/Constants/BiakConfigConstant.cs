@@ -29,12 +29,12 @@ public static class BiakConfigConstant
     /// <summary>
     /// Message when <see cref="BiakConfig.SeveritiesToDisable" /> is empty.
     /// </summary>
-    public const string SEVERETIES_TO_DISABLE_NULL_OR_EMPTY = $"{WARNING} 'severitiesToDisable' is null or empty. {DEFAULT_SETTINGS}";
+    public const string SEVERITIES_TO_DISABLE_NULL_OR_EMPTY = $"{WARNING} 'severitiesToDisable' is null or empty. {DEFAULT_SETTINGS}";
 
     /// <summary>
     /// Message when <see cref="BiakConfig.SeveritiesToDisable" /> contains duplicate values.
     /// </summary>
-    public const string SEVERETIES_TO_DISABLE_DUPLICATES = $"{WARNING} 'severitiesToDisable' contains duplicate values. Duplicate entries will be ignored at runtime.";
+    public const string SEVERITIES_TO_DISABLE_DUPLICATES = $"{WARNING} 'severitiesToDisable' contains duplicate values. Duplicate entries will be ignored at runtime.";
 
     /// <summary>
     /// Warning.
