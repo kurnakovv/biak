@@ -50,12 +50,12 @@ public static class BiakConfigHelper
             if (config.SeveritiesToDisable?.Any() != true)
             {
                 config.SeveritiesToDisable = BiakConfig.DefaultSeveritiesToDisable;
-                return (BiakConfigConstant.SEVERETIES_TO_DISABLE_NULL_OR_EMPTY, config);
+                return (BiakConfigConstant.SEVERITIES_TO_DISABLE_NULL_OR_EMPTY, config);
             }
             if (!config.SeveritiesToDisable.All(new HashSet<SeverityLevelType>().Add))
             {
                 config.SeveritiesToDisable = config.SeveritiesToDisable.Distinct();
-                return (BiakConfigConstant.SEVERETIES_TO_DISABLE_DUPLICATES, config);
+                return (BiakConfigConstant.SEVERITIES_TO_DISABLE_DUPLICATES, config);
             }
             return (null, config);
         }
