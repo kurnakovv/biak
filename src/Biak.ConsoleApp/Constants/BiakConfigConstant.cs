@@ -27,7 +27,7 @@ public static class BiakConfigConstant
     public const string INVALID_FORMAT = $"{WARNING} Invalid JSON format in '.biak/config.json' file. {DEFAULT_SETTINGS}";
 
     /// <summary>
-    /// Message when <see cref="BiakConfig.SeveritiesToDisable" /> is empty.
+    /// Message when <see cref="BiakConfig.SeveritiesToDisable" /> is null or empty.
     /// </summary>
     public const string SEVERITIES_TO_DISABLE_NULL_OR_EMPTY = $"{WARNING} 'severitiesToDisable' is null or empty. {DEFAULT_SETTINGS}";
 
