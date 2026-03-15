@@ -4,13 +4,19 @@ You can configure **biak** behavior via the `.biak/config.json` file.
 
 ```json
 {
-  "severityWhenDisabled": "none"
+  "severityWhenDisabled": "none",
+  "severitiesToDisable": [
+    "error",
+    "warning",
+    "suggestion"
+  ]
 }
 ```
 
-| Name                   | Available                                                     | Default | Description                                                                                            |
-| ---------------------- | ------------------------------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------ |
-| `severityWhenDisabled` | `none`, `error`, `warning`, `suggestion`, `silent`, `default` | `none`  | Defines the severity level applied to rules disabled using the `dotnet biak disable` command.          |
+| Name                   | Available                                                         | Default                               | Description                                                                                                                                  |
+| ---------------------- | ----------------------------------------------------------------- | ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `severityWhenDisabled` | `none`, `error`, `warning`, `suggestion`, `silent`, `default`     | `none`                                | Defines the severity level applied to rules disabled using the `dotnet biak disable` command.                                                |
+| `severitiesToDisable`  | `["none", "error", "warning", "suggestion", "silent", "default"]` | `["error", "warning", "suggestion"]`  | Specifies which analyzer severity levels are replaced when running the `dotnet biak disable` command.                                        |
 
 ## 🗒️ Notes
 * You can use biak without a configuration file - default values will be used.
