@@ -32,5 +32,5 @@ public class BiakConfig
     /// <summary>
     /// This field will allow users to specify which analyzer severities should be replaced when running the `dotnet biak disable` command.
     /// </summary>
-    public IEnumerable<SeverityLevelType> SeveritiesToDisable { get; set; } = DefaultSeveritiesToDisable;
+    public IEnumerable<SeverityLevelType>? SeveritiesToDisable { get; set; } = DefaultSeveritiesToDisable;
 }
