@@ -4,6 +4,7 @@
 
 using Biak.ConsoleApp.Enums;
 using Biak.ConsoleApp.Helpers;
+using Biak.ConsoleApp.Models;
 
 namespace Biak.ConsoleApp.UnitTests.Helpers;
 
@@ -16,7 +17,7 @@ public class SeverityHelperTests
     [InlineData("dotnet_diagnostic.CA9999.severity = NONE", "dotnet_diagnostic.CA9999.severity = NONE")]
     public void DisableReplacesSeverityWithNone(string input, string expected)
     {
-        string result = SeverityHelper.Disable(input, SeverityLevelType.None);
+        string result = SeverityHelper.Disable(input, BiakConfig.s_defaultSeveritiesToDisable, SeverityLevelType.None);
 
         Assert.Equal(expected, result);
     }
@@ -31,7 +32,7 @@ indent_style = space
 indent_size = 4
 ";
 
-        string result = SeverityHelper.Disable(input, SeverityLevelType.None);
+        string result = SeverityHelper.Disable(input, BiakConfig.s_defaultSeveritiesToDisable, SeverityLevelType.None);
 
         Assert.Equal(input, result);
     }
@@ -50,7 +51,7 @@ dotnet_diagnostic.CA1001.severity = none
 dotnet_diagnostic.CA1707.severity = none
 ";
 
-        string result = SeverityHelper.Disable(input, SeverityLevelType.None);
+        string result = SeverityHelper.Disable(input, BiakConfig.s_defaultSeveritiesToDisable, SeverityLevelType.None);
 
         Assert.Equal(expected, result);
     }
@@ -69,7 +70,45 @@ dotnet_diagnostic.CA1001.severity = suggestion
 dotnet_diagnostic.CA1707.severity = suggestion
 ";
 
-        string result = SeverityHelper.Disable(input, SeverityLevelType.Suggestion);
+        string result = SeverityHelper.Disable(input, BiakConfig.s_defaultSeveritiesToDisable, SeverityLevelType.Suggestion);
+
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void DisableReplaceOnlyError()
+    {
+        string input = @"
+dotnet_diagnostic.CA2000.severity = error
+dotnet_diagnostic.CA1001.severity = warning
+dotnet_diagnostic.CA1707.severity = suggestion
+";
+        string expected = @"
+dotnet_diagnostic.CA2000.severity = none
+dotnet_diagnostic.CA1001.severity = warning
+dotnet_diagnostic.CA1707.severity = suggestion
+";
+
+        string result = SeverityHelper.Disable(input, [SeverityLevelType.Error], SeverityLevelType.None);
+
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void DisableReplaceErrorAndWarning()
+    {
+        string input = @"
+dotnet_diagnostic.CA2000.severity = error
+dotnet_diagnostic.CA1001.severity = warning
+dotnet_diagnostic.CA1707.severity = suggestion
+";
+        string expected = @"
+dotnet_diagnostic.CA2000.severity = none
+dotnet_diagnostic.CA1001.severity = none
+dotnet_diagnostic.CA1707.severity = suggestion
+";
+
+        string result = SeverityHelper.Disable(input, [SeverityLevelType.Error, SeverityLevelType.Warning], SeverityLevelType.None);
 
         Assert.Equal(expected, result);
     }
