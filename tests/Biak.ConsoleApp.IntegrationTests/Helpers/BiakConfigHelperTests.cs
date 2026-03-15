@@ -47,6 +47,7 @@ public class BiakConfigHelperTests
 
             Assert.Equal(expectedMessage, resultMessage);
             Assert.Equal(expectedSeverity, resultConfig.SeverityWhenDisabled);
+            Assert.NotNull(resultConfig.SeveritiesToDisable);
             Assert.NotEmpty(resultConfig.SeveritiesToDisable);
         }
         finally
