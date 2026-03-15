@@ -50,7 +50,12 @@ public class BiakConfigHelperTests
             ]
         },
         {
-            BiakConfigConstant.SEVERETIES_TO_DISABLE_IS_EMPTY,
+            BiakConfigConstant.SEVERETIES_TO_DISABLE_NULL_OR_EMPTY,
+            /*lang=json,strict*/ "{\"severitiesToDisable\": null}",
+            BiakConfig.s_defaultSeveritiesToDisable
+        },
+        {
+            BiakConfigConstant.SEVERETIES_TO_DISABLE_NULL_OR_EMPTY,
             /*lang=json,strict*/ "{\"severitiesToDisable\": []}",
             BiakConfig.s_defaultSeveritiesToDisable
         },
@@ -98,6 +103,7 @@ public class BiakConfigHelperTests
 
         Assert.Equal(expectedMessage, resultMessage);
         Assert.NotNull(resultConfig);
+        Assert.NotNull(resultConfig.SeveritiesToDisable);
         Assert.Equal(expectedSeveritiesToDisable, resultConfig.SeveritiesToDisable);
     }
 

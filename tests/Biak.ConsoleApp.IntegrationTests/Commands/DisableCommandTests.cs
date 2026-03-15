@@ -149,7 +149,7 @@ public class DisableCommandTests
                 {
                     Assert.Contains(BiakConfigConstant.FILE_NOT_FOUND, result, StringComparison.OrdinalIgnoreCase);
                 }
-                Assert.DoesNotContain(BiakConfigConstant.SEVERETIES_TO_DISABLE_IS_EMPTY, result, StringComparison.OrdinalIgnoreCase);
+                Assert.DoesNotContain(BiakConfigConstant.SEVERETIES_TO_DISABLE_NULL_OR_EMPTY, result, StringComparison.OrdinalIgnoreCase);
                 Assert.DoesNotContain(BiakConfigConstant.SEVERETIES_TO_DISABLE_DUPLICATES, result, StringComparison.OrdinalIgnoreCase);
             }
             finally
