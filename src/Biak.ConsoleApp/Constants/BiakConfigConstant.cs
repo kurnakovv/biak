@@ -2,6 +2,8 @@
 // This file is licensed under the MIT License.
 // See the LICENSE file in the project root for full license information.
 
+using Biak.ConsoleApp.Models;
+
 namespace Biak.ConsoleApp.Constants;
 
 /// <summary>
@@ -23,6 +25,16 @@ public static class BiakConfigConstant
     /// Invalid JSON format message.
     /// </summary>
     public const string INVALID_FORMAT = $"{WARNING} Invalid JSON format in '.biak/config.json' file. {DEFAULT_SETTINGS}";
+
+    /// <summary>
+    /// Message when <see cref="BiakConfig.SeveritiesToDisable" /> is empty.
+    /// </summary>
+    public const string SEVERETIES_TO_DISABLE_IS_EMPTY = $"{WARNING} 'severitiesToDisable' is empty. {DEFAULT_SETTINGS}";
+
+    /// <summary>
+    /// Message when <see cref="BiakConfig.SeveritiesToDisable" /> contains duplicate values.
+    /// </summary>
+    public const string SEVERETIES_TO_DISABLE_DUPLICATES = $"{WARNING} 'severitiesToDisable' contains duplicate values. Duplicate entries will be ignored at runtime.";
 
     /// <summary>
     /// Warning.

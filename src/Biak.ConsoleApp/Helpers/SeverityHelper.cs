@@ -16,12 +16,21 @@ public static class SeverityHelper
     /// Disable severity.
     /// </summary>
     /// <param name="content">.editorconfig content.</param>
-    /// <param name="severity">severity.</param>
+    /// <param name="severitiesToDisable">severitiesToDisable.</param>
+    /// <param name="severityWhenDisabled">severityWhenDisabled.</param>
     /// <returns>Disabled content.</returns>
-    public static string Disable(string content, SeverityLevelType severity)
+    public static string Disable(
+        string content,
+        IEnumerable<SeverityLevelType> severitiesToDisable,
+        SeverityLevelType severityWhenDisabled
+    )
     {
 #pragma warning disable SYSLIB1045
-        return Regex.Replace(content, @"=\s*(error|warning|suggestion)", $"= {severity.ToString().ToLower()}");
+        return Regex.Replace(
+            content,
+            $@"=\s*({string.Join('|', severitiesToDisable.Select(x => x.ToString().ToLower()))})",
+            $"= {severityWhenDisabled.ToString().ToLower()}"
+        );
 #pragma warning restore SYSLIB1045
     }
 }

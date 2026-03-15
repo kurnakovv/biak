@@ -5,6 +5,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Biak.ConsoleApp.Constants;
+using Biak.ConsoleApp.Enums;
 using Biak.ConsoleApp.Models;
 
 namespace Biak.ConsoleApp.Helpers;
@@ -45,6 +46,16 @@ public static class BiakConfigHelper
             if (config == null)
             {
                 return (BiakConfigConstant.IS_NULL, new BiakConfig());
+            }
+            if (!config.SeveritiesToDisable.Any())
+            {
+                config.SeveritiesToDisable = BiakConfig.s_defaultSeveritiesToDisable;
+                return (BiakConfigConstant.SEVERETIES_TO_DISABLE_IS_EMPTY, config);
+            }
+            if (!config.SeveritiesToDisable.All(new HashSet<SeverityLevelType>().Add))
+            {
+                config.SeveritiesToDisable = config.SeveritiesToDisable.Distinct();
+                return (BiakConfigConstant.SEVERETIES_TO_DISABLE_DUPLICATES, config);
             }
             return (null, config);
         }

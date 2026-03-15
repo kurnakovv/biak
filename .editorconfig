@@ -287,6 +287,9 @@ csharp_style_expression_bodied_lambdas = when_on_single_line
 
 ### Expression-level preferences ###
 
+# Use collection initializers (IDE0028)
+dotnet_diagnostic.IDE0028.severity = none
+
 # Use inferred member names (IDE0037)
 dotnet_style_prefer_inferred_anonymous_type_member_names = false
 
@@ -320,6 +323,9 @@ dotnet_diagnostic.IDE0057.severity = none
 
 # Add explicit cast in foreach loop (IDE0220)
 dotnet_style_prefer_foreach_explicit_cast_in_source = always
+
+# Use collection expression for array (IDE0300)
+dotnet_diagnostic.IDE0300.severity = none
 
 # Use collection expression for builder (IDE0304)
 dotnet_diagnostic.IDE0304.severity = none
