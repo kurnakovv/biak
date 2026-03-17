@@ -85,6 +85,17 @@ public class SetupCommandTests
 
             Assert.Contains(up, editorconfigContent, StringComparison.OrdinalIgnoreCase);
             Assert.Contains(bottom, editorconfigContent, StringComparison.OrdinalIgnoreCase);
+
+            string configPath = Path.Join(testDir.Value, ".biak", "config.json");
+            string templateConfigPath = Path.Join(
+                AppContext.BaseDirectory,
+                "Templates",
+                $"default-config.json"
+            );
+            Assert.True(File.Exists(configPath));
+            string configContent = await File.ReadAllTextAsync(configPath);
+            string templateConfigContent = await File.ReadAllTextAsync(templateConfigPath);
+            Assert.Equal(templateConfigContent, configContent);
         }
         finally
         {
