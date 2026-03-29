@@ -17,6 +17,9 @@ public class BiakConfigHelperTests
     [InlineData("custom-config", null, SeverityLevelType.Suggestion)]
     [InlineData("null-config", BiakConfigConstant.IS_NULL, SeverityLevelType.None)]
     [InlineData("invalid-config", BiakConfigConstant.INVALID_FORMAT, SeverityLevelType.None)]
+    [InlineData("null-severities-to-disable", BiakConfigConstant.SEVERITIES_TO_DISABLE_NULL_OR_EMPTY, SeverityLevelType.None)]
+    [InlineData("empty-severities-to-disable", BiakConfigConstant.SEVERITIES_TO_DISABLE_NULL_OR_EMPTY, SeverityLevelType.None)]
+    [InlineData("duplicate-severities-to-disable", BiakConfigConstant.SEVERITIES_TO_DISABLE_DUPLICATES, SeverityLevelType.None)]
     public async Task GetConfigModelAsync(string templateName, string? expectedMessage, SeverityLevelType expectedSeverity)
     {
         string originalDirectory = Directory.GetCurrentDirectory();
@@ -44,6 +47,8 @@ public class BiakConfigHelperTests
 
             Assert.Equal(expectedMessage, resultMessage);
             Assert.Equal(expectedSeverity, resultConfig.SeverityWhenDisabled);
+            Assert.NotNull(resultConfig.SeveritiesToDisable);
+            Assert.NotEmpty(resultConfig.SeveritiesToDisable);
         }
         finally
         {
