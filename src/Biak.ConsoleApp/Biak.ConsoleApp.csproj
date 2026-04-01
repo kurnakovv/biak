@@ -10,7 +10,7 @@
     <NoWarn>NETSDK1138</NoWarn>
     <EnablePackageValidation>true</EnablePackageValidation>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
-    <Version>0.0.1</Version>
+    <Version>0.2.0</Version>
     <PackageId>kurnakovv.biak</PackageId>
     <Authors>kurnakovv</Authors>
     <Company>kurnakovv</Company>
