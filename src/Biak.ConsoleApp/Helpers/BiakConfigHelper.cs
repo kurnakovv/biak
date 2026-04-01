@@ -3,7 +3,6 @@
 // See the LICENSE file in the project root for full license information.
 
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using Biak.ConsoleApp.Constants;
 using Biak.ConsoleApp.Enums;
 using Biak.ConsoleApp.Models;
@@ -15,15 +14,6 @@ namespace Biak.ConsoleApp.Helpers;
 /// </summary>
 public static class BiakConfigHelper
 {
-    private static readonly JsonSerializerOptions s_jso = new()
-    {
-        PropertyNameCaseInsensitive = true,
-        Converters =
-        {
-            new JsonStringEnumConverter(JsonNamingPolicy.CamelCase),
-        },
-    };
-
     /// <summary>
     /// Get .biak/config model.
     /// </summary>
@@ -42,7 +32,7 @@ public static class BiakConfigHelper
         }
         try
         {
-            BiakConfig? config = JsonSerializer.Deserialize<BiakConfig>(json, s_jso);
+            BiakConfig? config = JsonSerializer.Deserialize<BiakConfig>(json, GlobalJsonSerializerOptionsHelper.Value);
             if (config == null)
             {
                 return (BiakConfigConstant.IS_NULL, new BiakConfig());
