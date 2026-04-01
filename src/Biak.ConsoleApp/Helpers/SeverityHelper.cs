@@ -25,12 +25,10 @@ public static class SeverityHelper
         SeverityLevelType severityWhenDisabled
     )
     {
-#pragma warning disable SYSLIB1045
         return Regex.Replace(
             content,
             $@"=\s*({string.Join('|', severitiesToDisable.Select(x => x.ToString().ToLowerInvariant()))})",
             $"= {severityWhenDisabled.ToString().ToLowerInvariant()}"
         );
-#pragma warning restore SYSLIB1045
     }
 }
