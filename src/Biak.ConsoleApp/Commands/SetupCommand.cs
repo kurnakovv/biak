@@ -2,8 +2,10 @@
 // This file is licensed under the MIT License.
 // See the LICENSE file in the project root for full license information.
 
+using System.Text.Json;
 using Biak.ConsoleApp.Constants;
 using Biak.ConsoleApp.Helpers;
+using Biak.ConsoleApp.Models;
 
 namespace Biak.ConsoleApp.Commands;
 
@@ -80,13 +82,21 @@ public static class SetupCommand
         }
 
         await File.WriteAllTextAsync(
-            targetFile,
-            editorconfigContent
+            path: targetFile,
+            contents: editorconfigContent
         );
 
         await File.WriteAllTextAsync(
-            editorConfigPath,
-            EditorconfigHelper.AddAttentionBanners(editorconfigContent)
+            path: editorConfigPath,
+            contents: EditorconfigHelper.AddAttentionBanners(editorconfigContent)
+        );
+
+        await File.WriteAllTextAsync(
+            path: Path.Join(targetDir, "config.json"),
+            contents: JsonSerializer.Serialize(
+                value: new BiakConfig(),
+                options: GlobalJsonSerializerOptionsHelper.Value
+            ) + Environment.NewLine
         );
 
         Console.WriteLine(UIConstant.END_SETUP);
