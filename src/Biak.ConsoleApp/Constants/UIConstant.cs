@@ -57,7 +57,7 @@ public static class UIConstant
     /// <summary>
     /// End disable message.
     /// </summary>
-    public const string END_DISABLE = "All rules in .editorconfig have been disabled (error|warning|suggestion -> none).";
+    public const string END_DISABLE = "All rules in .editorconfig have been disabled.";
 
     /// <summary>
     /// Start enable message.

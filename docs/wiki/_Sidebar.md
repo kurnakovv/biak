@@ -2,3 +2,5 @@
 * [Setup](Setup)
 * [Enable](Enable)
 * [Disable](Disable)
+* [Config](Config)
+* [GitHub Actions](EnableDisableGitHubAction)
