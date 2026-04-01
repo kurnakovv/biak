@@ -1,0 +1,8 @@
+{
+  "severityWhenDisabled": "none",
+  "severitiesToDisable": [
+    "error",
+    "warning",
+    "suggestion"
+  ]
+}

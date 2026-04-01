@@ -24,6 +24,12 @@
 ## 📙 Description
 👁️🟣👁️ biak is a C# tool for managing `.editorconfig` rules via a centralized, modular configuration with enable/disable modes, imports, variables, and conflict-aware formatting checks
 
+## 📺 Preview
+
+<!-- ![preview](docs/images/preview.gif) -->
+
+<kbd><img src="docs/images/preview.gif" /></kbd>
+
 ## 💡 Features
 * ⚙️ Enable / Disable `.editorconfig` rules | Change severity level ([what?](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/configuration-options#severity-level)) with one command without losing the original values ([docs](https://github.com/kurnakovv/biak/wiki/Setup)).
 
@@ -143,7 +149,7 @@ This tool allows you to temporarily enable or disable specific `.editorconfig` r
 * Why not create two `.editorconfig` files (one with rules enabled, one disabled)? | This would require duplicating values in two places, which is error-prone and harder to maintain.
 
 ## 🗣️ Recommendations
-* Setup CI/CD integration (e.g., using GitHub Actions) to improve reliability and consistency, since not everyone will run this tool locally.
+* Set up CI/CD integration (e.g., using GitHub Actions ([how?](https://github.com/kurnakovv/biak/wiki/EnableDisableGitHubAction))) to improve reliability and consistency, since not everyone will run this tool locally.
 
 * If you configure this tool through CI/CD, make sure to periodically validate the rules locally as well. Rules may be misconfigured accidentally, so you should verify what is generated in the `.editorconfig` file. Additionally, not all rules are enforced by `dotnet build`; some may only appear within the IDE (for example, Visual Studio).
 
