@@ -89,13 +89,13 @@ public class EnableCommandTests
         string biakDir = Path.Join(testDir.Value, ".biak");
         Directory.CreateDirectory(biakDir);
 
-        string templateEditorconfig = Path.Join(
+        string templateDisabledEditorconfig = Path.Join(
             AppContext.BaseDirectory,
             "Templates",
             "Disabled",
             ".editorconfig"
         );
-        testDir.CopyTemplateEditorconfig(templateEditorconfig);
+        testDir.CopyTemplateEditorconfig(templateDisabledEditorconfig);
 
         string templateEditorconfigMain = Path.Join(
             AppContext.BaseDirectory,
@@ -136,7 +136,12 @@ public class EnableCommandTests
             Assert.True(File.Exists(editorconfigFile));
 
             string contentAfterEnable = await File.ReadAllTextAsync(editorconfigFile);
-            string expectedContent = await File.ReadAllTextAsync(templateEditorconfigMain);
+            string templateEditorconfig = Path.Join(
+                AppContext.BaseDirectory,
+                "Templates",
+                ".editorconfig"
+            );
+            string expectedContent = await File.ReadAllTextAsync(templateEditorconfig);
             expectedContent = EditorconfigHelper.AddAttentionBanners(expectedContent);
 
             Assert.Equal(expectedContent, contentAfterEnable);
