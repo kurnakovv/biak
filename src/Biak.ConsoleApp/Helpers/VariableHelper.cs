@@ -48,7 +48,7 @@ public static class VariableHelper
 
         foreach (KeyValuePair<string, string> kv in variables)
         {
-            content = Regex.Replace(content, $@"\${kv.Key}\b", kv.Value);
+            content = Regex.Replace(content, $@"\${kv.Key}\b", _ => kv.Value);
         }
 
         return content;
