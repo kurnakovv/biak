@@ -90,7 +90,7 @@ public class SetupCommandTests
             string templateConfigPath = Path.Join(
                 AppContext.BaseDirectory,
                 "Templates",
-                $"default-config.json"
+                "default-config.json"
             );
             Assert.True(File.Exists(configPath));
             string configContent = await File.ReadAllTextAsync(configPath);
