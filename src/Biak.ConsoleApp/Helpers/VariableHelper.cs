@@ -60,9 +60,9 @@ public static class VariableHelper
 
         StringBuilder sb = new();
 
-        foreach (string part in parts)
+        foreach (string part in parts.Select(x => x.Trim()))
         {
-            string trimmed = part.Trim();
+            string trimmed = part;
 
             if (trimmed.StartsWith('\"') && trimmed.EndsWith('\"'))
             {
