@@ -25,11 +25,11 @@ public static class IncludeExcludeFilterHelper
     /// Apply rules to all C# [*.cs] files except selected ones (e.g., [{TestClass1.cs,TestClass2.cs}]).
     /// <code>
     ///     ^biak^ include [File paths to include]
-    ///     ^biak^ exclude[File paths to exclude]
+    ///     ^biak^ exclude [File paths to exclude]
     ///
     ///     ... rules to include / exclude
     ///
-    ///     ^ biak ^ END include/exclude
+    ///     ^biak^ END include/exclude
     ///
     ///
     ///     [File paths to include]
