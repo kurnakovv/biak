@@ -61,7 +61,7 @@ public static class ImportHelper
     private static async Task<string?> ResolveImportAsync(string path, string biakFullPath)
     {
         string fullPath = Path.GetFullPath(
-            Path.Combine(biakFullPath, path)
+            Path.Join(biakFullPath, path)
         );
 
         if (!fullPath.StartsWith(biakFullPath, StringComparison.OrdinalIgnoreCase))
