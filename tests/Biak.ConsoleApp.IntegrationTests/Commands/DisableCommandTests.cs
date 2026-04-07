@@ -90,6 +90,9 @@ public class DisableCommandTests
         string biakDir = Path.Join(testDir.Value, ".biak");
         Directory.CreateDirectory(biakDir);
 
+        string biakCategoriesDir = Path.Join(testDir.Value, ".biak", "Categories");
+        Directory.CreateDirectory(biakCategoriesDir);
+
         string templateEditorconfig = Path.Join(
             AppContext.BaseDirectory,
             "Templates",
@@ -108,6 +111,36 @@ public class DisableCommandTests
         File.Copy(
             sourceFileName: templateEditorconfigMain,
             destFileName: Path.Join(biakDir, ".editorconfig-main"),
+            overwrite: true
+        );
+
+        string templateEditorconfigRoslynator = Path.Join(
+            AppContext.BaseDirectory,
+            "Templates",
+            "Import",
+            ".biak",
+            "Categories",
+            ".editorconfig-Roslynator"
+        );
+
+        File.Copy(
+            sourceFileName: templateEditorconfigRoslynator,
+            destFileName: Path.Join(biakCategoriesDir, ".editorconfig-Roslynator"),
+            overwrite: true
+        );
+
+        string templateEditorconfigStyleCop = Path.Join(
+            AppContext.BaseDirectory,
+            "Templates",
+            "Import",
+            ".biak",
+            "Categories",
+            ".editorconfig-StyleCop"
+        );
+
+        File.Copy(
+            sourceFileName: templateEditorconfigStyleCop,
+            destFileName: Path.Join(biakCategoriesDir, ".editorconfig-StyleCop"),
             overwrite: true
         );
 
