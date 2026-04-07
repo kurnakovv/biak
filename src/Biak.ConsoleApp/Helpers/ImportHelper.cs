@@ -36,7 +36,7 @@ public static class ImportHelper
             return content;
         }
 
-        string biakDir = Path.Combine(Directory.GetCurrentDirectory(), ".biak");
+        string biakDir = Path.Join(Directory.GetCurrentDirectory(), ".biak");
         string biakFullPath = Path.GetFullPath(biakDir);
 
         StringBuilder sb = new(content);
