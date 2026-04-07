@@ -111,7 +111,7 @@ As you can see, imports were replaced by content from these same files.
 # 📜 Rules
 * Import files only from the `.biak` folder. This is done for security purposes, so that an attacker cannot gain root access and, for example, obtain the contents of secret files `^biak^ import "../../secretFile"` -> `mySuperSecretValue`. If this rule is violated, a warning will be issued and this import will not be replaced.
 
-* If file not found, than a warning will be issued and this import will not be replaced.
+* If file not found, then a warning will be issued and this import will not be replaced.
 
 ## 🔗 Links
 * Issues: [#62](https://github.com/kurnakovv/biak/issues/62)
