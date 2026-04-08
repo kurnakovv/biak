@@ -86,6 +86,7 @@ public class ImportHelperTests
     )]
     [InlineData(
         """
+        # Out .biak folder
         root = true
 
         [*]
@@ -100,6 +101,7 @@ public class ImportHelperTests
         """,
 
         """
+        # Out .biak folder
         root = true
         
         [*]
@@ -116,6 +118,7 @@ public class ImportHelperTests
     )]
     [InlineData(
         """
+        # Invalid import path
         root = true
 
         [*]
@@ -130,6 +133,7 @@ public class ImportHelperTests
         """,
 
         """
+        # Invalid import path
         root = true
         
         [*]
@@ -143,6 +147,38 @@ public class ImportHelperTests
         ^biak^ import "invalidPath2"
         """,
         ImportConstant.FILE_NOT_FOUND
+    )]
+    [InlineData(
+        """
+        # Commented import
+        root = true
+
+        [*]
+        insert_final_newline = true
+        indent_style = space
+        indent_size = 4
+        trim_trailing_whitespace = true
+
+        # ^biak^ import "Categories/.editorconfig-Roslynator"
+
+        # ^biak^ import "Categories/.editorconfig-Roslynator"
+        """,
+
+        """
+        # Commented import
+        root = true
+        
+        [*]
+        insert_final_newline = true
+        indent_style = space
+        indent_size = 4
+        trim_trailing_whitespace = true
+        
+        # ^biak^ import "Categories/.editorconfig-Roslynator"
+        
+        # ^biak^ import "Categories/.editorconfig-Roslynator"
+        """,
+        null
     )]
     public async Task ReplaceTestAsync(
         string inputContent,

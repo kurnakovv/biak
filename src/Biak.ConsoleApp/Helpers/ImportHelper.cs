@@ -14,8 +14,8 @@ namespace Biak.ConsoleApp.Helpers;
 public static class ImportHelper
 {
     private static readonly Regex s_importRegex = new(
-        @"\^biak\^\s*import\s*""([^""]+)""",
-        RegexOptions.Compiled
+        @"^(?!\s*#)[ \t]*\^biak\^\s*import\s*""([^""]+)""",
+        RegexOptions.Compiled | RegexOptions.Multiline
     );
 
     /// <summary>
