@@ -109,7 +109,7 @@ dotnet_diagnostic.SA1003.severity = error # https://github.com/DotNetAnalyzers/S
 As you can see, imports were replaced by content from these same files.
 
 ## 🗒️ Notes
-* Import files only from the `.biak` folder. This is done for security purposes, so that an attacker cannot gain root access and, for example, obtain the contents of secret files `^biak^ import "../../secretFile"` -> `mySuperSecretValue`. If this rule is violated, a warning will be issued and this import will not be replaced.
+* Import files only from the `.biak` folder. This is done for security purposes, so that an attacker cannot import files outside `.biak` and, for example, obtain the contents of secret files `^biak^ import "../../secretFile"` -> `mySuperSecretValue`. If this rule is violated, a warning will be issued and this import will not be replaced.
 
 * If file not found, then a warning will be issued and this import will not be replaced.
 
