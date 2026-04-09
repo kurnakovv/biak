@@ -10,6 +10,11 @@ namespace Biak.ConsoleApp.Constants;
 public static class ImportConstant
 {
     /// <summary>
+    /// Unable to retrieve content from link.
+    /// </summary>
+    public const string UNABLE_TO_RETRIEVE_CONTENT_FROM_LINK = $"{WARNING} Unable to retrieve content from link";
+
+    /// <summary>
     /// Forbidden outside .biak folder.
     /// </summary>
     public const string FORBIDDEN_OUTSIDE = $"{WARNING} It is forbidden to go beyond the .biak folder:";

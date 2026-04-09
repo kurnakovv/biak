@@ -13,8 +13,13 @@ namespace Biak.ConsoleApp.Helpers;
 /// </summary>
 public static class ImportHelper
 {
+    private static readonly HttpClient s_httpClient = new()
+    {
+        Timeout = TimeSpan.FromSeconds(30),
+    };
+
     private static readonly Regex s_importRegex = new(
-        @"^(?!\s*#)[ \t]*\^biak\^\s*import\s*""([^""]+)""",
+        @"^(?!\s*#)[ \t]*\^biak\^\s*import\s*(?:""([^""]+)""|(\S+))",
         RegexOptions.Compiled | RegexOptions.Multiline
     );
 
@@ -39,14 +44,21 @@ public static class ImportHelper
         string biakDir = Path.Join(Directory.GetCurrentDirectory(), ".biak");
         string biakFullPath = Path.GetFullPath(biakDir);
 
+        string newline = content.Contains("\r\n", StringComparison.Ordinal)
+            ? "\r\n"
+            : "\n";
+
         StringBuilder sb = new(content);
 
         for (int i = matches.Count - 1; i >= 0; i--)
         {
             Match match = matches[i];
-            string path = match.Groups[1].Value;
 
-            string? replacement = await ResolveImportAsync(path, biakFullPath);
+            string value = match.Groups[1].Success
+                ? match.Groups[1].Value
+                : match.Groups[2].Value;
+
+            string? replacement = await ResolveImportAsync(value, biakFullPath, newline);
 
             if (replacement != null)
             {
@@ -58,24 +70,57 @@ public static class ImportHelper
         return sb.ToString();
     }
 
-    private static async Task<string?> ResolveImportAsync(string path, string biakFullPath)
+    private static async Task<string?> ResolveImportAsync(string value, string biakFullPath, string newline)
     {
+        if (Uri.TryCreate(value, UriKind.Absolute, out Uri? uri) &&
+            (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps))
+        {
+            HttpResponseMessage response;
+
+            try
+            {
+                response = await s_httpClient.GetAsync(uri);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"{ImportConstant.UNABLE_TO_RETRIEVE_CONTENT_FROM_LINK} {value} (StackTrace: {ex.ToString})");
+                return null;
+            }
+
+            if (!response.IsSuccessStatusCode)
+            {
+                Console.WriteLine($"{ImportConstant.UNABLE_TO_RETRIEVE_CONTENT_FROM_LINK} {value} (HTTP {(int)response.StatusCode} {response.ReasonPhrase})");
+                return null;
+            }
+
+            string responseContent = await response.Content.ReadAsStringAsync();
+            return NormalizeLineEndings(responseContent, newline);
+        }
+
         string fullPath = Path.GetFullPath(
-            Path.Join(biakFullPath, path)
+            Path.Join(biakFullPath, value)
         );
 
         if (!fullPath.StartsWith(biakFullPath, StringComparison.OrdinalIgnoreCase))
         {
-            Console.WriteLine($"{ImportConstant.FORBIDDEN_OUTSIDE} {path}");
+            Console.WriteLine($"{ImportConstant.FORBIDDEN_OUTSIDE} {value}");
             return null;
         }
 
         if (!File.Exists(fullPath))
         {
-            Console.WriteLine($"{ImportConstant.FILE_NOT_FOUND} {path}");
+            Console.WriteLine($"{ImportConstant.FILE_NOT_FOUND} {value}");
             return null;
         }
 
         return await File.ReadAllTextAsync(fullPath);
+    }
+
+    private static string NormalizeLineEndings(string content, string newline)
+    {
+        return content
+            .Replace("\r\n", "\n", StringComparison.Ordinal)
+            .Replace("\r", "\n", StringComparison.Ordinal)
+            .Replace("\n", newline, StringComparison.Ordinal);
     }
 }
