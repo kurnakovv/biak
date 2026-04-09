@@ -75,26 +75,24 @@ public static class ImportHelper
         if (Uri.TryCreate(value, UriKind.Absolute, out Uri? uri) &&
             (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps))
         {
-            HttpResponseMessage response;
-
             try
             {
-                response = await s_httpClient.GetAsync(uri);
+                using HttpResponseMessage response = await s_httpClient.GetAsync(uri);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    Console.WriteLine($"{ImportConstant.UNABLE_TO_RETRIEVE_CONTENT_FROM_LINK} {value} (HTTP {(int)response.StatusCode} {response.ReasonPhrase})");
+                    return null;
+                }
+
+                string responseContent = await response.Content.ReadAsStringAsync();
+                return NormalizeLineEndings(responseContent, newline);
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"{ImportConstant.UNABLE_TO_RETRIEVE_CONTENT_FROM_LINK} {value} (StackTrace: {ex})");
                 return null;
             }
-
-            if (!response.IsSuccessStatusCode)
-            {
-                Console.WriteLine($"{ImportConstant.UNABLE_TO_RETRIEVE_CONTENT_FROM_LINK} {value} (HTTP {(int)response.StatusCode} {response.ReasonPhrase})");
-                return null;
-            }
-
-            string responseContent = await response.Content.ReadAsStringAsync();
-            return NormalizeLineEndings(responseContent, newline);
         }
 
         string fullPath = Path.GetFullPath(
