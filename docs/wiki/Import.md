@@ -1,5 +1,5 @@
 ## 📙 Description
-Import specific rule groups (e.g., CA / IDE / SA / Roslynator, etc.) from separate files for better organization and maintainability.
+Import specific rule groups (e.g., CA / IDE / SA / Roslynator, etc.) from separate files or URL's for better organization and maintainability.
 
 ## 💻 Usage
 .editorconfig-main
@@ -108,13 +108,32 @@ dotnet_diagnostic.SA1003.severity = error # https://github.com/DotNetAnalyzers/S
 ```
 As you can see, imports were replaced by content from these same files.
 
+This feature can also be used for links and will work in the same way as for files.
+```.editorconfig
+root = true
+
+[*]
+insert_final_newline = true
+indent_style = space
+indent_size = 4
+trim_trailing_whitespace = true
+
+# Code analysis (CAxxxx) rules
+^biak^ import https://gist.githubusercontent.com/kurnakovv/7ca966f8099209136f4baa87d804d39c/raw/cfb32e5b1da5c9dcd7340de5f1d166109642979d/.editorconfig
+
+# Code-style (IDExxxx) rules
+^biak^ import https://gist.githubusercontent.com/kurnakovv/b396696805339988a547c6d53a0d0254/raw/193bb9d95f8132a690d7a3e51aa8291bd2bb4dba/.editorconfig
+```
+
 ## 🗒️ Notes
 * Import files only from the `.biak` folder. This is done for security purposes, so that an attacker cannot import files outside `.biak` and, for example, obtain the contents of secret files `^biak^ import "../../secretFile"` -> `mySuperSecretValue`. If this rule is violated, a warning will be issued and this import will not be replaced.
 
 * If file not found, then a warning will be issued and this import will not be replaced.
 
+* If the content from the URL could not be obtained, then, then a warning will be issued and this import will not be replaced.
+
 * If the import is commented out `# ^biak^ import "..."`, it will not be applied.
 
 ## 🔗 Links
-* Issues: [#62](https://github.com/kurnakovv/biak/issues/62)
+* Issues: [#62](https://github.com/kurnakovv/biak/issues/62) | [#64](https://github.com/kurnakovv/biak/issues/64)
 * Source code: [click](https://github.com/kurnakovv/biak/blob/dev/src/Biak.ConsoleApp/Helpers/ImportHelper.cs)
