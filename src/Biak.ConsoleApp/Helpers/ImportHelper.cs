@@ -14,7 +14,12 @@ namespace Biak.ConsoleApp.Helpers;
 /// </summary>
 public static class ImportHelper
 {
-    private static readonly HttpClient s_httpClient = new()
+    private static readonly HttpClient s_httpClient = new(
+        new HttpClientHandler()
+        {
+            AllowAutoRedirect = false,
+        }
+    )
     {
         Timeout = TimeSpan.FromSeconds(30),
     };
