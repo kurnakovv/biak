@@ -83,7 +83,7 @@ public static class ImportHelper
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"{ImportConstant.UNABLE_TO_RETRIEVE_CONTENT_FROM_LINK} {value} (StackTrace: {ex.ToString})");
+                Console.WriteLine($"{ImportConstant.UNABLE_TO_RETRIEVE_CONTENT_FROM_LINK} {value} (StackTrace: {ex})");
                 return null;
             }
 
