@@ -10,9 +10,9 @@ namespace Biak.ConsoleApp.Constants;
 public static class ImportConstant
 {
     /// <summary>
-    /// Invalid URL format.
+    /// Warning for disallowed URLs: non-HTTPS or private/localhost addresses.
     /// </summary>
-    public const string INVALID_URL_FORMAT = $"{WARNING} Invalid URL format:";
+    public const string URL_NOT_ALLOWED = $"{WARNING} Only HTTPS URLs are allowed, and private or localhost addresses are blocked:";
 
     /// <summary>
     /// Unable to retrieve content from link.
