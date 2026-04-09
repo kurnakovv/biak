@@ -1,5 +1,5 @@
 ## 📙 Description
-Import specific rule groups (e.g., CA / IDE / SA / Roslynator, etc.) from separate files or URL's for better organization and maintainability.
+Import specific rule groups (e.g., CA / IDE / SA / Roslynator, etc.) from separate files or URLs for better organization and maintainability.
 
 ## 💻 Usage
 .editorconfig-main
@@ -130,7 +130,7 @@ trim_trailing_whitespace = true
 
 * If file not found, then a warning will be issued and this import will not be replaced.
 
-* If the content from the URL could not be obtained, then, then a warning will be issued and this import will not be replaced.
+* If the content from the URL could not be obtained, then a warning will be issued and this import will not be replaced.
 
 * If the import is commented out `# ^biak^ import "..."`, it will not be applied.
 
