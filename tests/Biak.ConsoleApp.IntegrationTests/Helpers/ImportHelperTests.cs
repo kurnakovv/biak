@@ -428,4 +428,42 @@ public class ImportHelperTests
             Console.SetOut(originalOut);
         }
     }
+
+    [Theory]
+    [InlineData("^biak^ import http://example.com/file.txt")]
+    [InlineData("^biak^ import https://127.0.0.1/secret.txt")]
+    [InlineData("^biak^ import https://[::1]/secret.txt")]
+    [InlineData("^biak^ import http://10.0.0.1")]
+    [InlineData("^biak^ import http://172.16.0.1")]
+    [InlineData("^biak^ import http://172.31.255.255")]
+    [InlineData("^biak^ import http://192.168.0.1")]
+    [InlineData("^biak^ import http://169.254.0.1")]
+    [InlineData("^biak^ import https://10.0.0.1/file.txt")]
+    [InlineData("^biak^ import https://172.16.0.1/file.txt")]
+    [InlineData("^biak^ import https://192.168.0.1/file.txt")]
+    [InlineData("^biak^ import https://169.254.0.1/file.txt")]
+    [InlineData("^biak^ import https://172.31.255.255/file.txt")]
+    [InlineData("^biak^ import https://169.254.254.1/file.txt")]
+    [InlineData("^biak^ import https://localhost/file.txt")]
+    [InlineData("^biak^ import https://myinternal.local/file.txt")]
+    public async Task ReplaceTestInvalidUrlAsync(string input)
+    {
+        TextWriter originalOut = Console.Out;
+        await using StringWriter output = new();
+        Console.SetOut(output);
+
+        try
+        {
+            string result = await ImportHelper.ReplaceAsync(input);
+
+            Assert.Equal(input, result);
+
+            string outputResult = output.ToString();
+            Assert.Contains(ImportConstant.INVALID_URL_FORMAT, outputResult, StringComparison.OrdinalIgnoreCase);
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+        }
+    }
 }

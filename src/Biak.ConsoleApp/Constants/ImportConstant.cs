@@ -10,9 +10,14 @@ namespace Biak.ConsoleApp.Constants;
 public static class ImportConstant
 {
     /// <summary>
+    /// Invalid URL format.
+    /// </summary>
+    public const string INVALID_URL_FORMAT = $"{WARNING} Invalid URL format:";
+
+    /// <summary>
     /// Unable to retrieve content from link.
     /// </summary>
-    public const string UNABLE_TO_RETRIEVE_CONTENT_FROM_LINK = $"{WARNING} Unable to retrieve content from link";
+    public const string UNABLE_TO_RETRIEVE_CONTENT_FROM_LINK = $"{WARNING} Unable to retrieve content from link:";
 
     /// <summary>
     /// Forbidden outside .biak folder.
