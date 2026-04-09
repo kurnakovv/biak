@@ -146,12 +146,7 @@ public static class ImportHelper
 
             IPAddress[] addresses = await Dns.GetHostAddressesAsync(host);
 
-            if (addresses.Any(IsPrivateIp))
-            {
-                return true;
-            }
-
-            return true;
+            return !addresses.Any(IsPrivateIp);
         }
         catch
         {
