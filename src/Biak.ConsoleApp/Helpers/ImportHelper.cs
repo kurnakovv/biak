@@ -77,7 +77,7 @@ public static class ImportHelper
         {
             if (uri.Scheme != Uri.UriSchemeHttps || !await IsSafeUriAsync(uri))
             {
-                Console.WriteLine($"{ImportConstant.INVALID_URL_FORMAT} {value}");
+                Console.WriteLine($"{ImportConstant.URL_NOT_ALLOWED} {value}");
                 return null;
             }
 
