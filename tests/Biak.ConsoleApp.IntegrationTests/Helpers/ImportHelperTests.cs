@@ -445,7 +445,7 @@ public class ImportHelperTests
     [InlineData("^biak^ import https://172.31.255.255/file.txt")]
     [InlineData("^biak^ import https://169.254.254.1/file.txt")]
     [InlineData("^biak^ import https://localhost/file.txt")]
-    [InlineData("^biak^ import https://myinternal.local/file.txt")]
+    [InlineData("^biak^ import https://example.invalid/file.txt")]
     public async Task ReplaceTestInvalidUrlAsync(string input)
     {
         TextWriter originalOut = Console.Out;
