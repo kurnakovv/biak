@@ -1,5 +1,5 @@
 ## 📙 Description
-Import specific rule groups (e.g., CA / IDE / SA / Roslynator, etc.) from separate files or URL's for better organization and maintainability.
+Import specific rule groups (e.g., CA / IDE / SA / Roslynator, etc.) from separate files or URLs for better organization and maintainability.
 
 ## 💻 Usage
 .editorconfig-main
