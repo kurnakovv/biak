@@ -18,6 +18,7 @@ public static class ImportHelper
         new HttpClientHandler()
         {
             AllowAutoRedirect = false,
+            CheckCertificateRevocationList = true,
         }
     )
     {
