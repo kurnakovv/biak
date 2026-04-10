@@ -198,22 +198,27 @@ public static class ImportHelper
 
     private static async Task HandleFailureBehaviorAsync(FailureBehaviorType onImportFailure, string message)
     {
-        if (onImportFailure == FailureBehaviorType.Nothing)
+        switch (onImportFailure)
         {
-            return;
-        }
-        else if (onImportFailure == FailureBehaviorType.Warning)
-        {
-            Console.WriteLine(message);
-        }
-        else if (onImportFailure == FailureBehaviorType.Error)
-        {
-            await Console.Error.WriteLineAsync(message);
-            Environment.Exit(1);
-        }
-        else
-        {
-            throw new NotImplementedException(ImportConstant.FAILURE_BEHAVIOR_TYPE_NOT_IMPLEMENTED);
+            case FailureBehaviorType.Nothing:
+            {
+                return;
+            }
+            case FailureBehaviorType.Warning:
+            {
+                Console.WriteLine(message);
+                return;
+            }
+            case FailureBehaviorType.Error:
+            {
+                await Console.Error.WriteLineAsync(message);
+                Environment.Exit(1);
+                return;
+            }
+            default:
+            {
+                throw new NotImplementedException(ImportConstant.FAILURE_BEHAVIOR_TYPE_NOT_IMPLEMENTED);
+            }
         }
     }
 }
