@@ -2,8 +2,6 @@
 // This file is licensed under the MIT License.
 // See the LICENSE file in the project root for full license information.
 
-using System.Diagnostics;
-using System.Reflection;
 using Biak.ConsoleApp.Constants;
 using Biak.ConsoleApp.Enums;
 using Biak.ConsoleApp.Helpers;
