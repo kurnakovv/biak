@@ -2,7 +2,10 @@
 // This file is licensed under the MIT License.
 // See the LICENSE file in the project root for full license information.
 
+using System.Diagnostics;
+using System.Reflection;
 using Biak.ConsoleApp.Constants;
+using Biak.ConsoleApp.Enums;
 using Biak.ConsoleApp.Helpers;
 using Biak.ConsoleApp.IntegrationTests.Mock;
 
@@ -412,7 +415,7 @@ public class ImportHelperTests
         {
             Directory.SetCurrentDirectory(testDir.Value);
 
-            string result = await ImportHelper.ReplaceAsync(inputContent);
+            string result = await ImportHelper.ReplaceAsync(inputContent, FailureBehaviorType.Warning);
 
             Assert.Equal(outputContent, result);
 
@@ -454,7 +457,7 @@ public class ImportHelperTests
 
         try
         {
-            string result = await ImportHelper.ReplaceAsync(input);
+            string result = await ImportHelper.ReplaceAsync(input, FailureBehaviorType.Warning);
 
             Assert.Equal(input, result);
 
