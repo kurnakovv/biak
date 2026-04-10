@@ -137,7 +137,7 @@ trim_trailing_whitespace = true
 * If the import is commented out `# ^biak^ import "..."`, it will not be applied.
 
 > [!NOTE]
-> You can override the behavior of warnings using a `onImportFailure` config field ([docs](Config)).
+> You can override the behavior on import failures using the `onImportFailure` config field ([docs](Config)).
 
 ## 🔗 Links
 * Issues: [#62](https://github.com/kurnakovv/biak/issues/62) | [#64](https://github.com/kurnakovv/biak/issues/64)
