@@ -35,7 +35,7 @@ public class BiakConfig
     public IEnumerable<SeverityLevelType>? SeveritiesToDisable { get; set; } = DefaultSeveritiesToDisable;
 
     /// <summary>
-    /// A field that allows you to control the behavior of the biak when it is not possible to substitute the import value for various reasons. Default is Warning.
+    /// Controls what happens when an import cannot be resolved, for example because a file is missing or a URL is blocked or unreachable. Default is Warning.
     /// </summary>
     public FailureBehaviorType OnImportFailure { get; init; } = FailureBehaviorType.Warning;
 }
