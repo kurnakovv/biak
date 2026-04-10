@@ -6,6 +6,7 @@ using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using Biak.ConsoleApp.Constants;
+using Biak.ConsoleApp.Enums;
 
 namespace Biak.ConsoleApp.Helpers;
 
@@ -34,8 +35,9 @@ public static class ImportHelper
     /// Replace imports with file content.
     /// </summary>
     /// <param name="content">.editorconfig content.</param>
+    /// <param name="onImportFailure">What to do on import failure.</param>
     /// <returns>Replaced content with imports.</returns>
-    public static async Task<string> ReplaceAsync(string content)
+    public static async Task<string> ReplaceAsync(string content, FailureBehaviorType onImportFailure)
     {
         if (string.IsNullOrWhiteSpace(content))
         {
@@ -65,7 +67,7 @@ public static class ImportHelper
                 ? match.Groups[1].Value
                 : match.Groups[2].Value;
 
-            string? replacement = await ResolveImportAsync(value, biakFullPath, newline);
+            string? replacement = await ResolveImportAsync(value, biakFullPath, newline, onImportFailure);
 
             if (replacement != null)
             {
@@ -77,13 +79,18 @@ public static class ImportHelper
         return sb.ToString();
     }
 
-    private static async Task<string?> ResolveImportAsync(string value, string biakFullPath, string newline)
+    private static async Task<string?> ResolveImportAsync(
+        string value,
+        string biakFullPath,
+        string newline,
+        FailureBehaviorType onImportFailure
+    )
     {
         if (Uri.TryCreate(value, UriKind.Absolute, out Uri? uri))
         {
             if (uri.Scheme != Uri.UriSchemeHttps || !await IsSafeUriAsync(uri))
             {
-                Console.WriteLine($"{ImportConstant.URL_NOT_ALLOWED} {value}");
+                await HandleFailureBehaviorAsync(onImportFailure, $"{ImportConstant.URL_NOT_ALLOWED} {value}");
                 return null;
             }
 
@@ -93,7 +100,7 @@ public static class ImportHelper
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    Console.WriteLine($"{ImportConstant.UNABLE_TO_RETRIEVE_CONTENT_FROM_LINK} {value} (HTTP {(int)response.StatusCode} {response.ReasonPhrase})");
+                    await HandleFailureBehaviorAsync(onImportFailure, $"{ImportConstant.UNABLE_TO_RETRIEVE_CONTENT_FROM_LINK} {value} (HTTP {(int)response.StatusCode} {response.ReasonPhrase})");
                     return null;
                 }
 
@@ -102,7 +109,7 @@ public static class ImportHelper
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"{ImportConstant.UNABLE_TO_RETRIEVE_CONTENT_FROM_LINK} {value} (Reason: {ex.Message})");
+                await HandleFailureBehaviorAsync(onImportFailure, $"{ImportConstant.UNABLE_TO_RETRIEVE_CONTENT_FROM_LINK} {value} (Reason: {ex.Message})");
                 return null;
             }
         }
@@ -113,13 +120,13 @@ public static class ImportHelper
 
         if (!fullPath.StartsWith(biakFullPath, StringComparison.OrdinalIgnoreCase))
         {
-            Console.WriteLine($"{ImportConstant.FORBIDDEN_OUTSIDE} {value}");
+            await HandleFailureBehaviorAsync(onImportFailure, $"{ImportConstant.FORBIDDEN_OUTSIDE} {value}");
             return null;
         }
 
         if (!File.Exists(fullPath))
         {
-            Console.WriteLine($"{ImportConstant.FILE_NOT_FOUND} {value}");
+            await HandleFailureBehaviorAsync(onImportFailure, $"{ImportConstant.FILE_NOT_FOUND} {value}");
             return null;
         }
 
@@ -187,5 +194,26 @@ public static class ImportHelper
         }
 
         return false;
+    }
+
+    private static async Task HandleFailureBehaviorAsync(FailureBehaviorType onImportFailure, string message)
+    {
+        if (onImportFailure == FailureBehaviorType.Nothing)
+        {
+            return;
+        }
+        else if (onImportFailure == FailureBehaviorType.Warning)
+        {
+            Console.WriteLine(message);
+        }
+        else if (onImportFailure == FailureBehaviorType.Error)
+        {
+            await Console.Error.WriteLineAsync(message);
+            Environment.Exit(1);
+        }
+        else
+        {
+            throw new NotImplementedException(ImportConstant.FAILURE_BEHAVIOR_TYPE_NOT_IMPLEMENTED);
+        }
     }
 }

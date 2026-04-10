@@ -33,4 +33,9 @@ public class BiakConfig
     /// This field will allow users to specify which analyzer severities should be replaced when running the `dotnet biak disable` command.
     /// </summary>
     public IEnumerable<SeverityLevelType>? SeveritiesToDisable { get; set; } = DefaultSeveritiesToDisable;
+
+    /// <summary>
+    /// A field that allows you to control the behavior of the biak when it is not possible to substitute the import value for various reasons. Default is Warning.
+    /// </summary>
+    public FailureBehaviorType OnImportFailure { get; init; } = FailureBehaviorType.Warning;
 }
