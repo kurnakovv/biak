@@ -37,6 +37,8 @@
 
 * 🔒 Always enabled rules | Override selected rules (e.g., formatting rules) so they remain active even when you run the disable command (soon 🔜).
 
+* 📦 Variables | Extract duplicate strings (e.g., file paths) into reusable variables ([docs](https://github.com/kurnakovv/biak/wiki/Variables)).
+
 * 🔎 Include/Exclude filter | Apply rules to all C# `[*.cs]` files except selected ones (e.g., `[{TestClass1.cs,TestClass2.cs}]`). While `[!name]` ([what?](https://editorconfig.org/#wildcards)) is supported, it affects all file types - not just C# files (soon 🔜).
 
 * 🕸️ Apply rules without git conflicts | Automatically detect all active branches, run `dotnet format` (no changes), and identify conflicting files. This is especially useful for legacy projects with many rule violations, allowing gradual integration without major conflicts (soon 🔜).

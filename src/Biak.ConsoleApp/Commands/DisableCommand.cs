@@ -49,6 +49,7 @@ public static class DisableCommand
             severitiesToDisable: config.SeveritiesToDisable ?? BiakConfig.DefaultSeveritiesToDisable,
             severityWhenDisabled: config.SeverityWhenDisabled
         );
+        content = VariableHelper.Substitute(content);
         content = EditorconfigHelper.AddAttentionBanners(content);
         await File.WriteAllTextAsync(editorconfigPaths.Value, content);
 
