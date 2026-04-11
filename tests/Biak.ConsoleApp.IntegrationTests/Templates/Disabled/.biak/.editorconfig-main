@@ -1,5 +1,6 @@
 root = true
 
+^biak^ var appInterfaces = "**Endpoint.cs,**Controller.cs,**Hub*";
 [*]
 insert_final_newline = true
 indent_style = space
@@ -1033,7 +1034,7 @@ dotnet_diagnostic.rcs1266.severity = error # RCS1266: Use raw string literal htt
 
 roslynator_block_braces_style = single_line_when_empty
 
-[{**Endpoint.cs,**Controller.cs,**Hub*}]
+[{$appInterfaces}]
 dotnet_diagnostic.rcs1046.severity = none # RCS1046: Asynchronous method name should end with 'Async' https://josefpihrt.github.io/docs/roslynator/analyzers/RCS1046
 
 [*.cs]
