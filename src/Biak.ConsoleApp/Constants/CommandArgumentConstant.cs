@@ -28,4 +28,9 @@ public static class CommandArgumentConstant
     /// Disable .editorconfig rules.
     /// </summary>
     public const string DISABLE = "disable";
+
+    /// <summary>
+    /// Find active branches with files.
+    /// </summary>
+    public const string FIND_ACTIVITY = "find-activity";
 }

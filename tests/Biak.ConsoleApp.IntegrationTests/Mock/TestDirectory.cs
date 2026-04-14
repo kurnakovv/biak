@@ -28,4 +28,26 @@ public class TestDirectory
             overwrite: true
         );
     }
+
+    public void CopyDirectory(string sourceDir, bool overwrite = false)
+    {
+        DirectoryInfo dir = new(sourceDir);
+
+        if (!dir.Exists)
+        {
+            throw new DirectoryNotFoundException($"Source directory not found: {sourceDir}");
+        }
+
+        foreach (FileInfo file in dir.GetFiles())
+        {
+            string targetFilePath = Path.Combine(Value, file.Name);
+            file.CopyTo(targetFilePath, overwrite);
+        }
+
+        foreach (DirectoryInfo subDir in dir.GetDirectories())
+        {
+            string newDestinationDir = Path.Combine(Value, subDir.Name);
+            CopyDirectory(subDir.FullName, overwrite);
+        }
+    }
 }
