@@ -69,7 +69,7 @@ public static class FindActivityCommand
             }
 
             string hash = (await GitHelper.RunAsync($"merge-base HEAD {branch}")).Trim();
-            string diffFilesOutput = await GitHelper.RunAsync($"diff {hash}..{branch} --name-only --diff-filter=MAR");
+            string diffFilesOutput = await GitHelper.RunAsync($"diff {hash}..{branch} --name-only --diff-filter=MDR");
             if (string.IsNullOrWhiteSpace(diffFilesOutput))
             {
                 inactiveBranches.Add(branch);
