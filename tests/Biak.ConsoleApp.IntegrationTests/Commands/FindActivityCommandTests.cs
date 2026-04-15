@@ -27,7 +27,8 @@ public class FindActivityCommandTests
             string templateSimpleProject = Path.Join(
                 AppContext.BaseDirectory,
                 "Templates",
-                "SimpleProject"
+                "SimpleProject",
+                "MySimpleProjectTemplate"
             );
 
             testDir.CopyDirectory(templateSimpleProject);
