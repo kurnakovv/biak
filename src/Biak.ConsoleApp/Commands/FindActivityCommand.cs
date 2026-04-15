@@ -68,7 +68,8 @@ public static class FindActivityCommand
                 continue;
             }
 
-            string diffFilesOutput = await GitHelper.RunAsync($"diff {branch} --name-only --diff-filter=MAR");
+            string hash = (await GitHelper.RunAsync($"merge-base HEAD {branch}")).Trim();
+            string diffFilesOutput = await GitHelper.RunAsync($"diff {hash}..{branch} --name-only --diff-filter=MAR");
             if (string.IsNullOrWhiteSpace(diffFilesOutput))
             {
                 inactiveBranches.Add(branch);
@@ -101,12 +102,12 @@ public static class FindActivityCommand
         Console.WriteLine("Activity");
         foreach ((string file, List<string> activeBranches) in activity)
         {
-            Console.WriteLine($"{file} [{string.Join(", ", activeBranches)}]");
+            Console.WriteLine($"{file} [{string.Join(" ", activeBranches)}]");
         }
 
         Console.WriteLine();
         Console.WriteLine("Inactive branches");
-        Console.WriteLine(string.Join(", ", inactiveBranches));
+        Console.WriteLine(string.Join(" ", inactiveBranches));
 
         Console.WriteLine();
         Console.WriteLine("All active files in single line");
