@@ -100,36 +100,60 @@ public static class FindActivityCommand
         }
 
         Console.WriteLine("Activity");
-        foreach ((string file, List<string> activeBranches) in activity)
+        if (activity.Count != 0)
         {
-            Console.WriteLine($"{file} [{string.Join(" ", activeBranches)}]");
+            foreach ((string file, List<string> activeBranches) in activity)
+            {
+                Console.WriteLine($"{file} [{string.Join(" ", activeBranches)}]");
+            }
+        }
+        else
+        {
+            Console.WriteLine("Empty");
         }
 
         Console.WriteLine();
         Console.WriteLine("Inactive branches");
-        Console.WriteLine(string.Join(" ", inactiveBranches));
-
-        Console.WriteLine();
-        Console.WriteLine("All active files in single line");
-        Console.Write("**");
-        Console.WriteLine(string.Join(",**", activity.Keys));
+        if (inactiveBranches.Count != 0)
+        {
+            Console.WriteLine(string.Join(" ", inactiveBranches));
+        }
+        else
+        {
+            Console.WriteLine("Empty");
+        }
 
         List<string> keys = activity.Keys.ToList();
 
+        Console.WriteLine();
+        Console.WriteLine("All active files in single line");
         if (keys.Count != 0)
         {
-            Console.WriteLine();
-            Console.WriteLine("All active files via variable");
+            Console.WriteLine(string.Join(",", keys));
+        }
+        else
+        {
+            Console.WriteLine("Empty");
+        }
 
+        Console.WriteLine();
+        Console.WriteLine("All active files via variable");
+
+        if (keys.Count != 0)
+        {
             string result = "var activeFiles = " +
                 string.Join(
                     "\n    + ",
-                    keys.Select((key, index) => $"\"**{key}\"")
+                    keys.Select((key, index) => $"\"{key}\"")
                 );
 
             result += ";";
 
             Console.WriteLine(result);
+        }
+        else
+        {
+            Console.WriteLine("Empty");
         }
     }
 }
