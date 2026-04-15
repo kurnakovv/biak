@@ -113,7 +113,7 @@ public class FindActivityCommandTests
         await GitHelper.RunAsync($"checkout {defaultBranch}");
 
         await GitHelper.RunAsync("checkout -b change-testservice1");
-        string testService1Path = Path.Join($"TestService1.cs");
+        string testService1Path = Path.Join("TestService1.cs");
         string testService1Content = await File.ReadAllTextAsync(testService1Path);
         testService1Content += " ";
         await File.WriteAllTextAsync(testService1Path, testService1Content);
