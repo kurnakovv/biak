@@ -31,8 +31,9 @@ public static class FindActivityCommand
     /// <returns><placeholder>A <see cref="Task"/> representing the asynchronous operation.</placeholder></returns>
     public static async Task RunAsync()
     {
-        string branchOutput = await GitHelper.RunAsync("branch");
-        string remoteBranchOutput = await GitHelper.RunAsync("branch -r");
+        Console.WriteLine("Start find activity...");
+        string branchOutput = await GitHelper.RunAsync("branch --no-merged");
+        string remoteBranchOutput = await GitHelper.RunAsync("branch -r --no-merged");
 
         IEnumerable<string> branches = branchOutput
             .Split(s_separator, StringSplitOptions.RemoveEmptyEntries)
