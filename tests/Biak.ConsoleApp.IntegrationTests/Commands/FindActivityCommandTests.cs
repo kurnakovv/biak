@@ -92,23 +92,23 @@ public class FindActivityCommandTests
         await GitHelper.RunAsync($"checkout {defaultBranch}");
 
         await GitHelper.RunAsync("checkout -b no-cs-file-changes");
-        string gitattributesPath = Path.Join($".gitattributes");
+        string gitattributesPath = Path.Join(".gitattributes");
         string gitattributesContent = await File.ReadAllTextAsync(gitattributesPath);
         gitattributesContent += " ";
         await File.WriteAllTextAsync(gitattributesPath, gitattributesContent);
         await GitHelper.RunAsync("add .");
-        await GitHelper.RunAsync($"commit -m \"Update .gitattributes\"");
+        await GitHelper.RunAsync("commit -m \"Update .gitattributes\"");
         await GitHelper.RunAsync($"checkout {defaultBranch}");
 
         await GitHelper.RunAsync("checkout -b old-branch");
-        string testService9Path = Path.Join($"TestService9.cs");
+        string testService9Path = Path.Join("TestService9.cs");
         string testService9Content = await File.ReadAllTextAsync(testService9Path);
         testService9Content += " ";
         await File.WriteAllTextAsync(testService9Path, testService9Content);
         await GitHelper.RunAsync("add .");
         string? originCommitterDate = Environment.GetEnvironmentVariable("GIT_COMMITTER_DATE");
         Environment.SetEnvironmentVariable("GIT_COMMITTER_DATE", "2021-01-01 12:12:00");
-        await GitHelper.RunAsync($"commit --date=\"2021-01-01 12:12:00\" -m \"Update TestService9\"");
+        await GitHelper.RunAsync("commit --date=\"2021-01-01 12:12:00\" -m \"Update TestService9\"");
         Environment.SetEnvironmentVariable("GIT_COMMITTER_DATE", originCommitterDate);
         await GitHelper.RunAsync($"checkout {defaultBranch}");
 
@@ -118,7 +118,7 @@ public class FindActivityCommandTests
         testService1Content += " ";
         await File.WriteAllTextAsync(testService1Path, testService1Content);
         await GitHelper.RunAsync("add .");
-        await GitHelper.RunAsync($"commit -m \"Update TestService1\"");
+        await GitHelper.RunAsync("commit -m \"Update TestService1\"");
         await GitHelper.RunAsync($"checkout {defaultBranch}");
     }
 }
