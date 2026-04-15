@@ -31,6 +31,11 @@ public class TestDirectory
 
     public void CopyDirectory(string sourceDir, bool overwrite = false)
     {
+        CopyDirectory(sourceDir, Value, overwrite);
+    }
+
+    private static void CopyDirectory(string sourceDir, string destinationDir, bool overwrite)
+    {
         DirectoryInfo dir = new(sourceDir);
 
         if (!dir.Exists)
@@ -38,16 +43,18 @@ public class TestDirectory
             throw new DirectoryNotFoundException($"Source directory not found: {sourceDir}");
         }
 
+        Directory.CreateDirectory(destinationDir);
+
         foreach (FileInfo file in dir.GetFiles())
         {
-            string targetFilePath = Path.Combine(Value, file.Name);
+            string targetFilePath = Path.Combine(destinationDir, file.Name);
             file.CopyTo(targetFilePath, overwrite);
         }
 
         foreach (DirectoryInfo subDir in dir.GetDirectories())
         {
-            string newDestinationDir = Path.Combine(Value, subDir.Name);
-            CopyDirectory(subDir.FullName, overwrite);
+            string newDestinationDir = Path.Combine(destinationDir, subDir.Name);
+            CopyDirectory(subDir.FullName, newDestinationDir, overwrite);
         }
     }
 }
