@@ -2,6 +2,7 @@
 // This file is licensed under the MIT License.
 // See the LICENSE file in the project root for full license information.
 
+using System.Globalization;
 using Biak.ConsoleApp.Constants;
 using Biak.ConsoleApp.Helpers;
 
@@ -52,9 +53,81 @@ public static class FindActivityCommand
             .GroupBy(x => x.StartsWith(origin) ? x.Substring(origin.Length) : x)
             .Select(g => g.First());
 
-        foreach (string item in allBranches)
+        List<string> inactiveBranches = new();
+        Dictionary<string, List<string>> activity = new();
+
+        foreach (string branch in allBranches)
         {
-            Console.WriteLine(item);
+            string lastCommitDateOutput = await GitHelper.RunAsync($"log {branch} -1 --format=%cd --date=iso-strict");
+            DateTimeOffset lastCommitDate = DateTimeOffset.Parse(lastCommitDateOutput, CultureInfo.InvariantCulture);
+
+            if (lastCommitDate < DateTimeOffset.Now.AddMonths(-1))
+            {
+                inactiveBranches.Add(branch);
+                continue;
+            }
+
+            string diffFilesOutput = await GitHelper.RunAsync($"diff {branch} --name-only --diff-filter=MAR");
+            if (string.IsNullOrWhiteSpace(diffFilesOutput))
+            {
+                inactiveBranches.Add(branch);
+                continue;
+            }
+
+            IEnumerable<string> diffFiles = diffFilesOutput
+                .Split(s_separator, StringSplitOptions.RemoveEmptyEntries)
+                .Select(x => x.Trim())
+                .Where(x => x.EndsWith(".cs"));
+
+            if (!diffFiles.Any())
+            {
+                inactiveBranches.Add(branch);
+                continue;
+            }
+
+            foreach (string file in diffFiles)
+            {
+                if (!activity.TryGetValue(file, out List<string>? list))
+                {
+                    list = new List<string>();
+                    activity[file] = list;
+                }
+
+                list.Add(branch);
+            }
+        }
+
+        Console.WriteLine("Activity");
+        foreach ((string file, List<string> activeBranches) in activity)
+        {
+            Console.WriteLine($"{file} [{string.Join(", ", activeBranches)}]");
+        }
+
+        Console.WriteLine();
+        Console.WriteLine("Inactive branches");
+        Console.WriteLine(string.Join(", ", inactiveBranches));
+
+        Console.WriteLine();
+        Console.WriteLine("All active files in single line");
+        Console.Write("**");
+        Console.WriteLine(string.Join(",**", activity.Keys));
+
+        List<string> keys = activity.Keys.ToList();
+
+        if (keys.Count != 0)
+        {
+            Console.WriteLine();
+            Console.WriteLine("All active files via variable");
+
+            string result = "var activeFiles = " +
+                string.Join(
+                    "\n    + ",
+                    keys.Select((key, index) => $"\"**{key}\"")
+                );
+
+            result += ";";
+
+            Console.WriteLine(result);
         }
     }
 }
