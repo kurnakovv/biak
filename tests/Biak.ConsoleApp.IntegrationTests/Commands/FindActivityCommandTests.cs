@@ -15,7 +15,6 @@ public class FindActivityCommandTests
     {
         string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new($"{nameof(FindActivityCommandTests)}_{nameof(RunTestAsync)}");
-        await FindActivityCommand.RunAsync();
 
         TextWriter originalOut = Console.Out;
         await using StringWriter output = new();
@@ -73,13 +72,13 @@ public class FindActivityCommandTests
                 $"TestService{i}.cs"
             );
 
-            string content = await File.ReadAllTextAsync(testServicePath);
-            content = content.Replace(
+            string serviceContent = await File.ReadAllTextAsync(testServicePath);
+            serviceContent = serviceContent.Replace(
                 "Console.WriteLine(\"2\");",
                 "Console.WriteLine(\"2\");Console.WriteLine(\"test\");",
                 StringComparison.Ordinal
             );
-            await File.WriteAllTextAsync(testServicePath, content);
+            await File.WriteAllTextAsync(testServicePath, serviceContent);
 
             await GitHelper.RunAsync("add .");
 
@@ -87,5 +86,38 @@ public class FindActivityCommandTests
 
             await GitHelper.RunAsync($"checkout {defaultBranch}");
         }
+
+        await GitHelper.RunAsync("checkout -b empty-branch");
+        await GitHelper.RunAsync($"checkout {defaultBranch}");
+
+        await GitHelper.RunAsync("checkout -b no-cs-file-changes");
+        string gitattributesPath = Path.Join($".gitattributes");
+        string gitattributesContent = await File.ReadAllTextAsync(gitattributesPath);
+        gitattributesContent += " ";
+        await File.WriteAllTextAsync(gitattributesPath, gitattributesContent);
+        await GitHelper.RunAsync("add .");
+        await GitHelper.RunAsync($"commit -m \"Update .gitattributes\"");
+        await GitHelper.RunAsync($"checkout {defaultBranch}");
+
+        await GitHelper.RunAsync("checkout -b old-branch");
+        string testService9Path = Path.Join($"TestService9.cs");
+        string testService9Content = await File.ReadAllTextAsync(testService9Path);
+        testService9Content += " ";
+        await File.WriteAllTextAsync(testService9Path, testService9Content);
+        await GitHelper.RunAsync("add .");
+        string? originCommitterDate = Environment.GetEnvironmentVariable("GIT_COMMITTER_DATE");
+        Environment.SetEnvironmentVariable("GIT_COMMITTER_DATE", "2021-01-01 12:12:00");
+        await GitHelper.RunAsync($"commit --date=\"2021-01-01 12:12:00\" -m \"Update TestService9\"");
+        Environment.SetEnvironmentVariable("GIT_COMMITTER_DATE", originCommitterDate);
+        await GitHelper.RunAsync($"checkout {defaultBranch}");
+
+        await GitHelper.RunAsync("checkout -b change-testservice1");
+        string testService1Path = Path.Join($"TestService1.cs");
+        string testService1Content = await File.ReadAllTextAsync(testService1Path);
+        testService1Content += " ";
+        await File.WriteAllTextAsync(testService1Path, testService1Content);
+        await GitHelper.RunAsync("add .");
+        await GitHelper.RunAsync($"commit -m \"Update TestService1\"");
+        await GitHelper.RunAsync($"checkout {defaultBranch}");
     }
 }

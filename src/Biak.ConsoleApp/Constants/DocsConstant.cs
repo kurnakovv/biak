@@ -79,4 +79,5 @@ Enable / Disable .editorconfig rules | Change severity level with one command wi
 
 * Config (no command) | Configure biak behavior via the .biak/config.json file https://github.com/kurnakovv/biak/wiki/Config
 --------------------";
+    // ToDo: Add dotnet biak find-activity
 }

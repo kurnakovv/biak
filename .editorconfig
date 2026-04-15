@@ -333,6 +333,9 @@ dotnet_diagnostic.IDE0300.severity = none
 # Use collection expression for builder (IDE0304)
 dotnet_diagnostic.IDE0304.severity = none
 
+# Use collection expression for fluent (IDE0305)
+dotnet_diagnostic.IDE0305.severity = none
+
 # Use unbound generic type (IDE0340)
 csharp_style_prefer_unbound_generic_type_in_nameof = false
 dotnet_diagnostic.IDE0340.severity = none
