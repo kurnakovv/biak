@@ -47,13 +47,13 @@ public class TestDirectory
 
         foreach (FileInfo file in dir.GetFiles())
         {
-            string targetFilePath = Path.Combine(destinationDir, file.Name);
+            string targetFilePath = Path.Join(destinationDir, file.Name);
             file.CopyTo(targetFilePath, overwrite);
         }
 
         foreach (DirectoryInfo subDir in dir.GetDirectories())
         {
-            string newDestinationDir = Path.Combine(destinationDir, subDir.Name);
+            string newDestinationDir = Path.Join(destinationDir, subDir.Name);
             CopyDirectory(subDir.FullName, newDestinationDir, overwrite);
         }
     }
