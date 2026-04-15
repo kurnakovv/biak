@@ -114,27 +114,13 @@ public static class FindActivityCommand
 
         Console.WriteLine();
         Console.WriteLine("Inactive branches");
-        if (inactiveBranches.Count != 0)
-        {
-            Console.WriteLine(string.Join(" ", inactiveBranches));
-        }
-        else
-        {
-            Console.WriteLine("Empty");
-        }
+        Console.WriteLine(inactiveBranches.Count != 0 ? string.Join(" ", inactiveBranches) : "Empty");
 
         List<string> keys = activity.Keys.ToList();
 
         Console.WriteLine();
         Console.WriteLine("All active files in single line");
-        if (keys.Count != 0)
-        {
-            Console.WriteLine(string.Join(",", keys));
-        }
-        else
-        {
-            Console.WriteLine("Empty");
-        }
+        Console.WriteLine(keys.Count != 0 ? string.Join(",", keys) : "Empty");
 
         Console.WriteLine();
         Console.WriteLine("All active files via variable");
