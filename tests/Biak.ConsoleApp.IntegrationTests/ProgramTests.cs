@@ -111,6 +111,30 @@ public class ProgramTests
     }
 
     [Fact]
+    public async Task FindActivityCommandForCurrentRepoAsync()
+    {
+        TextWriter originalOut = Console.Out;
+        await using StringWriter output = new();
+        Console.SetOut(output);
+
+        try
+        {
+            await Program.Main([CommandArgumentConstant.FIND_ACTIVITY]);
+
+            string result = output.ToString().Trim();
+            Assert.Contains(FindActivityCommandConstant.START, result, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains(FindActivityCommandConstant.ACTIVITY, result, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains(FindActivityCommandConstant.INACTIVE_BRANCHES, result, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains(FindActivityCommandConstant.ACTIVITY_VIA_SINGLE_LINE, result, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains(FindActivityCommandConstant.ACTIVITY_VIA_VARIABLE, result, StringComparison.OrdinalIgnoreCase);
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+        }
+    }
+
+    [Fact]
     public async Task SetupWithInvalidCommandNoCommandMessageAsync()
     {
         TextWriter originalOut = Console.Out;
