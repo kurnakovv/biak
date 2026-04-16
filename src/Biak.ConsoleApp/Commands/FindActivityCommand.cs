@@ -130,7 +130,7 @@ public static class FindActivityCommand
             string result = "var activeFiles = " +
                 string.Join(
                     "\n    + ",
-                    keys.Select((key, index) => $"\"{key}\"")
+                    keys.Select((key, _) => $"\"{key}\"")
                 );
 
             result += ";";
