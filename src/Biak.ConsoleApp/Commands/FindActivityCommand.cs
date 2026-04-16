@@ -31,7 +31,7 @@ public static class FindActivityCommand
     /// <returns><placeholder>A <see cref="Task"/> representing the asynchronous operation.</placeholder></returns>
     public static async Task RunAsync()
     {
-        Console.WriteLine("Start find activity...");
+        Console.WriteLine(FindActivityCommandConstant.START);
         string branchOutput = await GitHelper.RunAsync("branch --no-merged");
         string remoteBranchOutput = await GitHelper.RunAsync("branch -r --no-merged");
 
@@ -47,11 +47,13 @@ public static class FindActivityCommand
             .Where(x => !x.Contains("->")); // StringComparison only for char
 #pragma warning restore CA1307 // Specify StringComparison for clarity
 
-        string origin = "origin/";
-
         IEnumerable<string> allBranches = branches
             .Concat(remoteBranches)
-            .GroupBy(x => x.StartsWith(origin) ? x.Substring(origin.Length) : x)
+            .GroupBy(
+                x => x.StartsWith(FindActivityCommandConstant.ORIGIN_PREFIX)
+                    ? x.Substring(FindActivityCommandConstant.ORIGIN_PREFIX.Length)
+                    : x
+            )
             .Select(g => g.First());
 
         List<string> inactiveBranches = new();
@@ -99,7 +101,7 @@ public static class FindActivityCommand
             }
         }
 
-        Console.WriteLine("Activity");
+        Console.WriteLine(FindActivityCommandConstant.ACTIVITY);
         if (activity.Count != 0)
         {
             foreach ((string file, List<string> activeBranches) in activity)
@@ -109,28 +111,28 @@ public static class FindActivityCommand
         }
         else
         {
-            Console.WriteLine("Empty");
+            Console.WriteLine(FindActivityCommandConstant.NO_ENTRIES);
         }
 
         Console.WriteLine();
-        Console.WriteLine("Inactive branches");
-        Console.WriteLine(inactiveBranches.Count != 0 ? string.Join(" ", inactiveBranches) : "Empty");
+        Console.WriteLine(FindActivityCommandConstant.INACTIVE_BRANCHES);
+        Console.WriteLine(inactiveBranches.Count != 0 ? string.Join(" ", inactiveBranches) : FindActivityCommandConstant.NO_ENTRIES);
 
         List<string> keys = activity.Keys.ToList();
 
         Console.WriteLine();
-        Console.WriteLine("All active files in single line");
-        Console.WriteLine(keys.Count != 0 ? string.Join(",", keys) : "Empty");
+        Console.WriteLine(FindActivityCommandConstant.ACTIVITY_VIA_SINGLE_LINE);
+        Console.WriteLine(keys.Count != 0 ? string.Join(",", keys) : FindActivityCommandConstant.NO_ENTRIES);
 
         Console.WriteLine();
-        Console.WriteLine("All active files via variable");
+        Console.WriteLine(FindActivityCommandConstant.ACTIVITY_VIA_VARIABLE);
 
         if (keys.Count != 0)
         {
             string result = "var activeFiles = " +
                 string.Join(
                     "\n    + ",
-                    keys.Select((key, _) => $"\"{key}\"")
+                    keys.Select(x => $"\"{x}\"")
                 );
 
             result += ";";
@@ -139,7 +141,7 @@ public static class FindActivityCommand
         }
         else
         {
-            Console.WriteLine("Empty");
+            Console.WriteLine(FindActivityCommandConstant.NO_ENTRIES);
         }
     }
 }
