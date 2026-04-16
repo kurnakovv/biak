@@ -69,9 +69,7 @@ public class FindActivityCommandTests
             string featureBranch = $"test-f-{i}";
             await GitHelper.RunAsync($"checkout -b {featureBranch}");
 
-            string testServicePath = Path.Join(
-                $"TestService{i}.cs"
-            );
+            string testServicePath = Path.Join($"TestService{i}.cs");
 
             string serviceContent = await File.ReadAllTextAsync(testServicePath);
             serviceContent = serviceContent.Replace(
@@ -119,6 +117,13 @@ public class FindActivityCommandTests
         await File.WriteAllTextAsync(testService1Path, testService1Content);
         await GitHelper.RunAsync("add .");
         await GitHelper.RunAsync("commit -m \"Update TestService1\"");
+        await GitHelper.RunAsync($"checkout {defaultBranch}");
+
+        await GitHelper.RunAsync("checkout -b f-new-cs-file");
+        string newTestFilePath = Path.Join("NewTestFile.cs");
+        await File.WriteAllTextAsync(newTestFilePath, "// Test");
+        await GitHelper.RunAsync("add .");
+        await GitHelper.RunAsync("commit -m \"Add NewTestFile.cs\"");
         await GitHelper.RunAsync($"checkout {defaultBranch}");
     }
 }
