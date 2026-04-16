@@ -106,7 +106,9 @@ public static class FindActivityCommand
         {
             foreach ((string file, List<string> activeBranches) in activity)
             {
-                Console.WriteLine($"{file} [{string.Join(" ", activeBranches)}]");
+                Console.WriteLine(file);
+                Console.WriteLine($"[{string.Join(" ", activeBranches)}]");
+                Console.WriteLine();
             }
         }
         else
