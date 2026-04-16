@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for full license information.
 
 using Biak.ConsoleApp.Commands;
+using Biak.ConsoleApp.Constants;
 using Biak.ConsoleApp.Helpers;
 using Biak.ConsoleApp.IntegrationTests.Mock;
 
@@ -39,6 +40,34 @@ public class FindActivityCommandTests
 
             string result = output.ToString();
             Assert.NotEmpty(result);
+            Assert.Equal(
+                $"""
+                {FindActivityCommandConstant.START}
+                {FindActivityCommandConstant.ACTIVITY}
+                TestService1.cs
+                [change-testservice1 test-f-1]
+
+                TestService2.cs
+                [test-f-2]
+
+                TestService3.cs
+                [test-f-3]
+
+
+                {FindActivityCommandConstant.INACTIVE_BRANCHES}
+                f-new-cs-file no-cs-file-changes old-branch
+
+                {FindActivityCommandConstant.ACTIVITY_VIA_SINGLE_LINE}
+                TestService1.cs,TestService2.cs,TestService3.cs
+
+                {FindActivityCommandConstant.ACTIVITY_VIA_VARIABLE}
+                var activeFiles = "TestService1.cs"
+                    + "TestService2.cs"
+                    + "TestService3.cs";
+
+                """,
+                result
+            );
         }
         finally
         {

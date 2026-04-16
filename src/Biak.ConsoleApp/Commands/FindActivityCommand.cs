@@ -133,7 +133,7 @@ public static class FindActivityCommand
         {
             string result = "var activeFiles = " +
                 string.Join(
-                    "\n    + ",
+                    Environment.NewLine + "    + ",
                     keys.Select(x => $"\"{x}\"")
                 );
 
