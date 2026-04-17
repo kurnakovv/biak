@@ -169,8 +169,7 @@ public static class FindActivityCommand
                 continue;
             }
 
-            string hash = (await GitHelper.RunAsync($"merge-base HEAD {defaultBranch} {branch}")).Trim();
-            string diffTypesInput = $"diff {hash}..{branch} --name-only";
+            string diffTypesInput = $"diff {defaultBranch}...{branch} --name-only";
             if (fileTypes != null)
             {
                 diffTypesInput += $" --diff-filter={fileTypes}";
