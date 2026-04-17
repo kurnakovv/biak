@@ -3,6 +3,8 @@
 // See the LICENSE file in the project root for full license information.
 
 using Biak.ConsoleApp.Constants;
+using Biak.ConsoleApp.Helpers;
+using Biak.ConsoleApp.IntegrationTests.Mock;
 
 namespace Biak.ConsoleApp.IntegrationTests;
 
@@ -113,6 +115,9 @@ public class ProgramTests
     [Fact]
     public async Task FindActivityCommandForCurrentRepoAsync()
     {
+        string originalDirectory = Directory.GetCurrentDirectory();
+        TestDirectory testDir = new($"{nameof(ProgramTests)}_{nameof(FindActivityCommandForCurrentRepoAsync)}");
+
         TextWriter originalOut = Console.Out;
         await using StringWriter output = new();
         Console.SetOut(output);
@@ -123,6 +128,24 @@ public class ProgramTests
 
         try
         {
+            Directory.SetCurrentDirectory(testDir.Value);
+
+            string templateSimpleProject = Path.Join(
+                AppContext.BaseDirectory,
+                "Templates",
+                "SimpleProject",
+                "MySimpleProjectTemplate"
+            );
+
+            testDir.CopyDirectory(templateSimpleProject);
+
+            await GitHelper.RunAsync("init");
+            await GitHelper.RunAsync("branch -m master main");
+            await GitHelper.RunAsync("config --local user.email \"test@example.com\"");
+            await GitHelper.RunAsync("config --local user.name \"Test User\"");
+            await GitHelper.RunAsync("add .");
+            await GitHelper.RunAsync("commit -m \"Initial commit\"");
+
             await Program.Main([CommandArgumentConstant.FIND_ACTIVITY]);
 
             string result = output.ToString().Trim();
@@ -136,6 +159,7 @@ public class ProgramTests
         {
             Console.SetOut(originalOut);
             Console.SetIn(originalIn);
+            Directory.SetCurrentDirectory(originalDirectory);
         }
     }
 
