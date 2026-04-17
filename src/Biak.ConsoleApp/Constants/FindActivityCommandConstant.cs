@@ -42,5 +42,5 @@ public static class FindActivityCommandConstant
     /// <summary>
     /// Origin prefix.
     /// </summary>
-    public const string ORIGIN_PREFIX = "/origin";
+    public const string ORIGIN_PREFIX = "origin/";
 }

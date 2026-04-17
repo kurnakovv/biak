@@ -117,6 +117,10 @@ public class ProgramTests
         await using StringWriter output = new();
         Console.SetOut(output);
 
+        TextReader originalIn = Console.In;
+        using StringReader input = new("\n\n\n\n");
+        Console.SetIn(input);
+
         try
         {
             await Program.Main([CommandArgumentConstant.FIND_ACTIVITY]);
@@ -131,6 +135,7 @@ public class ProgramTests
         finally
         {
             Console.SetOut(originalOut);
+            Console.SetIn(originalIn);
         }
     }
 
