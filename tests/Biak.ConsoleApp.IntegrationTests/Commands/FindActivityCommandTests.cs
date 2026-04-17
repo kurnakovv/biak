@@ -21,6 +21,10 @@ public class FindActivityCommandTests
         await using StringWriter output = new();
         Console.SetOut(output);
 
+        TextReader originalIn = Console.In;
+        using StringReader input = new("main\n35\nMD\n.cs,.vb\nbranch-for-exclude\n\n");
+        Console.SetIn(input);
+
         try
         {
             Directory.SetCurrentDirectory(testDir.Value);
@@ -40,7 +44,7 @@ public class FindActivityCommandTests
 
             string result = output.ToString();
             Assert.NotEmpty(result);
-            Assert.Equal(
+            Assert.Contains(
                 $"""
                 {FindActivityCommandConstant.START}
                 {FindActivityCommandConstant.ACTIVITY}
@@ -66,12 +70,14 @@ public class FindActivityCommandTests
                     + "TestService3.cs";
 
                 """,
-                result
+                result,
+                StringComparison.Ordinal
             );
         }
         finally
         {
             Console.SetOut(originalOut);
+            Console.SetIn(originalIn);
             Directory.SetCurrentDirectory(originalDirectory);
         }
     }
@@ -82,6 +88,8 @@ public class FindActivityCommandTests
 
         await GitHelper.RunAsync("config --local user.email \"test@example.com\"");
         await GitHelper.RunAsync("config --local user.name \"Test User\"");
+
+        await GitHelper.RunAsync("branch -m master main");
 
         await GitHelper.RunAsync("add .");
 
@@ -153,6 +161,14 @@ public class FindActivityCommandTests
         await File.WriteAllTextAsync(newTestFilePath, "// Test");
         await GitHelper.RunAsync("add .");
         await GitHelper.RunAsync("commit -m \"Add NewTestFile.cs\"");
+
+        await GitHelper.RunAsync("checkout -b branch-for-exclude");
+        testService1Content += " ";
+        await File.WriteAllTextAsync(testService1Path, testService1Content);
+        await GitHelper.RunAsync("add .");
+        await GitHelper.RunAsync("commit -m \"Update TestService1\"");
+        await GitHelper.RunAsync($"checkout {defaultBranch}");
+
         await GitHelper.RunAsync($"checkout {defaultBranch}");
     }
 }
