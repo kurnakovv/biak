@@ -31,7 +31,7 @@ public static class FindActivityCommand
     /// <returns><placeholder>A <see cref="Task"/> representing the asynchronous operation.</placeholder></returns>
     public static async Task RunAsync()
     {
-        await GitHelper.RunAsync($"status");
+        await GitHelper.RunAsync("status");
 
         Console.WriteLine("Please enter the desired criteria");
 
