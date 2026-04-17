@@ -36,7 +36,7 @@ public static class GitHelper
         if (process.ExitCode != 0)
         {
             Console.WriteLine("GIT ERROR: " + error);
-            throw new InvalidOperationException("GIT ERROR: " + error);
+            Environment.Exit(1);
         }
 
         return output;
