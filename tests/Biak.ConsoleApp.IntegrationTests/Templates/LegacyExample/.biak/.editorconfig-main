@@ -1,6 +1,14 @@
 root = true
 
 ^biak^ var appInterfaces = "**Endpoint.cs,**Controller.cs,**Hub*";
+^biak^ var conflictFiles = "**Core/LayerA/Controllers/MainController.cs,"
+    + "**Core/LayerB/Services/ServiceA.cs,"
+    + "**Core/LayerB/Services/ServiceB.cs,"
+    + "**Core/LayerB/Services/ServiceC.cs,"
+    + "**Core/LayerC/Processors/ProcessorA.cs,"
+    + "**Core/LayerC/Processors/ProcessorB.cs,"
+    + "**Core/LayerC/Handlers/HandlerA.cs,"
+    + "**Core/LayerD/Queue/QueueService.cs";
 [*]
 insert_final_newline = true
 indent_style = space
@@ -45,7 +53,8 @@ end_of_line = lf
 end_of_line = crlf
 
 
-[*.cs]
+^biak^ include [*.cs]
+^biak^ exclude [{$conflictFiles}]
 
 ##
 ## StyleCop.Analyzers
@@ -226,6 +235,11 @@ dotnet_diagnostic.SX1309.severity = none # A field name does not begin with an u
 dotnet_diagnostic.SX1309S.severity = none # A static field name does not begin with an underscore.
 
 ## **END** StyleCop.Analyzers **END**
+
+^biak^ END include/exclude
+
+^biak^ include [*.cs]
+^biak^ exclude [{$conflictFiles}]
 
 ##
 ## Code-style (IDExxxx) rules
@@ -542,7 +556,10 @@ dotnet_naming_symbols.async_methods.applicable_accessibilities = private # This 
 dotnet_diagnostic.CS1573.severity = none # CS1573: Parameter has no matching param tag in the XML comment (but other parameters do)
 dotnet_diagnostic.CS1591.severity = none # CS1591: No XML docs
 
-[*.cs]
+^biak^ END include/exclude
+
+^biak^ include [*.cs]
+^biak^ exclude [{$conflictFiles}]
 
 ##
 ## Code analysis (CAxxxx) rules
@@ -952,7 +969,10 @@ dotnet_diagnostic.CA2007.severity = none # CA2007: Do not directly await a Task
 
 ## **END** Code analysis (CAxxxx) rules **END**
 
-[*.cs]
+^biak^ END include/exclude
+
+^biak^ include [*.cs]
+^biak^ exclude [{$conflictFiles}]
 ##
 ## Roslynator
 ##
@@ -1037,6 +1057,8 @@ roslynator_block_braces_style = single_line_when_empty
 [{$appInterfaces}]
 dotnet_diagnostic.rcs1046.severity = none # RCS1046: Asynchronous method name should end with 'Async' https://josefpihrt.github.io/docs/roslynator/analyzers/RCS1046
 
+^biak^ END include/exclude
+
 [*.cs]
 ##
 ## ReSharper Inspect Code https://www.jetbrains.com/help/resharper/Reference__Code_Inspections_CSHARP.html
@@ -1046,7 +1068,3 @@ resharper_possible_multiple_enumeration_highlighting = none # Code inspection: P
 resharper_inconsistent_naming_highlighting = none # Code inspection: Inconsistent Naming https://www.jetbrains.com/help/resharper/InconsistentNaming.html
 
 ## *END* ReSharper Inspect Code
-
-^biak^ import "Categories/.editorconfig-Roslynator"
-
-^biak^ import "Categories/.editorconfig-StyleCop"

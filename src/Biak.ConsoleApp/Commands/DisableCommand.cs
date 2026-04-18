@@ -44,6 +44,8 @@ public static class DisableCommand
         {
             Console.WriteLine(message);
         }
+        content = await ImportHelper.ReplaceAsync(content);
+        content = IncludeExcludeFilterHelper.Apply(content);
         content = SeverityHelper.Disable(
             content: content,
             severitiesToDisable: config.SeveritiesToDisable ?? BiakConfig.DefaultSeveritiesToDisable,
