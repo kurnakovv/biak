@@ -39,6 +39,7 @@ public static class EnableCommand
         Console.WriteLine(UIConstant.START_ENABLE);
 
         string content = await File.ReadAllTextAsync(editorconfigPaths.MainValue);
+        content = await ImportHelper.ReplaceAsync(content);
         content = IncludeExcludeFilterHelper.Apply(content);
         content = VariableHelper.Substitute(content);
         content = EditorconfigHelper.AddAttentionBanners(content);
