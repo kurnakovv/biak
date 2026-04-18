@@ -11,18 +11,72 @@ namespace Biak.ConsoleApp.IntegrationTests.Commands;
 
 public class FindActivityCommandTests
 {
-    [Fact]
-    public async Task RunTestAsync()
+    [Theory]
+    [InlineData(
+        "DefaultCase",
+        "main\n-10\ndfassfds\n35\nMD\n.cs,.vb\nbranch-for-exclude\n\n",
+        $"""
+        {FindActivityCommandConstant.START}
+        {FindActivityCommandConstant.ACTIVITY}
+        TestService1.cs
+        [change-testservice1 test-f-1]
+
+        TestService2.cs
+        [test-f-2]
+
+        TestService3.cs
+        [test-f-3]
+
+
+        {FindActivityCommandConstant.INACTIVE_BRANCHES}
+        f-new-cs-file no-cs-file-changes old-branch
+
+        {FindActivityCommandConstant.ACTIVITY_VIA_SINGLE_LINE}
+        TestService1.cs,TestService2.cs,TestService3.cs
+
+        {FindActivityCommandConstant.ACTIVITY_VIA_VARIABLE}
+        var activeFiles = "TestService1.cs"
+            + "TestService2.cs"
+            + "TestService3.cs";
+
+        """
+    )]
+    [InlineData(
+        "IncludeSpecificFiles",
+        "main\n35\nMD\n.cs,.vb\nbranch-for-exclude\nTestService1.cs,TestService2.cs\n",
+        $"""
+        {FindActivityCommandConstant.START}
+        {FindActivityCommandConstant.ACTIVITY}
+        TestService1.cs
+        [change-testservice1 test-f-1]
+
+        TestService2.cs
+        [test-f-2]
+
+
+        {FindActivityCommandConstant.INACTIVE_BRANCHES}
+        f-new-cs-file no-cs-file-changes old-branch test-f-3
+
+        {FindActivityCommandConstant.ACTIVITY_VIA_SINGLE_LINE}
+        TestService1.cs,TestService2.cs
+
+        {FindActivityCommandConstant.ACTIVITY_VIA_VARIABLE}
+        var activeFiles = "TestService1.cs"
+            + "TestService2.cs";
+
+        """
+    )]
+    public async Task RunTestAsync(string name, string inputText, string expectedOutputText)
     {
         string originalDirectory = Directory.GetCurrentDirectory();
-        TestDirectory testDir = new($"{nameof(FindActivityCommandTests)}_{nameof(RunTestAsync)}");
+        TestDirectory testDir = new($"{nameof(FindActivityCommandTests)}_{nameof(RunTestAsync)}_{name}");
 
         TextWriter originalOut = Console.Out;
         await using StringWriter output = new();
         Console.SetOut(output);
 
         TextReader originalIn = Console.In;
-        using StringReader input = new("main\n35\nMD\n.cs,.vb\nbranch-for-exclude\n\n");
+        using StringReader input = new(inputText);
         Console.SetIn(input);
 
         try
@@ -44,35 +98,7 @@ public class FindActivityCommandTests
 
             string result = output.ToString();
             Assert.NotEmpty(result);
-            Assert.Contains(
-                $"""
-                {FindActivityCommandConstant.START}
-                {FindActivityCommandConstant.ACTIVITY}
-                TestService1.cs
-                [change-testservice1 test-f-1]
-
-                TestService2.cs
-                [test-f-2]
-
-                TestService3.cs
-                [test-f-3]
-
-
-                {FindActivityCommandConstant.INACTIVE_BRANCHES}
-                f-new-cs-file no-cs-file-changes old-branch
-
-                {FindActivityCommandConstant.ACTIVITY_VIA_SINGLE_LINE}
-                TestService1.cs,TestService2.cs,TestService3.cs
-
-                {FindActivityCommandConstant.ACTIVITY_VIA_VARIABLE}
-                var activeFiles = "TestService1.cs"
-                    + "TestService2.cs"
-                    + "TestService3.cs";
-
-                """,
-                result,
-                StringComparison.Ordinal
-            );
+            Assert.Contains(expectedOutputText, result, StringComparison.Ordinal);
         }
         finally
         {
