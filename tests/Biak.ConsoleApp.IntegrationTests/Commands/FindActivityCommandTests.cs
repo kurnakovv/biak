@@ -66,6 +66,76 @@ public class FindActivityCommandTests
 
         """
     )]
+    [InlineData(
+        "DisableAllFilters",
+        "main\n*\n*\n*\n\n\n",
+        $"""
+        {FindActivityCommandConstant.START}
+        {FindActivityCommandConstant.ACTIVITY}
+        NewTestFile.cs
+        [branch-for-exclude f-new-cs-file]
+
+        TestService1.cs
+        [branch-for-exclude change-testservice1 test-f-1]
+
+        .gitattributes
+        [no-cs-file-changes]
+
+        TestService9.cs
+        [old-branch]
+
+        TestService2.cs
+        [test-f-2]
+
+        TestService3.cs
+        [test-f-3]
+
+
+        {FindActivityCommandConstant.INACTIVE_BRANCHES}
+        {FindActivityCommandConstant.NO_ENTRIES}
+
+        {FindActivityCommandConstant.ACTIVITY_VIA_SINGLE_LINE}
+        NewTestFile.cs,TestService1.cs,.gitattributes,TestService9.cs,TestService2.cs,TestService3.cs
+
+        {FindActivityCommandConstant.ACTIVITY_VIA_VARIABLE}
+        var activeFiles = "NewTestFile.cs"
+            + "TestService1.cs"
+            + ".gitattributes"
+            + "TestService9.cs"
+            + "TestService2.cs"
+            + "TestService3.cs";
+
+        """
+    )]
+    [InlineData(
+        "ExcludeBranches",
+        "main\n*\n*\n*\ntest-f-* *-test *change* test\n\n",
+        $"""
+        {FindActivityCommandConstant.START}
+        {FindActivityCommandConstant.ACTIVITY}
+        NewTestFile.cs
+        [branch-for-exclude f-new-cs-file]
+        
+        TestService1.cs
+        [branch-for-exclude]
+        
+        TestService9.cs
+        [old-branch]
+
+
+        {FindActivityCommandConstant.INACTIVE_BRANCHES}
+        {FindActivityCommandConstant.NO_ENTRIES}
+
+        {FindActivityCommandConstant.ACTIVITY_VIA_SINGLE_LINE}
+        NewTestFile.cs,TestService1.cs,TestService9.cs
+
+        {FindActivityCommandConstant.ACTIVITY_VIA_VARIABLE}
+        var activeFiles = "NewTestFile.cs"
+            + "TestService1.cs"
+            + "TestService9.cs";
+
+        """
+    )]
     public async Task RunTestAsync(string name, string inputText, string expectedOutputText)
     {
         string originalDirectory = Directory.GetCurrentDirectory();
