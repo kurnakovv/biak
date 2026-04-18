@@ -1,0 +1,20 @@
+﻿[*.cs]
+##
+## Roslynator
+##
+# All rules here https://josefpihrt.github.io/docs/roslynator/configuration
+
+# Disable all rules
+dotnet_analyzer_diagnostic.category-roslynator.severity = none
+
+# Row length limits
+roslynator_max_line_length = 200
+dotnet_diagnostic.rcs0056.severity = error
+
+# VS extension https://marketplace.visualstudio.com/items?itemName=PaulHarrington.EditorGuidelines
+guidelines = 200
+guidelines_style = 1px dotted purple
+
+dotnet_diagnostic.rcs0009.severity = error # RCS0009: Add blank line between declaration and documentation comment https://josefpihrt.github.io/docs/roslynator/analyzers/RCS0009
+dotnet_diagnostic.rcs0021.severity = error # RCS0021: Format block's braces on a single line or multiple lines https://josefpihrt.github.io/docs/roslynator/analyzers/RCS0021
+dotnet_diagnostic.rcs0027.severity = error # RCS0027: Place new line after/before binary operator https://josefpihrt.github.io/docs/roslynator/analyzers/RCS0027

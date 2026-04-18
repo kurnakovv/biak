@@ -33,7 +33,7 @@
 ## 💡 Features
 * ⚙️ Enable / Disable `.editorconfig` rules | Change severity level ([what?](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/configuration-options#severity-level)) with one command without losing the original values ([docs](https://github.com/kurnakovv/biak/wiki/Setup)).
 
-* 🗂️ `.editorconfig` categories | Split specific rule groups (e.g., CA / IDE / SA / Roslynator, etc.) into separate files for better organization and maintainability (soon 🔜).
+* 🗂️ Imports | Import specific rule groups (e.g., CA / IDE / SA / Roslynator, etc.) from separate files for better organization and maintainability ([docs](https://github.com/kurnakovv/biak/wiki/Import)).
 
 * 🔒 Always enabled rules | Override selected rules (e.g., formatting rules) so they remain active even when you run the disable command (soon 🔜).
 
