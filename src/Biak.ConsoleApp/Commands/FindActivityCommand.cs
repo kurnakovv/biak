@@ -134,50 +134,7 @@ public static class FindActivityCommand
             }
         }
 
-        Console.WriteLine($"{FindActivityCommandConstant.ACTIVITY} [{DateTime.UtcNow}]");
-        if (activity.Count != 0)
-        {
-            foreach ((string file, List<string> activeBranches) in activity)
-            {
-                Console.WriteLine(file);
-                Console.WriteLine($"[{string.Join(" ", activeBranches)}]");
-                Console.WriteLine();
-            }
-        }
-        else
-        {
-            Console.WriteLine(FindActivityCommandConstant.NO_ENTRIES);
-        }
-
-        Console.WriteLine();
-        Console.WriteLine(FindActivityCommandConstant.INACTIVE_BRANCHES);
-        Console.WriteLine(inactiveBranches.Count != 0 ? string.Join(" ", inactiveBranches) : FindActivityCommandConstant.NO_ENTRIES);
-
-        List<string> keys = activity.Keys.ToList();
-
-        Console.WriteLine();
-        Console.WriteLine(FindActivityCommandConstant.ACTIVITY_VIA_SINGLE_LINE);
-        Console.WriteLine(keys.Count != 0 ? string.Join(",", keys) : FindActivityCommandConstant.NO_ENTRIES);
-
-        Console.WriteLine();
-        Console.WriteLine(FindActivityCommandConstant.ACTIVITY_VIA_VARIABLE);
-
-        if (keys.Count != 0)
-        {
-            string result = "var activeFiles = " +
-                string.Join(
-                    Environment.NewLine + "    + ",
-                    keys.Select(x => $"\"{x}\"")
-                );
-
-            result += ";";
-
-            Console.WriteLine(result);
-        }
-        else
-        {
-            Console.WriteLine(FindActivityCommandConstant.NO_ENTRIES);
-        }
+        FindActivityOutputHelper.Print(activity, inactiveBranches);
     }
 
     private static bool MatchExcludeBranch(string text, string pattern)
