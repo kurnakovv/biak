@@ -18,7 +18,7 @@ public class FindActivityCommandTests
         "main\n-10\ndfassfds\n35\nMD\n.cs,.vb\nbranch-for-exclude\n\n",
         $"""
         {FindActivityCommandConstant.START}
-        {FindActivityCommandConstant.ACTIVITY} []
+        {FindActivityCommandConstant.ACTIVITY}
         TestService1.cs
         [change-testservice1 test-f-1]
 
@@ -47,7 +47,7 @@ public class FindActivityCommandTests
         "main\n35\nMD\n.cs,.vb\nbranch-for-exclude\nTestService1.cs,TestService2.cs\n",
         $"""
         {FindActivityCommandConstant.START}
-        {FindActivityCommandConstant.ACTIVITY} []
+        {FindActivityCommandConstant.ACTIVITY}
         TestService1.cs
         [change-testservice1 test-f-1]
 
@@ -72,7 +72,7 @@ public class FindActivityCommandTests
         "main\n*\n*\n*\n\n\n",
         $"""
         {FindActivityCommandConstant.START}
-        {FindActivityCommandConstant.ACTIVITY} []
+        {FindActivityCommandConstant.ACTIVITY}
         NewTestFile.cs
         [branch-for-exclude f-new-cs-file]
 
@@ -113,7 +113,7 @@ public class FindActivityCommandTests
         "main\n*\n*\n*\ntest-f-* *-test *change* test\n\n",
         $"""
         {FindActivityCommandConstant.START}
-        {FindActivityCommandConstant.ACTIVITY} []
+        {FindActivityCommandConstant.ACTIVITY}
         NewTestFile.cs
         [branch-for-exclude f-new-cs-file]
         
@@ -168,7 +168,8 @@ public class FindActivityCommandTests
             await FindActivityCommand.RunAsync();
 
             string result = output.ToString();
-            result = Regex.Replace(result, @"\d{1,2}/\d{1,2}/\d{4} \d{1,2}:\d{2}:\d{2} (AM|PM)", string.Empty);
+            result = Regex.Replace(result, $@"({FindActivityCommandConstant.ACTIVITY})\s*\[.*?\]", "$1");
+
             Assert.NotEmpty(result);
             Assert.Contains(expectedOutputText, result, StringComparison.Ordinal);
         }
