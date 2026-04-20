@@ -1058,7 +1058,8 @@ dotnet_diagnostic.rcs1046.severity = none # RCS1046: Asynchronous method name sh
 
 resharper_possible_multiple_enumeration_highlighting = none # Code inspection: Possible multiple enumeration https://www.jetbrains.com/help/resharper/PossibleMultipleEnumeration.html
 resharper_inconsistent_naming_highlighting = none # Code inspection: Inconsistent Naming https://www.jetbrains.com/help/resharper/InconsistentNaming.html
-resharper_use_collection_expression_highlighting = none # (Not for .NET 6) Code inspection: Use collection expression syntax https://www.jetbrains.com/help/resharper/UseCollectionExpression.html
+resharper_use_collection_expression_highlighting = none # (For .NET 6) Code inspection: Use collection expression syntax https://www.jetbrains.com/help/resharper/UseCollectionExpression.html
 resharper_convert_closure_to_method_group_highlighting = none # Code inspection: Convert lambda expression into method group https://www.jetbrains.com/help/resharper/ConvertClosureToMethodGroup.html
+resharper_member_initializer_value_ignored_highlighting = none # (For .NET 6 `null!`) Code inspection: Member initialized value ignored https://www.jetbrains.com/help/resharper/MemberInitializerValueIgnored.html
 
 ## *END* ReSharper Inspect Code
