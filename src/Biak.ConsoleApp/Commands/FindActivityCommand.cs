@@ -5,6 +5,7 @@
 using System.Globalization;
 using Biak.ConsoleApp.Constants;
 using Biak.ConsoleApp.Helpers;
+using Biak.ConsoleApp.Helpers.FindActivity;
 
 namespace Biak.ConsoleApp.Commands;
 
@@ -33,91 +34,11 @@ public static class FindActivityCommand
     {
         await GitHelper.RunAsync("status");
 
-        Console.WriteLine("Please enter the desired criteria");
-
-        Console.Write("Default branch ('main' by default): ");
-        string? defaultBranch = Console.ReadLine();
-        if (string.IsNullOrWhiteSpace(defaultBranch))
-        {
-            defaultBranch = "main";
-        }
-        Console.WriteLine();
-
-        int? expirationPeriod = 30;
-        while (true)
-        {
-            Console.Write("Expiration period in days (default: 30, '*' for unlimited): ");
-            string? expirationPeriodInput = Console.ReadLine();
-            if (string.IsNullOrWhiteSpace(expirationPeriodInput))
-            {
-                break;
-            }
-            if (expirationPeriodInput == "*")
-            {
-                expirationPeriod = null;
-                break;
-            }
-
-            if (int.TryParse(expirationPeriodInput, out int value) && value > 0)
-            {
-                expirationPeriod = value;
-                break;
-            }
-
-            Console.WriteLine("Invalid format");
-        }
-        Console.WriteLine();
-
-        Console.WriteLine("About file types https://git-scm.com/docs/git-diff#Documentation/git-diff.txt---diff-filterACDMRTUXB");
-        Console.Write("File types (MDR by default, '*' all files): ");
-        string? fileTypes = Console.ReadLine();
-        if (string.IsNullOrWhiteSpace(fileTypes))
-        {
-            fileTypes = "MDR";
-        }
-        else if (fileTypes == "*")
-        {
-            fileTypes = null;
-        }
-        Console.WriteLine();
-
-        Console.Write("File extensions separated by commas ('.cs' by default, '*' all files): ");
-        string? fileExtensionsInput = Console.ReadLine();
-        IEnumerable<string> fileExtensions = new List<string>() { ".cs" };
-        if (fileExtensionsInput == "*")
-        {
-            fileExtensions = new List<string>();
-        }
-        else if (!string.IsNullOrWhiteSpace(fileExtensionsInput))
-        {
-            fileExtensions = fileExtensionsInput.Trim().Split(",");
-        }
-        Console.WriteLine();
-
-        Console.WriteLine("Exclude specific branches separated by space (e.g., f-1 f-2).");
-        Console.WriteLine("You can use '*' to select multiple similar branches (e.g., f-*).");
-        Console.WriteLine("By default, no additional branches are excluded.");
-        Console.Write("Exclude branches: ");
-        string? excludeBranchesInput = Console.ReadLine();
-        IEnumerable<string>? excludeBranches = null;
-        if (!string.IsNullOrWhiteSpace(excludeBranchesInput))
-        {
-            excludeBranches = excludeBranchesInput.Trim().Split(" ");
-        }
-        Console.WriteLine();
-
-        Console.Write("Enter file paths (comma-separated) to process only these files, others will be skipped (default: all files): ");
-        string? includedFilePathsInput = Console.ReadLine();
-        IEnumerable<string>? includedFilePaths = null;
-        if (!string.IsNullOrWhiteSpace(includedFilePathsInput))
-        {
-            includedFilePaths = includedFilePathsInput.Trim().Split(",");
-        }
-        Console.WriteLine();
+        FindActivityInputModel input = FindActivityInputHelper.Request();
 
         Console.WriteLine(FindActivityCommandConstant.START);
-        string branchOutput = await GitHelper.RunAsync($"branch --no-merged {defaultBranch}");
-        string remoteBranchOutput = await GitHelper.RunAsync($"branch -r --no-merged {defaultBranch}");
+        string branchOutput = await GitHelper.RunAsync($"branch --no-merged {input.DefaultBranch}");
+        string remoteBranchOutput = await GitHelper.RunAsync($"branch -r --no-merged {input.DefaultBranch}");
 
         IEnumerable<string> branches = branchOutput
             .Split(s_separator, StringSplitOptions.RemoveEmptyEntries)
@@ -140,15 +61,15 @@ public static class FindActivityCommand
             )
             .Select(g => g.First());
 
-        if (excludeBranches != null)
+        if (input.ExcludeBranches != null)
         {
             allBranches = allBranches.Where(b => !(
-                excludeBranches.Any(eb => eb == b) ||
-                excludeBranches.Any(x => FindActivityCommandConstant.ORIGIN_PREFIX + x == b)
+                input.ExcludeBranches.Any(eb => eb == b) ||
+                input.ExcludeBranches.Any(x => FindActivityCommandConstant.ORIGIN_PREFIX + x == b)
            ));
 
             allBranches = allBranches.Where(b =>
-                !excludeBranches.Any(pattern =>
+                !input.ExcludeBranches.Any(pattern =>
                     MatchExcludeBranch(b, pattern) ||
                     MatchExcludeBranch(b, FindActivityCommandConstant.ORIGIN_PREFIX + pattern)
                 )
@@ -163,16 +84,16 @@ public static class FindActivityCommand
             string lastCommitDateOutput = await GitHelper.RunAsync($"log {branch} -1 --format=%cd --date=iso-strict");
             DateTimeOffset lastCommitDate = DateTimeOffset.Parse(lastCommitDateOutput, CultureInfo.InvariantCulture);
 
-            if (expirationPeriod != null && lastCommitDate < DateTimeOffset.Now.AddDays(-(double)expirationPeriod))
+            if (input.ExpirationPeriod != null && lastCommitDate < DateTimeOffset.Now.AddDays(-(double)input.ExpirationPeriod))
             {
                 inactiveBranches.Add(branch);
                 continue;
             }
 
-            string diffTypesInput = $"diff {defaultBranch}...{branch} --name-only";
-            if (fileTypes != null)
+            string diffTypesInput = $"diff {input.DefaultBranch}...{branch} --name-only";
+            if (input.FileTypes != null)
             {
-                diffTypesInput += $" --diff-filter={fileTypes}";
+                diffTypesInput += $" --diff-filter={input.FileTypes}";
             }
             string diffFilesOutput = await GitHelper.RunAsync(diffTypesInput);
             if (string.IsNullOrWhiteSpace(diffFilesOutput))
@@ -185,14 +106,14 @@ public static class FindActivityCommand
                 .Split(s_separator, StringSplitOptions.RemoveEmptyEntries)
                 .Select(x => x.Trim());
 
-            if (fileExtensions.Any())
+            if (input.FileExtensions.Any())
             {
-                diffFiles = diffFiles.Where(f => fileExtensions.Any(e => f.EndsWith(e)));
+                diffFiles = diffFiles.Where(f => input.FileExtensions.Any(e => f.EndsWith(e)));
             }
 
-            if (includedFilePaths != null)
+            if (input.IncludedFilePaths != null)
             {
-                diffFiles = diffFiles.Where(x => includedFilePaths.Contains(x));
+                diffFiles = diffFiles.Where(x => input.IncludedFilePaths.Contains(x));
             }
 
             if (!diffFiles.Any())
