@@ -344,6 +344,9 @@ dotnet_diagnostic.IDE0340.severity = none
 csharp_style_prefer_implicitly_typed_lambda_expression = false
 dotnet_diagnostic.IDE0350.severity = none
 
+# Remove unnecessary suppression (IDE0370)
+dotnet_diagnostic.IDE0370.severity = none # (For .NET 6)
+
 
 ### Field preferences ###
 # Nothing yet
