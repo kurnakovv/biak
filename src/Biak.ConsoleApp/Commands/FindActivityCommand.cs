@@ -213,7 +213,7 @@ public static class FindActivityCommand
             }
         }
 
-        Console.WriteLine(FindActivityCommandConstant.ACTIVITY);
+        Console.WriteLine($"{FindActivityCommandConstant.ACTIVITY} [{DateTime.UtcNow}]");
         if (activity.Count != 0)
         {
             foreach ((string file, List<string> activeBranches) in activity)
