@@ -78,6 +78,11 @@ Enable / Disable .editorconfig rules | Change severity level with one command wi
 * dotnet biak disable | The disable command takes the contents of editorconfig-main, disables all rules (error|warning|suggestion -> none) and inserts them into .editorconfig https://github.com/kurnakovv/biak/wiki/Disable
 
 * Config (no command) | Configure biak behavior via the .biak/config.json file https://github.com/kurnakovv/biak/wiki/Config
+--------------------
+Find activity | The ability to search for active branches and files within them where development is ongoing. This feature is needed to gradually implement formatting and analyzers without git conflicts by excluding active files from .editorconfig file https://github.com/kurnakovv/biak/wiki/FindActivity
+
+---
+
+* dotnet biak find-activity
 --------------------";
-    // ToDo: Add dotnet biak find-activity
 }
