@@ -40,10 +40,10 @@ internal static class FindActivityOutputHelper
 
         if (keys.Count != 0)
         {
-            string result = "var activeFiles = " +
+            string result = "^biak^ var activeFiles = " +
                 string.Join(
                     Environment.NewLine + "    + ",
-                    keys.Select(x => $"\"{x}\"")
+                    keys.Select((x, i) => i == 0 ? $"\"{x}\"" : $"\",{x}\"")
                 );
 
             result += ";";
