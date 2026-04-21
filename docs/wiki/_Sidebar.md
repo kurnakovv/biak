@@ -13,3 +13,6 @@
 
 ### 🔎 Include / Exclude filter
 * [Docs](IncludeExcludeFilter)
+
+### 🧑‍💻 Find activity
+* [Docs](FindActivity)
