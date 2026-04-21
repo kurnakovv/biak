@@ -79,7 +79,7 @@ Enable / Disable .editorconfig rules | Change severity level with one command wi
 
 * Config (no command) | Configure biak behavior via the .biak/config.json file https://github.com/kurnakovv/biak/wiki/Config
 --------------------
-Find activity | The ability to search for active branches and files within them where development is ongoing. This feature is needed to gradually implement formatting and analyzers without git conflicts by excluding active files from .editorconfig file https://github.com/kurnakovv/biak/wiki/FindActivity
+Find activity | Provides the ability to find active branches and files being modified within them. This feature helps gradually introduce formatting and analyzers without causing Git conflicts by excluding actively modified files from the .editorconfig file https://github.com/kurnakovv/biak/wiki/FindActivity
 
 ---
 
