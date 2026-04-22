@@ -253,9 +253,15 @@ public class FindActivityCommandTests
         await File.WriteAllTextAsync(testService9Path, testService9Content);
         await GitHelper.RunAsync("add .");
         string? originCommitterDate = Environment.GetEnvironmentVariable("GIT_COMMITTER_DATE");
-        Environment.SetEnvironmentVariable("GIT_COMMITTER_DATE", "2021-01-01 12:12:00");
-        await GitHelper.RunAsync("commit --date=\"2021-01-01 12:12:00\" -m \"Update TestService9\"");
-        Environment.SetEnvironmentVariable("GIT_COMMITTER_DATE", originCommitterDate);
+        try
+        {
+            Environment.SetEnvironmentVariable("GIT_COMMITTER_DATE", "2021-01-01 12:12:00");
+            await GitHelper.RunAsync("commit --date=\"2021-01-01 12:12:00\" -m \"Update TestService9\"");
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable("GIT_COMMITTER_DATE", originCommitterDate);
+        }
         await GitHelper.RunAsync($"checkout {defaultBranch}");
 
         await GitHelper.RunAsync("checkout -b change-testservice1");
