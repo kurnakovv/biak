@@ -77,7 +77,7 @@ internal static class FindActivityInputHelper
         IEnumerable<string>? excludeBranches = null;
         if (!string.IsNullOrWhiteSpace(excludeBranchesInput))
         {
-            excludeBranches = excludeBranchesInput.Trim().Split(" ");
+            excludeBranches = excludeBranchesInput.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         }
         Console.WriteLine();
 
