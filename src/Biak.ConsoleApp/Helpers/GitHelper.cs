@@ -28,10 +28,14 @@ public static class GitHelper
 
         process.Start();
 
-        string output = await process.StandardOutput.ReadToEndAsync();
-        string error = await process.StandardError.ReadToEndAsync();
+        Task<string> outputTask = process.StandardOutput.ReadToEndAsync();
+        Task<string> errorTask = process.StandardError.ReadToEndAsync();
+        await Task.WhenAll(outputTask, errorTask);
 
         await process.WaitForExitAsync();
+
+        string output = await outputTask;
+        string error = await errorTask;
 
         if (process.ExitCode != 0)
         {
