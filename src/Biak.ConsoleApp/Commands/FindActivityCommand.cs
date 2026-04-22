@@ -84,7 +84,7 @@ public static class FindActivityCommand
             string lastCommitDateOutput = await GitHelper.RunAsync($"log {branch} -1 --format=%cd --date=iso-strict");
             DateTimeOffset lastCommitDate = DateTimeOffset.Parse(lastCommitDateOutput, CultureInfo.InvariantCulture);
 
-            if (input.ExpirationPeriod != null && lastCommitDate < DateTimeOffset.Now.AddDays(-(double)input.ExpirationPeriod))
+            if (input.ExpirationPeriod != null && lastCommitDate < DateTimeOffset.UtcNow.AddDays(-(double)input.ExpirationPeriod))
             {
                 inactiveBranches.Add(branch);
                 continue;
