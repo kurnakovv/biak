@@ -25,7 +25,7 @@ public class FindActivityCommandTests
     }
 
     [Fact]
-    public void IsRunnableTrueForSingleEnableParam()
+    public void IsRunnableTrueForSingleFindActivityParam()
     {
         Assert.True(FindActivityCommand.IsRunnable([CommandArgumentConstant.FIND_ACTIVITY]));
     }
