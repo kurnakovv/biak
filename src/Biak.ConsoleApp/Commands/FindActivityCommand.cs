@@ -48,9 +48,7 @@ public static class FindActivityCommand
         IEnumerable<string> remoteBranches = remoteBranchOutput
             .Split(s_separator, StringSplitOptions.RemoveEmptyEntries)
             .Select(x => x.Trim())
-#pragma warning disable CA1307 // Specify StringComparison for clarity
-            .Where(x => !x.Contains("->")); // StringComparison only for char
-#pragma warning restore CA1307 // Specify StringComparison for clarity
+            .Where(x => !x.Contains("->", StringComparison.Ordinal));
 
         IEnumerable<string> allBranches = branches
             .Concat(remoteBranches)
