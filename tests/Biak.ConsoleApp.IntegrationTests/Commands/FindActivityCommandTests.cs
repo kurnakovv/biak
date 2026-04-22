@@ -35,6 +35,9 @@ public class FindActivityCommandTests
         {FindActivityCommandConstant.ACTIVITY_VIA_SINGLE_LINE}
         TestService1.cs,TestService2.cs,TestService3.cs
 
+        {FindActivityCommandConstant.ACTIVITY_VIA_SINGLE_LINE_FOR_EXCLUDE}
+        TestService1.cs TestService2.cs TestService3.cs
+
         {FindActivityCommandConstant.ACTIVITY_VIA_VARIABLE}
         ^biak^ var activeFiles = "TestService1.cs"
             + ",TestService2.cs"
@@ -60,6 +63,9 @@ public class FindActivityCommandTests
 
         {FindActivityCommandConstant.ACTIVITY_VIA_SINGLE_LINE}
         TestService1.cs,TestService2.cs
+
+        {FindActivityCommandConstant.ACTIVITY_VIA_SINGLE_LINE_FOR_EXCLUDE}
+        TestService1.cs TestService2.cs
 
         {FindActivityCommandConstant.ACTIVITY_VIA_VARIABLE}
         ^biak^ var activeFiles = "TestService1.cs"
@@ -98,6 +104,9 @@ public class FindActivityCommandTests
         {FindActivityCommandConstant.ACTIVITY_VIA_SINGLE_LINE}
         NewTestFile.cs,TestService1.cs,.gitattributes,TestService9.cs,TestService2.cs,TestService3.cs
 
+        {FindActivityCommandConstant.ACTIVITY_VIA_SINGLE_LINE_FOR_EXCLUDE}
+        NewTestFile.cs TestService1.cs .gitattributes TestService9.cs TestService2.cs TestService3.cs
+
         {FindActivityCommandConstant.ACTIVITY_VIA_VARIABLE}
         ^biak^ var activeFiles = "NewTestFile.cs"
             + ",TestService1.cs"
@@ -129,6 +138,9 @@ public class FindActivityCommandTests
 
         {FindActivityCommandConstant.ACTIVITY_VIA_SINGLE_LINE}
         NewTestFile.cs,TestService1.cs,TestService9.cs
+
+        {FindActivityCommandConstant.ACTIVITY_VIA_SINGLE_LINE_FOR_EXCLUDE}
+        NewTestFile.cs TestService1.cs TestService9.cs
 
         {FindActivityCommandConstant.ACTIVITY_VIA_VARIABLE}
         ^biak^ var activeFiles = "NewTestFile.cs"

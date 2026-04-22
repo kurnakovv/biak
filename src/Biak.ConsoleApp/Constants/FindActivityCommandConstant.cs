@@ -35,6 +35,11 @@ public static class FindActivityCommandConstant
     public const string ACTIVITY_VIA_SINGLE_LINE = "All active files in single line";
 
     /// <summary>
+    /// File activity via single line for dotnet format --exclude command.
+    /// </summary>
+    public const string ACTIVITY_VIA_SINGLE_LINE_FOR_EXCLUDE = "All active files in single line for `dotnet format --exclude ...` command";
+
+    /// <summary>
     /// All files via biak variable.
     /// </summary>
     public const string ACTIVITY_VIA_VARIABLE = "All active files via variable";

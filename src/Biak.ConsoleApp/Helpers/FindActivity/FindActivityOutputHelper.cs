@@ -36,6 +36,10 @@ internal static class FindActivityOutputHelper
         Console.WriteLine(keys.Count != 0 ? string.Join(",", keys) : FindActivityCommandConstant.NO_ENTRIES);
 
         Console.WriteLine();
+        Console.WriteLine(FindActivityCommandConstant.ACTIVITY_VIA_SINGLE_LINE_FOR_EXCLUDE);
+        Console.WriteLine(keys.Count != 0 ? string.Join(" ", keys) : FindActivityCommandConstant.NO_ENTRIES);
+
+        Console.WriteLine();
         Console.WriteLine(FindActivityCommandConstant.ACTIVITY_VIA_VARIABLE);
 
         if (keys.Count != 0)

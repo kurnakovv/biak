@@ -127,6 +127,9 @@ f-new-cs-file no-cs-file-changes old-branch
 All active files in single line
 TestService1.cs,TestService2.cs,TestService3.cs
 
+All active files in single line for `dotnet format --exclude ...` command
+TestService1.cs TestService2.cs TestService3.cs
+
 All active files via variable
 ^biak^ var activeFiles = "TestService1.cs"
     + ",TestService2.cs"
@@ -157,6 +160,14 @@ All active files in single line
 ...
 ```
 All active files in one line, so they can be reused in the input filter later
+
+---
+
+```
+All active files in single line for `dotnet format --exclude ...` command
+...
+```
+Filter for the `dotnet format`, for example, `dotnet format --exclude TestService1.cs TestService2.cs TestService3.cs` If you simply run the dotnet format, it will apply to all files, even if you specify a limitation in `.editorconfig`, although everything will work correctly for the build and in IDE.
 
 ---
 
@@ -198,7 +209,7 @@ dotnet_diagnostic.SA1028.severity = none
 > [!NOTE]
 > The variable was created using concatenation. I did this so I could manually remove files from it, eliminating the need to run the command each time. However, this should be done at your own risk, and it's still better to use the command. Also, remember that all active files that are output on a single line will also need to be modified if you plan to run the command.
 
-You can now run `dotnet format` and pull the changes into all active branches.
+You can now run `dotnet format --exclude ...` and pull the changes into all active branches.
 
 ## ⚙️ Logic
 * Prompt the user to enter the required fields
