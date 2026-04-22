@@ -12,7 +12,7 @@ public class FindActivityCommandTests
     [Fact]
     public void IsRunnableFalseForEmptyParams()
     {
-        Assert.False(FindActivityCommand.IsRunnable([]), "You can't run enable command without `enable` argument");
+        Assert.False(FindActivityCommand.IsRunnable([]), "You can't run find-activity command without `find-activity` argument");
     }
 
     [Fact]
