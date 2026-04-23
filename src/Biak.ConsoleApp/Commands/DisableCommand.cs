@@ -44,7 +44,7 @@ public static class DisableCommand
         {
             Console.WriteLine(message);
         }
-        content = await ImportHelper.ReplaceAsync(content);
+        content = await ImportHelper.ReplaceAsync(content, config.OnImportFailure);
         content = IncludeExcludeFilterHelper.Apply(content);
         content = SeverityHelper.Disable(
             content: content,

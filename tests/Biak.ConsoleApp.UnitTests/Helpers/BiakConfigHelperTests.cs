@@ -107,10 +107,25 @@ public class BiakConfigHelperTests
         Assert.Equal(expectedSeveritiesToDisable, resultConfig.SeveritiesToDisable);
     }
 
+    [Theory]
+    [InlineData("{}", FailureBehaviorType.Warning)]
+    [InlineData(/*lang=json,strict*/ "{\"someField\": \"someValue\"}", FailureBehaviorType.Warning)]
+    [InlineData(/*lang=json,strict*/ "{\"onImportFailure\": \"nothing\"}", FailureBehaviorType.Nothing)]
+    [InlineData(/*lang=json,strict*/ "{\"onImportFailure\": \"warning\"}", FailureBehaviorType.Warning)]
+    [InlineData(/*lang=json,strict*/ "{\"onImportFailure\": \"error\"}", FailureBehaviorType.Error)]
+    public async Task GetValidStringsForOnImportFailureAsync(string json, FailureBehaviorType expectedOnImportFailure)
+    {
+        (string? resultMessage, BiakConfig resultConfig) = await BiakConfigHelper.GetAsync(json);
+
+        Assert.Null(resultMessage);
+        Assert.NotNull(resultConfig);
+        Assert.Equal(expectedOnImportFailure, resultConfig.OnImportFailure);
+    }
+
     [Fact]
     public async Task GetAllPropertiesAsync()
     {
-        string json = /*lang=json,strict*/ "{\"severityWhenDisabled\": \"suggestion\", \"severitiesToDisable\": [\"error\", \"warning\"]}";
+        string json = /*lang=json,strict*/ "{\"severityWhenDisabled\": \"suggestion\", \"severitiesToDisable\": [\"error\", \"warning\"], \"onImportFailure\": \"error\"}";
 
         (string? resultMessage, BiakConfig resultConfig) = await BiakConfigHelper.GetAsync(json);
 
@@ -118,5 +133,6 @@ public class BiakConfigHelperTests
         Assert.NotNull(resultConfig);
         Assert.Equal(SeverityLevelType.Suggestion, resultConfig.SeverityWhenDisabled);
         Assert.Equal([SeverityLevelType.Error, SeverityLevelType.Warning], resultConfig.SeveritiesToDisable);
+        Assert.Equal(FailureBehaviorType.Error, resultConfig.OnImportFailure);
     }
 }
