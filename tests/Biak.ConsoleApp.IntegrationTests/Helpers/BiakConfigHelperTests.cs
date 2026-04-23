@@ -13,14 +13,14 @@ namespace Biak.ConsoleApp.IntegrationTests.Helpers;
 public class BiakConfigHelperTests
 {
     [Theory]
-    [InlineData("default-config", null, SeverityLevelType.None)]
-    [InlineData("custom-config", null, SeverityLevelType.Suggestion)]
-    [InlineData("null-config", BiakConfigConstant.IS_NULL, SeverityLevelType.None)]
-    [InlineData("invalid-config", BiakConfigConstant.INVALID_FORMAT, SeverityLevelType.None)]
-    [InlineData("null-severities-to-disable", BiakConfigConstant.SEVERITIES_TO_DISABLE_NULL_OR_EMPTY, SeverityLevelType.None)]
-    [InlineData("empty-severities-to-disable", BiakConfigConstant.SEVERITIES_TO_DISABLE_NULL_OR_EMPTY, SeverityLevelType.None)]
-    [InlineData("duplicate-severities-to-disable", BiakConfigConstant.SEVERITIES_TO_DISABLE_DUPLICATES, SeverityLevelType.None)]
-    public async Task GetConfigModelAsync(string templateName, string? expectedMessage, SeverityLevelType expectedSeverity)
+    [InlineData("default-config", null, SeverityLevelType.None, FailureBehaviorType.Warning)]
+    [InlineData("custom-config", null, SeverityLevelType.Suggestion, FailureBehaviorType.Error)]
+    [InlineData("null-config", BiakConfigConstant.IS_NULL, SeverityLevelType.None, FailureBehaviorType.Warning)]
+    [InlineData("invalid-config", BiakConfigConstant.INVALID_FORMAT, SeverityLevelType.None, FailureBehaviorType.Warning)]
+    [InlineData("null-severities-to-disable", BiakConfigConstant.SEVERITIES_TO_DISABLE_NULL_OR_EMPTY, SeverityLevelType.None, FailureBehaviorType.Warning)]
+    [InlineData("empty-severities-to-disable", BiakConfigConstant.SEVERITIES_TO_DISABLE_NULL_OR_EMPTY, SeverityLevelType.None, FailureBehaviorType.Warning)]
+    [InlineData("duplicate-severities-to-disable", BiakConfigConstant.SEVERITIES_TO_DISABLE_DUPLICATES, SeverityLevelType.None, FailureBehaviorType.Warning)]
+    public async Task GetConfigModelAsync(string templateName, string? expectedMessage, SeverityLevelType expectedSeverity, FailureBehaviorType expectedOnImportFailure)
     {
         string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new($"{nameof(BiakConfigHelperTests)}_{nameof(GetConfigModelAsync)}");
@@ -49,6 +49,7 @@ public class BiakConfigHelperTests
             Assert.Equal(expectedSeverity, resultConfig.SeverityWhenDisabled);
             Assert.NotNull(resultConfig.SeveritiesToDisable);
             Assert.NotEmpty(resultConfig.SeveritiesToDisable);
+            Assert.Equal(expectedOnImportFailure, resultConfig.OnImportFailure);
         }
         finally
         {
