@@ -2,7 +2,6 @@
 // This file is licensed under the MIT License.
 // See the LICENSE file in the project root for full license information.
 
-using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using Biak.ConsoleApp.Constants;
@@ -15,6 +14,8 @@ namespace Biak.ConsoleApp.Helpers;
 /// </summary>
 public static class ImportHelper
 {
+    private const long MAX_SIZE = 5_000_000; // 5 MB
+
     private static readonly HttpClient s_httpClient = new(
         new HttpClientHandler()
         {
@@ -88,9 +89,9 @@ public static class ImportHelper
     {
         if (Uri.TryCreate(value, UriKind.Absolute, out Uri? uri))
         {
-            if (uri.Scheme != Uri.UriSchemeHttps || !await IsSafeUriAsync(uri))
+            if (uri.Scheme != Uri.UriSchemeHttps || !uri.Host.Equals("gist.githubusercontent.com", StringComparison.OrdinalIgnoreCase))
             {
-                await HandleFailureBehaviorAsync(onImportFailure, $"{ImportConstant.URL_NOT_ALLOWED} {value}");
+                await HandleFailureBehaviorAsync(onImportFailure, $"{ImportConstant.WHITE_LIST_ALLOWED} {value}");
                 return null;
             }
 
@@ -101,6 +102,18 @@ public static class ImportHelper
                 if (!response.IsSuccessStatusCode)
                 {
                     await HandleFailureBehaviorAsync(onImportFailure, $"{ImportConstant.UNABLE_TO_RETRIEVE_CONTENT_FROM_LINK} {value} (HTTP {(int)response.StatusCode} {response.ReasonPhrase})");
+                    return null;
+                }
+
+                if (response.Content.Headers.ContentLength > MAX_SIZE)
+                {
+                    await HandleFailureBehaviorAsync(onImportFailure, $"{ImportConstant.RESPONSE_TOO_LARGE} {value}");
+                    return null;
+                }
+
+                if (!response.Content.Headers.ContentType?.MediaType?.StartsWith("text/") ?? true)
+                {
+                    await HandleFailureBehaviorAsync(onImportFailure, $"{ImportConstant.INVALID_CONTENT_TYPE} {value}");
                     return null;
                 }
 
@@ -139,61 +152,6 @@ public static class ImportHelper
             .Replace("\r\n", "\n", StringComparison.Ordinal)
             .Replace("\r", "\n", StringComparison.Ordinal)
             .Replace("\n", newline, StringComparison.Ordinal);
-    }
-
-    private static async Task<bool> IsSafeUriAsync(Uri uri)
-    {
-        try
-        {
-            string host = uri.Host;
-
-            if (host.Equals("localhost", StringComparison.OrdinalIgnoreCase))
-            {
-                return false;
-            }
-
-            if (IPAddress.TryParse(host, out IPAddress? ip))
-            {
-                return !IsPrivateIp(ip);
-            }
-
-            IPAddress[] addresses = await Dns.GetHostAddressesAsync(host);
-
-            return !addresses.Any(IsPrivateIp);
-        }
-        catch
-        {
-            return false;
-        }
-    }
-
-    private static bool IsPrivateIp(IPAddress ip)
-    {
-        byte[] bytes = ip.GetAddressBytes();
-
-        // IPv4
-        if (ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
-        {
-            return bytes[0] switch
-            {
-                10 => true,
-                127 => true,
-                169 when bytes[1] == 254 => true,
-                172 when bytes[1] is >= 16 and <= 31 => true,
-                192 when bytes[1] == 168 => true,
-                _ => false,
-            };
-        }
-
-        // IPv6
-        if (ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6)
-        {
-            return IPAddress.IsLoopback(ip) ||
-                   ip.IsIPv6LinkLocal ||
-                   ip.IsIPv6SiteLocal;
-        }
-
-        return false;
     }
 
     private static async Task HandleFailureBehaviorAsync(FailureBehaviorType onImportFailure, string message)
