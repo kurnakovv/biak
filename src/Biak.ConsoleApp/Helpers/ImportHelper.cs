@@ -97,7 +97,7 @@ public static class ImportHelper
 
             try
             {
-                using HttpResponseMessage response = await s_httpClient.GetAsync(uri);
+                using HttpResponseMessage response = await s_httpClient.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -117,8 +117,15 @@ public static class ImportHelper
                     return null;
                 }
 
-                string responseContent = await response.Content.ReadAsStringAsync();
-                return NormalizeLineEndings(responseContent, newline);
+                string? content = await ReadWithLimitAsync(response.Content, MAX_SIZE, newline);
+
+                if (content == null)
+                {
+                    await HandleFailureBehaviorAsync(onImportFailure, $"{ImportConstant.RESPONSE_TOO_LARGE} {value}");
+                    return null;
+                }
+
+                return content;
             }
             catch (Exception ex)
             {
@@ -178,5 +185,39 @@ public static class ImportHelper
                 throw new NotImplementedException(ImportConstant.FAILURE_BEHAVIOR_TYPE_NOT_IMPLEMENTED);
             }
         }
+    }
+
+    private static async Task<string?> ReadWithLimitAsync(
+        HttpContent content,
+        long maxBytes,
+        string newline
+    )
+    {
+        await using Stream stream = await content.ReadAsStreamAsync();
+
+        await using MemoryStream ms = new();
+        byte[] buffer = new byte[81920]; // 80 KB
+
+        long totalBytes = 0;
+        int read;
+
+        while ((read = await stream.ReadAsync(buffer)) > 0)
+        {
+            totalBytes += read;
+
+            if (totalBytes > maxBytes)
+            {
+                return null;
+            }
+
+            await ms.WriteAsync(buffer.AsMemory(0, read));
+        }
+
+        ms.Position = 0;
+
+        using StreamReader reader = new(ms);
+        string result = await reader.ReadToEndAsync();
+
+        return NormalizeLineEndings(result, newline);
     }
 }
