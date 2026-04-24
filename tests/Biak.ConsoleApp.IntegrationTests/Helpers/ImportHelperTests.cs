@@ -460,7 +460,7 @@ public class ImportHelperTests
             Assert.Equal(input, result);
 
             string outputResult = output.ToString();
-            Assert.Contains(ImportConstant.URL_NOT_ALLOWED, outputResult, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains(ImportConstant.WHITE_LIST_ALLOWED, outputResult, StringComparison.OrdinalIgnoreCase);
         }
         finally
         {

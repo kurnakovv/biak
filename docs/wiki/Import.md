@@ -132,7 +132,9 @@ trim_trailing_whitespace = true
 
 * If the content from the URL could not be obtained, then a warning will be issued and this import will not be replaced.
 
-* If the URL uses HTTP or points to a private network or localhost, then a warning will be issued and this import will not be replaced.
+* If the URL host is not included in the whitelist (e.g., https://gist.githubusercontent.com), a warning will be issued and the import will not be replaced. This restriction is enforced for security reasons.
+
+* If the URL response exceeds 5 MB, the import will not be replaced. This restriction is enforced for security reasons.
 
 * If the import is commented out `# ^biak^ import "..."`, it will not be applied.
 
@@ -140,5 +142,5 @@ trim_trailing_whitespace = true
 > You can override the behavior on import failures using the `onImportFailure` config field ([docs](Config)).
 
 ## 🔗 Links
-* Issues: [#62](https://github.com/kurnakovv/biak/issues/62) | [#64](https://github.com/kurnakovv/biak/issues/64)
+* Issues: [#62](https://github.com/kurnakovv/biak/issues/62) | [#64](https://github.com/kurnakovv/biak/issues/64) | [#74](https://github.com/kurnakovv/biak/issues/74)
 * Source code: [click](https://github.com/kurnakovv/biak/blob/dev/src/Biak.ConsoleApp/Helpers/ImportHelper.cs)

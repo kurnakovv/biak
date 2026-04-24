@@ -10,9 +10,9 @@ namespace Biak.ConsoleApp.Constants;
 public static class ImportConstant
 {
     /// <summary>
-    /// Warning for disallowed URLs: non-HTTPS or private/localhost addresses.
+    /// Warning for non white list URL's.
     /// </summary>
-    public const string URL_NOT_ALLOWED = $"{ATTENTION} Only HTTPS URLs are allowed, and private or localhost addresses are blocked:";
+    public const string WHITE_LIST_ALLOWED = $"{ATTENTION} Only https://gist.githubusercontent.com is allowed to use for URL imports:";
 
     /// <summary>
     /// Unable to retrieve content from link.
@@ -23,6 +23,16 @@ public static class ImportConstant
     /// Forbidden outside .biak folder.
     /// </summary>
     public const string FORBIDDEN_OUTSIDE = $"{ATTENTION} It is forbidden to go beyond the .biak folder:";
+
+    /// <summary>
+    /// Response too large.
+    /// </summary>
+    public const string RESPONSE_TOO_LARGE = $"{ATTENTION} Import response exceeds maximum allowed size (5 MB):";
+
+    /// <summary>
+    /// Invalid content type.
+    /// </summary>
+    public const string INVALID_CONTENT_TYPE = $"{ATTENTION} Import response has unsupported content type:";
 
     /// <summary>
     /// File not found.
