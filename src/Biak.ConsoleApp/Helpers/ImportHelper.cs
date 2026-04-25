@@ -106,7 +106,7 @@ public static class ImportHelper
                     return null;
                 }
 
-                if (response.Content.Headers.ContentLength > MAX_SIZE)
+                if (response.Content.Headers.ContentLength is > MAX_SIZE)
                 {
                     await HandleFailureBehaviorAsync(onImportFailure, $"{ImportConstant.RESPONSE_TOO_LARGE} {value}");
                     return null;
