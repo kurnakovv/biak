@@ -390,6 +390,34 @@ public class ImportHelperTests
         """,
         ImportConstant.INVALID_CONTENT_TYPE
     )]
+    [InlineData(
+        """
+        # Very large content from URL import
+        root = true
+
+        [*]
+        insert_final_newline = true
+        indent_style = space
+        indent_size = 4
+        trim_trailing_whitespace = true
+
+        ^biak^ import https://raw.githubusercontent.com/kurnakovv/TestRepository/refs/heads/master/VeryLargeFile
+        """,
+
+        """
+        # Very large content from URL import
+        root = true
+
+        [*]
+        insert_final_newline = true
+        indent_style = space
+        indent_size = 4
+        trim_trailing_whitespace = true
+
+        ^biak^ import https://raw.githubusercontent.com/kurnakovv/TestRepository/refs/heads/master/VeryLargeFile
+        """,
+        ImportConstant.RESPONSE_TOO_LARGE
+    )]
     public async Task ReplaceTestAsync(
         string inputContent,
         string outputContent,
