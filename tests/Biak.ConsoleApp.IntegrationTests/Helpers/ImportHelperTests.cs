@@ -362,6 +362,34 @@ public class ImportHelperTests
         """,
         ImportConstant.UNABLE_TO_RETRIEVE_CONTENT_FROM_LINK
     )]
+    [InlineData(
+        """
+        # Invalid URL content type
+        root = true
+
+        [*]
+        insert_final_newline = true
+        indent_style = space
+        indent_size = 4
+        trim_trailing_whitespace = true
+
+        ^biak^ import https://camo.githubusercontent.com/7ba9343feb27fcf5a830f346097737469b326644c7a02c9e373bd328afcb8623/68747470733a2f2f63617073756c652d72656e6465722e76657263656c2e6170702f6170693f747970653d776176696e6726636f6c6f723d373730304646266865696768743d3137302673656374696f6e3d686561646572
+        """,
+
+        """
+        # Invalid URL content type
+        root = true
+
+        [*]
+        insert_final_newline = true
+        indent_style = space
+        indent_size = 4
+        trim_trailing_whitespace = true
+
+        ^biak^ import https://camo.githubusercontent.com/7ba9343feb27fcf5a830f346097737469b326644c7a02c9e373bd328afcb8623/68747470733a2f2f63617073756c652d72656e6465722e76657263656c2e6170702f6170693f747970653d776176696e6726636f6c6f723d373730304646266865696768743d3137302673656374696f6e3d686561646572
+        """,
+        ImportConstant.INVALID_CONTENT_TYPE
+    )]
     public async Task ReplaceTestAsync(
         string inputContent,
         string outputContent,
