@@ -271,7 +271,20 @@ public static class ImportHelper
 
         ms.Position = 0;
 
-        using StreamReader reader = new(ms);
+        Encoding encoding = Encoding.UTF8;
+        string? charset = content.Headers.ContentType?.CharSet?.Trim('"');
+        if (!string.IsNullOrWhiteSpace(charset))
+        {
+            try
+            {
+                encoding = Encoding.GetEncoding(charset);
+            }
+            catch (ArgumentException)
+            {
+                encoding = Encoding.UTF8;
+            }
+        }
+        using StreamReader reader = new(ms, encoding, detectEncodingFromByteOrderMarks: true);
         string result = await reader.ReadToEndAsync();
 
         return NormalizeLineEndings(result, newline);
