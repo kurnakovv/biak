@@ -418,6 +418,35 @@ public class ImportHelperTests
         """,
         ImportConstant.RESPONSE_TOO_LARGE
     )]
+    [InlineData(
+        """
+        # Test russian text
+        root = true
+
+        [*]
+        insert_final_newline = true
+        indent_style = space
+        indent_size = 4
+        trim_trailing_whitespace = true
+
+        ^biak^ import https://raw.githubusercontent.com/kurnakovv/TestRepository/refs/heads/master/RussianText.txt
+        """,
+
+        """
+        # Test russian text
+        root = true
+
+        [*]
+        insert_final_newline = true
+        indent_style = space
+        indent_size = 4
+        trim_trailing_whitespace = true
+
+        # Привет мир
+
+        """,
+        null
+    )]
     public async Task ReplaceTestAsync(
         string inputContent,
         string outputContent,
