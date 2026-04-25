@@ -112,7 +112,7 @@ public static class ImportHelper
                     return null;
                 }
 
-                if (!response.Content.Headers.ContentType?.MediaType?.StartsWith("text/") ?? true)
+                if (!response.Content.Headers.ContentType?.MediaType?.StartsWith("text/", StringComparison.OrdinalIgnoreCase) ?? true)
                 {
                     await HandleFailureBehaviorAsync(onImportFailure, $"{ImportConstant.INVALID_CONTENT_TYPE} {value}");
                     return null;
