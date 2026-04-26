@@ -3,5 +3,6 @@
   "severitiesToDisable": [
     "error",
     "warning"
-  ]
+  ],
+  "onImportFailure": "error"
 }
