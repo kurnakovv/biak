@@ -44,11 +44,14 @@ public static class DisableCommand
         {
             Console.WriteLine(message);
         }
+        content = await ImportHelper.ReplaceAsync(content, config.OnImportFailure);
+        content = IncludeExcludeFilterHelper.Apply(content);
         content = SeverityHelper.Disable(
             content: content,
             severitiesToDisable: config.SeveritiesToDisable ?? BiakConfig.DefaultSeveritiesToDisable,
             severityWhenDisabled: config.SeverityWhenDisabled
         );
+        content = VariableHelper.Substitute(content);
         content = EditorconfigHelper.AddAttentionBanners(content);
         await File.WriteAllTextAsync(editorconfigPaths.Value, content);
 

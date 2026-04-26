@@ -1,0 +1,22 @@
+﻿[*.cs]
+# https://gist.github.com/kurnakovv/70a5d76dc5f3eb9ef114b182283cb407
+##
+## StyleCop.Analyzers
+##
+# All rules here https://github.com/DotNetAnalyzers/StyleCopAnalyzers/tree/master/documentation
+
+# Disable all rules
+dotnet_analyzer_diagnostic.category-StyleCop.CSharp.AlternativeRules.severity = none
+dotnet_analyzer_diagnostic.category-StyleCop.CSharp.DocumentationRules.severity = none
+dotnet_analyzer_diagnostic.category-StyleCop.CSharp.LayoutRules.severity = none
+dotnet_analyzer_diagnostic.category-StyleCop.CSharp.MaintainabilityRules.severity = none
+dotnet_analyzer_diagnostic.category-StyleCop.CSharp.NamingRules.severity = none
+dotnet_analyzer_diagnostic.category-StyleCop.CSharp.OrderingRules.severity = none
+dotnet_analyzer_diagnostic.category-StyleCop.CSharp.ReadabilityRules.severity = none
+dotnet_analyzer_diagnostic.category-StyleCop.CSharp.SpacingRules.severity = none
+dotnet_analyzer_diagnostic.category-StyleCop.CSharp.SpecialRules.severity = none
+
+
+dotnet_diagnostic.SA1001.severity = error # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1001.md Use <GenerateDocumentationFile>true</GenerateDocumentationFile>
+dotnet_diagnostic.SA1002.severity = error # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1002.md
+dotnet_diagnostic.SA1003.severity = error # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1003.md

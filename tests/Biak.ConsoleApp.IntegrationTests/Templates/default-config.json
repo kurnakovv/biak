@@ -4,5 +4,6 @@
     "error",
     "warning",
     "suggestion"
-  ]
+  ],
+  "onImportFailure": "warning"
 }

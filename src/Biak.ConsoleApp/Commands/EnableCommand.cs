@@ -36,9 +36,18 @@ public static class EnableCommand
             return;
         }
 
+        (string? message, BiakConfig config) = await BiakConfigHelper.GetAsync();
+        if (message != null)
+        {
+            Console.WriteLine(message);
+        }
+
         Console.WriteLine(UIConstant.START_ENABLE);
 
         string content = await File.ReadAllTextAsync(editorconfigPaths.MainValue);
+        content = await ImportHelper.ReplaceAsync(content, config.OnImportFailure);
+        content = IncludeExcludeFilterHelper.Apply(content);
+        content = VariableHelper.Substitute(content);
         content = EditorconfigHelper.AddAttentionBanners(content);
         await File.WriteAllTextAsync(editorconfigPaths.Value, content);
 
