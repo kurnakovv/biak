@@ -20,6 +20,16 @@ public static class ImportConstant
     public const string UNABLE_TO_RETRIEVE_CONTENT_FROM_LINK = $"{ATTENTION} Unable to retrieve content from link:";
 
     /// <summary>
+    /// Response too large.
+    /// </summary>
+    public const string RESPONSE_TOO_LARGE = $"{ATTENTION} Import response exceeds maximum allowed size (5 MB):";
+
+    /// <summary>
+    /// Invalid content type.
+    /// </summary>
+    public const string INVALID_CONTENT_TYPE = $"{ATTENTION} Import response has unsupported content type:";
+
+    /// <summary>
     /// Forbidden outside .biak folder.
     /// </summary>
     public const string FORBIDDEN_OUTSIDE = $"{ATTENTION} It is forbidden to go beyond the .biak folder:";

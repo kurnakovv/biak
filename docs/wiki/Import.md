@@ -134,11 +134,15 @@ trim_trailing_whitespace = true
 
 * If the URL uses HTTP or points to a private network or localhost, then a warning will be issued and this import will not be replaced.
 
+* If the URL response exceeds 5 MB, the import will not be replaced. This restriction is enforced for security reasons.
+
+* If the content type is not text, but an image or another format, then this import will not be replaced.
+
 * If the import is commented out `# ^biak^ import "..."`, it will not be applied.
 
 > [!NOTE]
 > You can override the behavior on import failures using the `onImportFailure` config field ([docs](Config)).
 
 ## 🔗 Links
-* Issues: [#62](https://github.com/kurnakovv/biak/issues/62) | [#64](https://github.com/kurnakovv/biak/issues/64)
+* Issues: [#62](https://github.com/kurnakovv/biak/issues/62) | [#64](https://github.com/kurnakovv/biak/issues/64) | [#76](https://github.com/kurnakovv/biak/issues/76)
 * Source code: [click](https://github.com/kurnakovv/biak/blob/dev/src/Biak.ConsoleApp/Helpers/ImportHelper.cs)
