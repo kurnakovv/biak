@@ -38,4 +38,45 @@ public class BiakConfig
     /// Controls what happens when an import cannot be resolved, for example because a file is missing or a URL is blocked or unreachable. Default is Warning.
     /// </summary>
     public FailureBehaviorType OnImportFailure { get; init; } = FailureBehaviorType.Warning;
+
+    /// <summary>
+    /// dotnet biak find-activity settings.
+    /// </summary>
+    public FindActivityInputConfigModel? FindActivity { get; init; }
+}
+
+/// <summary>
+/// Find activity config settings model.
+/// </summary>
+public class FindActivityInputConfigModel
+{
+    /// <summary>
+    /// Default git branch.
+    /// </summary>
+    public string? DefaultBranch { get; init; }
+
+    /// <summary>
+    /// Expiration period in days.
+    /// </summary>
+    public string? ExpirationPeriod { get; init; }
+
+    /// <summary>
+    /// Git file types.
+    /// </summary>
+    public string? FileTypes { get; init; }
+
+    /// <summary>
+    /// File extensions by commas.
+    /// </summary>
+    public string? FileExtensions { get; init; }
+
+    /// <summary>
+    /// Exclude branches.
+    /// </summary>
+    public string? ExcludeBranches { get; init; }
+
+    /// <summary>
+    /// Include only this file paths.
+    /// </summary>
+    public string? IncludedFilePaths { get; init; }
 }

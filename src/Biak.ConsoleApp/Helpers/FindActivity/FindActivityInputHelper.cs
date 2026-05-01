@@ -2,27 +2,49 @@
 // This file is licensed under the MIT License.
 // See the LICENSE file in the project root for full license information.
 
+using Biak.ConsoleApp.Constants;
+using Biak.ConsoleApp.Models;
+
 namespace Biak.ConsoleApp.Helpers.FindActivity;
 
 internal static class FindActivityInputHelper
 {
-    internal static FindActivityInputModel Request()
+    internal static FindActivityInputModel Request(BiakConfig config)
     {
-        Console.WriteLine("Please enter the desired criteria");
+        if (config.FindActivity?.DefaultBranch == null ||
+            config.FindActivity?.ExpirationPeriod == null ||
+            config.FindActivity?.FileTypes == null ||
+            config.FindActivity?.FileExtensions == null ||
+            config.FindActivity?.ExcludeBranches == null ||
+            config.FindActivity?.IncludedFilePaths == null
+        )
+        {
+            Console.WriteLine(FindActivityCommandConstant.ENTER_CRITERIA);
+        }
 
-        Console.Write("Default branch ('main' by default): ");
-        string? defaultBranch = Console.ReadLine();
+        string? defaultBranch = config.FindActivity?.DefaultBranch;
         if (string.IsNullOrWhiteSpace(defaultBranch))
         {
-            defaultBranch = "main";
+            Console.Write(FindActivityCommandConstant.DEFAULT_BRANCH_INPUT);
+            defaultBranch = Console.ReadLine();
+            if (string.IsNullOrWhiteSpace(defaultBranch))
+            {
+                defaultBranch = "main";
+            }
+            Console.WriteLine();
         }
-        Console.WriteLine();
 
         int? expirationPeriod = 30;
+        string? expirationPeriodInput = config.FindActivity?.ExpirationPeriod;
+        bool isEmptyConfigExpirationPeriod = config.FindActivity?.ExpirationPeriod == null;
+        bool isInvalidConfigExpirationPeriod = false;
         while (true)
         {
-            Console.Write("Expiration period in days (default: 30, '*' for unlimited): ");
-            string? expirationPeriodInput = Console.ReadLine();
+            if (isEmptyConfigExpirationPeriod || isInvalidConfigExpirationPeriod)
+            {
+                Console.Write(FindActivityCommandConstant.EXPIRATION_PERIOD_INPUT);
+                expirationPeriodInput = Console.ReadLine();
+            }
             if (string.IsNullOrWhiteSpace(expirationPeriodInput))
             {
                 break;
@@ -38,27 +60,55 @@ internal static class FindActivityInputHelper
                 expirationPeriod = value;
                 break;
             }
+            isInvalidConfigExpirationPeriod = true;
 
-            Console.WriteLine("Invalid format");
+            string invalidFormatMessage;
+
+            if (isEmptyConfigExpirationPeriod)
+            {
+                Console.WriteLine();
+                invalidFormatMessage = FindActivityCommandConstant.INVALID_EXPIRATION_PERIOD_FORMAT;
+            }
+            else
+            {
+                invalidFormatMessage = FindActivityCommandConstant.INVALID_EXPIRATION_PERIOD_FORMAT_IN_CONFIG;
+            }
+
+            Console.WriteLine(invalidFormatMessage);
         }
-        Console.WriteLine();
 
-        Console.WriteLine("About file types https://git-scm.com/docs/git-diff#Documentation/git-diff.txt---diff-filterACDMRTUXB");
-        Console.Write("File types (MDR by default, '*' all files): ");
-        string? fileTypes = Console.ReadLine();
+        if (isEmptyConfigExpirationPeriod || isInvalidConfigExpirationPeriod)
+        {
+            Console.WriteLine();
+        }
+
+        string? fileTypes = config.FindActivity?.FileTypes;
         if (string.IsNullOrWhiteSpace(fileTypes))
         {
-            fileTypes = "MDR";
+            Console.WriteLine(FindActivityCommandConstant.ABOUT_FILE_TYPES);
+            Console.Write(FindActivityCommandConstant.FILE_TYPES_INPUT);
+            fileTypes = Console.ReadLine();
+            if (string.IsNullOrWhiteSpace(fileTypes))
+            {
+                fileTypes = "MDR";
+            }
+            else if (fileTypes == "*")
+            {
+                fileTypes = null;
+            }
+            Console.WriteLine();
         }
-        else if (fileTypes == "*")
-        {
-            fileTypes = null;
-        }
-        Console.WriteLine();
 
-        Console.Write("File extensions separated by commas ('.cs' by default, '*' all files): ");
-        string? fileExtensionsInput = Console.ReadLine();
         IEnumerable<string> fileExtensions = new List<string>() { ".cs" };
+
+        string? fileExtensionsInput = config.FindActivity?.FileExtensions;
+        if (string.IsNullOrWhiteSpace(fileExtensionsInput))
+        {
+            Console.Write(FindActivityCommandConstant.FILE_EXTENSIONS_INPUT);
+            fileExtensionsInput = Console.ReadLine();
+            Console.WriteLine();
+        }
+
         if (fileExtensionsInput == "*")
         {
             fileExtensions = new List<string>();
@@ -67,28 +117,35 @@ internal static class FindActivityInputHelper
         {
             fileExtensions = fileExtensionsInput.Trim().Split(",");
         }
-        Console.WriteLine();
 
-        Console.WriteLine("Exclude specific branches separated by space (e.g., f-1 f-2).");
-        Console.WriteLine("You can use '*' to select multiple similar branches (e.g., f-*).");
-        Console.WriteLine("By default, no additional branches are excluded.");
-        Console.Write("Exclude branches: ");
-        string? excludeBranchesInput = Console.ReadLine();
+        string? excludeBranchesInput = config.FindActivity?.ExcludeBranches;
+        if (excludeBranchesInput == null)
+        {
+            Console.WriteLine(FindActivityCommandConstant.EXCLUDE_BRANCES_EXAMPLE);
+            Console.WriteLine(FindActivityCommandConstant.EXCLUDE_BRANCHES_FILTER_EXAMPLE);
+            Console.WriteLine(FindActivityCommandConstant.EXCLUDE_BRANCHES_DEFAULT_BEHAVIOUR);
+            Console.Write(FindActivityCommandConstant.EXCLUDE_BRANCHES_INPUT);
+            excludeBranchesInput = Console.ReadLine();
+            Console.WriteLine();
+        }
         IEnumerable<string>? excludeBranches = null;
         if (!string.IsNullOrWhiteSpace(excludeBranchesInput))
         {
             excludeBranches = excludeBranchesInput.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         }
-        Console.WriteLine();
 
-        Console.Write("Enter file paths (comma-separated) to process only these files, others will be skipped (default: all files): ");
-        string? includedFilePathsInput = Console.ReadLine();
+        string? includedFilePathsInput = config.FindActivity?.IncludedFilePaths;
+        if (includedFilePathsInput == null)
+        {
+            Console.Write(FindActivityCommandConstant.INCLUDE_FILE_PATHS_INPUT);
+            includedFilePathsInput = Console.ReadLine();
+            Console.WriteLine();
+        }
         IEnumerable<string>? includedFilePaths = null;
         if (!string.IsNullOrWhiteSpace(includedFilePathsInput))
         {
             includedFilePaths = includedFilePathsInput.Trim().Split(",");
         }
-        Console.WriteLine();
 
         return new FindActivityInputModel(
             defaultBranch: defaultBranch,

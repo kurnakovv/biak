@@ -1,0 +1,14 @@
+{
+  "severitiesToDisable": [
+    "error",
+    "error"
+  ],
+  "findActivity": {
+    "defaultBranch": "main",
+    "expirationPeriod": "-30",
+    "fileTypes": "MDR",
+    "fileExtensions": ".cs",
+    "excludeBranches": "",
+    "includedFilePaths": ""
+  }
+}
