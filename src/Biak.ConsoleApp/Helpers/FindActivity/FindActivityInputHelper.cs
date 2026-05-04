@@ -123,7 +123,7 @@ internal static class FindActivityInputHelper
         string? excludeBranchesInput = config.FindActivity?.ExcludeBranches;
         if (excludeBranchesInput == null)
         {
-            Console.WriteLine(FindActivityCommandConstant.EXCLUDE_BRANCES_EXAMPLE);
+            Console.WriteLine(FindActivityCommandConstant.EXCLUDE_BRANCHES_EXAMPLE);
             Console.WriteLine(FindActivityCommandConstant.EXCLUDE_BRANCHES_FILTER_EXAMPLE);
             Console.WriteLine(FindActivityCommandConstant.EXCLUDE_BRANCHES_DEFAULT_BEHAVIOUR);
             Console.Write(FindActivityCommandConstant.EXCLUDE_BRANCHES_INPUT);
