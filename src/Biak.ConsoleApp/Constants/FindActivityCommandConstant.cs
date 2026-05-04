@@ -65,7 +65,7 @@ public static class FindActivityCommandConstant
     public const string EXCLUDE_BRANCHES_DEFAULT_BEHAVIOUR = "By default, no additional branches are excluded.";
 
     /// <summary>
-    /// Exclude branhes input message.
+    /// Exclude branches input message.
     /// </summary>
     public const string EXCLUDE_BRANCHES_INPUT = "Exclude branches: ";
 
