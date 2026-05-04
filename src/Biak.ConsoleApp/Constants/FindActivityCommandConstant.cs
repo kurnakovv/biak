@@ -52,7 +52,7 @@ public static class FindActivityCommandConstant
     /// <summary>
     /// Exclude specific branches example message.
     /// </summary>
-    public const string EXCLUDE_BRANCES_EXAMPLE = "Exclude specific branches separated by space (e.g., f-1 f-2).";
+    public const string EXCLUDE_BRANCHES_EXAMPLE = "Exclude specific branches separated by space (e.g., f-1 f-2).";
 
     /// <summary>
     /// Exclude specific branches with '*' example message.
