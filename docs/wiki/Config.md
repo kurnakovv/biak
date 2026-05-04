@@ -13,11 +13,11 @@ You can configure **biak** behavior via the `.biak/config.json` file.
   "onImportFailure": "warning",
   "findActivity": {
     "defaultBranch": "main",
-     "expirationPeriod": "30",
-     "fileTypes": "MDR",
-     "fileExtensions": ".cs,.vb",
-     "excludeBranches": "test *-experimental my-test-branch",
-     "includedFilePaths": "TestService1.cs,TestService2.cs,TestService3.cs",
+    "expirationPeriod": "30",
+    "fileTypes": "MDR",
+    "fileExtensions": ".cs,.vb",
+    "excludeBranches": "test *-experimental my-test-branch",
+    "includedFilePaths": "TestService1.cs,TestService2.cs,TestService3.cs"
   }
 }
 ```
