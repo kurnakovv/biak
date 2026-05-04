@@ -211,6 +211,9 @@ dotnet_diagnostic.SA1028.severity = none
 
 You can now run `dotnet format --exclude ...` and pull the changes into all active branches.
 
+> [!NOTE]
+> You can automate the input parameters through the config ([Docs](Config)).
+
 ## ⚙️ Logic
 * Prompt the user to enter the required fields
 * Get all branches (including remote) that haven't been merged into the default branch
