@@ -19,7 +19,7 @@ public class FindActivityCommandTests
         {FindActivityCommandConstant.ABOUT_FILE_TYPES}
         {FindActivityCommandConstant.FILE_TYPES_INPUT}
         {FindActivityCommandConstant.FILE_EXTENSIONS_INPUT}
-        {FindActivityCommandConstant.EXCLUDE_BRANCES_EXAMPLE}
+        {FindActivityCommandConstant.EXCLUDE_BRANCHES_EXAMPLE}
         {FindActivityCommandConstant.EXCLUDE_BRANCHES_FILTER_EXAMPLE}
         {FindActivityCommandConstant.EXCLUDE_BRANCHES_DEFAULT_BEHAVIOUR}
         {FindActivityCommandConstant.EXCLUDE_BRANCHES_INPUT}
@@ -41,7 +41,7 @@ public class FindActivityCommandTests
         {FindActivityCommandConstant.ABOUT_FILE_TYPES}
         {FindActivityCommandConstant.FILE_TYPES_INPUT}
         {FindActivityCommandConstant.FILE_EXTENSIONS_INPUT}
-        {FindActivityCommandConstant.EXCLUDE_BRANCES_EXAMPLE}
+        {FindActivityCommandConstant.EXCLUDE_BRANCHES_EXAMPLE}
         {FindActivityCommandConstant.EXCLUDE_BRANCHES_FILTER_EXAMPLE}
         {FindActivityCommandConstant.EXCLUDE_BRANCHES_DEFAULT_BEHAVIOUR}
         {FindActivityCommandConstant.EXCLUDE_BRANCHES_INPUT}
