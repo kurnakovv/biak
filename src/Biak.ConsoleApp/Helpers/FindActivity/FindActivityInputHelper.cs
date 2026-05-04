@@ -11,12 +11,14 @@ internal static class FindActivityInputHelper
 {
     internal static FindActivityInputModel Request(BiakConfig config)
     {
-        if (config.FindActivity?.DefaultBranch == null ||
-            config.FindActivity?.ExpirationPeriod == null ||
-            config.FindActivity?.FileTypes == null ||
-            config.FindActivity?.FileExtensions == null ||
-            config.FindActivity?.ExcludeBranches == null ||
-            config.FindActivity?.IncludedFilePaths == null
+        FindActivityInputConfigModel? findActivity = config.FindActivity;
+        if (findActivity == null ||
+            findActivity.DefaultBranch == null ||
+            findActivity.ExpirationPeriod == null ||
+            findActivity.FileTypes == null ||
+            findActivity.FileExtensions == null ||
+            findActivity.ExcludeBranches == null ||
+            findActivity.IncludedFilePaths == null
         )
         {
             Console.WriteLine(FindActivityCommandConstant.ENTER_CRITERIA);
