@@ -90,15 +90,16 @@ internal static class FindActivityInputHelper
             Console.WriteLine(FindActivityCommandConstant.ABOUT_FILE_TYPES);
             Console.Write(FindActivityCommandConstant.FILE_TYPES_INPUT);
             fileTypes = Console.ReadLine();
-            if (string.IsNullOrWhiteSpace(fileTypes))
-            {
-                fileTypes = "MDR";
-            }
-            else if (fileTypes == "*")
-            {
-                fileTypes = null;
-            }
             Console.WriteLine();
+        }
+
+        if (string.IsNullOrWhiteSpace(fileTypes))
+        {
+            fileTypes = "MDR";
+        }
+        else if (fileTypes == "*")
+        {
+            fileTypes = null;
         }
 
         IEnumerable<string> fileExtensions = new List<string>() { ".cs" };
