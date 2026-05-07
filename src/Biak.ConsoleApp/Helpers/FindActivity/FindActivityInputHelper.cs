@@ -24,7 +24,7 @@ internal static class FindActivityInputHelper
             Console.WriteLine(FindActivityCommandConstant.ENTER_CRITERIA);
         }
 
-        string? defaultBranch = config.FindActivity?.DefaultBranch;
+        string? defaultBranch = findActivity?.DefaultBranch;
         if (string.IsNullOrWhiteSpace(defaultBranch))
         {
             Console.Write(FindActivityCommandConstant.DEFAULT_BRANCH_INPUT);
@@ -37,8 +37,8 @@ internal static class FindActivityInputHelper
         }
 
         int? expirationPeriod = 30;
-        string? expirationPeriodInput = config.FindActivity?.ExpirationPeriod;
-        bool isEmptyConfigExpirationPeriod = config.FindActivity?.ExpirationPeriod == null;
+        string? expirationPeriodInput = findActivity?.ExpirationPeriod;
+        bool isEmptyConfigExpirationPeriod = findActivity?.ExpirationPeriod == null;
         bool isInvalidConfigExpirationPeriod = false;
         while (true)
         {
@@ -84,7 +84,7 @@ internal static class FindActivityInputHelper
             Console.WriteLine();
         }
 
-        string? fileTypes = config.FindActivity?.FileTypes;
+        string? fileTypes = findActivity?.FileTypes;
         if (string.IsNullOrWhiteSpace(fileTypes))
         {
             Console.WriteLine(FindActivityCommandConstant.ABOUT_FILE_TYPES);
@@ -104,7 +104,7 @@ internal static class FindActivityInputHelper
 
         IEnumerable<string> fileExtensions = new List<string>() { ".cs" };
 
-        string? fileExtensionsInput = config.FindActivity?.FileExtensions;
+        string? fileExtensionsInput = findActivity?.FileExtensions;
         if (string.IsNullOrWhiteSpace(fileExtensionsInput))
         {
             Console.Write(FindActivityCommandConstant.FILE_EXTENSIONS_INPUT);
@@ -121,7 +121,7 @@ internal static class FindActivityInputHelper
             fileExtensions = fileExtensionsInput.Trim().Split(",");
         }
 
-        string? excludeBranchesInput = config.FindActivity?.ExcludeBranches;
+        string? excludeBranchesInput = findActivity?.ExcludeBranches;
         if (excludeBranchesInput == null)
         {
             Console.WriteLine(FindActivityCommandConstant.EXCLUDE_BRANCHES_EXAMPLE);
@@ -137,7 +137,7 @@ internal static class FindActivityInputHelper
             excludeBranches = excludeBranchesInput.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         }
 
-        string? includedFilePathsInput = config.FindActivity?.IncludedFilePaths;
+        string? includedFilePathsInput = findActivity?.IncludedFilePaths;
         if (includedFilePathsInput == null)
         {
             Console.Write(FindActivityCommandConstant.INCLUDE_FILE_PATHS_INPUT);
