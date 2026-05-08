@@ -3,6 +3,8 @@
 // See the LICENSE file in the project root for full license information.
 
 using Biak.ConsoleApp.Constants;
+using Biak.ConsoleApp.Helpers;
+using Biak.ConsoleApp.IntegrationTests.Mock;
 
 namespace Biak.ConsoleApp.IntegrationTests;
 
@@ -107,6 +109,57 @@ public class ProgramTests
         finally
         {
             Console.SetOut(originalOut);
+        }
+    }
+
+    [Fact]
+    public async Task FindActivityCommandForCurrentRepoAsync()
+    {
+        string originalDirectory = Directory.GetCurrentDirectory();
+        TestDirectory testDir = new($"{nameof(ProgramTests)}_{nameof(FindActivityCommandForCurrentRepoAsync)}");
+
+        TextWriter originalOut = Console.Out;
+        await using StringWriter output = new();
+        Console.SetOut(output);
+
+        TextReader originalIn = Console.In;
+        using StringReader input = new("\n\n\n\n");
+        Console.SetIn(input);
+
+        try
+        {
+            Directory.SetCurrentDirectory(testDir.Value);
+
+            string templateSimpleProject = Path.Join(
+                AppContext.BaseDirectory,
+                "Templates",
+                "SimpleProject",
+                "MySimpleProjectTemplate"
+            );
+
+            testDir.CopyDirectory(templateSimpleProject);
+
+            await GitHelper.RunAsync("init");
+            await GitHelper.RunAsync("branch -m master main");
+            await GitHelper.RunAsync("config --local user.email \"test@example.com\"");
+            await GitHelper.RunAsync("config --local user.name \"Test User\"");
+            await GitHelper.RunAsync("add .");
+            await GitHelper.RunAsync("commit -m \"Initial commit\"");
+
+            await Program.Main([CommandArgumentConstant.FIND_ACTIVITY]);
+
+            string result = output.ToString().Trim();
+            Assert.Contains(FindActivityCommandConstant.START, result, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains(FindActivityCommandConstant.ACTIVITY, result, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains(FindActivityCommandConstant.INACTIVE_BRANCHES, result, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains(FindActivityCommandConstant.ACTIVITY_VIA_SINGLE_LINE, result, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains(FindActivityCommandConstant.ACTIVITY_VIA_VARIABLE, result, StringComparison.OrdinalIgnoreCase);
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+            Console.SetIn(originalIn);
+            Directory.SetCurrentDirectory(originalDirectory);
         }
     }
 
