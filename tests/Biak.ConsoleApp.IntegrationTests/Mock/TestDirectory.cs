@@ -28,4 +28,33 @@ public class TestDirectory
             overwrite: true
         );
     }
+
+    public void CopyDirectory(string sourceDir, bool overwrite = false)
+    {
+        CopyDirectory(sourceDir, Value, overwrite);
+    }
+
+    private static void CopyDirectory(string sourceDir, string destinationDir, bool overwrite)
+    {
+        DirectoryInfo dir = new(sourceDir);
+
+        if (!dir.Exists)
+        {
+            throw new DirectoryNotFoundException($"Source directory not found: {sourceDir}");
+        }
+
+        Directory.CreateDirectory(destinationDir);
+
+        foreach (FileInfo file in dir.GetFiles())
+        {
+            string targetFilePath = Path.Join(destinationDir, file.Name);
+            file.CopyTo(targetFilePath, overwrite);
+        }
+
+        foreach (DirectoryInfo subDir in dir.GetDirectories())
+        {
+            string newDestinationDir = Path.Join(destinationDir, subDir.Name);
+            CopyDirectory(subDir.FullName, newDestinationDir, overwrite);
+        }
+    }
 }

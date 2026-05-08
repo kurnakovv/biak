@@ -22,6 +22,18 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="Templates\SimpleProject\MySimpleProjectTemplate\TestService1.cs" />
+    <Compile Remove="Templates\SimpleProject\MySimpleProjectTemplate\TestService2.cs" />
+    <Compile Remove="Templates\SimpleProject\MySimpleProjectTemplate\TestService3.cs" />
+    <Compile Remove="Templates\SimpleProject\MySimpleProjectTemplate\TestService4.cs" />
+    <Compile Remove="Templates\SimpleProject\MySimpleProjectTemplate\TestService5.cs" />
+    <Compile Remove="Templates\SimpleProject\MySimpleProjectTemplate\TestService6.cs" />
+    <Compile Remove="Templates\SimpleProject\MySimpleProjectTemplate\TestService7.cs" />
+    <Compile Remove="Templates\SimpleProject\MySimpleProjectTemplate\TestService8.cs" />
+    <Compile Remove="Templates\SimpleProject\MySimpleProjectTemplate\TestService9.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\src\Biak.ConsoleApp\Biak.ConsoleApp.csproj" />
   </ItemGroup>
 
