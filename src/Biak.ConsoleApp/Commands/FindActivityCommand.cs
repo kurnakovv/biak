@@ -6,6 +6,7 @@ using System.Globalization;
 using Biak.ConsoleApp.Constants;
 using Biak.ConsoleApp.Helpers;
 using Biak.ConsoleApp.Helpers.FindActivity;
+using Biak.ConsoleApp.Models;
 
 namespace Biak.ConsoleApp.Commands;
 
@@ -34,7 +35,13 @@ public static class FindActivityCommand
     {
         await GitHelper.RunAsync("status");
 
-        FindActivityInputModel input = FindActivityInputHelper.Request();
+        (string? message, BiakConfig config) = await BiakConfigHelper.GetAsync();
+        if (message is not null and not BiakConfigConstant.FILE_NOT_FOUND)
+        {
+            Console.WriteLine(message);
+        }
+
+        FindActivityInputModel input = FindActivityInputHelper.Request(config);
 
         Console.WriteLine(FindActivityCommandConstant.START);
         string branchOutput = await GitHelper.RunAsync($"branch --no-merged {input.DefaultBranch}");

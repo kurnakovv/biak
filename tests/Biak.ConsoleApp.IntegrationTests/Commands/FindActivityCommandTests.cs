@@ -12,11 +12,40 @@ namespace Biak.ConsoleApp.IntegrationTests.Commands;
 
 public class FindActivityCommandTests
 {
+    private const string DEFAULT_INPUT_OUTPUT = $"""
+        {FindActivityCommandConstant.ENTER_CRITERIA}
+        {FindActivityCommandConstant.DEFAULT_BRANCH_INPUT}
+        {FindActivityCommandConstant.EXPIRATION_PERIOD_INPUT}
+        {FindActivityCommandConstant.ABOUT_FILE_TYPES}
+        {FindActivityCommandConstant.FILE_TYPES_INPUT}
+        {FindActivityCommandConstant.FILE_EXTENSIONS_INPUT}
+        {FindActivityCommandConstant.EXCLUDE_BRANCHES_EXAMPLE}
+        {FindActivityCommandConstant.EXCLUDE_BRANCHES_FILTER_EXAMPLE}
+        {FindActivityCommandConstant.EXCLUDE_BRANCHES_DEFAULT_BEHAVIOUR}
+        {FindActivityCommandConstant.EXCLUDE_BRANCHES_INPUT}
+        {FindActivityCommandConstant.INCLUDE_FILE_PATHS_INPUT}
+        """;
+
     [Theory]
     [InlineData(
         "DefaultCase",
         "main\n-10\ndfassfds\n35\nMD\n.cs,.vb\nbranch-for-exclude\n\n",
         $"""
+        {FindActivityCommandConstant.ENTER_CRITERIA}
+        {FindActivityCommandConstant.DEFAULT_BRANCH_INPUT}
+        {FindActivityCommandConstant.EXPIRATION_PERIOD_INPUT}
+        {FindActivityCommandConstant.INVALID_EXPIRATION_PERIOD_FORMAT}
+        {FindActivityCommandConstant.EXPIRATION_PERIOD_INPUT}
+        {FindActivityCommandConstant.INVALID_EXPIRATION_PERIOD_FORMAT}
+        {FindActivityCommandConstant.EXPIRATION_PERIOD_INPUT}
+        {FindActivityCommandConstant.ABOUT_FILE_TYPES}
+        {FindActivityCommandConstant.FILE_TYPES_INPUT}
+        {FindActivityCommandConstant.FILE_EXTENSIONS_INPUT}
+        {FindActivityCommandConstant.EXCLUDE_BRANCHES_EXAMPLE}
+        {FindActivityCommandConstant.EXCLUDE_BRANCHES_FILTER_EXAMPLE}
+        {FindActivityCommandConstant.EXCLUDE_BRANCHES_DEFAULT_BEHAVIOUR}
+        {FindActivityCommandConstant.EXCLUDE_BRANCHES_INPUT}
+        {FindActivityCommandConstant.INCLUDE_FILE_PATHS_INPUT}
         {FindActivityCommandConstant.START}
         {FindActivityCommandConstant.ACTIVITY}
         TestService1.cs
@@ -43,12 +72,14 @@ public class FindActivityCommandTests
             + ",TestService2.cs"
             + ",TestService3.cs";
 
-        """
+        """,
+        null
     )]
     [InlineData(
         "IncludeSpecificFiles",
         "main\n35\nMD\n.cs,.vb\nbranch-for-exclude\nTestService1.cs,TestService2.cs\n",
         $"""
+        {DEFAULT_INPUT_OUTPUT}
         {FindActivityCommandConstant.START}
         {FindActivityCommandConstant.ACTIVITY}
         TestService1.cs
@@ -71,12 +102,14 @@ public class FindActivityCommandTests
         ^biak^ var activeFiles = "TestService1.cs"
             + ",TestService2.cs";
 
-        """
+        """,
+        null
     )]
     [InlineData(
         "DisableAllFilters",
         "main\n*\n*\n*\n\n\n",
         $"""
+        {DEFAULT_INPUT_OUTPUT}
         {FindActivityCommandConstant.START}
         {FindActivityCommandConstant.ACTIVITY}
         NewTestFile.cs
@@ -115,12 +148,14 @@ public class FindActivityCommandTests
             + ",TestService2.cs"
             + ",TestService3.cs";
 
-        """
+        """,
+        null
     )]
     [InlineData(
         "ExcludeBranches",
         "main\n*\n*\n*\ntest-f-* *-test *change* test\n\n",
         $"""
+        {DEFAULT_INPUT_OUTPUT}
         {FindActivityCommandConstant.START}
         {FindActivityCommandConstant.ACTIVITY}
         NewTestFile.cs
@@ -147,9 +182,79 @@ public class FindActivityCommandTests
             + ",TestService1.cs"
             + ",TestService9.cs";
 
-        """
+        """,
+        null
     )]
-    public async Task RunTestAsync(string name, string inputText, string expectedOutputText)
+    [InlineData(
+        "ConfigWithDefaultValues",
+        "",
+        $"""
+        {FindActivityCommandConstant.START}
+        {FindActivityCommandConstant.ACTIVITY}
+        TestService1.cs
+        [branch-for-exclude change-testservice1 test-f-1]
+
+        TestService2.cs
+        [test-f-2]
+
+        TestService3.cs
+        [test-f-3]
+
+
+        {FindActivityCommandConstant.INACTIVE_BRANCHES}
+        f-new-cs-file no-cs-file-changes old-branch
+
+        {FindActivityCommandConstant.ACTIVITY_VIA_SINGLE_LINE}
+        TestService1.cs,TestService2.cs,TestService3.cs
+
+        {FindActivityCommandConstant.ACTIVITY_VIA_SINGLE_LINE_FOR_EXCLUDE}
+        TestService1.cs TestService2.cs TestService3.cs
+
+        {FindActivityCommandConstant.ACTIVITY_VIA_VARIABLE}
+        ^biak^ var activeFiles = "TestService1.cs"
+            + ",TestService2.cs"
+            + ",TestService3.cs";
+
+        """,
+        "default-config.json"
+    )]
+    [InlineData(
+        "InvalidExpirationPeriodInConfig",
+        "30\n",
+        $"""
+        {BiakConfigConstant.SEVERITIES_TO_DISABLE_DUPLICATES}
+        {FindActivityCommandConstant.INVALID_EXPIRATION_PERIOD_FORMAT_IN_CONFIG}
+        {FindActivityCommandConstant.EXPIRATION_PERIOD_INPUT}
+        {FindActivityCommandConstant.START}
+        {FindActivityCommandConstant.ACTIVITY}
+        TestService1.cs
+        [branch-for-exclude change-testservice1 test-f-1]
+
+        TestService2.cs
+        [test-f-2]
+
+        TestService3.cs
+        [test-f-3]
+
+
+        {FindActivityCommandConstant.INACTIVE_BRANCHES}
+        f-new-cs-file no-cs-file-changes old-branch
+
+        {FindActivityCommandConstant.ACTIVITY_VIA_SINGLE_LINE}
+        TestService1.cs,TestService2.cs,TestService3.cs
+
+        {FindActivityCommandConstant.ACTIVITY_VIA_SINGLE_LINE_FOR_EXCLUDE}
+        TestService1.cs TestService2.cs TestService3.cs
+
+        {FindActivityCommandConstant.ACTIVITY_VIA_VARIABLE}
+        ^biak^ var activeFiles = "TestService1.cs"
+            + ",TestService2.cs"
+            + ",TestService3.cs";
+
+        """,
+        "invalid-expiration-period-config.json"
+    )]
+    public async Task RunTestAsync(string name, string inputText, string expectedOutputText, string? configFilePath)
     {
         string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new($"{nameof(FindActivityCommandTests)}_{nameof(RunTestAsync)}_{name}");
@@ -175,6 +280,23 @@ public class FindActivityCommandTests
 
             testDir.CopyDirectory(templateSimpleProject);
 
+            if (configFilePath != null)
+            {
+                string templateConfigPath = Path.Join(
+                    AppContext.BaseDirectory,
+                    "Templates",
+                    "FindActivityConfigs",
+                    configFilePath
+                );
+                string biakDir = Path.Join(testDir.Value, ".biak");
+                Directory.CreateDirectory(biakDir);
+                File.Copy(
+                    sourceFileName: templateConfigPath,
+                    destFileName: Path.Join(biakDir, "config.json"),
+                    overwrite: true
+                );
+            }
+
             await MockGitRepositoryAsync();
 
             await FindActivityCommand.RunAsync();
@@ -183,7 +305,7 @@ public class FindActivityCommandTests
             result = Regex.Replace(result, $@"({FindActivityCommandConstant.ACTIVITY})\s*\[.*?\]", "$1");
 
             Assert.NotEmpty(result);
-            Assert.Contains(expectedOutputText, result, StringComparison.Ordinal);
+            Assert.Equal(expectedOutputText, result);
         }
         finally
         {
