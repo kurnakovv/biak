@@ -24,5 +24,6 @@ public static class GlobalJsonSerializerOptionsHelper
             new JsonStringEnumConverter(JsonNamingPolicy.CamelCase),
         },
         WriteIndented = true,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
     };
 }
