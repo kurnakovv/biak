@@ -317,7 +317,7 @@ public class FindActivityCommandTests
             Assert.NotEmpty(result);
             Assert.Equal(expectedOutputText, result);
 
-            string logsDir = Path.Combine(Directory.GetCurrentDirectory(), ".biak", "logs");
+            string logsDir = Path.Join(Directory.GetCurrentDirectory(), ".biak", "logs");
             if (saveOutput)
             {
                 Assert.True(Directory.Exists(logsDir));
