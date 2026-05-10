@@ -145,17 +145,10 @@ public static class FindActivityCommand
         if (input.SaveOutput)
         {
             string currentDirectory = Directory.GetCurrentDirectory();
-
-            string logDir = Path.Combine(currentDirectory, ".biak", "logs");
-
+            string logDir = Path.Join(currentDirectory, ".biak", "logs");
             Directory.CreateDirectory(logDir);
-
-            string logFile = Path.Combine(
-                logDir,
-                $"find-activity-log-{currentDate:yyyy-MM-dd__HH-mm-ss}.txt"
-            );
-
-            await File.WriteAllTextAsync(logFile, output + Environment.NewLine);
+            string logFilePath = Path.Join(logDir, $"find-activity-log-{currentDate:yyyy-MM-dd__HH-mm-ss}.txt");
+            await File.WriteAllTextAsync(logFilePath, output + Environment.NewLine);
         }
     }
 
