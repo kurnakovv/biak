@@ -76,7 +76,7 @@ internal static class FindActivityOutputHelper
         }
         else
         {
-            sb.AppendLine(FindActivityCommandConstant.NO_ENTRIES);
+            sb.Append(FindActivityCommandConstant.NO_ENTRIES);
         }
 
         string output = sb.ToString();
