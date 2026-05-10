@@ -111,7 +111,7 @@ If not, you can copy excluded file paths from `.editorconfig` and reuse them her
 ```
 Save output to '.biak/logs' directory ('false' by default): 
 ```
-Saves the find activity output, which will be written to the terminal in the `.biak/logs` txt file. Only `true` / `false` values ​​are allowed. This is useful for long-term use, so you can view the project activity history.
+Saves the find activity output, which will be written to both the terminal and a `.txt` file under `.biak/logs`. If left empty, the value defaults to `false`. Only `true` / `false` values are allowed. This is useful for long-term use, so you can view the project activity history.
 
 ---
 
