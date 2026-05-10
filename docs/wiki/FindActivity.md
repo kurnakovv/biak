@@ -32,6 +32,8 @@ Let's imagine a project containing 10 C# files (e.g., `TestService[1..10].cs`) a
 
 Now, if we want to apply formatting, we need to apply it to all files except those currently being developed. In small projects this is manageable manually, since there aren't that many files, but in real projects there can be many more branches and files, and manually adding a filter can be simply impossible.
 
+### Input
+
 For such cases, we'll use the command
 ```
 dotnet biak find-activity
@@ -105,6 +107,15 @@ If this is your first run, leave this empty.
 If not, you can copy excluded file paths from `.editorconfig` and reuse them here.
 
 ---
+
+```
+Save output to '.biak/logs' directory ('false' by default): 
+```
+Saves the find activity output, which will be written to the terminal in the `.biak/logs` txt file. Only `true` / `false` values ​​are allowed. This is useful for long-term use, so you can view the project activity history.
+
+---
+
+### Output
 
 After this, the search will begin, which takes ~15 seconds, depending on the project, and the final output will be something like this.
 

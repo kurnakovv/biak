@@ -123,7 +123,7 @@ public class ProgramTests
         Console.SetOut(output);
 
         TextReader originalIn = Console.In;
-        using StringReader input = new("\n\n\n\n");
+        using StringReader input = new("\n\n\n\n\n");
         Console.SetIn(input);
 
         try

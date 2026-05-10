@@ -18,7 +18,8 @@ internal static class FindActivityInputHelper
             findActivity.FileTypes == null ||
             findActivity.FileExtensions == null ||
             findActivity.ExcludeBranches == null ||
-            findActivity.IncludedFilePaths == null
+            findActivity.IncludedFilePaths == null ||
+            findActivity.SaveOutput == null
         )
         {
             Console.WriteLine(FindActivityCommandConstant.ENTER_CRITERIA);
@@ -150,13 +151,40 @@ internal static class FindActivityInputHelper
             includedFilePaths = includedFilePathsInput.Trim().Split(",");
         }
 
+        bool? saveOutput = findActivity?.SaveOutput;
+        if (saveOutput == null)
+        {
+            while (true)
+            {
+                Console.Write(FindActivityCommandConstant.SAVE_OUTPUT_INPUT);
+                string? saveOutputInput = Console.ReadLine();
+
+                if (string.IsNullOrWhiteSpace(saveOutputInput))
+                {
+                    saveOutput = false;
+                    break;
+                }
+
+                if (bool.TryParse(saveOutputInput, out bool saveOutputResult))
+                {
+                    saveOutput = saveOutputResult;
+                    break;
+                }
+
+                Console.WriteLine();
+                Console.WriteLine(FindActivityCommandConstant.INVALID_SAVE_OUTPUT_FORMAT);
+            }
+            Console.WriteLine();
+        }
+
         return new FindActivityInputModel(
             defaultBranch: defaultBranch,
             expirationPeriod: expirationPeriod,
             fileTypes: fileTypes,
             fileExtensions: fileExtensions,
             excludeBranches: excludeBranches,
-            includedFilePaths: includedFilePaths
+            includedFilePaths: includedFilePaths,
+            saveOutput: saveOutput.Value
         );
     }
 }
@@ -169,7 +197,8 @@ internal class FindActivityInputModel
         string? fileTypes,
         IEnumerable<string> fileExtensions,
         IEnumerable<string>? excludeBranches,
-        IEnumerable<string>? includedFilePaths
+        IEnumerable<string>? includedFilePaths,
+        bool saveOutput
     )
     {
         DefaultBranch = defaultBranch;
@@ -178,6 +207,7 @@ internal class FindActivityInputModel
         FileExtensions = fileExtensions;
         ExcludeBranches = excludeBranches;
         IncludedFilePaths = includedFilePaths;
+        SaveOutput = saveOutput;
     }
 
     internal string DefaultBranch { get; } = null!;
@@ -186,4 +216,5 @@ internal class FindActivityInputModel
     internal IEnumerable<string> FileExtensions { get; }
     internal IEnumerable<string>? ExcludeBranches { get; }
     internal IEnumerable<string>? IncludedFilePaths { get; }
+    internal bool SaveOutput { get; }
 }
