@@ -61,6 +61,8 @@ public class FindActivityCommandTests
         TestService3.cs
         [test-f-3]
 
+        {FindActivityCommandConstant.ACTIVE_BRANCHES}
+        change-testservice1 test-f-1 test-f-2 test-f-3
 
         {FindActivityCommandConstant.INACTIVE_BRANCHES}
         f-new-cs-file no-cs-file-changes old-branch
@@ -93,6 +95,8 @@ public class FindActivityCommandTests
         TestService2.cs
         [test-f-2]
 
+        {FindActivityCommandConstant.ACTIVE_BRANCHES}
+        change-testservice1 test-f-1 test-f-2
 
         {FindActivityCommandConstant.INACTIVE_BRANCHES}
         f-new-cs-file no-cs-file-changes old-branch test-f-3
@@ -136,6 +140,8 @@ public class FindActivityCommandTests
         TestService3.cs
         [test-f-3]
 
+        {FindActivityCommandConstant.ACTIVE_BRANCHES}
+        branch-for-exclude f-new-cs-file change-testservice1 test-f-1 no-cs-file-changes old-branch test-f-2 test-f-3
 
         {FindActivityCommandConstant.INACTIVE_BRANCHES}
         {FindActivityCommandConstant.NO_ENTRIES}
@@ -174,6 +180,8 @@ public class FindActivityCommandTests
         TestService9.cs
         [old-branch]
 
+        {FindActivityCommandConstant.ACTIVE_BRANCHES}
+        branch-for-exclude f-new-cs-file old-branch
 
         {FindActivityCommandConstant.INACTIVE_BRANCHES}
         {FindActivityCommandConstant.NO_ENTRIES}
@@ -208,6 +216,8 @@ public class FindActivityCommandTests
         TestService3.cs
         [test-f-3]
 
+        {FindActivityCommandConstant.ACTIVE_BRANCHES}
+        branch-for-exclude change-testservice1 test-f-1 test-f-2 test-f-3
 
         {FindActivityCommandConstant.INACTIVE_BRANCHES}
         f-new-cs-file no-cs-file-changes old-branch
@@ -245,6 +255,8 @@ public class FindActivityCommandTests
         TestService3.cs
         [test-f-3]
 
+        {FindActivityCommandConstant.ACTIVE_BRANCHES}
+        branch-for-exclude change-testservice1 test-f-1 test-f-2 test-f-3
 
         {FindActivityCommandConstant.INACTIVE_BRANCHES}
         f-new-cs-file no-cs-file-changes old-branch
