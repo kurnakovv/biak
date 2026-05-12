@@ -247,6 +247,6 @@ You can now run `dotnet format --exclude ...` and pull the changes into all acti
 * Output the detected activity
 
 ## 🔗 Links
-* Issues: [#68](https://github.com/kurnakovv/biak/issues/68)
+* Issues: [#68](https://github.com/kurnakovv/biak/issues/68) | [#81](https://github.com/kurnakovv/biak/issues/81) | [#84](https://github.com/kurnakovv/biak/issues/84) | [#87](https://github.com/kurnakovv/biak/issues/87)
 * Source code: [click](https://github.com/kurnakovv/biak/blob/dev/src/Biak.ConsoleApp/Commands/FindActivityCommand.cs)
 * dotnet format: [click](https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-format)
