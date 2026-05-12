@@ -100,6 +100,11 @@ public static class FindActivityCommandConstant
     public const string ACTIVITY = "Activity";
 
     /// <summary>
+    /// Active branches message.
+    /// </summary>
+    public const string ACTIVE_BRANCHES = "Active branches";
+
+    /// <summary>
     /// Inactive branches message.
     /// </summary>
     public const string INACTIVE_BRANCHES = "Inactive branches";
