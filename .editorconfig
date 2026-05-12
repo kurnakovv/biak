@@ -333,6 +333,9 @@ dotnet_diagnostic.IDE0300.severity = none
 # Use collection expression for builder (IDE0304)
 dotnet_diagnostic.IDE0304.severity = none
 
+# Use collection expression for fluent (IDE0305)
+dotnet_diagnostic.IDE0305.severity = none
+
 # Use unbound generic type (IDE0340)
 csharp_style_prefer_unbound_generic_type_in_nameof = false
 dotnet_diagnostic.IDE0340.severity = none
@@ -340,6 +343,9 @@ dotnet_diagnostic.IDE0340.severity = none
 # Use implicitly typed lambda (IDE0350)
 csharp_style_prefer_implicitly_typed_lambda_expression = false
 dotnet_diagnostic.IDE0350.severity = none
+
+# Remove unnecessary suppression (IDE0370)
+dotnet_diagnostic.IDE0370.severity = none # (For .NET 6)
 
 
 ### Field preferences ###
@@ -1052,6 +1058,10 @@ dotnet_diagnostic.rcs1046.severity = none # RCS1046: Asynchronous method name sh
 
 resharper_possible_multiple_enumeration_highlighting = none # Code inspection: Possible multiple enumeration https://www.jetbrains.com/help/resharper/PossibleMultipleEnumeration.html
 resharper_inconsistent_naming_highlighting = none # Code inspection: Inconsistent Naming https://www.jetbrains.com/help/resharper/InconsistentNaming.html
-resharper_use_collection_expression_highlighting = none # (Not for .NET 6) Code inspection: Use collection expression syntax https://www.jetbrains.com/help/resharper/UseCollectionExpression.html
+resharper_use_collection_expression_highlighting = none # (For .NET 6) Code inspection: Use collection expression syntax https://www.jetbrains.com/help/resharper/UseCollectionExpression.html
+resharper_convert_closure_to_method_group_highlighting = none # Code inspection: Convert lambda expression into method group https://www.jetbrains.com/help/resharper/ConvertClosureToMethodGroup.html
+resharper_member_initializer_value_ignored_highlighting = none # (For .NET 6 `null!`) Code inspection: Member initialized value ignored https://www.jetbrains.com/help/resharper/MemberInitializerValueIgnored.html
+resharper_unused_auto_property_accessor_global_highlighting = none # (Invalid for JsonSerializer) Code inspection: Auto-property accessor is never used (non-private accessibility) https://www.jetbrains.com/help/resharper/UnusedAutoPropertyAccessor.Global.html
+resharper_class_never_instantiated_global_highlighting = none # (Invalid for JsonSerializer) Code inspection: Class is never instantiated (non-private accessibility) https://www.jetbrains.com/help/resharper/ClassNeverInstantiated.Global.html
 
 ## *END* ReSharper Inspect Code
