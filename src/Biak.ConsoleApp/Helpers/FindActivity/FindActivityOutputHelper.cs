@@ -31,7 +31,17 @@ internal static class FindActivityOutputHelper
         else
         {
             sb.AppendLine(FindActivityCommandConstant.NO_ENTRIES);
+            sb.AppendLine();
         }
+
+        List<string> allActiveBranches = activity.Values.SelectMany(x => x).Distinct().ToList();
+
+        sb.AppendLine(FindActivityCommandConstant.ACTIVE_BRANCHES);
+        sb.AppendLine(
+            allActiveBranches.Count != 0
+                ? string.Join(" ", allActiveBranches)
+                : FindActivityCommandConstant.NO_ENTRIES
+        );
 
         sb.AppendLine();
         sb.AppendLine(FindActivityCommandConstant.INACTIVE_BRANCHES);
