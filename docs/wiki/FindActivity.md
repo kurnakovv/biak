@@ -131,6 +131,8 @@ TestService2.cs
 TestService3.cs
 [test-f-3]
 
+Active branches
+change-testservice1 test-f-1 test-f-2 test-f-3
 
 Inactive branches
 f-new-cs-file no-cs-file-changes old-branch
@@ -155,6 +157,14 @@ FullFilePath
 ```
 The date is needed so we can remember when the command was run.
 Branches are listed so we know where the file is being changed and which branches need to be merged before we run the command again.
+
+---
+
+```
+Active branches
+...
+```
+All active branches from the "Activity" section
 
 ---
 
