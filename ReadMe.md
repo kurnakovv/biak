@@ -41,6 +41,8 @@
 
 * 🔎 Include / Exclude filter | Apply rules to all C# `[*.cs]` files except selected ones, e.g., `[{TestClass1.cs,TestClass2.cs}]` ([docs](https://github.com/kurnakovv/biak/wiki/IncludeExcludeFilter)).
 
+* 🧑‍💻 Find activity | Provides the ability to find active branches and files being modified within them. This feature helps gradually introduce formatting and analyzers without causing Git conflicts by excluding actively modified files from the `.editorconfig` file ([docs](https://github.com/kurnakovv/biak/wiki/FindActivity)).
+
 * 🕸️ Apply rules without git conflicts | Automatically detect all active branches, run `dotnet format` (no changes), and identify conflicting files. This is especially useful for legacy projects with many rule violations, allowing gradual integration without major conflicts (soon 🔜).
 
 ## 🚀 Quick start

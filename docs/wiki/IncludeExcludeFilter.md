@@ -58,6 +58,9 @@ As you can see, the rules are applied to all files except the specifically exclu
 
 It is also recommended to use the [variable functionality](Variables) together with this feature to avoid duplicating paths.
 
+> [!WARNING]
+> Include / Exclude filter works unstable for `dotnet format` command, so it is recommended to use `--exlude` filter, for example `dotnet format --exlude TestFile1.cs TestFile2.cs`
+
 # ❔ Why
 * It is currently not possible to exclude multiple files using built-in syntax. Only `[!name]` (for a single file) or `{s1,s2,s3}` (without `!`) are supported.
 
@@ -66,3 +69,4 @@ It is also recommended to use the [variable functionality](Variables) together w
 ## 🔗 Links
 * Issues: [#59](https://github.com/kurnakovv/biak/issues/59)
 * Source code: [click](https://github.com/kurnakovv/biak/blob/dev/src/Biak.ConsoleApp/Helpers/IncludeExcludeFilterHelper.cs)
+* dotnet format: [click](https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-format)

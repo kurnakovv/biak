@@ -93,8 +93,8 @@ public class SetupCommandTests
                 "default-config.json"
             );
             Assert.True(File.Exists(configPath));
-            string configContent = await File.ReadAllTextAsync(configPath);
             string templateConfigContent = await File.ReadAllTextAsync(templateConfigPath);
+            string configContent = await File.ReadAllTextAsync(configPath);
             Assert.Equal(templateConfigContent, configContent);
         }
         finally
