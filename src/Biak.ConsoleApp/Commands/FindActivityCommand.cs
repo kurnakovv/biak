@@ -139,7 +139,17 @@ public static class FindActivityCommand
             }
         }
 
-        FindActivityOutputHelper.Print(activity, inactiveBranches);
+        DateTime currentDate = DateTime.UtcNow;
+        string output = FindActivityOutputHelper.Print(activity, inactiveBranches, currentDate);
+
+        if (input.SaveOutput)
+        {
+            string currentDirectory = Directory.GetCurrentDirectory();
+            string logDir = Path.Join(currentDirectory, ".biak", "logs");
+            Directory.CreateDirectory(logDir);
+            string logFilePath = Path.Join(logDir, $"find-activity-log-{currentDate:yyyy-MM-dd__HH-mm-ss}.txt");
+            await File.WriteAllTextAsync(logFilePath, output + Environment.NewLine);
+        }
     }
 
     private static bool MatchExcludeBranch(string text, string pattern)

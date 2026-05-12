@@ -79,4 +79,9 @@ public class FindActivityInputConfigModel
     /// Include only this file paths.
     /// </summary>
     public string? IncludedFilePaths { get; init; }
+
+    /// <summary>
+    /// Save output to file log.
+    /// </summary>
+    public bool? SaveOutput { get; init; }
 }

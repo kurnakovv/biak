@@ -2,45 +2,65 @@
 // This file is licensed under the MIT License.
 // See the LICENSE file in the project root for full license information.
 
+using System.Text;
 using Biak.ConsoleApp.Constants;
 
 namespace Biak.ConsoleApp.Helpers.FindActivity;
 
 internal static class FindActivityOutputHelper
 {
-    internal static void Print(Dictionary<string, List<string>> activity, IEnumerable<string> inactiveBranches)
+    internal static string Print(
+        Dictionary<string, List<string>> activity,
+        IEnumerable<string> inactiveBranches,
+        DateTime currentDate
+    )
     {
-        Console.WriteLine($"{FindActivityCommandConstant.ACTIVITY} [{DateTime.UtcNow}]");
+        StringBuilder sb = new();
+
+        sb.AppendLine($"{FindActivityCommandConstant.ACTIVITY} [{currentDate}]");
+
         if (activity.Count != 0)
         {
             foreach ((string file, List<string> activeBranches) in activity)
             {
-                Console.WriteLine(file);
-                Console.WriteLine($"[{string.Join(" ", activeBranches)}]");
-                Console.WriteLine();
+                sb.AppendLine(file);
+                sb.AppendLine($"[{string.Join(" ", activeBranches)}]");
+                sb.AppendLine();
             }
         }
         else
         {
-            Console.WriteLine(FindActivityCommandConstant.NO_ENTRIES);
+            sb.AppendLine(FindActivityCommandConstant.NO_ENTRIES);
         }
 
-        Console.WriteLine();
-        Console.WriteLine(FindActivityCommandConstant.INACTIVE_BRANCHES);
-        Console.WriteLine(inactiveBranches.Any() ? string.Join(" ", inactiveBranches) : FindActivityCommandConstant.NO_ENTRIES);
+        sb.AppendLine();
+        sb.AppendLine(FindActivityCommandConstant.INACTIVE_BRANCHES);
+        sb.AppendLine(
+            inactiveBranches.Any()
+                ? string.Join(" ", inactiveBranches)
+                : FindActivityCommandConstant.NO_ENTRIES
+        );
 
         List<string> keys = activity.Keys.ToList();
 
-        Console.WriteLine();
-        Console.WriteLine(FindActivityCommandConstant.ACTIVITY_VIA_SINGLE_LINE);
-        Console.WriteLine(keys.Count != 0 ? string.Join(",", keys) : FindActivityCommandConstant.NO_ENTRIES);
+        sb.AppendLine();
+        sb.AppendLine(FindActivityCommandConstant.ACTIVITY_VIA_SINGLE_LINE);
+        sb.AppendLine(
+            keys.Count != 0
+                ? string.Join(",", keys)
+                : FindActivityCommandConstant.NO_ENTRIES
+        );
 
-        Console.WriteLine();
-        Console.WriteLine(FindActivityCommandConstant.ACTIVITY_VIA_SINGLE_LINE_FOR_EXCLUDE);
-        Console.WriteLine(keys.Count != 0 ? string.Join(" ", keys) : FindActivityCommandConstant.NO_ENTRIES);
+        sb.AppendLine();
+        sb.AppendLine(FindActivityCommandConstant.ACTIVITY_VIA_SINGLE_LINE_FOR_EXCLUDE);
+        sb.AppendLine(
+            keys.Count != 0
+                ? string.Join(" ", keys)
+                : FindActivityCommandConstant.NO_ENTRIES
+        );
 
-        Console.WriteLine();
-        Console.WriteLine(FindActivityCommandConstant.ACTIVITY_VIA_VARIABLE);
+        sb.AppendLine();
+        sb.AppendLine(FindActivityCommandConstant.ACTIVITY_VIA_VARIABLE);
 
         if (keys.Count != 0)
         {
@@ -52,11 +72,17 @@ internal static class FindActivityOutputHelper
 
             result += ";";
 
-            Console.WriteLine(result);
+            sb.Append(result);
         }
         else
         {
-            Console.WriteLine(FindActivityCommandConstant.NO_ENTRIES);
+            sb.Append(FindActivityCommandConstant.NO_ENTRIES);
         }
+
+        string output = sb.ToString();
+
+        Console.WriteLine(output);
+
+        return output;
     }
 }

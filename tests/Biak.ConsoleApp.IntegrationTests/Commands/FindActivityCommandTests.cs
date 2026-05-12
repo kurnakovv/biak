@@ -24,12 +24,13 @@ public class FindActivityCommandTests
         {FindActivityCommandConstant.EXCLUDE_BRANCHES_DEFAULT_BEHAVIOUR}
         {FindActivityCommandConstant.EXCLUDE_BRANCHES_INPUT}
         {FindActivityCommandConstant.INCLUDE_FILE_PATHS_INPUT}
+        {FindActivityCommandConstant.SAVE_OUTPUT_INPUT}
         """;
 
     [Theory]
     [InlineData(
         "DefaultCase",
-        "main\n-10\ndfassfds\n35\nMD\n.cs,.vb\nbranch-for-exclude\n\n",
+        "main\n-10\ndfassfds\n35\nMD\n.cs,.vb\nbranch-for-exclude\n\nfdsdfsdasf\ntrue\n",
         $"""
         {FindActivityCommandConstant.ENTER_CRITERIA}
         {FindActivityCommandConstant.DEFAULT_BRANCH_INPUT}
@@ -46,6 +47,9 @@ public class FindActivityCommandTests
         {FindActivityCommandConstant.EXCLUDE_BRANCHES_DEFAULT_BEHAVIOUR}
         {FindActivityCommandConstant.EXCLUDE_BRANCHES_INPUT}
         {FindActivityCommandConstant.INCLUDE_FILE_PATHS_INPUT}
+        {FindActivityCommandConstant.SAVE_OUTPUT_INPUT}
+        {FindActivityCommandConstant.INVALID_SAVE_OUTPUT_FORMAT}
+        {FindActivityCommandConstant.SAVE_OUTPUT_INPUT}
         {FindActivityCommandConstant.START}
         {FindActivityCommandConstant.ACTIVITY}
         TestService1.cs
@@ -73,11 +77,12 @@ public class FindActivityCommandTests
             + ",TestService3.cs";
 
         """,
-        null
+        null,
+        true
     )]
     [InlineData(
         "IncludeSpecificFiles",
-        "main\n35\nMD\n.cs,.vb\nbranch-for-exclude\nTestService1.cs,TestService2.cs\n",
+        "main\n35\nMD\n.cs,.vb\nbranch-for-exclude\nTestService1.cs,TestService2.cs\n\n",
         $"""
         {DEFAULT_INPUT_OUTPUT}
         {FindActivityCommandConstant.START}
@@ -103,11 +108,12 @@ public class FindActivityCommandTests
             + ",TestService2.cs";
 
         """,
-        null
+        null,
+        false
     )]
     [InlineData(
         "DisableAllFilters",
-        "main\n*\n*\n*\n\n\n",
+        "main\n*\n*\n*\n\n\n\n",
         $"""
         {DEFAULT_INPUT_OUTPUT}
         {FindActivityCommandConstant.START}
@@ -149,11 +155,12 @@ public class FindActivityCommandTests
             + ",TestService3.cs";
 
         """,
-        null
+        null,
+        false
     )]
     [InlineData(
         "ExcludeBranches",
-        "main\n*\n*\n*\ntest-f-* *-test *change* test\n\n",
+        "main\n*\n*\n*\ntest-f-* *-test *change* test\n\n\n",
         $"""
         {DEFAULT_INPUT_OUTPUT}
         {FindActivityCommandConstant.START}
@@ -183,7 +190,8 @@ public class FindActivityCommandTests
             + ",TestService9.cs";
 
         """,
-        null
+        null,
+        false
     )]
     [InlineData(
         "ConfigWithDefaultValues",
@@ -216,7 +224,8 @@ public class FindActivityCommandTests
             + ",TestService3.cs";
 
         """,
-        "default-config.json"
+        "default-config.json",
+        false
     )]
     [InlineData(
         "InvalidExpirationPeriodInConfig",
@@ -252,9 +261,10 @@ public class FindActivityCommandTests
             + ",TestService3.cs";
 
         """,
-        "invalid-expiration-period-config.json"
+        "invalid-expiration-period-config.json",
+        true
     )]
-    public async Task RunTestAsync(string name, string inputText, string expectedOutputText, string? configFilePath)
+    public async Task RunTestAsync(string name, string inputText, string expectedOutputText, string? configFilePath, bool saveOutput)
     {
         string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new($"{nameof(FindActivityCommandTests)}_{nameof(RunTestAsync)}_{name}");
@@ -306,6 +316,21 @@ public class FindActivityCommandTests
 
             Assert.NotEmpty(result);
             Assert.Equal(expectedOutputText, result);
+
+            string logsDir = Path.Join(Directory.GetCurrentDirectory(), ".biak", "logs");
+            if (saveOutput)
+            {
+                Assert.True(Directory.Exists(logsDir));
+                string? logFilePath = Directory.GetFiles(logsDir).FirstOrDefault(x => x.EndsWith(".txt"));
+                Assert.NotNull(logFilePath);
+                string logFileContent = await File.ReadAllTextAsync(logFilePath);
+                logFileContent = Regex.Replace(logFileContent, $@"({FindActivityCommandConstant.ACTIVITY})\s*\[.*?\]", "$1");
+                Assert.Contains(logFileContent, result, StringComparison.OrdinalIgnoreCase);
+            }
+            else
+            {
+                Assert.False(Directory.Exists(logsDir));
+            }
         }
         finally
         {
