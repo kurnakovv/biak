@@ -75,6 +75,16 @@ public static class FindActivityCommandConstant
     public const string INCLUDE_FILE_PATHS_INPUT = "Enter file paths (comma-separated) to process only these files, others will be skipped (default: all files): ";
 
     /// <summary>
+    /// Save output input message.
+    /// </summary>
+    public const string SAVE_OUTPUT_INPUT = "Save output to '.biak/logs' directory ('false' by default): ";
+
+    /// <summary>
+    /// Invalid save output format message.
+    /// </summary>
+    public const string INVALID_SAVE_OUTPUT_FORMAT = "Invalid save output format (only 'false' or 'true')";
+
+    /// <summary>
     /// Start message.
     /// </summary>
     public const string START = "Start find activity...";
