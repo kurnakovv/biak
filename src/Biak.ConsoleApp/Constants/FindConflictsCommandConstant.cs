@@ -28,4 +28,9 @@ public static class FindConflictsCommandConstant
     /// Conflicting files message.
     /// </summary>
     public const string CONFLICTING_FILES = "Conflicting files";
+
+    /// <summary>
+    /// Not found branches message.
+    /// </summary>
+    public const string NOT_FOUND_BRANCHES = "Not found branches";
 }

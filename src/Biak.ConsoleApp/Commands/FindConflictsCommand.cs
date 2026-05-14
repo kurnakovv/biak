@@ -38,9 +38,22 @@ public static class FindConflictsCommand
 
         await GitHelper.RunAsync($"checkout {input.DefaultBranch}");
         Dictionary<string, List<string>> allConflictFiles = new();
+        List<string> notFoundBranches = new();
 
         foreach (string branch in input.Branches)
         {
+            string normalizedBranch = branch.StartsWith("origin/")
+                ? branch.Replace("origin/", "origin ", StringComparison.Ordinal)
+                : branch;
+
+            string isBranchExistsOutput = await GitHelper.RunAsync($"branch -l {normalizedBranch}");
+
+            if (string.IsNullOrWhiteSpace(isBranchExistsOutput))
+            {
+                notFoundBranches.Add(branch);
+                continue;
+            }
+
             await GitHelper.RunAsync($"merge --no-commit --no-ff {branch}", ignoreExitCode: true);
 
             string conflictFilesOutput = await GitHelper.RunAsync($"diff --name-only --diff-filter=U");
@@ -65,6 +78,6 @@ public static class FindConflictsCommand
             await GitHelper.RunAsync($"merge --abort");
         }
 
-        _ = FindConflictsOutputHelper.Print(allConflictFiles);
+        _ = FindConflictsOutputHelper.Print(allConflictFiles, notFoundBranches);
     }
 }

@@ -112,6 +112,20 @@ public class FindConflictsCommandTests
         false,
         null
     )]
+    [InlineData(
+        "InvalidBranches",
+        "\ntest-f-1 test-f-2 bvcbvcbcxb origin/dfdfasdfssdfasdfa origin/dfdfasdfssdfasdfa/dffasdfs test-f-3\n",
+        $"""
+        {DEFAULT_START_TEXT}
+        {SharedFindCommandConstant.NO_ENTRIES}
+
+        {FindConflictsCommandConstant.NOT_FOUND_BRANCHES}
+        bvcbvcbcxb origin/dfdfasdfssdfasdfa origin/dfdfasdfssdfasdfa/dffasdfs
+
+        """,
+        false,
+        null
+    )]
     public async Task RunTestAsync(string name, string inputText, string expectedOutputText, bool runDotnetFormat, string? filePathsToChangeInput)
     {
         string originalDirectory = Directory.GetCurrentDirectory();

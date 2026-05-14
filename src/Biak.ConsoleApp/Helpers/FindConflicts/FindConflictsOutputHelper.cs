@@ -9,7 +9,10 @@ namespace Biak.ConsoleApp.Helpers.FindConflicts;
 
 internal static class FindConflictsOutputHelper
 {
-    internal static string Print(Dictionary<string, List<string>> allCoflictFiles)
+    internal static string Print(
+        Dictionary<string, List<string>> allCoflictFiles,
+        List<string> notFoundBranches
+    )
     {
         StringBuilder sb = new();
 
@@ -27,6 +30,13 @@ internal static class FindConflictsOutputHelper
         else
         {
             sb.AppendLine(SharedFindCommandConstant.NO_ENTRIES);
+        }
+
+        if (notFoundBranches.Count != 0)
+        {
+            sb.AppendLine();
+            sb.AppendLine(FindConflictsCommandConstant.NOT_FOUND_BRANCHES);
+            sb.AppendJoin(" ", notFoundBranches).AppendLine();
         }
 
         string output = sb.ToString();
