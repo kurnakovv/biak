@@ -15,8 +15,9 @@ public static class GitHelper
     /// Run git + arguments command.
     /// </summary>
     /// <param name="arguments">Arguments after git.</param>
+    /// <param name="ignoreExitCode">Ignore exit code (Do not throw exit code 1).</param>
     /// <returns>git output.</returns>
-    public static async Task<string> RunAsync(string arguments)
+    public static async Task<string> RunAsync(string arguments, bool ignoreExitCode = false)
     {
         using Process process = new();
 
@@ -37,7 +38,7 @@ public static class GitHelper
         string output = await outputTask;
         string error = await errorTask;
 
-        if (process.ExitCode != 0)
+        if (!ignoreExitCode && process.ExitCode != 0)
         {
             Console.WriteLine("GIT ERROR: " + error);
             Environment.Exit(1);
