@@ -42,11 +42,7 @@ public static class FindConflictsCommand
 
         foreach (string branch in input.Branches)
         {
-            string normalizedBranch = branch.StartsWith("origin/")
-                ? branch.Replace("origin/", "origin ", StringComparison.Ordinal)
-                : branch;
-
-            string isBranchExistsOutput = await GitHelper.RunAsync($"branch -a -l {normalizedBranch}");
+            string isBranchExistsOutput = await GitHelper.RunAsync($"branch -a -l {branch}");
 
             if (string.IsNullOrWhiteSpace(isBranchExistsOutput))
             {
