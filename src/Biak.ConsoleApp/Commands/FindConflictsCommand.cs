@@ -46,7 +46,7 @@ public static class FindConflictsCommand
                 ? branch.Replace("origin/", "origin ", StringComparison.Ordinal)
                 : branch;
 
-            string isBranchExistsOutput = await GitHelper.RunAsync($"branch -l {normalizedBranch}");
+            string isBranchExistsOutput = await GitHelper.RunAsync($"branch -a -l {normalizedBranch}");
 
             if (string.IsNullOrWhiteSpace(isBranchExistsOutput))
             {
