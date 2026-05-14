@@ -178,7 +178,7 @@ public class FindConflictsCommandTests
         using Process process = new();
 
         process.StartInfo.FileName = "dotnet";
-        process.StartInfo.Arguments = " format --exclude-diagnostics IDE0130";
+        process.StartInfo.Arguments = " format";
         process.StartInfo.RedirectStandardOutput = true;
         process.StartInfo.RedirectStandardError = true;
         process.StartInfo.UseShellExecute = false;
