@@ -36,44 +36,56 @@ public static class FindConflictsCommand
         FindConflictsInputModel input = FindConflictsInputHelper.Request();
         Console.WriteLine(FindConflictsCommandConstant.START);
 
-        await GitHelper.RunAsync($"checkout {input.DefaultBranch}");
-        Dictionary<string, List<string>> allConflictFiles = new();
-        List<string> notFoundBranches = new();
+        string originalBranch = (await GitHelper.RunAsync("branch --show-current")).Trim();
 
-        foreach (string branch in input.Branches)
+        try
         {
-            string isBranchExistsOutput = await GitHelper.RunAsync($"branch -a -l {branch}");
+            await GitHelper.RunAsync($"checkout {input.DefaultBranch}");
+            Dictionary<string, List<string>> allConflictFiles = new();
+            List<string> notFoundBranches = new();
 
-            if (string.IsNullOrWhiteSpace(isBranchExistsOutput))
+            foreach (string branch in input.Branches)
             {
-                notFoundBranches.Add(branch);
-                continue;
-            }
+                string isBranchExistsOutput = await GitHelper.RunAsync($"branch -a -l {branch}");
 
-            await GitHelper.RunAsync($"merge --no-commit --no-ff {branch}", ignoreExitCode: true);
-
-            string conflictFilesOutput = await GitHelper.RunAsync("diff --name-only --diff-filter=U");
-            if (!string.IsNullOrWhiteSpace(conflictFilesOutput))
-            {
-                IEnumerable<string> curentConflictFiles = conflictFilesOutput
-                    .Split(s_separator, StringSplitOptions.RemoveEmptyEntries)
-                    .Select(x => x.Trim());
-
-                foreach (string conflictFile in curentConflictFiles)
+                if (string.IsNullOrWhiteSpace(isBranchExistsOutput))
                 {
-                    if (!allConflictFiles.TryGetValue(conflictFile, out List<string>? list))
-                    {
-                        list = new List<string>();
-                        allConflictFiles[conflictFile] = list;
-                    }
-
-                    list.Add(branch);
+                    notFoundBranches.Add(branch);
+                    continue;
                 }
+
+                await GitHelper.RunAsync($"merge --no-commit --no-ff {branch}", ignoreExitCode: true);
+
+                string conflictFilesOutput = await GitHelper.RunAsync("diff --name-only --diff-filter=U");
+                if (!string.IsNullOrWhiteSpace(conflictFilesOutput))
+                {
+                    IEnumerable<string> curentConflictFiles = conflictFilesOutput
+                        .Split(s_separator, StringSplitOptions.RemoveEmptyEntries)
+                        .Select(x => x.Trim());
+
+                    foreach (string conflictFile in curentConflictFiles)
+                    {
+                        if (!allConflictFiles.TryGetValue(conflictFile, out List<string>? list))
+                        {
+                            list = new List<string>();
+                            allConflictFiles[conflictFile] = list;
+                        }
+
+                        list.Add(branch);
+                    }
+                }
+
+                await GitHelper.RunAsync("merge --abort");
             }
 
-            await GitHelper.RunAsync("merge --abort");
+            _ = FindConflictsOutputHelper.Print(allConflictFiles, notFoundBranches);
         }
-
-        _ = FindConflictsOutputHelper.Print(allConflictFiles, notFoundBranches);
+        finally
+        {
+            if (!string.IsNullOrWhiteSpace(originalBranch))
+            {
+                await GitHelper.RunAsync($"checkout {originalBranch}");
+            }
+        }
     }
 }
