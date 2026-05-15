@@ -1,5 +1,5 @@
 ## 📙 Description
-⚔️ Find files with merge conflicts between the current branch and selected branches.
+⚔️ Find files with merge conflicts between the default branch and selected branches.
 
 ## ❔ Why
 This command is very useful when combined with 🧑‍💻 Find activity ([docs](FindActivity)) to ensure that applying filters to the default branch doesn't cause any conflicts with active branches. This command can also be used to automatically find conflicts with other branches.
