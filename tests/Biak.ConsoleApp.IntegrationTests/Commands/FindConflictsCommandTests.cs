@@ -86,7 +86,7 @@ public class FindConflictsCommandTests
     )]
     [InlineData(
         "ChangeSingleFileForConflict",
-        "main\ntest-f-1 test-f-2 test-f-3\n",
+        "  main  \ntest-f-1 test-f-2 test-f-3\n",
         $"""
         {DEFAULT_START_TEXT}
         {SharedFindCommandConstant.NO_ENTRIES}

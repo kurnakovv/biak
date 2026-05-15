@@ -18,6 +18,10 @@ internal static class FindConflictsInputHelper
         {
             defaultBranch = "main";
         }
+        else
+        {
+            defaultBranch = defaultBranch.Trim();
+        }
 
         Console.WriteLine();
 
