@@ -100,7 +100,7 @@ public static class GitRepository
         await GitHelper.RunAsync("add .");
         await GitHelper.RunAsync("commit -m \"Update TestService1\"");
         await GitHelper.RunAsync($"checkout {defaultBranch}");
-        await GitHelper.RunAsync($"checkout -b no-changes");
+        await GitHelper.RunAsync("checkout -b no-changes");
         await GitHelper.RunAsync($"checkout {defaultBranch}");
     }
 }
