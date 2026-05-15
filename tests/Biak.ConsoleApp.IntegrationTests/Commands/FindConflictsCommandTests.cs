@@ -156,7 +156,7 @@ public class FindConflictsCommandTests
 
             if (runDotnetFormat)
             {
-                await RunDotnetAsync();
+                _ = await RunDotnetAsync();
                 await GitHelper.RunAsync("add .");
                 await GitHelper.RunAsync("commit -m \"Update after dotnet format\"");
             }
