@@ -74,6 +74,6 @@ public static class FindConflictsCommand
             await GitHelper.RunAsync("merge --abort");
         }
 
-        _ = FindConflictsOutputHelper.Print(allConflictFiles, notFoundBranches);
+        FindConflictsOutputHelper.Print(allConflictFiles, notFoundBranches);
     }
 }
