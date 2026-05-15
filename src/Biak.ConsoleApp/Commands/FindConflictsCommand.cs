@@ -54,7 +54,13 @@ public static class FindConflictsCommand
                     continue;
                 }
 
-                await GitHelper.RunAsync($"merge --no-commit --no-ff {branch}", ignoreExitCode: true);
+                GitResult mergeGitResult = await GitHelper.RunWithModelAsync($"merge --no-commit --no-ff {branch}");
+
+                if (mergeGitResult.ExitCode != 0 && !mergeGitResult.Output.Contains("CONFLICT", StringComparison.OrdinalIgnoreCase))
+                {
+                    Console.WriteLine("GIT ERROR: " + mergeGitResult.Error);
+                    Environment.Exit(1);
+                }
 
                 string conflictFilesOutput = await GitHelper.RunAsync("diff --name-only --diff-filter=U");
                 if (!string.IsNullOrWhiteSpace(conflictFilesOutput))
