@@ -9,7 +9,7 @@ namespace Biak.ConsoleApp.Helpers.FindConflicts;
 
 internal static class FindConflictsOutputHelper
 {
-    internal static void Print(
+    internal static string Print(
         Dictionary<string, List<string>> allCoflictFiles,
         List<string> notFoundBranches
     )
@@ -41,5 +41,6 @@ internal static class FindConflictsOutputHelper
 
         string output = sb.ToString();
         Console.Write(output);
+        return output;
     }
 }
