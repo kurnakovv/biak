@@ -59,6 +59,6 @@ internal class FindConflictsInputModel
         Branches = branches;
     }
 
-    internal string DefaultBranch { get; init; } = null!;
-    internal IEnumerable<string> Branches { get; init; }
+    internal string DefaultBranch { get; } = null!;
+    internal IEnumerable<string> Branches { get; }
 }

@@ -52,7 +52,7 @@ public static class FindConflictsCommand
 
             await GitHelper.RunAsync($"merge --no-commit --no-ff {branch}", ignoreExitCode: true);
 
-            string conflictFilesOutput = await GitHelper.RunAsync($"diff --name-only --diff-filter=U");
+            string conflictFilesOutput = await GitHelper.RunAsync("diff --name-only --diff-filter=U");
             if (!string.IsNullOrWhiteSpace(conflictFilesOutput))
             {
                 IEnumerable<string> curentConflictFiles = conflictFilesOutput
@@ -71,7 +71,7 @@ public static class FindConflictsCommand
                 }
             }
 
-            await GitHelper.RunAsync($"merge --abort");
+            await GitHelper.RunAsync("merge --abort");
         }
 
         _ = FindConflictsOutputHelper.Print(allConflictFiles, notFoundBranches);
