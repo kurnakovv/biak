@@ -81,8 +81,8 @@ public static class FindConflictsCommand
                     }
                 }
 
-                string mergeHeadOutput = await GitHelper.RunAsync("rev-parse -q --verify MERGE_HEAD");
-                if (!string.IsNullOrWhiteSpace(mergeHeadOutput))
+                GitResult mergeHeadGitResult = await GitHelper.RunWithModelAsync("rev-parse -q --verify MERGE_HEAD");
+                if (mergeHeadGitResult.ExitCode == 0 && !string.IsNullOrWhiteSpace(mergeHeadGitResult.Output))
                 {
                     await GitHelper.RunAsync("merge --abort");
                 }
