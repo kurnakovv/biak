@@ -23,7 +23,7 @@ public class FindConflictsCommandTests
 
     [Theory]
     [InlineData(
-        "NoCoflicts",
+        "NoConflicts",
         "main\ntest-f-1 test-f-2 test-f-3\n",
         $"""
         {DEFAULT_START_TEXT}

@@ -35,7 +35,7 @@ public static class CommandArgumentConstant
     public const string FIND_ACTIVITY = "find-activity";
 
     /// <summary>
-    /// Find git coflicts files.
+    /// Find git conflicts files.
     /// </summary>
     public const string FIND_CONFLICTS = "find-conflicts";
 }

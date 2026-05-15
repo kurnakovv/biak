@@ -25,7 +25,7 @@ public class FindConflictsCommandTests
     }
 
     [Fact]
-    public void IsRunnableTrueForSingleFindCoflictsParam()
+    public void IsRunnableTrueForSingleFindConflictsParam()
     {
         Assert.True(FindConflictsCommand.IsRunnable([CommandArgumentConstant.FIND_CONFLICTS]));
     }
