@@ -81,7 +81,11 @@ public static class FindConflictsCommand
                     }
                 }
 
-                await GitHelper.RunAsync("merge --abort");
+                string mergeHeadOutput = await GitHelper.RunAsync("rev-parse -q --verify MERGE_HEAD");
+                if (!string.IsNullOrWhiteSpace(mergeHeadOutput))
+                {
+                    await GitHelper.RunAsync("merge --abort");
+                }
             }
 
             _ = FindConflictsOutputHelper.Print(allConflictFiles, notFoundBranches);
