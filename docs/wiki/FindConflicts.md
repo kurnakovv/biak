@@ -10,7 +10,7 @@ Let's imagine that we have the same conditions as described [here](FindActivity#
 ### Input
 
 > [!NOTE]
-> Before running this command, make sure your team has pushed all recent changes to the remote repository, and run `git fetch origin` to ensure you have the latest state of all active branches. It is also necessary to commit your current changes (if any)
+> Before running this command, make sure your team has pushed all recent changes to the remote repository, and run `git fetch origin` to ensure you have the latest state of all active branches.
 
 To find conflicts in the branches we need, let's run this command
 ```

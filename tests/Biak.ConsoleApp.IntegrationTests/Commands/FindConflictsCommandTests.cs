@@ -127,11 +127,10 @@ public class FindConflictsCommandTests
         null
     )]
     [InlineData(
-        "NoChangesBranch",
-        "\nno-changes\n",
+        "LocalChangesDetected",
+        "",
         $"""
-        {DEFAULT_START_TEXT}
-        {SharedFindCommandConstant.NO_ENTRIES}
+        {FindConflictsCommandConstant.LOCAL_CHANGES_DETECTED}
 
         """,
         false,
@@ -180,6 +179,13 @@ public class FindConflictsCommandTests
                 }
                 await GitHelper.RunAsync("add .");
                 await GitHelper.RunAsync("commit -m \"Update after file changes\"");
+            }
+
+            if (inputText.Length == 0)
+            {
+                await File.WriteAllTextAsync("TestService1.cs", "TestContent");
+                await GitHelper.RunAsync("add .");
+                await File.WriteAllTextAsync("TestService2.cs", "TestContent");
             }
 
             await FindConflictsCommand.RunAsync();

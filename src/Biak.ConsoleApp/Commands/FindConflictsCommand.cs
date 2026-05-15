@@ -31,7 +31,13 @@ public static class FindConflictsCommand
     /// <returns><placeholder>A <see cref="Task"/> representing the asynchronous operation.</placeholder></returns>
     public static async Task RunAsync()
     {
-        await GitHelper.RunAsync("status");
+        string workingTreeStatus = await GitHelper.RunAsync("status --porcelain");
+
+        if (!string.IsNullOrWhiteSpace(workingTreeStatus))
+        {
+            Console.WriteLine(FindConflictsCommandConstant.LOCAL_CHANGES_DETECTED);
+            return;
+        }
 
         FindConflictsInputModel input = FindConflictsInputHelper.Request();
         Console.WriteLine(FindConflictsCommandConstant.START);

@@ -10,6 +10,11 @@ namespace Biak.ConsoleApp.Constants;
 public static class FindConflictsCommandConstant
 {
     /// <summary>
+    /// Local changes detected message.
+    /// </summary>
+    public const string LOCAL_CHANGES_DETECTED = "Local changes detected. Please commit or stash them before running find-conflicts.";
+
+    /// <summary>
     /// Branches input message.
     /// </summary>
     public const string BRANCHES_INPUT = "Branches separated by spaces that will be merged with no commit into the default branch (e.g., f-1 f-2): ";
