@@ -43,7 +43,7 @@
 
 * 🧑‍💻 Find activity | Provides the ability to find active branches and files being modified within them. This feature helps gradually introduce formatting and analyzers without causing Git conflicts by excluding actively modified files from the `.editorconfig` file ([docs](https://github.com/kurnakovv/biak/wiki/FindActivity)).
 
-* 🕸️ Apply rules without git conflicts | Automatically detect all active branches, run `dotnet format` (no changes), and identify conflicting files. This is especially useful for legacy projects with many rule violations, allowing gradual integration without major conflicts (soon 🔜).
+* ⚔️ Find conflicts | Find files with merge conflicts between the current branch and selected branches. This is especially useful for legacy projects with many rule violations, allowing gradual integration without major conflicts ([docs](https://github.com/kurnakovv/biak/wiki/FindConflicts)).
 
 ## 🚀 Quick start
 1️⃣ Install
