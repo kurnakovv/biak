@@ -9,14 +9,14 @@ using Biak.ConsoleApp.Helpers.FindConflicts;
 namespace Biak.ConsoleApp.Commands;
 
 /// <summary>
-/// `dotnet biak find-coflicts` command.
+/// `dotnet biak find-conflicts` command.
 /// </summary>
 public static class FindConflictsCommand
 {
     private static readonly char[] s_separator = new[] { '\r', '\n' };
 
     /// <summary>
-    /// Can `dotnet biak find-coflicts` command be run.
+    /// Can `dotnet biak find-conflicts` command be run.
     /// </summary>
     /// <param name="args">User input arguments.</param>
     /// <returns>Can be run or not.</returns>
