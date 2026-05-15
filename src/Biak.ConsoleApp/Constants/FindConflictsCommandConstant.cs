@@ -12,7 +12,7 @@ public static class FindConflictsCommandConstant
     /// <summary>
     /// Branches input message.
     /// </summary>
-    public const string BRANCHES_INPUT = "Branches separated by spaces that will be merged into the default branch (e.g., f-1 f-2): ";
+    public const string BRANCHES_INPUT = "Branches separated by spaces that will be merged with no commit into the default branch (e.g., f-1 f-2): ";
 
     /// <summary>
     /// Invalid branches format message.
@@ -22,7 +22,7 @@ public static class FindConflictsCommandConstant
     /// <summary>
     /// Start message.
     /// </summary>
-    public const string START = "Start find coflicts command...";
+    public const string START = "Start find conflicts command...";
 
     /// <summary>
     /// Conflicting files message.
