@@ -126,6 +126,17 @@ public class FindConflictsCommandTests
         false,
         null
     )]
+    [InlineData(
+        "NoChangesBranch",
+        "\nno-changes\n",
+        $"""
+        {DEFAULT_START_TEXT}
+        {SharedFindCommandConstant.NO_ENTRIES}
+
+        """,
+        false,
+        null
+    )]
     public async Task RunTestAsync(string name, string inputText, string expectedOutputText, bool runDotnetFormat, string? filePathsToChangeInput)
     {
         string originalDirectory = Directory.GetCurrentDirectory();
