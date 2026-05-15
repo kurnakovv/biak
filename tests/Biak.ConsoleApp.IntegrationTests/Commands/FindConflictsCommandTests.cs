@@ -13,7 +13,7 @@ namespace Biak.ConsoleApp.IntegrationTests.Commands;
 
 public class FindConflictsCommandTests
 {
-    public const string DEFAULT_START_TEXT = $"""
+    private const string DEFAULT_START_TEXT = $"""
         {SharedFindCommandConstant.ENTER_CRITERIA}
         {SharedFindCommandConstant.DEFAULT_BRANCH_INPUT}
         {FindConflictsCommandConstant.BRANCHES_INPUT}
