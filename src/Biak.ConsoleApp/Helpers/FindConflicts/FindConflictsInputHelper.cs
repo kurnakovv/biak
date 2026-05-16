@@ -23,7 +23,8 @@ internal static class FindConflictsInputHelper
         while (true)
         {
             Console.Write(FindConflictsCommandConstant.BRANCHES_INPUT);
-            string? branchesInput = Console.ReadLine();
+            string branchesInput = Console.ReadLine()
+                ?? throw new OperationCanceledException("Input stream closed.");
 
             if (string.IsNullOrWhiteSpace(branchesInput))
             {
