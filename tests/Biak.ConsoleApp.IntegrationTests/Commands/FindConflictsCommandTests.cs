@@ -181,7 +181,7 @@ public class FindConflictsCommandTests
                 await GitHelper.RunAsync("commit -m \"Update after file changes\"");
             }
 
-            if (inputText.Length == 0)
+            if (string.IsNullOrEmpty(inputText))
             {
                 await File.WriteAllTextAsync("TestService1.cs", "TestContent");
                 await GitHelper.RunAsync("add .");
@@ -195,6 +195,51 @@ public class FindConflictsCommandTests
 
             Assert.NotEmpty(result);
             Assert.Equal(expectedOutputText, result);
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+            Console.SetIn(originalIn);
+            Directory.SetCurrentDirectory(originalDirectory);
+        }
+    }
+
+    [Fact]
+    public async Task RunShouldThrowWhenBranchesInputReachedEofAsync()
+    {
+        string originalDirectory = Directory.GetCurrentDirectory();
+        TestDirectory testDir = new(
+            $"{nameof(FindConflictsCommandTests)}_{nameof(RunShouldThrowWhenBranchesInputReachedEofAsync)}"
+        );
+
+        TextWriter originalOut = Console.Out;
+        await using StringWriter output = new();
+        Console.SetOut(output);
+
+        TextReader originalIn = Console.In;
+
+        using StringReader input = new("main\n");
+
+        Console.SetIn(input);
+
+        try
+        {
+            Directory.SetCurrentDirectory(testDir.Value);
+
+            string templateSimpleProject = Path.Join(
+                AppContext.BaseDirectory,
+                "Templates",
+                "SimpleProject",
+                "MySimpleProjectTemplate"
+            );
+
+            testDir.CopyDirectory(templateSimpleProject);
+
+            await GitRepository.MockAsync();
+
+            await Assert.ThrowsAsync<OperationCanceledException>(
+                FindConflictsCommand.RunAsync
+            );
         }
         finally
         {
