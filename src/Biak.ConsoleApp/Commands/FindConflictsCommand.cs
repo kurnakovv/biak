@@ -71,11 +71,11 @@ public static class FindConflictsCommand
                 string conflictFilesOutput = await GitHelper.RunAsync("diff --name-only --diff-filter=U");
                 if (!string.IsNullOrWhiteSpace(conflictFilesOutput))
                 {
-                    IEnumerable<string> curentConflictFiles = conflictFilesOutput
+                    IEnumerable<string> currentConflictFiles = conflictFilesOutput
                         .Split(s_separator, StringSplitOptions.RemoveEmptyEntries)
                         .Select(x => x.Trim());
 
-                    foreach (string conflictFile in curentConflictFiles)
+                    foreach (string conflictFile in currentConflictFiles)
                     {
                         if (!allConflictFiles.TryGetValue(conflictFile, out List<string>? list))
                         {
