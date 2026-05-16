@@ -33,7 +33,7 @@ public static class GitHelper
     /// Run without exit code throw.
     /// </summary>
     /// <param name="arguments">Arguments after git.</param>
-    /// <returns>git output.</returns>
+    /// <returns>A <see cref="GitResult"/> containing the exit code, standard output, and standard error from git.</returns>
     public static async Task<GitResult> RunWithModelAsync(string arguments)
     {
         using Process process = new();
