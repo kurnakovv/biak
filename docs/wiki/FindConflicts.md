@@ -52,7 +52,7 @@ Now you can look at the conflicting files and change the filter or simply revert
 * Merge every branch into the default branch without commit
 * Get conflicting files
 * Abort merge
-* Checkout the origin branch
+* Checkout the original branch
 
 ## 🔗 Links
 * Issues: [#93](https://github.com/kurnakovv/biak/issues/93)
