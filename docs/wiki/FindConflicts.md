@@ -26,7 +26,7 @@ The branch into which the specified branches will be merged
 ---
 
 ```
-Branches separated by spaces that will be merged with no commit into the default branch (e.g., f-1 f-2): 
+Branches separated by spaces that will be merged without committing into the default branch (e.g., f-1 f-2): 
 ```
 Branches you want to compare with the default branch to detect conflicts. I recommend taking these from the Active branches section of the [docs](FindActivity#output). In our case `f-1 f-2 f-3`
 

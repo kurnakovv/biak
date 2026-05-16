@@ -17,7 +17,7 @@ public static class FindConflictsCommandConstant
     /// <summary>
     /// Branches input message.
     /// </summary>
-    public const string BRANCHES_INPUT = "Branches separated by spaces that will be merged with no commit into the default branch (e.g., f-1 f-2): ";
+    public const string BRANCHES_INPUT = "Branches separated by spaces that will be merged without committing into the default branch (e.g., f-1 f-2): ";
 
     /// <summary>
     /// Invalid branches format message.
