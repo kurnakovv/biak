@@ -14,14 +14,7 @@ internal static class FindConflictsInputHelper
 
         Console.Write(SharedFindCommandConstant.DEFAULT_BRANCH_INPUT);
         string? defaultBranch = Console.ReadLine();
-        if (string.IsNullOrWhiteSpace(defaultBranch))
-        {
-            defaultBranch = "main";
-        }
-        else
-        {
-            defaultBranch = defaultBranch.Trim();
-        }
+        defaultBranch = string.IsNullOrWhiteSpace(defaultBranch) ? "main" : defaultBranch.Trim();
 
         Console.WriteLine();
 
