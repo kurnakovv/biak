@@ -34,6 +34,10 @@ Now, if we want to apply formatting, we need to apply it to all files except tho
 
 ### Input
 
+> [!NOTE]
+> Before running this command, make sure your team has pushed all recent changes to the remote repository, and run `git fetch origin` to ensure you have the latest state of all active branches.
+
+
 For such cases, we'll use the command
 ```
 dotnet biak find-activity
@@ -123,16 +127,16 @@ After this, the search will begin, which takes ~15 seconds, depending on the pro
 Start find activity...
 Activity [4/20/2026 12:38:25 PM]
 TestService1.cs
-[change-testservice1 test-f-1]
+[change-testservice1 f-1]
 
 TestService2.cs
-[test-f-2]
+[f-2]
 
 TestService3.cs
-[test-f-3]
+[f-3]
 
 Active branches
-change-testservice1 test-f-1 test-f-2 test-f-3
+change-testservice1 f-1 f-2 f-3
 
 Inactive branches
 f-new-cs-file no-cs-file-changes old-branch

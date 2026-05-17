@@ -22,13 +22,13 @@ internal static class FindActivityInputHelper
             findActivity.SaveOutput == null
         )
         {
-            Console.WriteLine(FindActivityCommandConstant.ENTER_CRITERIA);
+            Console.WriteLine(SharedFindCommandConstant.ENTER_CRITERIA);
         }
 
         string? defaultBranch = findActivity?.DefaultBranch;
         if (string.IsNullOrWhiteSpace(defaultBranch))
         {
-            Console.Write(FindActivityCommandConstant.DEFAULT_BRANCH_INPUT);
+            Console.Write(SharedFindCommandConstant.DEFAULT_BRANCH_INPUT);
             defaultBranch = Console.ReadLine();
             if (string.IsNullOrWhiteSpace(defaultBranch))
             {

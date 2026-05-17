@@ -10,16 +10,6 @@ namespace Biak.ConsoleApp.Constants;
 public static class FindActivityCommandConstant
 {
     /// <summary>
-    /// Enter input criteria message.
-    /// </summary>
-    public const string ENTER_CRITERIA = "Please enter the desired criteria";
-
-    /// <summary>
-    /// Default branch input message.
-    /// </summary>
-    public const string DEFAULT_BRANCH_INPUT = "Default branch ('main' by default): ";
-
-    /// <summary>
     /// Expiration period input message.
     /// </summary>
     public const string EXPIRATION_PERIOD_INPUT = "Expiration period in days (default: 30, '*' for unlimited): ";
@@ -88,11 +78,6 @@ public static class FindActivityCommandConstant
     /// Start message.
     /// </summary>
     public const string START = "Start find activity...";
-
-    /// <summary>
-    /// No entries message.
-    /// </summary>
-    public const string NO_ENTRIES = "No entries";
 
     /// <summary>
     /// Activity message.
