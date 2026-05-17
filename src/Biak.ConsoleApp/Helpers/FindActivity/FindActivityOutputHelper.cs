@@ -30,7 +30,7 @@ internal static class FindActivityOutputHelper
         }
         else
         {
-            sb.AppendLine(FindActivityCommandConstant.NO_ENTRIES);
+            sb.AppendLine(SharedFindCommandConstant.NO_ENTRIES);
             sb.AppendLine();
         }
 
@@ -40,7 +40,7 @@ internal static class FindActivityOutputHelper
         sb.AppendLine(
             allActiveBranches.Count != 0
                 ? string.Join(" ", allActiveBranches)
-                : FindActivityCommandConstant.NO_ENTRIES
+                : SharedFindCommandConstant.NO_ENTRIES
         );
 
         sb.AppendLine();
@@ -48,7 +48,7 @@ internal static class FindActivityOutputHelper
         sb.AppendLine(
             inactiveBranches.Any()
                 ? string.Join(" ", inactiveBranches)
-                : FindActivityCommandConstant.NO_ENTRIES
+                : SharedFindCommandConstant.NO_ENTRIES
         );
 
         List<string> keys = activity.Keys.ToList();
@@ -58,7 +58,7 @@ internal static class FindActivityOutputHelper
         sb.AppendLine(
             keys.Count != 0
                 ? string.Join(",", keys)
-                : FindActivityCommandConstant.NO_ENTRIES
+                : SharedFindCommandConstant.NO_ENTRIES
         );
 
         sb.AppendLine();
@@ -66,7 +66,7 @@ internal static class FindActivityOutputHelper
         sb.AppendLine(
             keys.Count != 0
                 ? string.Join(" ", keys)
-                : FindActivityCommandConstant.NO_ENTRIES
+                : SharedFindCommandConstant.NO_ENTRIES
         );
 
         sb.AppendLine();
@@ -86,7 +86,7 @@ internal static class FindActivityOutputHelper
         }
         else
         {
-            sb.Append(FindActivityCommandConstant.NO_ENTRIES);
+            sb.Append(SharedFindCommandConstant.NO_ENTRIES);
         }
 
         string output = sb.ToString();

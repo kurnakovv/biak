@@ -43,6 +43,10 @@ public static class Program
         {
             await FindActivityCommand.RunAsync();
         }
+        else if (FindConflictsCommand.IsRunnable(args))
+        {
+            await FindConflictsCommand.RunAsync();
+        }
         else
         {
             Console.WriteLine(UIConstant.NO_COMMAND);
