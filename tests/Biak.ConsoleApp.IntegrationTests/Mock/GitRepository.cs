@@ -29,8 +29,7 @@ public static class GitRepository
 
         for (int i = 1; i <= 3; i++)
         {
-            string featureBranch = $"test-f-{i}";
-            await GitHelper.RunAsync($"checkout -b {featureBranch}");
+            await GitHelper.RunAsync($"checkout -b test-f-{i}");
 
             string testServicePath = $"TestService{i}.cs";
 
