@@ -127,6 +127,17 @@ public class FindConflictsCommandTests
         null
     )]
     [InlineData(
+        "NoChangesBranch",
+        "\nempty-branch\n",
+        $"""
+        {DEFAULT_START_TEXT}
+        {SharedFindCommandConstant.NO_ENTRIES}
+
+        """,
+        false,
+        null
+    )]
+    [InlineData(
         "LocalChangesDetected",
         "",
         $"""
