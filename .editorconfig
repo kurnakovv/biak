@@ -1052,6 +1052,24 @@ roslynator_block_braces_style = single_line_when_empty
 dotnet_diagnostic.rcs1046.severity = none # RCS1046: Asynchronous method name should end with 'Async' https://josefpihrt.github.io/docs/roslynator/analyzers/RCS1046
 
 [*.cs]
+
+##
+## kuker
+##
+# Docs here https://github.com/kurnakovv/kuker
+
+# Setup all rules with global category
+dotnet_analyzer_diagnostic.category-KukerAllRules.severity = warning
+
+dotnet_diagnostic.KUK0001.severity = warning # Duplicate arguments passed to method | https://github.com/kurnakovv/kuker/wiki/KUK0001
+dotnet_diagnostic.KUK0002.severity = warning # File name mismatch | https://github.com/kurnakovv/kuker/wiki/KUK0002
+dotnet_diagnostic.KUK0003.severity = warning # Min/Max (Async) and MinBy/MaxBy may throw InvalidOperationException on empty sequences | https://github.com/kurnakovv/kuker/wiki/KUK0003
+dotnet_diagnostic.KUK0004.severity = warning # Avoid primary constructor | https://github.com/kurnakovv/kuker/wiki/KUK0004
+dotnet_diagnostic.KUK0005.severity = none # .TagWithCallSite() on EF Core query execution | https://github.com/kurnakovv/kuker/wiki/KUK0005
+
+dotnet_diagnostic.KUK0001.excluded_methods = Foo,Bar # Optional | Ignore selected methods
+
+[*.cs]
 ##
 ## ReSharper Inspect Code https://www.jetbrains.com/help/resharper/Reference__Code_Inspections_CSHARP.html
 ##
