@@ -32,7 +32,7 @@ jobs:
           sudo apt-get install -y dotnet-sdk-6.0
           sudo apt install pvs-studio
           sudo apt install pvs-studio-dotnet
-          pvs-studio-analyzer credentials ${{ secrets.PVS_STUDIO_CREDENTIALS }}
+          pvs-studio-analyzer credentials "${{ secrets.PVS_STUDIO_CREDENTIALS }}"
       - name: Build
         run: |
           dotnet build biak.slnx
