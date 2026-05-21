@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for full license information.
 
 using Biak.ConsoleApp.Constants;
+using Biak.ConsoleApp.Exceptions;
 using Biak.ConsoleApp.Helpers;
 using Biak.ConsoleApp.Helpers.FindConflicts;
 
@@ -64,8 +65,7 @@ public static class FindConflictsCommand
 
                 if (mergeGitResult.ExitCode != 0 && !mergeGitResult.Output.Contains("CONFLICT", StringComparison.OrdinalIgnoreCase))
                 {
-                    Console.WriteLine("GIT ERROR: " + mergeGitResult.Error);
-                    Environment.Exit(1);
+                    throw new BiakApplicationException("GIT ERROR: " + mergeGitResult.Error);
                 }
 
                 string conflictFilesOutput = await GitHelper.RunAsync("diff --name-only --diff-filter=U");
