@@ -1,0 +1,46 @@
+# I took most of the code from here https://github.com/feeelin/sast-in-ci-example
+name: Build and PVS-Studio analysis
+on:
+  push:
+    branches:
+      - '*'
+  pull_request:
+    types: [opened, synchronize, reopened]
+jobs:
+  build-analyze:
+    runs-on: ubuntu-24.04
+    #permissions: write-all
+    permissions:
+      security-events: write
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Install tools
+        run: |
+          wget -q -O - https://files.pvs-studio.com/etc/pubkey.txt \
+            | sudo apt-key add -
+          sudo wget -O /etc/apt/sources.list.d/viva64.list \
+            https://files.pvs-studio.com/etc/viva64.list
+          sudo add-apt-repository ppa:dotnet/backports
+          sudo apt update
+          sudo apt-get install -y dotnet-sdk-6.0
+          sudo apt install pvs-studio
+          sudo apt install pvs-studio-dotnet
+          pvs-studio-analyzer credentials ${{ secrets.PVS_STUDIO_CREDENTIALS }}
+      - name: Build
+        run: |
+          dotnet build biak.slnx
+      - name: Analyze
+        run: |
+          pvs-studio-dotnet -t biak.slnx -o ./biakOutput.json -r -C .config/.pvsconfig
+      - name: Convert report
+        if: always()
+        run: |
+          plog-converter biakOutput.json -a GA:1,2,3,4 -t json -n relative -R toRelative -r $PWD
+          plog-converter relative.json -a GA:1,2,3,4 -t sarif -n pvs-report -r file://
+      - name: Publish report
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: pvs-report.sarif
+          category: PVS-Studio
