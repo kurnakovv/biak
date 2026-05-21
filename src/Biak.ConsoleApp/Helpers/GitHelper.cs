@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for full license information.
 
 using System.Diagnostics;
+using Biak.ConsoleApp.Exceptions;
 
 namespace Biak.ConsoleApp.Helpers;
 
@@ -22,8 +23,7 @@ public static class GitHelper
 
         if (model.ExitCode != 0)
         {
-            Console.WriteLine("GIT ERROR: " + model.Error);
-            Environment.Exit(1);
+            throw new BiakApplicationException("GIT ERROR: " + model.Error);
         }
 
         return model.Output;
