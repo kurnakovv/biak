@@ -30,8 +30,8 @@ jobs:
           sudo add-apt-repository -y ppa:dotnet/backports
           sudo apt update
           sudo apt-get install -y dotnet-sdk-6.0
-          sudo apt install pvs-studio
-          sudo apt install pvs-studio-dotnet
+          sudo apt-get install -y pvs-studio
+          sudo apt-get install -y pvs-studio-dotnet
           pvs-studio-analyzer credentials ${{ secrets.PVS_STUDIO_CREDENTIALS }}
       - name: Build
         run: |
