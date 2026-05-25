@@ -4,7 +4,6 @@
 
 using Biak.ConsoleApp.Commands;
 using Biak.ConsoleApp.Constants;
-using Biak.ConsoleApp.Exceptions;
 
 namespace Biak.ConsoleApp;
 
