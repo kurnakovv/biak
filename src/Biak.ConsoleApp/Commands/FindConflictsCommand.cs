@@ -64,7 +64,7 @@ public static class FindConflictsCommand
 
                 if (mergeGitResult.ExitCode != 0 && !mergeGitResult.Output.Contains("CONFLICT", StringComparison.OrdinalIgnoreCase))
                 {
-                    throw new BiakApplicationException("GIT ERROR: " + mergeGitResult.Error);
+                    throw new BiakApplicationException(GitHelperConstant.GIT_ERROR + mergeGitResult.Error);
                 }
 
                 string conflictFilesOutput = await GitHelper.RunAsync("diff --name-only --diff-filter=U");
