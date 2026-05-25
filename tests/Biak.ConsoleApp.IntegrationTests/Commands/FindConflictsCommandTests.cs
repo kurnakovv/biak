@@ -306,7 +306,7 @@ public class FindConflictsCommandTests
             Exception? exception = await Record.ExceptionAsync(FindConflictsCommand.RunAsync);
             Assert.NotNull(exception);
             Assert.IsType<BiakApplicationException>(exception);
-            Assert.Equal(GitHelperConstant.GIT_ERROR + $"fatal: refusing to merge unrelated histories", exception.Message.Trim());
+            Assert.Equal(GitHelperConstant.GIT_ERROR + "fatal: refusing to merge unrelated histories", exception.Message.Trim());
         }
         finally
         {
