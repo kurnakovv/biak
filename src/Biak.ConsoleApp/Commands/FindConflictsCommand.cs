@@ -36,8 +36,7 @@ public static class FindConflictsCommand
 
         if (!string.IsNullOrWhiteSpace(workingTreeStatus))
         {
-            Console.WriteLine(FindConflictsCommandConstant.LOCAL_CHANGES_DETECTED);
-            return;
+            throw new BiakApplicationException(FindConflictsCommandConstant.LOCAL_CHANGES_DETECTED);
         }
 
         FindConflictsInputModel input = FindConflictsInputHelper.Request();

@@ -4,6 +4,7 @@
 
 using Biak.ConsoleApp.Constants;
 using Biak.ConsoleApp.Enums;
+using Biak.ConsoleApp.Exceptions;
 using Biak.ConsoleApp.Helpers;
 using Biak.ConsoleApp.IntegrationTests.Mock;
 
@@ -546,6 +547,28 @@ public class ImportHelperTests
 
             string outputResult = output.ToString();
             Assert.Contains(ImportConstant.URL_NOT_ALLOWED, outputResult, StringComparison.OrdinalIgnoreCase);
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+        }
+    }
+
+    [Fact]
+    public async Task ReplaceTestInvalidUrlWithErrorAsync()
+    {
+        TextWriter originalOut = Console.Out;
+        await using StringWriter output = new();
+        Console.SetOut(output);
+
+        try
+        {
+            await Assert.ThrowsAsync<BiakApplicationException>(
+                async () =>
+                {
+                    await ImportHelper.ReplaceAsync("^biak^ import https://127.0.0.1/secret.txt", FailureBehaviorType.Error);
+                }
+            );
         }
         finally
         {

@@ -129,7 +129,7 @@ public static class ImportHelper
 
                 return content;
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not BiakApplicationException)
             {
                 HandleFailureBehavior(onImportFailure, $"{ImportConstant.UNABLE_TO_RETRIEVE_CONTENT_FROM_LINK} {value} (Reason: {ex.Message})");
                 return null;

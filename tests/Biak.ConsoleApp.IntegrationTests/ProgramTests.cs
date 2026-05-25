@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for full license information.
 
 using Biak.ConsoleApp.Constants;
+using Biak.ConsoleApp.Exceptions;
 using Biak.ConsoleApp.Helpers;
 using Biak.ConsoleApp.IntegrationTests.Mock;
 
@@ -204,6 +205,52 @@ public class ProgramTests
             Assert.Contains(FindConflictsCommandConstant.CONFLICTING_FILES, result, StringComparison.OrdinalIgnoreCase);
             Assert.Contains(SharedFindCommandConstant.NO_ENTRIES, result, StringComparison.OrdinalIgnoreCase);
             Assert.Contains(FindConflictsCommandConstant.NOT_FOUND_BRANCHES, result, StringComparison.OrdinalIgnoreCase);
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+            Console.SetIn(originalIn);
+            Directory.SetCurrentDirectory(originalDirectory);
+        }
+    }
+
+    [Fact]
+    public async Task FindConflictCommandWithExceptionAsync()
+    {
+        string originalDirectory = Directory.GetCurrentDirectory();
+        TestDirectory testDir = new($"{nameof(ProgramTests)}_{nameof(FindConflictCommandWithExceptionAsync)}");
+
+        TextWriter originalOut = Console.Out;
+        await using StringWriter output = new();
+        Console.SetOut(output);
+
+        TextReader originalIn = Console.In;
+        using StringReader input = new("\nfdasdfadfsa");
+        Console.SetIn(input);
+
+        try
+        {
+            Directory.SetCurrentDirectory(testDir.Value);
+
+            string templateSimpleProject = Path.Join(
+                AppContext.BaseDirectory,
+                "Templates",
+                "SimpleProject",
+                "MySimpleProjectTemplate"
+            );
+
+            testDir.CopyDirectory(templateSimpleProject);
+
+            await GitHelper.RunAsync("init");
+            await GitHelper.RunAsync("branch -m master main");
+            await GitHelper.RunAsync("config --local user.email \"test@example.com\"");
+
+            await Assert.ThrowsAsync<BiakApplicationException>(
+                async () =>
+                {
+                    await Program.Main([CommandArgumentConstant.FIND_CONFLICTS]);
+                }
+            );
         }
         finally
         {
