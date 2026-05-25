@@ -245,12 +245,10 @@ public class ProgramTests
             await GitHelper.RunAsync("branch -m master main");
             await GitHelper.RunAsync("config --local user.email \"test@example.com\"");
 
-            await Assert.ThrowsAsync<BiakApplicationException>(
-                async () =>
-                {
-                    await Program.Main([CommandArgumentConstant.FIND_CONFLICTS]);
-                }
-            );
+            Exception? exception = await Record.ExceptionAsync(async () => await Program.Main([CommandArgumentConstant.FIND_CONFLICTS]));
+            Assert.NotNull(exception);
+            Assert.IsType<BiakApplicationException>(exception);
+            Assert.Equal(FindConflictsCommandConstant.LOCAL_CHANGES_DETECTED, exception.Message.Trim());
         }
         finally
         {

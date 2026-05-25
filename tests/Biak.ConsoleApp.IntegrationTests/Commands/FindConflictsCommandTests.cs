@@ -198,7 +198,10 @@ public class FindConflictsCommandTests
                 await GitHelper.RunAsync("add .");
                 await File.WriteAllTextAsync("TestService2.cs", "TestContent");
 
-                await Assert.ThrowsAsync<BiakApplicationException>(FindConflictsCommand.RunAsync);
+                Exception? exception = await Record.ExceptionAsync(FindConflictsCommand.RunAsync);
+                Assert.NotNull(exception);
+                Assert.IsType<BiakApplicationException>(exception);
+                Assert.Equal(FindConflictsCommandConstant.LOCAL_CHANGES_DETECTED, exception.Message);
                 return;
             }
 
@@ -300,9 +303,10 @@ public class FindConflictsCommandTests
             await GitHelper.RunAsync("commit -m orphan");
             await GitHelper.RunAsync("checkout main");
 
-            await Assert.ThrowsAsync<BiakApplicationException>(
-                FindConflictsCommand.RunAsync
-            );
+            Exception? exception = await Record.ExceptionAsync(FindConflictsCommand.RunAsync);
+            Assert.NotNull(exception);
+            Assert.IsType<BiakApplicationException>(exception);
+            Assert.Equal(GitHelperConstant.GIT_ERROR + $"fatal: refusing to merge unrelated histories", exception.Message.Trim());
         }
         finally
         {
