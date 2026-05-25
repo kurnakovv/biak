@@ -4,7 +4,7 @@
 
 using Biak.ConsoleApp.Exceptions;
 
-namespace Biak.ConsoleApp.IntegrationTests.Exceptions;
+namespace Biak.ConsoleApp.UnitTests.ExceptionsTests;
 
 public class BiakApplicationExceptionTests
 {
