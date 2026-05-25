@@ -554,8 +554,12 @@ public class ImportHelperTests
         }
     }
 
-    [Fact]
-    public async Task ReplaceTestInvalidUrlWithErrorAsync()
+    [Theory]
+    [InlineData("^biak^ import https://127.0.0.1/secret.txt")]
+    [InlineData(
+        "^biak^ import https://camo.githubusercontent.com/7ba9343feb27fcf5a830f346097737469b326644c7a02c9e373bd328afcb8623/68747470733a2f2f63617073756c652d72656e6465722e76657263656c2e6170702f6170693f747970653d776176696e6726636f6c6f723d373730304646266865696768743d3137302673656374696f6e3d686561646572"
+    )]
+    public async Task ReplaceTestInvalidUrlWithErrorAsync(string input)
     {
         TextWriter originalOut = Console.Out;
         await using StringWriter output = new();
@@ -566,7 +570,7 @@ public class ImportHelperTests
             await Assert.ThrowsAsync<BiakApplicationException>(
                 async () =>
                 {
-                    await ImportHelper.ReplaceAsync("^biak^ import https://127.0.0.1/secret.txt", FailureBehaviorType.Error);
+                    await ImportHelper.ReplaceAsync(input, FailureBehaviorType.Error);
                 }
             );
         }
