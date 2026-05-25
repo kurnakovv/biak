@@ -55,9 +55,8 @@ public static class Program
                 Console.WriteLine(UIConstant.NO_COMMAND);
             }
         }
-        catch (BiakApplicationException ex)
+        catch (BiakApplicationException)
         {
-            Console.WriteLine(ex.Message);
             throw;
         }
     }

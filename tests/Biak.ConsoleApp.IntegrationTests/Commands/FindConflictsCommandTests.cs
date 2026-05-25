@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Text.RegularExpressions;
 using Biak.ConsoleApp.Commands;
 using Biak.ConsoleApp.Constants;
+using Biak.ConsoleApp.Exceptions;
 using Biak.ConsoleApp.Helpers;
 using Biak.ConsoleApp.IntegrationTests.Mock;
 
@@ -140,10 +141,7 @@ public class FindConflictsCommandTests
     [InlineData(
         "LocalChangesDetected",
         "",
-        $"""
-        {FindConflictsCommandConstant.LOCAL_CHANGES_DETECTED}
-
-        """,
+        "",
         false,
         null
     )]
@@ -192,11 +190,14 @@ public class FindConflictsCommandTests
                 await GitHelper.RunAsync("commit -m \"Update after file changes\"");
             }
 
-            if (string.IsNullOrEmpty(inputText))
+            if (string.IsNullOrEmpty(inputText) && string.IsNullOrEmpty(expectedOutputText))
             {
                 await File.WriteAllTextAsync("TestService1.cs", "TestContent");
                 await GitHelper.RunAsync("add .");
                 await File.WriteAllTextAsync("TestService2.cs", "TestContent");
+
+                await Assert.ThrowsAsync<BiakApplicationException>(async () => await FindConflictsCommand.RunAsync());
+                return;
             }
 
             await FindConflictsCommand.RunAsync();
@@ -249,6 +250,55 @@ public class FindConflictsCommandTests
             await GitRepository.MockAsync();
 
             await Assert.ThrowsAsync<OperationCanceledException>(
+                FindConflictsCommand.RunAsync
+            );
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+            Console.SetIn(originalIn);
+            Directory.SetCurrentDirectory(originalDirectory);
+        }
+    }
+
+    [Fact]
+    public async Task RunShouldThrowWhenInvalidMergeAsync()
+    {
+        string originalDirectory = Directory.GetCurrentDirectory();
+        TestDirectory testDir = new(
+            $"{nameof(FindConflictsCommandTests)}_{nameof(RunShouldThrowWhenInvalidMergeAsync)}"
+        );
+
+        TextWriter originalOut = Console.Out;
+        await using StringWriter output = new();
+        Console.SetOut(output);
+
+        TextReader originalIn = Console.In;
+        using StringReader input = new("\nunrelated\n");
+        Console.SetIn(input);
+
+        try
+        {
+            Directory.SetCurrentDirectory(testDir.Value);
+
+            string templateSimpleProject = Path.Join(
+                AppContext.BaseDirectory,
+                "Templates",
+                "SimpleProject",
+                "MySimpleProjectTemplate"
+            );
+
+            testDir.CopyDirectory(templateSimpleProject);
+
+            await GitRepository.MockAsync();
+
+            await GitHelper.RunAsync("checkout --orphan unrelated");
+            await File.WriteAllTextAsync("orphan.txt", "test");
+            await GitHelper.RunAsync("add .");
+            await GitHelper.RunAsync("commit -m orphan");
+            await GitHelper.RunAsync("checkout main");
+
+            await Assert.ThrowsAsync<BiakApplicationException>(
                 FindConflictsCommand.RunAsync
             );
         }
