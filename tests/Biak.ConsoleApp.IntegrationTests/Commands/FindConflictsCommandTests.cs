@@ -14,6 +14,8 @@ namespace Biak.ConsoleApp.IntegrationTests.Commands;
 
 public class FindConflictsCommandTests
 {
+    private const string LOCAL_CHANGES_DETECTED = "LocalChangesDetected";
+
     private const string DEFAULT_START_TEXT = $"""
         {SharedFindCommandConstant.ENTER_CRITERIA}
         {SharedFindCommandConstant.DEFAULT_BRANCH_INPUT}
@@ -139,7 +141,7 @@ public class FindConflictsCommandTests
         null
     )]
     [InlineData(
-        "LocalChangesDetected",
+        LOCAL_CHANGES_DETECTED,
         "",
         "",
         false,
@@ -190,13 +192,13 @@ public class FindConflictsCommandTests
                 await GitHelper.RunAsync("commit -m \"Update after file changes\"");
             }
 
-            if (string.IsNullOrEmpty(inputText) && string.IsNullOrEmpty(expectedOutputText))
+            if (name == LOCAL_CHANGES_DETECTED)
             {
                 await File.WriteAllTextAsync("TestService1.cs", "TestContent");
                 await GitHelper.RunAsync("add .");
                 await File.WriteAllTextAsync("TestService2.cs", "TestContent");
 
-                await Assert.ThrowsAsync<BiakApplicationException>(async () => await FindConflictsCommand.RunAsync());
+                await Assert.ThrowsAsync<BiakApplicationException>(FindConflictsCommand.RunAsync);
                 return;
             }
 
