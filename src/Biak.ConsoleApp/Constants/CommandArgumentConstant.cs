@@ -33,4 +33,9 @@ public static class CommandArgumentConstant
     /// Find active branches with files.
     /// </summary>
     public const string FIND_ACTIVITY = "find-activity";
+
+    /// <summary>
+    /// Find git conflicts files.
+    /// </summary>
+    public const string FIND_CONFLICTS = "find-conflicts";
 }

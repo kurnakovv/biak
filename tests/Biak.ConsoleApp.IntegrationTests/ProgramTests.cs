@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for full license information.
 
 using Biak.ConsoleApp.Constants;
+using Biak.ConsoleApp.Exceptions;
 using Biak.ConsoleApp.Helpers;
 using Biak.ConsoleApp.IntegrationTests.Mock;
 
@@ -154,6 +155,100 @@ public class ProgramTests
             Assert.Contains(FindActivityCommandConstant.INACTIVE_BRANCHES, result, StringComparison.OrdinalIgnoreCase);
             Assert.Contains(FindActivityCommandConstant.ACTIVITY_VIA_SINGLE_LINE, result, StringComparison.OrdinalIgnoreCase);
             Assert.Contains(FindActivityCommandConstant.ACTIVITY_VIA_VARIABLE, result, StringComparison.OrdinalIgnoreCase);
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+            Console.SetIn(originalIn);
+            Directory.SetCurrentDirectory(originalDirectory);
+        }
+    }
+
+    [Fact]
+    public async Task FindConflictCommandForCurrentRepoAsync()
+    {
+        string originalDirectory = Directory.GetCurrentDirectory();
+        TestDirectory testDir = new($"{nameof(ProgramTests)}_{nameof(FindConflictCommandForCurrentRepoAsync)}");
+
+        TextWriter originalOut = Console.Out;
+        await using StringWriter output = new();
+        Console.SetOut(output);
+
+        TextReader originalIn = Console.In;
+        using StringReader input = new("\nfdasdfadfsa");
+        Console.SetIn(input);
+
+        try
+        {
+            Directory.SetCurrentDirectory(testDir.Value);
+
+            string templateSimpleProject = Path.Join(
+                AppContext.BaseDirectory,
+                "Templates",
+                "SimpleProject",
+                "MySimpleProjectTemplate"
+            );
+
+            testDir.CopyDirectory(templateSimpleProject);
+
+            await GitHelper.RunAsync("init");
+            await GitHelper.RunAsync("branch -m master main");
+            await GitHelper.RunAsync("config --local user.email \"test@example.com\"");
+            await GitHelper.RunAsync("config --local user.name \"Test User\"");
+            await GitHelper.RunAsync("add .");
+            await GitHelper.RunAsync("commit -m \"Initial commit\"");
+
+            await Program.Main([CommandArgumentConstant.FIND_CONFLICTS]);
+
+            string result = output.ToString().Trim();
+            Assert.Contains(FindConflictsCommandConstant.START, result, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains(FindConflictsCommandConstant.CONFLICTING_FILES, result, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains(SharedFindCommandConstant.NO_ENTRIES, result, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains(FindConflictsCommandConstant.NOT_FOUND_BRANCHES, result, StringComparison.OrdinalIgnoreCase);
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+            Console.SetIn(originalIn);
+            Directory.SetCurrentDirectory(originalDirectory);
+        }
+    }
+
+    [Fact]
+    public async Task FindConflictCommandWithExceptionAsync()
+    {
+        string originalDirectory = Directory.GetCurrentDirectory();
+        TestDirectory testDir = new($"{nameof(ProgramTests)}_{nameof(FindConflictCommandWithExceptionAsync)}");
+
+        TextWriter originalOut = Console.Out;
+        await using StringWriter output = new();
+        Console.SetOut(output);
+
+        TextReader originalIn = Console.In;
+        using StringReader input = new("\nfdasdfadfsa");
+        Console.SetIn(input);
+
+        try
+        {
+            Directory.SetCurrentDirectory(testDir.Value);
+
+            string templateSimpleProject = Path.Join(
+                AppContext.BaseDirectory,
+                "Templates",
+                "SimpleProject",
+                "MySimpleProjectTemplate"
+            );
+
+            testDir.CopyDirectory(templateSimpleProject);
+
+            await GitHelper.RunAsync("init");
+            await GitHelper.RunAsync("branch -m master main");
+            await GitHelper.RunAsync("config --local user.email \"test@example.com\"");
+
+            Exception? exception = await Record.ExceptionAsync(async () => await Program.Main([CommandArgumentConstant.FIND_CONFLICTS]));
+            Assert.NotNull(exception);
+            Assert.IsType<BiakApplicationException>(exception);
+            Assert.Equal(FindConflictsCommandConstant.LOCAL_CHANGES_DETECTED, exception.Message.Trim());
         }
         finally
         {

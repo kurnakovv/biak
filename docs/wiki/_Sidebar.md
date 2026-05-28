@@ -16,3 +16,6 @@
 
 ### 🧑‍💻 Find activity
 * [Docs](FindActivity)
+
+### ⚔️ Find conflicts
+* [Docs](FindConflicts)
