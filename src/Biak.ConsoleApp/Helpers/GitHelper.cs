@@ -3,6 +3,8 @@
 // See the LICENSE file in the project root for full license information.
 
 using System.Diagnostics;
+using Biak.ConsoleApp.Constants;
+using Biak.ConsoleApp.Exceptions;
 
 namespace Biak.ConsoleApp.Helpers;
 
@@ -18,6 +20,23 @@ public static class GitHelper
     /// <returns>git output.</returns>
     public static async Task<string> RunAsync(string arguments)
     {
+        GitResult model = await RunWithModelAsync(arguments);
+
+        if (model.ExitCode != 0)
+        {
+            throw new BiakApplicationException(GitHelperConstant.GIT_ERROR + model.Error);
+        }
+
+        return model.Output;
+    }
+
+    /// <summary>
+    /// Run without exit code throw.
+    /// </summary>
+    /// <param name="arguments">Arguments after git.</param>
+    /// <returns>A <see cref="GitResult"/> containing the exit code, standard output, and standard error from git.</returns>
+    public static async Task<GitResult> RunWithModelAsync(string arguments)
+    {
         using Process process = new();
 
         process.StartInfo.FileName = "git";
@@ -30,19 +49,36 @@ public static class GitHelper
 
         Task<string> outputTask = process.StandardOutput.ReadToEndAsync();
         Task<string> errorTask = process.StandardError.ReadToEndAsync();
-        await Task.WhenAll(outputTask, errorTask);
 
+        await Task.WhenAll(outputTask, errorTask);
         await process.WaitForExitAsync();
 
-        string output = await outputTask;
-        string error = await errorTask;
-
-        if (process.ExitCode != 0)
+        return new GitResult
         {
-            Console.WriteLine("GIT ERROR: " + error);
-            Environment.Exit(1);
-        }
-
-        return output;
+            ExitCode = process.ExitCode,
+            Output = await outputTask,
+            Error = await errorTask,
+        };
     }
+}
+
+/// <summary>
+/// git result model.
+/// </summary>
+public class GitResult
+{
+    /// <summary>
+    /// Exit code.
+    /// </summary>
+    public int ExitCode { get; init; }
+
+    /// <summary>
+    /// Output.
+    /// </summary>
+    public string Output { get; init; } = null!;
+
+    /// <summary>
+    /// Error.
+    /// </summary>
+    public string Error { get; init; } = null!;
 }

@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Biak.ConsoleApp.Constants;
 using Biak.ConsoleApp.Enums;
+using Biak.ConsoleApp.Exceptions;
 
 namespace Biak.ConsoleApp.Helpers;
 
@@ -92,7 +93,7 @@ public static class ImportHelper
         {
             if (uri.Scheme != Uri.UriSchemeHttps || !await IsSafeUriAsync(uri))
             {
-                await HandleFailureBehaviorAsync(onImportFailure, $"{ImportConstant.URL_NOT_ALLOWED} {value}");
+                HandleFailureBehavior(onImportFailure, $"{ImportConstant.URL_NOT_ALLOWED} {value}");
                 return null;
             }
 
@@ -102,19 +103,19 @@ public static class ImportHelper
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    await HandleFailureBehaviorAsync(onImportFailure, $"{ImportConstant.UNABLE_TO_RETRIEVE_CONTENT_FROM_LINK} {value} (HTTP {(int)response.StatusCode} {response.ReasonPhrase})");
+                    HandleFailureBehavior(onImportFailure, $"{ImportConstant.UNABLE_TO_RETRIEVE_CONTENT_FROM_LINK} {value} (HTTP {(int)response.StatusCode} {response.ReasonPhrase})");
                     return null;
                 }
 
                 if (response.Content.Headers.ContentLength is > MAX_SIZE)
                 {
-                    await HandleFailureBehaviorAsync(onImportFailure, $"{ImportConstant.RESPONSE_TOO_LARGE} {value}");
+                    HandleFailureBehavior(onImportFailure, $"{ImportConstant.RESPONSE_TOO_LARGE} {value}");
                     return null;
                 }
 
                 if (!response.Content.Headers.ContentType?.MediaType?.StartsWith("text/", StringComparison.OrdinalIgnoreCase) ?? true)
                 {
-                    await HandleFailureBehaviorAsync(onImportFailure, $"{ImportConstant.INVALID_CONTENT_TYPE} {value}");
+                    HandleFailureBehavior(onImportFailure, $"{ImportConstant.INVALID_CONTENT_TYPE} {value}");
                     return null;
                 }
 
@@ -122,15 +123,15 @@ public static class ImportHelper
 
                 if (content == null)
                 {
-                    await HandleFailureBehaviorAsync(onImportFailure, $"{ImportConstant.RESPONSE_TOO_LARGE} {value}");
+                    HandleFailureBehavior(onImportFailure, $"{ImportConstant.RESPONSE_TOO_LARGE} {value}");
                     return null;
                 }
 
                 return content;
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not BiakApplicationException and NotImplementedException)
             {
-                await HandleFailureBehaviorAsync(onImportFailure, $"{ImportConstant.UNABLE_TO_RETRIEVE_CONTENT_FROM_LINK} {value} (Reason: {ex.Message})");
+                HandleFailureBehavior(onImportFailure, $"{ImportConstant.UNABLE_TO_RETRIEVE_CONTENT_FROM_LINK} {value} (Reason: {ex.Message})");
                 return null;
             }
         }
@@ -141,13 +142,13 @@ public static class ImportHelper
 
         if (!fullPath.StartsWith(biakFullPath, StringComparison.OrdinalIgnoreCase))
         {
-            await HandleFailureBehaviorAsync(onImportFailure, $"{ImportConstant.FORBIDDEN_OUTSIDE} {value}");
+            HandleFailureBehavior(onImportFailure, $"{ImportConstant.FORBIDDEN_OUTSIDE} {value}");
             return null;
         }
 
         if (!File.Exists(fullPath))
         {
-            await HandleFailureBehaviorAsync(onImportFailure, $"{ImportConstant.FILE_NOT_FOUND} {value}");
+            HandleFailureBehavior(onImportFailure, $"{ImportConstant.FILE_NOT_FOUND} {value}");
             return null;
         }
 
@@ -217,7 +218,7 @@ public static class ImportHelper
         return false;
     }
 
-    private static async Task HandleFailureBehaviorAsync(FailureBehaviorType onImportFailure, string message)
+    private static void HandleFailureBehavior(FailureBehaviorType onImportFailure, string message)
     {
         switch (onImportFailure)
         {
@@ -232,9 +233,7 @@ public static class ImportHelper
             }
             case FailureBehaviorType.Error:
             {
-                await Console.Error.WriteLineAsync(message);
-                Environment.Exit(1);
-                return;
+                throw new BiakApplicationException(message);
             }
             default:
             {

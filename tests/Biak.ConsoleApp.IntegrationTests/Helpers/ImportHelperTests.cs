@@ -4,6 +4,7 @@
 
 using Biak.ConsoleApp.Constants;
 using Biak.ConsoleApp.Enums;
+using Biak.ConsoleApp.Exceptions;
 using Biak.ConsoleApp.Helpers;
 using Biak.ConsoleApp.IntegrationTests.Mock;
 
@@ -546,6 +547,31 @@ public class ImportHelperTests
 
             string outputResult = output.ToString();
             Assert.Contains(ImportConstant.URL_NOT_ALLOWED, outputResult, StringComparison.OrdinalIgnoreCase);
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+        }
+    }
+
+    [Theory]
+    [InlineData("^biak^ import https://127.0.0.1/secret.txt", ImportConstant.URL_NOT_ALLOWED)]
+    [InlineData(
+        "^biak^ import https://camo.githubusercontent.com/7ba9343feb27fcf5a830f346097737469b326644c7a02c9e373bd328afcb8623/68747470733a2f2f63617073756c652d72656e6465722e76657263656c2e6170702f6170693f747970653d776176696e6726636f6c6f723d373730304646266865696768743d3137302673656374696f6e3d686561646572",
+        ImportConstant.INVALID_CONTENT_TYPE
+    )]
+    public async Task ReplaceTestInvalidUrlWithErrorAsync(string input, string expectedMessage)
+    {
+        TextWriter originalOut = Console.Out;
+        await using StringWriter output = new();
+        Console.SetOut(output);
+
+        try
+        {
+            Exception? exception = await Record.ExceptionAsync(async () => await ImportHelper.ReplaceAsync(input, FailureBehaviorType.Error));
+            Assert.NotNull(exception);
+            Assert.IsType<BiakApplicationException>(exception);
+            Assert.StartsWith(expectedMessage, exception.Message, StringComparison.OrdinalIgnoreCase);
         }
         finally
         {

@@ -27,6 +27,11 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
+    - name: Install and run biak
+      run: |
+          dotnet tool install --global kurnakovv.biak
+          dotnet biak
+          dotnet biak enable
     - name: Restore dependencies
       run: dotnet restore
     - name: Build

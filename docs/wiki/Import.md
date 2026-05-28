@@ -2,6 +2,21 @@
 Import specific rule groups (e.g., CA / IDE / SA / Roslynator, etc.) from separate files or URLs for better organization and maintainability.
 
 ## 💻 Usage
+Structure
+```
+.biak/
+├── Categories/
+│ ├── .editorconfig-CodeAnalysis-CAxxxx
+│ ├── .editorconfig-CodeStyle-IDExxxx
+│ ├── .editorconfig-IDisposableAnalyzers
+│ ├── .editorconfig-kuker
+│ ├── .editorconfig-Roslynator
+│ └── .editorconfig-StyleCop
+│
+├── .editorconfig-main
+└── config.json
+```
+
 .editorconfig-main
 ```.editorconfig
 root = true
@@ -11,6 +26,14 @@ insert_final_newline = true
 indent_style = space
 indent_size = 4
 trim_trailing_whitespace = true
+
+^biak^ import "Categories/.editorconfig-CodeAnalysis-CAxxxx"
+
+^biak^ import "Categories/.editorconfig-CodeStyle-IDExxxx"
+
+^biak^ import "Categories/.editorconfig-IDisposableAnalyzers"
+
+^biak^ import "Categories/.editorconfig-kuker"
 
 ^biak^ import "Categories/.editorconfig-Roslynator"
 
