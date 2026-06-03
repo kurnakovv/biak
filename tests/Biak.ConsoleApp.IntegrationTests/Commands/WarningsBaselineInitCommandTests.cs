@@ -190,7 +190,7 @@ public class WarningsBaselineInitCommandTests
             string anotherDirectory = Path.Join(testDir.Value, "another");
             Directory.CreateDirectory(anotherDirectory);
 
-            Task<Exception?> exceptionTask = Record.ExceptionAsync(WarningsBaselineInitCommand.RunAsync);
+            Task<Exception> exceptionTask = Record.ExceptionAsync(WarningsBaselineInitCommand.RunAsync);
             await Task.Delay(100);
             Directory.SetCurrentDirectory(anotherDirectory);
 

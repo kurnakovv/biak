@@ -41,7 +41,7 @@ public static class WarningsBaselineInitCommand
                 UseShellExecute = false,
             };
 
-            using Process? process = Process.Start(psi)
+            using Process process = Process.Start(psi)
                 ?? throw new BiakApplicationException(WarningsBaselineInitCommandConstant.FAILED_TO_START_DOTNET_BUILD);
 
             string output = await process.StandardOutput.ReadToEndAsync();
