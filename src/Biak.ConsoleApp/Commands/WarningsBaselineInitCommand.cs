@@ -64,7 +64,7 @@ public static class WarningsBaselineInitCommand
             string originalDirectory = Directory.GetCurrentDirectory();
 
             Console.WriteLine(WarningsBaselineInitCommandConstant.TREAT_WARNINGS_AS_ERRORS_NOTE);
-            Console.WriteLine("<TreatWarningsAsErrors>true</TreatWarningsAsErrors>");
+            Console.WriteLine(WarningsBaselineInitCommandConstant.TREAT_WARNINGS_AS_ERRORS_CONFIGURATION);
 
             Dictionary<string, IReadOnlyList<string>> warnings = build.FindChildrenRecursive<SL.Warning>()
                 .GroupBy(x => x.Code)
