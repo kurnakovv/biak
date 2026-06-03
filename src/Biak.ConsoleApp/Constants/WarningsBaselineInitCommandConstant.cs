@@ -25,9 +25,9 @@ public static class WarningsBaselineInitCommandConstant
     public const string DOTNET_BUILD_FAILED = "dotnet build failed.";
 
     /// <summary>
-    /// build.binlog was not generated.
+    /// biak-build.binlog was not generated.
     /// </summary>
-    public const string BUILD_BINLOG_NOT_FOUND = "build.binlog was not generated.";
+    public const string BUILD_BINLOG_NOT_FOUND = "biak-build.binlog was not generated.";
 
     /// <summary>
     /// Failed to initialize warnings baseline.
