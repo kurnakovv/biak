@@ -47,6 +47,10 @@ public static class Program
         {
             await FindConflictsCommand.RunAsync();
         }
+        else if (WarningsBaselineInitCommand.IsRunnable(args))
+        {
+            await WarningsBaselineInitCommand.RunAsync();
+        }
         else
         {
             Console.WriteLine(UIConstant.NO_COMMAND);
