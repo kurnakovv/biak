@@ -79,7 +79,7 @@ public static class WarningsBaselineInitCommand
                 );
 
             Console.WriteLine();
-            Console.WriteLine(".editorconfig");
+            Console.WriteLine(WarningsBaselineInitCommandConstant.INSERT_FILTERS_TO_EDITORCONFIG_NOTE);
             foreach ((string code, IReadOnlyList<string> files) in warnings)
             {
                 Console.WriteLine("[{" + $"{string.Join(",", files)}" + "}]");

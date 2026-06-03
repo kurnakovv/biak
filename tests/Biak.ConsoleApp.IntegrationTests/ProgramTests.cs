@@ -289,7 +289,7 @@ public class ProgramTests
 
             string result = output.ToString().Trim();
             Assert.Contains(WarningsBaselineInitCommandConstant.TREAT_WARNINGS_AS_ERRORS_NOTE, result, StringComparison.Ordinal);
-            Assert.Contains(".editorconfig", result, StringComparison.Ordinal);
+            Assert.Contains(WarningsBaselineInitCommandConstant.INSERT_FILTERS_TO_EDITORCONFIG_NOTE, result, StringComparison.Ordinal);
             Assert.Contains("dotnet_diagnostic.CS", result, StringComparison.Ordinal);
             Assert.Contains("severity = suggestion # ^biak^ baseline", result, StringComparison.Ordinal);
         }
