@@ -259,6 +259,49 @@ public class ProgramTests
     }
 
     [Fact]
+    public async Task WarningsBaselineInitCommandAsync()
+    {
+        string originalDirectory = Directory.GetCurrentDirectory();
+        TestDirectory testDir = new($"{nameof(ProgramTests)}_{nameof(WarningsBaselineInitCommandAsync)}");
+
+        TextWriter originalOut = Console.Out;
+        await using StringWriter output = new();
+        Console.SetOut(output);
+
+        TextReader originalIn = Console.In;
+        using StringReader input = new("\n");
+        Console.SetIn(input);
+
+        try
+        {
+            Directory.SetCurrentDirectory(testDir.Value);
+
+            string templateSimpleProject = Path.Join(
+                AppContext.BaseDirectory,
+                "Templates",
+                "SimpleProjectWithWarnings",
+                "MySimpleProjectTemplate"
+            );
+
+            testDir.CopyDirectory(templateSimpleProject);
+
+            await Program.Main([CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.INIT]);
+
+            string result = output.ToString().Trim();
+            Assert.Contains(WarningsBaselineInitCommandConstant.TREAT_WARNINGS_AS_ERRORS_NOTE, result, StringComparison.Ordinal);
+            Assert.Contains(".editorconfig", result, StringComparison.Ordinal);
+            Assert.Contains("dotnet_diagnostic.CS", result, StringComparison.Ordinal);
+            Assert.Contains("severity = suggestion # ^biak^ baseline", result, StringComparison.Ordinal);
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+            Console.SetIn(originalIn);
+            Directory.SetCurrentDirectory(originalDirectory);
+        }
+    }
+
+    [Fact]
     public async Task SetupWithInvalidCommandNoCommandMessageAsync()
     {
         TextWriter originalOut = Console.Out;
