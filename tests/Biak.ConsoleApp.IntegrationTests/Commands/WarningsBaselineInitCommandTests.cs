@@ -11,10 +11,12 @@ namespace Biak.ConsoleApp.IntegrationTests.Commands;
 
 public class WarningsBaselineInitCommandTests
 {
-    private const string TEST_OUTPUT = WarningsBaselineInitCommandConstant.TREAT_WARNINGS_AS_ERRORS_NOTE + """
-
-        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-
+    private static readonly string TEST_OUTPUT = WarningsBaselineInitCommandConstant.TREAT_WARNINGS_AS_ERRORS_NOTE
+        + Environment.NewLine
+        + WarningsBaselineInitCommandConstant.TREAT_WARNINGS_AS_ERRORS_CONFIGURATION
+        + Environment.NewLine
+        + Environment.NewLine
+        + """
         .editorconfig
         [{DerivedClassCS0649.cs}]
         dotnet_diagnostic.CS0108.severity = suggestion # ^biak^ baseline
