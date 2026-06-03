@@ -13,4 +13,24 @@ public static class WarningsBaselineInitCommandConstant
     /// Note to add TreatWarningsAsErrors.
     /// </summary>
     public const string TREAT_WARNINGS_AS_ERRORS_NOTE = "Add this configuration to Directory.Build.props or to all .csproj files";
+
+    /// <summary>
+    /// Failed to start dotnet build process.
+    /// </summary>
+    public const string FAILED_TO_START_DOTNET_BUILD = "Failed to start dotnet build process.";
+
+    /// <summary>
+    /// dotnet build failed.
+    /// </summary>
+    public const string DOTNET_BUILD_FAILED = "dotnet build failed.";
+
+    /// <summary>
+    /// build.binlog was not generated.
+    /// </summary>
+    public const string BUILD_BINLOG_NOT_FOUND = "build.binlog was not generated.";
+
+    /// <summary>
+    /// Failed to initialize warnings baseline.
+    /// </summary>
+    public const string INIT_FAILED = "Failed to initialize warnings baseline.";
 }

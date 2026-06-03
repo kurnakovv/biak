@@ -4,6 +4,7 @@
 
 using Biak.ConsoleApp.Commands;
 using Biak.ConsoleApp.Constants;
+using Biak.ConsoleApp.Exceptions;
 using Biak.ConsoleApp.IntegrationTests.Mock;
 
 namespace Biak.ConsoleApp.IntegrationTests.Commands;
@@ -72,6 +73,128 @@ public class WarningsBaselineInitCommandTests
 
             Assert.NotEmpty(result);
             Assert.Equal(TEST_OUTPUT, result.Trim());
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+            Console.SetIn(originalIn);
+            Directory.SetCurrentDirectory(originalDirectory);
+        }
+    }
+
+    [Fact]
+    public async Task RunShouldThrowWhenDotnetBuildFailedAsync()
+    {
+        string originalDirectory = Directory.GetCurrentDirectory();
+        TestDirectory testDir = new(
+            $"{nameof(WarningsBaselineInitCommandTests)}_{nameof(RunShouldThrowWhenDotnetBuildFailedAsync)}"
+        );
+
+        TextWriter originalOut = Console.Out;
+        await using StringWriter output = new();
+        Console.SetOut(output);
+
+        TextReader originalIn = Console.In;
+        using StringReader input = new("\n");
+        Console.SetIn(input);
+
+        try
+        {
+            Directory.SetCurrentDirectory(testDir.Value);
+
+            Exception? exception = await Record.ExceptionAsync(WarningsBaselineInitCommand.RunAsync);
+
+            Assert.NotNull(exception);
+            Assert.IsType<BiakApplicationException>(exception);
+            Assert.StartsWith(WarningsBaselineInitCommandConstant.DOTNET_BUILD_FAILED, exception.Message, StringComparison.Ordinal);
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+            Console.SetIn(originalIn);
+            Directory.SetCurrentDirectory(originalDirectory);
+        }
+    }
+
+    [Fact]
+    public async Task RunShouldThrowWhenDotnetBuildProcessCannotStartAsync()
+    {
+        string originalDirectory = Directory.GetCurrentDirectory();
+        TestDirectory testDir = new(
+            $"{nameof(WarningsBaselineInitCommandTests)}_{nameof(RunShouldThrowWhenDotnetBuildProcessCannotStartAsync)}"
+        );
+
+        TextWriter originalOut = Console.Out;
+        await using StringWriter output = new();
+        Console.SetOut(output);
+
+        TextReader originalIn = Console.In;
+        using StringReader input = new("\n");
+        Console.SetIn(input);
+
+        string? originalPath = Environment.GetEnvironmentVariable("PATH");
+
+        try
+        {
+            Directory.SetCurrentDirectory(testDir.Value);
+            Environment.SetEnvironmentVariable("PATH", string.Empty);
+
+            Exception? exception = await Record.ExceptionAsync(WarningsBaselineInitCommand.RunAsync);
+
+            Assert.NotNull(exception);
+            Assert.IsType<BiakApplicationException>(exception);
+            Assert.StartsWith(WarningsBaselineInitCommandConstant.INIT_FAILED, exception.Message, StringComparison.Ordinal);
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable("PATH", originalPath);
+            Console.SetOut(originalOut);
+            Console.SetIn(originalIn);
+            Directory.SetCurrentDirectory(originalDirectory);
+        }
+    }
+
+    [Fact]
+    public async Task RunShouldThrowWhenBuildBinlogNotFoundAsync()
+    {
+        string originalDirectory = Directory.GetCurrentDirectory();
+        TestDirectory testDir = new(
+            $"{nameof(WarningsBaselineInitCommandTests)}_{nameof(RunShouldThrowWhenBuildBinlogNotFoundAsync)}"
+        );
+
+        TextWriter originalOut = Console.Out;
+        await using StringWriter output = new();
+        Console.SetOut(output);
+
+        TextReader originalIn = Console.In;
+        using StringReader input = new("\n");
+        Console.SetIn(input);
+
+        try
+        {
+            Directory.SetCurrentDirectory(testDir.Value);
+
+            string templateSimpleProject = Path.Join(
+                AppContext.BaseDirectory,
+                "Templates",
+                "SimpleProjectWithWarnings",
+                "MySimpleProjectTemplate"
+            );
+
+            testDir.CopyDirectory(templateSimpleProject);
+
+            string anotherDirectory = Path.Join(testDir.Value, "another");
+            Directory.CreateDirectory(anotherDirectory);
+
+            Task<Exception?> exceptionTask = Record.ExceptionAsync(WarningsBaselineInitCommand.RunAsync);
+            await Task.Delay(100);
+            Directory.SetCurrentDirectory(anotherDirectory);
+
+            Exception? exception = await exceptionTask;
+
+            Assert.NotNull(exception);
+            Assert.IsType<BiakApplicationException>(exception);
+            Assert.Equal(WarningsBaselineInitCommandConstant.BUILD_BINLOG_NOT_FOUND, exception.Message);
         }
         finally
         {
