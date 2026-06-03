@@ -159,11 +159,11 @@ public class WarningsBaselineInitCommandTests
     }
 
     [Fact]
-    public async Task RunShouldThrowWhenBuildBinlogNotFoundAsync()
+    public async Task RunShouldThrowWhenBiakBuildBinlogNotFoundAsync()
     {
         string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new(
-            $"{nameof(WarningsBaselineInitCommandTests)}_{nameof(RunShouldThrowWhenBuildBinlogNotFoundAsync)}"
+            $"{nameof(WarningsBaselineInitCommandTests)}_{nameof(RunShouldThrowWhenBiakBuildBinlogNotFoundAsync)}"
         );
 
         TextWriter originalOut = Console.Out;

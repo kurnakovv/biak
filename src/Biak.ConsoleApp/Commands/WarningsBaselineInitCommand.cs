@@ -35,7 +35,7 @@ public static class WarningsBaselineInitCommand
             ProcessStartInfo psi = new()
             {
                 FileName = "dotnet",
-                Arguments = "build --no-incremental -bl:build.binlog",
+                Arguments = "build --no-incremental -bl:biak-build.binlog",
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 UseShellExecute = false,
@@ -55,12 +55,12 @@ public static class WarningsBaselineInitCommand
                 throw new BiakApplicationException($"{WarningsBaselineInitCommandConstant.DOTNET_BUILD_FAILED} {details}".Trim());
             }
 
-            if (!File.Exists("build.binlog"))
+            if (!File.Exists("biak-build.binlog"))
             {
                 throw new BiakApplicationException(WarningsBaselineInitCommandConstant.BUILD_BINLOG_NOT_FOUND);
             }
 
-            SL.Build build = SL.BinaryLog.ReadBuild("build.binlog");
+            SL.Build build = SL.BinaryLog.ReadBuild("biak-build.binlog");
             string originalDirectory = Directory.GetCurrentDirectory();
 
             Console.WriteLine(WarningsBaselineInitCommandConstant.TREAT_WARNINGS_AS_ERRORS_NOTE);
