@@ -132,26 +132,24 @@ public class WarningsBaselineInitCommandTests
         using StringReader input = new("\n");
         Console.SetIn(input);
 
-        string? originalPath = Environment.GetEnvironmentVariable("PATH");
+        string? originalDotnetPath = Environment.GetEnvironmentVariable("BIAK_DOTNET_PATH");
 
         try
         {
             Directory.SetCurrentDirectory(testDir.Value);
-            Environment.SetEnvironmentVariable("PATH", string.Empty);
+
+            string invalidDotnetPath = Path.Join(testDir.Value, "missing-dotnet", "dotnet");
+            Environment.SetEnvironmentVariable("BIAK_DOTNET_PATH", invalidDotnetPath);
 
             Exception? exception = await Record.ExceptionAsync(WarningsBaselineInitCommand.RunAsync);
 
             Assert.NotNull(exception);
             Assert.IsType<BiakApplicationException>(exception);
-            Assert.True(
-                exception.Message.StartsWith(WarningsBaselineInitCommandConstant.INIT_FAILED, StringComparison.Ordinal)
-                    || exception.Message.StartsWith(WarningsBaselineInitCommandConstant.DOTNET_BUILD_FAILED, StringComparison.Ordinal),
-                $"Expected message to start with '{WarningsBaselineInitCommandConstant.INIT_FAILED}' or '{WarningsBaselineInitCommandConstant.DOTNET_BUILD_FAILED}', but got '{exception.Message}'."
-            );
+            Assert.StartsWith(WarningsBaselineInitCommandConstant.INIT_FAILED, exception.Message, StringComparison.Ordinal);
         }
         finally
         {
-            Environment.SetEnvironmentVariable("PATH", originalPath);
+            Environment.SetEnvironmentVariable("BIAK_DOTNET_PATH", originalDotnetPath);
             Console.SetOut(originalOut);
             Console.SetIn(originalIn);
             Directory.SetCurrentDirectory(originalDirectory);
