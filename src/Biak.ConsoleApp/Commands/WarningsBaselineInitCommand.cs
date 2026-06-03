@@ -32,11 +32,9 @@ public static class WarningsBaselineInitCommand
     {
         try
         {
-            string dotnetPath = Environment.GetEnvironmentVariable("BIAK_DOTNET_PATH") ?? "dotnet";
-
             ProcessStartInfo psi = new()
             {
-                FileName = dotnetPath,
+                FileName = "dotnet",
                 Arguments = "build --no-incremental -bl:build.binlog",
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
