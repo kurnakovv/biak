@@ -38,4 +38,14 @@ public static class CommandArgumentConstant
     /// Find git conflicts files.
     /// </summary>
     public const string FIND_CONFLICTS = "find-conflicts";
+
+    /// <summary>
+    /// Warnings baseline.
+    /// </summary>
+    public const string WARNINGS_BASELINE = "warnings-baseline";
+
+    /// <summary>
+    /// Init.
+    /// </summary>
+    public const string INIT = "init";
 }
