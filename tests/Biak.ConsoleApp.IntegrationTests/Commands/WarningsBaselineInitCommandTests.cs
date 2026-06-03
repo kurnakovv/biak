@@ -154,53 +154,53 @@ public class WarningsBaselineInitCommandTests
         }
     }
 
-    ////[Fact]
-    ////public async Task RunShouldThrowWhenBuildBinlogNotFoundAsync()
-    ////{
-    ////    string originalDirectory = Directory.GetCurrentDirectory();
-    ////    TestDirectory testDir = new(
-    ////        $"{nameof(WarningsBaselineInitCommandTests)}_{nameof(RunShouldThrowWhenBuildBinlogNotFoundAsync)}"
-    ////    );
+    [Fact]
+    public async Task RunShouldThrowWhenBuildBinlogNotFoundAsync()
+    {
+        string originalDirectory = Directory.GetCurrentDirectory();
+        TestDirectory testDir = new(
+            $"{nameof(WarningsBaselineInitCommandTests)}_{nameof(RunShouldThrowWhenBuildBinlogNotFoundAsync)}"
+        );
 
-    ////    TextWriter originalOut = Console.Out;
-    ////    await using StringWriter output = new();
-    ////    Console.SetOut(output);
+        TextWriter originalOut = Console.Out;
+        await using StringWriter output = new();
+        Console.SetOut(output);
 
-    ////    TextReader originalIn = Console.In;
-    ////    using StringReader input = new("\n");
-    ////    Console.SetIn(input);
+        TextReader originalIn = Console.In;
+        using StringReader input = new("\n");
+        Console.SetIn(input);
 
-    ////    try
-    ////    {
-    ////        Directory.SetCurrentDirectory(testDir.Value);
+        try
+        {
+            Directory.SetCurrentDirectory(testDir.Value);
 
-    ////        string templateSimpleProject = Path.Join(
-    ////            AppContext.BaseDirectory,
-    ////            "Templates",
-    ////            "SimpleProjectWithWarnings",
-    ////            "MySimpleProjectTemplate"
-    ////        );
+            string templateSimpleProject = Path.Join(
+                AppContext.BaseDirectory,
+                "Templates",
+                "SimpleProjectWithWarnings",
+                "MySimpleProjectTemplate"
+            );
 
-    ////        testDir.CopyDirectory(templateSimpleProject);
+            testDir.CopyDirectory(templateSimpleProject);
 
-    ////        string anotherDirectory = Path.Join(testDir.Value, "another");
-    ////        Directory.CreateDirectory(anotherDirectory);
+            string anotherDirectory = Path.Join(testDir.Value, "another");
+            Directory.CreateDirectory(anotherDirectory);
 
-    ////        Task<Exception?> exceptionTask = Record.ExceptionAsync(WarningsBaselineInitCommand.RunAsync);
-    ////        await Task.Delay(100);
-    ////        Directory.SetCurrentDirectory(anotherDirectory);
+            Task<Exception?> exceptionTask = Record.ExceptionAsync(WarningsBaselineInitCommand.RunAsync);
+            await Task.Delay(100);
+            Directory.SetCurrentDirectory(anotherDirectory);
 
-    ////        Exception? exception = await exceptionTask;
+            Exception? exception = await exceptionTask;
 
-    ////        Assert.NotNull(exception);
-    ////        Assert.IsType<BiakApplicationException>(exception);
-    ////        Assert.Equal(WarningsBaselineInitCommandConstant.BUILD_BINLOG_NOT_FOUND, exception.Message);
-    ////    }
-    ////    finally
-    ////    {
-    ////        Console.SetOut(originalOut);
-    ////        Console.SetIn(originalIn);
-    ////        Directory.SetCurrentDirectory(originalDirectory);
-    ////    }
-    ////}
+            Assert.NotNull(exception);
+            Assert.IsType<BiakApplicationException>(exception);
+            Assert.Equal(WarningsBaselineInitCommandConstant.BUILD_BINLOG_NOT_FOUND, exception.Message);
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+            Console.SetIn(originalIn);
+            Directory.SetCurrentDirectory(originalDirectory);
+        }
+    }
 }
