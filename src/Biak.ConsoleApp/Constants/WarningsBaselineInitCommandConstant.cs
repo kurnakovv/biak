@@ -20,6 +20,11 @@ public static class WarningsBaselineInitCommandConstant
     public const string TREAT_WARNINGS_AS_ERRORS_NOTE = "Add this configuration to Directory.Build.props or to all .csproj files";
 
     /// <summary>
+    /// Insert filters into .editorconfig note.
+    /// </summary>
+    public const string INSERT_FILTERS_TO_EDITORCONFIG_NOTE = "Insert this filters to your .editorconfig file";
+
+    /// <summary>
     /// Failed to start dotnet build process.
     /// </summary>
     public const string FAILED_TO_START_DOTNET_BUILD = "Failed to start dotnet build process.";

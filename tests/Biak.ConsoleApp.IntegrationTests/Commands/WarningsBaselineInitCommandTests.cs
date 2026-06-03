@@ -18,8 +18,9 @@ public class WarningsBaselineInitCommandTests
         + WarningsBaselineInitCommandConstant.TREAT_WARNINGS_AS_ERRORS_CONFIGURATION
         + Environment.NewLine
         + Environment.NewLine
+        + WarningsBaselineInitCommandConstant.INSERT_FILTERS_TO_EDITORCONFIG_NOTE
+        + Environment.NewLine
         + """
-        .editorconfig
         [{DerivedClassCS0649.cs}]
         dotnet_diagnostic.CS0108.severity = suggestion # ^biak^ baseline
 
