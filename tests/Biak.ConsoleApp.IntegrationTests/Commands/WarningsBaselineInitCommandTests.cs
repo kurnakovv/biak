@@ -73,6 +73,7 @@ public class WarningsBaselineInitCommandTests
 
             Assert.NotEmpty(result);
             Assert.Equal(TEST_OUTPUT, result.Trim());
+            Assert.False(File.Exists(WarningsBaselineInitCommandConstant.BUILD_BINLOG_PATH));
         }
         finally
         {

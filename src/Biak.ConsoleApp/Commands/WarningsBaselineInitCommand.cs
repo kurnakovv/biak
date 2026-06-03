@@ -35,7 +35,7 @@ public static class WarningsBaselineInitCommand
             ProcessStartInfo psi = new()
             {
                 FileName = "dotnet",
-                Arguments = "build --no-incremental -bl:biak-build.binlog",
+                Arguments = $"build --no-incremental -bl:{WarningsBaselineInitCommandConstant.BUILD_BINLOG_PATH}",
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 UseShellExecute = false,
@@ -55,12 +55,12 @@ public static class WarningsBaselineInitCommand
                 throw new BiakApplicationException($"{WarningsBaselineInitCommandConstant.DOTNET_BUILD_FAILED} {details}".Trim());
             }
 
-            if (!File.Exists("biak-build.binlog"))
+            if (!File.Exists(WarningsBaselineInitCommandConstant.BUILD_BINLOG_PATH))
             {
                 throw new BiakApplicationException(WarningsBaselineInitCommandConstant.BUILD_BINLOG_NOT_FOUND);
             }
 
-            SL.Build build = SL.BinaryLog.ReadBuild("biak-build.binlog");
+            SL.Build build = SL.BinaryLog.ReadBuild(WarningsBaselineInitCommandConstant.BUILD_BINLOG_PATH);
             string originalDirectory = Directory.GetCurrentDirectory();
 
             Console.WriteLine(WarningsBaselineInitCommandConstant.TREAT_WARNINGS_AS_ERRORS_NOTE);
@@ -90,6 +90,17 @@ public static class WarningsBaselineInitCommand
         catch (Exception ex) when (ex is not BiakApplicationException)
         {
             throw new BiakApplicationException($"{WarningsBaselineInitCommandConstant.INIT_FAILED} {ex.Message}");
+        }
+        finally
+        {
+            try
+            {
+                if (File.Exists(WarningsBaselineInitCommandConstant.BUILD_BINLOG_PATH))
+                {
+                    File.Delete(WarningsBaselineInitCommandConstant.BUILD_BINLOG_PATH);
+                }
+            }
+            catch { }
         }
     }
 }
