@@ -11,7 +11,9 @@ namespace Biak.ConsoleApp.IntegrationTests.Commands;
 
 public class WarningsBaselineInitCommandTests
 {
+#pragma warning disable IDE1006 // Naming Styles
     private static readonly string TEST_OUTPUT = WarningsBaselineInitCommandConstant.TREAT_WARNINGS_AS_ERRORS_NOTE
+#pragma warning restore IDE1006 // Naming Styles
         + Environment.NewLine
         + WarningsBaselineInitCommandConstant.TREAT_WARNINGS_AS_ERRORS_CONFIGURATION
         + Environment.NewLine
