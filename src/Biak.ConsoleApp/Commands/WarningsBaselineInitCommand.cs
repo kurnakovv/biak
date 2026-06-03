@@ -93,14 +93,10 @@ public static class WarningsBaselineInitCommand
         }
         finally
         {
-            try
+            if (File.Exists(WarningsBaselineInitCommandConstant.BUILD_BINLOG_PATH))
             {
-                if (File.Exists(WarningsBaselineInitCommandConstant.BUILD_BINLOG_PATH))
-                {
-                    File.Delete(WarningsBaselineInitCommandConstant.BUILD_BINLOG_PATH);
-                }
+                File.Delete(WarningsBaselineInitCommandConstant.BUILD_BINLOG_PATH);
             }
-            catch { }
         }
     }
 }
