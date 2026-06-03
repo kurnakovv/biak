@@ -20,20 +20,6 @@ public static class WarningsBaselineInitCommandConstant
     public const string TREAT_WARNINGS_AS_ERRORS_NOTE = "Add this configuration to Directory.Build.props or to all .csproj files";
 
     /// <summary>
-    /// Treat warnings as errors configuration.
-    /// </summary>
-#pragma warning disable IDE1006 // Naming Styles
-    public static readonly string TREAT_WARNINGS_AS_ERRORS_CONFIGURATION = string.Join(
-#pragma warning restore IDE1006 // Naming Styles
-        Environment.NewLine,
-        "<Project>",
-        "\t<PropertyGroup>",
-        "\t\t<TreatWarningsAsErrors>true</TreatWarningsAsErrors>",
-        "\t</PropertyGroup>",
-        "</Project>"
-    );
-
-    /// <summary>
     /// Failed to start dotnet build process.
     /// </summary>
     public const string FAILED_TO_START_DOTNET_BUILD = "Failed to start dotnet build process.";
@@ -52,4 +38,18 @@ public static class WarningsBaselineInitCommandConstant
     /// Failed to initialize warnings baseline.
     /// </summary>
     public const string INIT_FAILED = "Failed to initialize warnings baseline.";
+
+    /// <summary>
+    /// Treat warnings as errors configuration.
+    /// </summary>
+#pragma warning disable IDE1006 // Naming Styles
+    public static readonly string TREAT_WARNINGS_AS_ERRORS_CONFIGURATION = string.Join(
+#pragma warning restore IDE1006 // Naming Styles
+        Environment.NewLine,
+        "<Project>",
+        "\t<PropertyGroup>",
+        "\t\t<TreatWarningsAsErrors>true</TreatWarningsAsErrors>",
+        "\t</PropertyGroup>",
+        "</Project>"
+    );
 }
