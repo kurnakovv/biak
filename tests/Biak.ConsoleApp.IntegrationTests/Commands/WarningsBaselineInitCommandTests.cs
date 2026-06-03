@@ -194,7 +194,7 @@ public class WarningsBaselineInitCommandTests
             await Task.Delay(100);
             Directory.SetCurrentDirectory(anotherDirectory);
 
-            Exception? exception = await exceptionTask;
+            Exception exception = await exceptionTask;
 
             Assert.NotNull(exception);
             Assert.IsType<BiakApplicationException>(exception);
