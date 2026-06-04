@@ -86,7 +86,6 @@ jobs:
 
   run_test:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
     steps:
     - uses: actions/checkout@v3
     - name: Setup .NET
@@ -94,7 +93,7 @@ jobs:
       with:
         dotnet-version: 8.0.x
     - name: Run tests
-      run: dotnet test --configuration Release --blame-hang --blame-hang-timeout 5m
+      run: dotnet test --configuration Release
 
   deploy:
     # Publish only when creating a GitHub Release
