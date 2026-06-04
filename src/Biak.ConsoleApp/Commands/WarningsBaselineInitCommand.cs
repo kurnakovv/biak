@@ -37,28 +37,20 @@ public static class WarningsBaselineInitCommand
             ProcessStartInfo psi = new()
             {
                 FileName = "dotnet",
-                Arguments = $"build --no-incremental -bl:{WarningsBaselineInitCommandConstant.BUILD_BINLOG_PATH}",
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
+                Arguments = $"build --no-incremental --disable-build-servers -bl:{WarningsBaselineInitCommandConstant.BUILD_BINLOG_PATH}",
+                RedirectStandardOutput = false,
+                RedirectStandardError = false,
                 UseShellExecute = false,
             };
 
             using Process process = Process.Start(psi)
                 ?? throw new BiakApplicationException(WarningsBaselineInitCommandConstant.FAILED_TO_START_DOTNET_BUILD);
 
-            Task<string> outputTask = process.StandardOutput.ReadToEndAsync();
-            Task<string> errorTask = process.StandardError.ReadToEndAsync();
-
             await process.WaitForExitAsync();
-            await Task.WhenAll(outputTask, errorTask);
-
-            string output = await outputTask;
-            string error = await errorTask;
 
             if (process.ExitCode != 0)
             {
-                string details = string.IsNullOrWhiteSpace(error) ? output : error;
-                throw new BiakApplicationException($"{WarningsBaselineInitCommandConstant.DOTNET_BUILD_FAILED} {details}".Trim());
+                throw new BiakApplicationException(WarningsBaselineInitCommandConstant.DOTNET_BUILD_FAILED);
             }
 
             if (!File.Exists(WarningsBaselineInitCommandConstant.BUILD_BINLOG_PATH))
