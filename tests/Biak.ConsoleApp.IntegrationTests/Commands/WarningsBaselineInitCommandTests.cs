@@ -44,9 +44,6 @@ public class WarningsBaselineInitCommandTests
 
         [{MyTestForlder/MyTestModel1.cs,MyTestModel.cs}]
         dotnet_diagnostic.CS8618.severity = suggestion # ^biak^ baseline
-
-        [{FSharpProject/Library.fs}]
-        dotnet_diagnostic.FS0025.severity = suggestion # ^biak^ baseline
         """;
 
     [Fact]

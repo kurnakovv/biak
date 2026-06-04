@@ -59,8 +59,4 @@
     </AssemblyAttribute>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Templates\SimpleProjectWithWarnings\MySimpleProjectTemplate\Views\Home\" />
-  </ItemGroup>
-
 </Project>
