@@ -72,12 +72,27 @@ public class WarningsBaselineInitCommandTests
 
             testDir.CopyDirectory(templateSimpleProject);
 
+            string csprojPath = Path.Join(testDir.Value, "MySimpleProjectTemplate.csproj");
+            string csprojContent = await File.ReadAllTextAsync(csprojPath);
+            csprojContent = csprojContent.Replace(
+                "</Project>",
+                """
+                  <ItemGroup>
+                    <PackageReference Include="Microsoft.Bcl.Async" Version="1.0.168" />
+                  </ItemGroup>
+                </Project>
+                """,
+                StringComparison.Ordinal
+            );
+            await File.WriteAllTextAsync(csprojPath, csprojContent);
+
             await WarningsBaselineInitCommand.RunAsync();
 
             string result = output.ToString();
 
             Assert.NotEmpty(result);
             Assert.Equal(TEST_OUTPUT, result.Trim());
+            Assert.DoesNotContain("dotnet_diagnostic.NU1701.severity", result, StringComparison.Ordinal);
             Assert.False(File.Exists(WarningsBaselineInitCommandConstant.BUILD_BINLOG_PATH));
         }
         finally
