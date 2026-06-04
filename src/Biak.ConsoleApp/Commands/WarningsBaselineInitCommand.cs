@@ -30,7 +30,7 @@ public static class WarningsBaselineInitCommand
     /// Run.
     /// </summary>
     /// <returns><placeholder>A <see cref="Task"/> representing the asynchronous operation.</placeholder></returns>
-    public static async Task RunAsync()
+    public static async Task<string> RunAsync()
     {
         try
         {
@@ -71,9 +71,6 @@ public static class WarningsBaselineInitCommand
 
             string originalDirectory = Directory.GetCurrentDirectory();
 
-            Console.WriteLine(WarningsBaselineInitCommandConstant.TREAT_WARNINGS_AS_ERRORS_NOTE);
-            Console.WriteLine(WarningsBaselineInitCommandConstant.TREAT_WARNINGS_AS_ERRORS_CONFIGURATION);
-
             Dictionary<string, IReadOnlyList<string>> warnings = build.FindChildrenRecursive<SL.Warning>()
                 .Where(x => s_sourceFileExtensions.Contains(Path.GetExtension(x.File)))
                 .GroupBy(x => x.Code)
@@ -87,14 +84,27 @@ public static class WarningsBaselineInitCommand
                         .ToList()
                 );
 
+            if (warnings.Count == 0)
+            {
+                Console.WriteLine(WarningsBaselineInitCommandConstant.NO_WARNINGS_FOUND);
+                return string.Empty;
+            }
+
+            Console.WriteLine(WarningsBaselineInitCommandConstant.TREAT_WARNINGS_AS_ERRORS_NOTE);
+            Console.WriteLine(WarningsBaselineInitCommandConstant.TREAT_WARNINGS_AS_ERRORS_CONFIGURATION);
             Console.WriteLine();
+
             Console.WriteLine(WarningsBaselineInitCommandConstant.INSERT_FILTERS_TO_EDITORCONFIG_NOTE);
+            System.Text.StringBuilder editorconfigSb = new();
             foreach ((string code, IReadOnlyList<string> files) in warnings)
             {
-                Console.WriteLine("[{" + $"{string.Join(",", files)}" + "}]");
-                Console.WriteLine($"dotnet_diagnostic.{code}.severity = suggestion # ^biak^ baseline");
-                Console.WriteLine();
+                editorconfigSb.AppendLine("[{" + $"{string.Join(",", files)}" + "}]");
+                editorconfigSb.AppendLine($"dotnet_diagnostic.{code}.severity = suggestion # ^biak^ baseline");
+                editorconfigSb.AppendLine();
             }
+            string result = editorconfigSb.ToString();
+            Console.WriteLine(result);
+            return result;
         }
         catch (Exception ex) when (ex is not BiakApplicationException)
         {

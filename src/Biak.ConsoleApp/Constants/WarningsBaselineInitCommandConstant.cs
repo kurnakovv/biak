@@ -25,6 +25,11 @@ public static class WarningsBaselineInitCommandConstant
     public const string INSERT_FILTERS_TO_EDITORCONFIG_NOTE = "Insert this filters to your .editorconfig file";
 
     /// <summary>
+    /// No warnings found in the build.
+    /// </summary>
+    public const string NO_WARNINGS_FOUND = "No warnings found. Nothing to generate.";
+
+    /// <summary>
     /// Failed to start dotnet build process.
     /// </summary>
     public const string FAILED_TO_START_DOTNET_BUILD = "Failed to start dotnet build process.";

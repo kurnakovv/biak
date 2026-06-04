@@ -92,7 +92,7 @@ public class WarningsBaselineInitCommandTests
             );
             await File.WriteAllTextAsync(csprojPath, csprojContent);
 
-            await WarningsBaselineInitCommand.RunAsync();
+            string editorconfigContent = await WarningsBaselineInitCommand.RunAsync();
 
             string result = output.ToString();
 
@@ -100,6 +100,17 @@ public class WarningsBaselineInitCommandTests
             Assert.Equal(TEST_OUTPUT, result.Trim());
             Assert.DoesNotContain("dotnet_diagnostic.NU1701.severity", result, StringComparison.Ordinal);
             Assert.False(File.Exists(WarningsBaselineInitCommandConstant.BUILD_BINLOG_PATH));
+
+            string editorconfigPath = Path.Join(testDir.Value, ".editorconfig");
+            await File.WriteAllTextAsync(editorconfigPath, "root = true" + Environment.NewLine + Environment.NewLine + editorconfigContent);
+
+            string secondEditorconfigContent = await WarningsBaselineInitCommand.RunAsync();
+
+            string[] suppressedCsCodes = ["CS0108", "CS0168", "CS0169", "CS0219", "CS0612", "CS0649", "CS8618"];
+            foreach (string code in suppressedCsCodes)
+            {
+                Assert.DoesNotContain(code, secondEditorconfigContent, StringComparison.Ordinal);
+            }
         }
         finally
         {
