@@ -14,7 +14,7 @@ namespace Biak.ConsoleApp.Commands;
 /// </summary>
 public static class WarningsBaselineInitCommand
 {
-    private static readonly HashSet<string> s_sourceFileExtensions = new() { ".cs", ".vb", ".fs", ".cshtml" };
+    private static readonly HashSet<string> s_sourceFileExtensions = new() { ".cs", ".vb", ".fs" };
 
     /// <summary>
     /// Can `dotnet biak warnings-baseline init` command be run.
