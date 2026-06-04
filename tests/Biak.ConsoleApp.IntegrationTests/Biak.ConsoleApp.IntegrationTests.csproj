@@ -39,6 +39,7 @@
     <Compile Remove="Templates\SimpleProject\MySimpleProjectTemplate\TestService7.cs" />
     <Compile Remove="Templates\SimpleProject\MySimpleProjectTemplate\TestService8.cs" />
     <Compile Remove="Templates\SimpleProject\MySimpleProjectTemplate\TestService9.cs" />
+    <Compile Remove="Templates\WebProjectWithWarnings\MyWebProjectTemplate\Program.cs" />
   </ItemGroup>
 
   <ItemGroup>
