@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="FSharpProject/FSharpProject.fsproj" />
+    <ProjectReference Include="VisualBasicProject/VisualBasicProject.vbproj" />
   </ItemGroup>
 
 </Project>
