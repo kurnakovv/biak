@@ -14,6 +14,8 @@ namespace Biak.ConsoleApp.Commands;
 /// </summary>
 public static class WarningsBaselineInitCommand
 {
+    private static readonly HashSet<string> s_sourceFileExtensions = new() { ".cs", ".vb", ".fs" };
+
     /// <summary>
     /// Can `dotnet biak warnings-baseline init` command be run.
     /// </summary>
@@ -73,6 +75,7 @@ public static class WarningsBaselineInitCommand
             Console.WriteLine(WarningsBaselineInitCommandConstant.TREAT_WARNINGS_AS_ERRORS_CONFIGURATION);
 
             Dictionary<string, IReadOnlyList<string>> warnings = build.FindChildrenRecursive<SL.Warning>()
+                .Where(x => s_sourceFileExtensions.Contains(Path.GetExtension(x.File)))
                 .GroupBy(x => x.Code)
                 .OrderBy(x => x.Key)
                 .ToDictionary(
