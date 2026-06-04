@@ -10,4 +10,8 @@
     <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="FSharpProject/FSharpProject.fsproj" />
+  </ItemGroup>
+
 </Project>
