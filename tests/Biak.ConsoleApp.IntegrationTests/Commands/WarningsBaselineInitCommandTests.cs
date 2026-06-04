@@ -21,6 +21,9 @@ public class WarningsBaselineInitCommandTests
         + WarningsBaselineInitCommandConstant.INSERT_FILTERS_TO_EDITORCONFIG_NOTE
         + Environment.NewLine
         + """
+        [{VisualBasicProject/Module1.vb}]
+        dotnet_diagnostic.BC40000.severity = suggestion # ^biak^ baseline
+
         [{DerivedClassCS0649.cs}]
         dotnet_diagnostic.CS0108.severity = suggestion # ^biak^ baseline
 
