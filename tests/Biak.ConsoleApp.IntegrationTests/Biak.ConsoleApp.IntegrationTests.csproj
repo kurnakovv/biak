@@ -23,7 +23,6 @@
 
   <ItemGroup>
     <Compile Remove="Templates\SimpleProjectWithWarnings\MySimpleProjectTemplate\DerivedClassCS0649.cs" />
-    <Compile Remove="Templates\SimpleProjectWithWarnings\MySimpleProjectTemplate\IndexCshtmlWarning.cs" />
     <Compile Remove="Templates\SimpleProjectWithWarnings\MySimpleProjectTemplate\MyClassCS0169.cs" />
     <Compile Remove="Templates\SimpleProjectWithWarnings\MySimpleProjectTemplate\MyTestForlder\MyTestModel1.cs" />
     <Compile Remove="Templates\SimpleProjectWithWarnings\MySimpleProjectTemplate\MyTestModel.cs" />
@@ -39,7 +38,6 @@
     <Compile Remove="Templates\SimpleProject\MySimpleProjectTemplate\TestService7.cs" />
     <Compile Remove="Templates\SimpleProject\MySimpleProjectTemplate\TestService8.cs" />
     <Compile Remove="Templates\SimpleProject\MySimpleProjectTemplate\TestService9.cs" />
-    <Compile Remove="Templates\WebProjectWithWarnings\MyWebProjectTemplate\Program.cs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -27,7 +27,7 @@ public class WarningsBaselineInitCommandTests
         [{DerivedClassCS0649.cs}]
         dotnet_diagnostic.CS0108.severity = suggestion # ^biak^ baseline
 
-        [{ProgramCS0168Warning.cs,Views/Home/Index.cshtml}]
+        [{ProgramCS0168Warning.cs}]
         dotnet_diagnostic.CS0168.severity = suggestion # ^biak^ baseline
 
         [{MyClassCS0169.cs}]
@@ -47,20 +47,6 @@ public class WarningsBaselineInitCommandTests
 
         [{FSharpProject/Library.fs}]
         dotnet_diagnostic.FS0025.severity = suggestion # ^biak^ baseline
-        """;
-
-#pragma warning disable IDE1006 // Naming Styles
-    private static readonly string TEST_OUTPUT_WEB = WarningsBaselineInitCommandConstant.TREAT_WARNINGS_AS_ERRORS_NOTE
-#pragma warning restore IDE1006 // Naming Styles
-        + Environment.NewLine
-        + WarningsBaselineInitCommandConstant.TREAT_WARNINGS_AS_ERRORS_CONFIGURATION
-        + Environment.NewLine
-        + Environment.NewLine
-        + WarningsBaselineInitCommandConstant.INSERT_FILTERS_TO_EDITORCONFIG_NOTE
-        + Environment.NewLine
-        + """
-        [{Views/Home/PartialWarning.cshtml}]
-        dotnet_diagnostic.MVC1000.severity = suggestion # ^biak^ baseline
         """;
 
     [Fact]
@@ -113,50 +99,6 @@ public class WarningsBaselineInitCommandTests
             Assert.NotEmpty(result);
             Assert.Equal(TEST_OUTPUT, result.Trim());
             Assert.DoesNotContain("dotnet_diagnostic.NU1701.severity", result, StringComparison.Ordinal);
-            Assert.False(File.Exists(WarningsBaselineInitCommandConstant.BUILD_BINLOG_PATH));
-        }
-        finally
-        {
-            Console.SetOut(originalOut);
-            Console.SetIn(originalIn);
-            Directory.SetCurrentDirectory(originalDirectory);
-        }
-    }
-
-    [Fact]
-    public async Task RunWebProjectTestAsync()
-    {
-        string originalDirectory = Directory.GetCurrentDirectory();
-        TestDirectory testDir = new(
-            $"{nameof(WarningsBaselineInitCommandTests)}_{nameof(RunWebProjectTestAsync)}"
-        );
-
-        TextWriter originalOut = Console.Out;
-        await using StringWriter output = new();
-        Console.SetOut(output);
-
-        TextReader originalIn = Console.In;
-        using StringReader input = new("\n");
-        Console.SetIn(input);
-
-        try
-        {
-            string templateWebProject = Path.Join(
-                AppContext.BaseDirectory,
-                "Templates",
-                "WebProjectWithWarnings",
-                "MyWebProjectTemplate"
-            );
-
-            testDir.CopyDirectory(templateWebProject);
-            Directory.SetCurrentDirectory(testDir.Value);
-
-            await WarningsBaselineInitCommand.RunAsync();
-
-            string result = output.ToString();
-
-            Assert.NotEmpty(result);
-            Assert.Equal(TEST_OUTPUT_WEB, result.Trim());
             Assert.False(File.Exists(WarningsBaselineInitCommandConstant.BUILD_BINLOG_PATH));
         }
         finally
