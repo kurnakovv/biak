@@ -51,19 +51,6 @@ public class WarningsBaselineInitCommandTests
 
     private static readonly TimeSpan s_commandTimeout = TimeSpan.FromMinutes(3);
 
-    private static async Task<T> ExecuteWithTimeoutAsync<T>(Func<Task<T>> action)
-    {
-        Task<T> task = action();
-        Task completedTask = await Task.WhenAny(task, Task.Delay(s_commandTimeout));
-
-        if (completedTask != task)
-        {
-            throw new TimeoutException($"WarningsBaselineInitCommand test timeout after {s_commandTimeout}.");
-        }
-
-        return await task;
-    }
-
     [Fact]
     public async Task RunTestAsync()
     {
@@ -322,5 +309,18 @@ public class WarningsBaselineInitCommandTests
             Console.SetIn(originalIn);
             Directory.SetCurrentDirectory(originalDirectory);
         }
+    }
+
+    private static async Task<T> ExecuteWithTimeoutAsync<T>(Func<Task<T>> action)
+    {
+        Task<T> task = action();
+        Task completedTask = await Task.WhenAny(task, Task.Delay(s_commandTimeout));
+
+        if (completedTask != task)
+        {
+            throw new TimeoutException($"WarningsBaselineInitCommand test timeout after {s_commandTimeout}.");
+        }
+
+        return await task;
     }
 }

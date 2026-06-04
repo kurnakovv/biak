@@ -37,7 +37,7 @@ public static class WarningsBaselineInitCommand
             ProcessStartInfo psi = new()
             {
                 FileName = "dotnet",
-                Arguments = $"build --no-incremental --disable-build-servers -bl:{WarningsBaselineInitCommandConstant.BUILD_BINLOG_PATH}",
+                Arguments = $"build --no-incremental -bl:{WarningsBaselineInitCommandConstant.BUILD_BINLOG_PATH}",
                 RedirectStandardOutput = false,
                 RedirectStandardError = false,
                 UseShellExecute = false,
