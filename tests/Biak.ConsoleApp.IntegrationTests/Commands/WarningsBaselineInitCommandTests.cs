@@ -49,6 +49,21 @@ public class WarningsBaselineInitCommandTests
         dotnet_diagnostic.FS0025.severity = suggestion # ^biak^ baseline
         """;
 
+    private static readonly TimeSpan s_commandTimeout = TimeSpan.FromMinutes(3);
+
+    private static async Task<T> ExecuteWithTimeoutAsync<T>(Func<Task<T>> action)
+    {
+        Task<T> task = action();
+        Task completedTask = await Task.WhenAny(task, Task.Delay(s_commandTimeout));
+
+        if (completedTask != task)
+        {
+            throw new TimeoutException($"WarningsBaselineInitCommand test timeout after {s_commandTimeout}.");
+        }
+
+        return await task;
+    }
+
     [Fact]
     public async Task RunTestAsync()
     {
@@ -92,7 +107,7 @@ public class WarningsBaselineInitCommandTests
             );
             await File.WriteAllTextAsync(csprojPath, csprojContent);
 
-            string editorconfigContent = await WarningsBaselineInitCommand.RunAsync();
+            string editorconfigContent = await ExecuteWithTimeoutAsync(WarningsBaselineInitCommand.RunAsync);
 
             string result = output.ToString();
 
@@ -104,7 +119,7 @@ public class WarningsBaselineInitCommandTests
             string editorconfigPath = Path.Join(testDir.Value, ".editorconfig");
             await File.WriteAllTextAsync(editorconfigPath, "root = true" + Environment.NewLine + Environment.NewLine + editorconfigContent);
 
-            string secondEditorconfigContent = await WarningsBaselineInitCommand.RunAsync();
+            string secondEditorconfigContent = await ExecuteWithTimeoutAsync(WarningsBaselineInitCommand.RunAsync);
 
             string[] suppressedCsCodes = ["CS0108", "CS0168", "CS0169", "CS0219", "CS0612", "CS0649", "CS8618"];
             foreach (string code in suppressedCsCodes)
@@ -140,7 +155,7 @@ public class WarningsBaselineInitCommandTests
         {
             Directory.SetCurrentDirectory(testDir.Value);
 
-            Exception? exception = await Record.ExceptionAsync(WarningsBaselineInitCommand.RunAsync);
+            Exception? exception = await ExecuteWithTimeoutAsync(() => Record.ExceptionAsync(WarningsBaselineInitCommand.RunAsync));
 
             Assert.NotNull(exception);
             Assert.IsType<BiakApplicationException>(exception);
@@ -177,7 +192,7 @@ public class WarningsBaselineInitCommandTests
             Directory.SetCurrentDirectory(testDir.Value);
             Environment.SetEnvironmentVariable("PATH", string.Empty);
 
-            Exception? exception = await Record.ExceptionAsync(WarningsBaselineInitCommand.RunAsync);
+            Exception? exception = await ExecuteWithTimeoutAsync(() => Record.ExceptionAsync(WarningsBaselineInitCommand.RunAsync));
 
             Assert.NotNull(exception);
             Assert.IsType<BiakApplicationException>(exception);
@@ -239,7 +254,7 @@ public class WarningsBaselineInitCommandTests
                 """
             );
 
-            Exception? exception = await Record.ExceptionAsync(WarningsBaselineInitCommand.RunAsync);
+            Exception? exception = await ExecuteWithTimeoutAsync(() => Record.ExceptionAsync(WarningsBaselineInitCommand.RunAsync));
 
             Assert.NotNull(exception);
             Assert.IsType<BiakApplicationException>(exception);
@@ -291,11 +306,11 @@ public class WarningsBaselineInitCommandTests
             string anotherDirectory = Path.Join(testDir.Value, "another");
             Directory.CreateDirectory(anotherDirectory);
 
-            Task<Exception> exceptionTask = Record.ExceptionAsync(WarningsBaselineInitCommand.RunAsync);
+            Task<Exception?> exceptionTask = ExecuteWithTimeoutAsync(() => Record.ExceptionAsync(WarningsBaselineInitCommand.RunAsync));
             await Task.Delay(100);
             Directory.SetCurrentDirectory(anotherDirectory);
 
-            Exception exception = await exceptionTask;
+            Exception? exception = await exceptionTask;
 
             Assert.NotNull(exception);
             Assert.IsType<BiakApplicationException>(exception);
