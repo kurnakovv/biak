@@ -27,7 +27,7 @@ public class WarningsBaselineInitCommandTests
         [{DerivedClassCS0649.cs}]
         dotnet_diagnostic.CS0108.severity = suggestion # ^biak^ baseline
 
-        [{ProgramCS0168Warning.cs}]
+        [{ProgramCS0168Warning.cs,Views/Home/Index.cshtml}]
         dotnet_diagnostic.CS0168.severity = suggestion # ^biak^ baseline
 
         [{MyClassCS0169.cs}]
