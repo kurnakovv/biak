@@ -40,6 +40,11 @@ public static class WarningsBaselineInitCommandConstant
     public const string BUILD_BINLOG_NOT_FOUND = "biak-build.binlog was not generated.";
 
     /// <summary>
+    /// Build contains errors, so warnings baseline can't be generated.
+    /// </summary>
+    public const string BUILD_CONTAINS_ERRORS = "Build contains errors. Fix them before generating warnings baseline filters.";
+
+    /// <summary>
     /// Failed to initialize warnings baseline.
     /// </summary>
     public const string INIT_FAILED = "Failed to initialize warnings baseline.";

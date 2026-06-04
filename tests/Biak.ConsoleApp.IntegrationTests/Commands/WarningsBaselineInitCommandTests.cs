@@ -165,6 +165,69 @@ public class WarningsBaselineInitCommandTests
     }
 
     [Fact]
+    public async Task RunShouldRefuseToGenerateFiltersWhenBuildContainsErrorsAsync()
+    {
+        string originalDirectory = Directory.GetCurrentDirectory();
+        TestDirectory testDir = new(
+            $"{nameof(WarningsBaselineInitCommandTests)}_{nameof(RunShouldRefuseToGenerateFiltersWhenBuildContainsErrorsAsync)}"
+        );
+
+        TextWriter originalOut = Console.Out;
+        await using StringWriter output = new();
+        Console.SetOut(output);
+
+        TextReader originalIn = Console.In;
+        using StringReader input = new("\n");
+        Console.SetIn(input);
+
+        try
+        {
+            Directory.SetCurrentDirectory(testDir.Value);
+
+            string templateSimpleProject = Path.Join(
+                AppContext.BaseDirectory,
+                "Templates",
+                "SimpleProjectWithWarnings",
+                "MySimpleProjectTemplate"
+            );
+
+            testDir.CopyDirectory(templateSimpleProject);
+
+            string brokenFile = Path.Join(testDir.Value, "ProgramCS0168Warning.cs");
+            await File.WriteAllTextAsync(
+                brokenFile,
+                """
+                public class ProgramCS0168Warning
+                {
+                    public static void M1()
+                    {
+                        int a = ;
+                    }
+                }
+                """
+            );
+
+            Exception? exception = await Record.ExceptionAsync(WarningsBaselineInitCommand.RunAsync);
+
+            Assert.NotNull(exception);
+            Assert.IsType<BiakApplicationException>(exception);
+            Assert.True(
+                exception.Message.StartsWith(WarningsBaselineInitCommandConstant.DOTNET_BUILD_FAILED, StringComparison.Ordinal)
+                    || exception.Message.Equals(WarningsBaselineInitCommandConstant.BUILD_CONTAINS_ERRORS, StringComparison.Ordinal),
+                $"Expected message to start with '{WarningsBaselineInitCommandConstant.DOTNET_BUILD_FAILED}' or be '{WarningsBaselineInitCommandConstant.BUILD_CONTAINS_ERRORS}', but got '{exception.Message}'."
+            );
+            Assert.DoesNotContain(WarningsBaselineInitCommandConstant.INSERT_FILTERS_TO_EDITORCONFIG_NOTE, output.ToString(), StringComparison.Ordinal);
+            Assert.False(File.Exists(WarningsBaselineInitCommandConstant.BUILD_BINLOG_PATH));
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+            Console.SetIn(originalIn);
+            Directory.SetCurrentDirectory(originalDirectory);
+        }
+    }
+
+    [Fact]
     public async Task RunShouldThrowWhenBiakBuildBinlogNotFoundAsync()
     {
         string originalDirectory = Directory.GetCurrentDirectory();

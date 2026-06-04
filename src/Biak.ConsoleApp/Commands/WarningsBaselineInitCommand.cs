@@ -61,6 +61,12 @@ public static class WarningsBaselineInitCommand
             }
 
             SL.Build build = SL.BinaryLog.ReadBuild(WarningsBaselineInitCommandConstant.BUILD_BINLOG_PATH);
+
+            if (build.FindChildrenRecursive<SL.Error>().Any())
+            {
+                throw new BiakApplicationException(WarningsBaselineInitCommandConstant.BUILD_CONTAINS_ERRORS);
+            }
+
             string originalDirectory = Directory.GetCurrentDirectory();
 
             Console.WriteLine(WarningsBaselineInitCommandConstant.TREAT_WARNINGS_AS_ERRORS_NOTE);
