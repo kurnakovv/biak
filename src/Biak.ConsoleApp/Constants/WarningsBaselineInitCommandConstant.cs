@@ -45,6 +45,11 @@ public static class WarningsBaselineInitCommandConstant
     public const string DOTNET_BUILD_FAILED = "dotnet build failed.";
 
     /// <summary>
+    /// dotnet build timed out.
+    /// </summary>
+    public const string DOTNET_BUILD_TIMED_OUT = "dotnet build timed out after 30 minutes.";
+
+    /// <summary>
     /// biak-build.binlog was not generated.
     /// </summary>
     public const string BUILD_BINLOG_NOT_FOUND = "biak-build.binlog was not generated.";

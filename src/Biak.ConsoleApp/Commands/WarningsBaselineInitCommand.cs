@@ -51,10 +51,24 @@ public static class WarningsBaselineInitCommand
             Task<string> standardOutputTask = process.StandardOutput.ReadToEndAsync();
             Task<string> standardErrorTask = process.StandardError.ReadToEndAsync();
 
-            await process.WaitForExitAsync();
+            using CancellationTokenSource timeoutCts = new(TimeSpan.FromMinutes(30));
+            string standardOutput;
+            string standardError;
+            try
+            {
+                await process.WaitForExitAsync(timeoutCts.Token);
+                standardOutput = await standardOutputTask.WaitAsync(timeoutCts.Token);
+                standardError = await standardErrorTask.WaitAsync(timeoutCts.Token);
+            }
+            catch (OperationCanceledException) when (timeoutCts.IsCancellationRequested)
+            {
+                if (!process.HasExited)
+                {
+                    process.Kill(entireProcessTree: true);
+                }
 
-            string standardOutput = await standardOutputTask;
-            string standardError = await standardErrorTask;
+                throw new BiakApplicationException(WarningsBaselineInitCommandConstant.DOTNET_BUILD_TIMED_OUT);
+            }
 
             if (process.ExitCode != 0)
             {
