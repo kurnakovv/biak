@@ -82,9 +82,9 @@ public class WarningsBaselineInitCommandTests
             csprojContent = csprojContent.Replace(
                 "</Project>",
                 """
-                  <ItemGroup>
-                    <PackageReference Include="Microsoft.Bcl.Async" Version="1.0.168" />
-                  </ItemGroup>
+                  <Target Name="Biak_TestWarning" BeforeTargets="CoreCompile">
+                    <Warning Text="Test warning from project file (should not be included in baseline)" Code="BIKTEST001" />
+                  </Target>
                 </Project>
                 """,
                 StringComparison.Ordinal
@@ -97,7 +97,7 @@ public class WarningsBaselineInitCommandTests
 
             Assert.NotEmpty(result);
             Assert.Equal(TEST_OUTPUT, result.Trim());
-            Assert.DoesNotContain("dotnet_diagnostic.NU1701.severity", result, StringComparison.Ordinal);
+            Assert.DoesNotContain("dotnet_diagnostic.BIKTEST001.severity", result, StringComparison.Ordinal);
             Assert.False(File.Exists(WarningsBaselineInitCommandConstant.BUILD_BINLOG_PATH));
 
             string editorconfigPath = Path.Join(testDir.Value, ".editorconfig");
