@@ -45,6 +45,8 @@
 
 * ⚔️ Find conflicts | Find files with merge conflicts between the default branch and selected branches. This is especially useful for legacy projects with many rule violations, allowing gradual integration without major conflicts ([docs](https://github.com/kurnakovv/biak/wiki/FindConflicts)).
 
+* 🚧 Warnings baseline | Build a warning baseline from existing compiler and analyzer warnings, allowing [TreatWarningsAsErrors](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/compiler-options/errors-warnings#treatwarningsaserrors) to be enabled without fixing all legacy violations at once ([docs](https://github.com/kurnakovv/biak/wiki/WarningsBaselineOverview)).
+
 ## 🚀 Quick start
 1️⃣ Install
 ```
