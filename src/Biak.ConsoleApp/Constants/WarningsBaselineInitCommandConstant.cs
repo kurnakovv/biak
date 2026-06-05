@@ -27,7 +27,7 @@ public static class WarningsBaselineInitCommandConstant
     /// <summary>
     /// Insert filters into .editorconfig note.
     /// </summary>
-    public const string INSERT_FILTERS_TO_EDITORCONFIG_NOTE = "Insert this filters to your .editorconfig file";
+    public const string INSERT_FILTERS_TO_EDITORCONFIG_NOTE = "Insert these filters into your .editorconfig file";
 
     /// <summary>
     /// No warnings found in the build.
