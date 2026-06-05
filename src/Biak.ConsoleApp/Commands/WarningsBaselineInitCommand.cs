@@ -96,7 +96,11 @@ public static class WarningsBaselineInitCommand
             string originalDirectory = Directory.GetCurrentDirectory();
 
             Dictionary<string, IReadOnlyList<string>> warnings = build.FindChildrenRecursive<SL.Warning>()
-                .Where(x => s_sourceFileExtensions.Contains(Path.GetExtension(x.File)))
+                .Where(x =>
+                    !string.IsNullOrWhiteSpace(x.Code) &&
+                    !string.IsNullOrWhiteSpace(x.File) &&
+                    s_sourceFileExtensions.Contains(Path.GetExtension(x.File))
+                )
                 .GroupBy(x => x.Code)
                 .OrderBy(x => x.Key)
                 .ToDictionary(
