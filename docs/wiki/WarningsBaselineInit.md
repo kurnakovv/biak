@@ -16,7 +16,7 @@ Add this configuration to Directory.Build.props or to all .csproj files
 	</PropertyGroup>
 </Project>
 
-Insert this filters to your .editorconfig file
+Insert these filters into your .editorconfig file
 [{VisualBasicProject/Module1.vb}]
 dotnet_diagnostic.BC40000.severity = suggestion # ^biak^ baseline
 
