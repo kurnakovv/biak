@@ -15,6 +15,11 @@ public static class WarningsBaselineInitCommandConstant
     public const string BUILD_BINLOG_PATH = "biak-build.binlog";
 
     /// <summary>
+    /// Warnings-baseline initialization started.
+    /// </summary>
+    public const string INIT_STARTED = "warnings-baseline init started...";
+
+    /// <summary>
     /// Note to add TreatWarningsAsErrors.
     /// </summary>
     public const string TREAT_WARNINGS_AS_ERRORS_NOTE = "Add this configuration to Directory.Build.props or to all .csproj files";
