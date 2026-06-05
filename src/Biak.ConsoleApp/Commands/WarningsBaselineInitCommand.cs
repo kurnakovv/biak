@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for full license information.
 
 using System.Diagnostics;
+using System.Text;
 using Biak.ConsoleApp.Constants;
 using Biak.ConsoleApp.Exceptions;
 using SL = Microsoft.Build.Logging.StructuredLogger;
@@ -118,7 +119,7 @@ public static class WarningsBaselineInitCommand
             Console.WriteLine();
 
             Console.WriteLine(WarningsBaselineInitCommandConstant.INSERT_FILTERS_TO_EDITORCONFIG_NOTE);
-            System.Text.StringBuilder editorconfigSb = new();
+            StringBuilder editorconfigSb = new();
             foreach ((string code, IReadOnlyList<string> files) in warnings)
             {
                 editorconfigSb.AppendLine("[{" + $"{string.Join(",", files)}" + "}]");
