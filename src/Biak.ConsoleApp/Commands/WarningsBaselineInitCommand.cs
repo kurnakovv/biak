@@ -34,6 +34,8 @@ public static class WarningsBaselineInitCommand
     {
         try
         {
+            Console.WriteLine(WarningsBaselineInitCommandConstant.INIT_STARTED);
+
             ProcessStartInfo psi = new()
             {
                 FileName = "dotnet",
@@ -83,7 +85,7 @@ public static class WarningsBaselineInitCommand
             if (warnings.Count == 0)
             {
                 Console.WriteLine(WarningsBaselineInitCommandConstant.NO_WARNINGS_FOUND);
-                return string.Empty;
+                return WarningsBaselineInitCommandConstant.NO_WARNINGS_FOUND;
             }
 
             Console.WriteLine(WarningsBaselineInitCommandConstant.TREAT_WARNINGS_AS_ERRORS_NOTE);

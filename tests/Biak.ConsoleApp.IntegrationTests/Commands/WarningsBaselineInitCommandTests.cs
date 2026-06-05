@@ -12,8 +12,10 @@ namespace Biak.ConsoleApp.IntegrationTests.Commands;
 public class WarningsBaselineInitCommandTests
 {
 #pragma warning disable IDE1006 // Naming Styles
-    private static readonly string TEST_OUTPUT = WarningsBaselineInitCommandConstant.TREAT_WARNINGS_AS_ERRORS_NOTE
+    private static readonly string TEST_OUTPUT = WarningsBaselineInitCommandConstant.INIT_STARTED
 #pragma warning restore IDE1006 // Naming Styles
+        + Environment.NewLine
+        + WarningsBaselineInitCommandConstant.TREAT_WARNINGS_AS_ERRORS_NOTE
         + Environment.NewLine
         + WarningsBaselineInitCommandConstant.TREAT_WARNINGS_AS_ERRORS_CONFIGURATION
         + Environment.NewLine
@@ -103,11 +105,7 @@ public class WarningsBaselineInitCommandTests
 
             string secondEditorconfigContent = await WarningsBaselineInitCommand.RunAsync();
 
-            string[] suppressedCsCodes = ["CS0108", "CS0168", "CS0169", "CS0219", "CS0612", "CS0649", "CS8618"];
-            foreach (string code in suppressedCsCodes)
-            {
-                Assert.DoesNotContain(code, secondEditorconfigContent, StringComparison.Ordinal);
-            }
+            Assert.Equal(WarningsBaselineInitCommandConstant.NO_WARNINGS_FOUND, secondEditorconfigContent);
         }
         finally
         {
@@ -288,11 +286,11 @@ public class WarningsBaselineInitCommandTests
             string anotherDirectory = Path.Join(testDir.Value, "another");
             Directory.CreateDirectory(anotherDirectory);
 
-            Task<Exception?> exceptionTask = Record.ExceptionAsync(WarningsBaselineInitCommand.RunAsync);
+            Task<Exception> exceptionTask = Record.ExceptionAsync(WarningsBaselineInitCommand.RunAsync);
             await Task.Delay(100);
             Directory.SetCurrentDirectory(anotherDirectory);
 
-            Exception? exception = await exceptionTask;
+            Exception exception = await exceptionTask;
 
             Assert.NotNull(exception);
             Assert.IsType<BiakApplicationException>(exception);
