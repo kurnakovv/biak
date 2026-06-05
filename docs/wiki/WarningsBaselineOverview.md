@@ -36,7 +36,7 @@ code2 = suggestion # ^biak^ baseline
 ...
 ```
 
-Add this configuration to Directory.Build.props ([what?](https://learn.microsoft.com/en-us/visualstudio/msbuild/customize-by-directory?view=visualstudio) / [my favorite](https://gist.github.com/kurnakovv/160520da1054eb32f235f44c75a5c804)) or to all .csproj files
+Choose one: add this full snippet to `Directory.Build.props` ([what?](https://learn.microsoft.com/en-us/visualstudio/msbuild/customize-by-directory?view=visualstudio) / [my favorite](https://gist.github.com/kurnakovv/160520da1054eb32f235f44c75a5c804)), or if you configure in a `.csproj` file(s), add only `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>` inside an existing `<PropertyGroup>`.
 ```csproj
 <Project>
 	<PropertyGroup>

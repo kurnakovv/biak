@@ -9,7 +9,7 @@ dotnet biak warnings-baseline init
 
 After a few moments, something similar should appear:
 ```
-Add this configuration to Directory.Build.props or to all .csproj files
+Choose one: add this full snippet to `Directory.Build.props`, or if you configure in a `.csproj` file(s), add only `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>` inside an existing `<PropertyGroup>`.
 <Project>
 	<PropertyGroup>
 		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
