@@ -28,10 +28,10 @@ After running [Init](WarningsBaselineInit) command, insert output filters to you
 
 ```.editorconfig
 [{path/to/file1.cs,path/to/file2.cs}]
-code1 = suggestion #^biak^ baseline
+code1 = suggestion # ^biak^ baseline
 
 [{path/to/file3.cs}]
-code2 = suggestion #^biak^ baseline
+code2 = suggestion # ^biak^ baseline
 
 ...
 ```
