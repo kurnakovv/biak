@@ -50,8 +50,14 @@ dotnet_diagnostic.CS8618.severity = suggestion # ^biak^ baseline
 * If no applicable warnings are found, terminate execution
 * Generate and output the corresponding `.editorconfig` baseline entries
 
-## Why `.cs` / `.vb` extensions only?
+## ❔ Questions Why
+
+### Why `.cs` / `.vb` extensions only?
 If a warning originates from a global project-level configuration, such as a `.csproj` setting (e.g., NU1901), it cannot be configured through an `.editorconfig` rule. In the case of F#, warning filtering via `.editorconfig` is not supported ([SOF](https://stackoverflow.com/questions/3740566/f-suppress-warnings)). Similarly, warning suppression for `.cshtml` (Razor Pages) is subject to limitations, and certain warnings cannot be disabled ([SOF](https://stackoverflow.com/questions/72488529/visual-studio-does-not-suppress-mvc1000-warning)).
+
+### Why `suggestion` and not `warning`?
+
+Unfortunately, if you write `... = warning # ^biak^ baseline` instead of `... = suggestion # ^biak^ baseline` and set `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>`, the filter will not be applied and all warnings will become errors.
 
 ## 🔗 Links
 * Issues: [#105](https://github.com/kurnakovv/biak/issues/105)
