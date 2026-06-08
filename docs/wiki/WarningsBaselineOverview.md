@@ -14,7 +14,7 @@ This mindset causes technical debt to grow continuously, making future cleanup e
 
 ### Proposed Solution
 
-Introduce a **warnings baseline** mechanism that allows existing warnings to remain unchanged while enforcing stricter rules for all new code.
+Behold a **warnings baseline** mechanism that allows existing warnings to remain unchanged while enforcing stricter rules for all new code.
 
 The idea is:
 
