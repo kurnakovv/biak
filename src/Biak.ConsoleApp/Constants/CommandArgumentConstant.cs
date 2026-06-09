@@ -48,4 +48,9 @@ public static class CommandArgumentConstant
     /// Init.
     /// </summary>
     public const string INIT = "init";
+
+    /// <summary>
+    /// Sync.
+    /// </summary>
+    public const string SYNC = "sync";
 }
