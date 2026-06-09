@@ -2,10 +2,10 @@
 // This file is licensed under the MIT License.
 // See the LICENSE file in the project root for full license information.
 
-using System.Diagnostics;
 using System.Text;
 using Biak.ConsoleApp.Constants;
 using Biak.ConsoleApp.Exceptions;
+using Biak.ConsoleApp.Helpers;
 using SL = Microsoft.Build.Logging.StructuredLogger;
 
 namespace Biak.ConsoleApp.Commands;
@@ -15,8 +15,6 @@ namespace Biak.ConsoleApp.Commands;
 /// </summary>
 public static class WarningsBaselineInitCommand
 {
-    private static readonly HashSet<string> s_sourceFileExtensions = new(StringComparer.OrdinalIgnoreCase) { ".cs", ".vb" };
-
     /// <summary>
     /// Can `dotnet biak warnings-baseline init` command be run.
     /// </summary>
@@ -37,70 +35,13 @@ public static class WarningsBaselineInitCommand
         {
             Console.WriteLine(WarningsBaselineInitCommandConstant.INIT_STARTED);
 
-            ProcessStartInfo psi = new()
-            {
-                FileName = "dotnet",
-                Arguments = $"build --no-incremental -bl:{WarningsBaselineInitCommandConstant.BUILD_BINLOG_PATH}",
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
-            };
-
-            using Process process = Process.Start(psi)
-                ?? throw new BiakApplicationException(WarningsBaselineInitCommandConstant.FAILED_TO_START_DOTNET_BUILD);
-
-            Task<string> standardOutputTask = process.StandardOutput.ReadToEndAsync();
-            Task<string> standardErrorTask = process.StandardError.ReadToEndAsync();
-
-            using CancellationTokenSource timeoutCts = new(TimeSpan.FromMinutes(30));
-            string standardOutput;
-            string standardError;
-            try
-            {
-                await process.WaitForExitAsync(timeoutCts.Token);
-                standardOutput = await standardOutputTask.WaitAsync(timeoutCts.Token);
-                standardError = await standardErrorTask.WaitAsync(timeoutCts.Token);
-            }
-            catch (OperationCanceledException) when (timeoutCts.IsCancellationRequested)
-            {
-                if (!process.HasExited)
-                {
-                    process.Kill(entireProcessTree: true);
-                }
-
-                throw new BiakApplicationException(WarningsBaselineInitCommandConstant.DOTNET_BUILD_TIMED_OUT);
-            }
-
-            if (process.ExitCode != 0)
-            {
-                string errorOutput = string.IsNullOrWhiteSpace(standardError) ? standardOutput : standardError;
-                throw new BiakApplicationException(
-                    string.IsNullOrWhiteSpace(errorOutput)
-                        ? WarningsBaselineInitCommandConstant.DOTNET_BUILD_FAILED
-                        : $"{WarningsBaselineInitCommandConstant.DOTNET_BUILD_FAILED} {errorOutput.Trim()}"
-                );
-            }
-
-            if (!File.Exists(WarningsBaselineInitCommandConstant.BUILD_BINLOG_PATH))
-            {
-                throw new BiakApplicationException(WarningsBaselineInitCommandConstant.BUILD_BINLOG_NOT_FOUND);
-            }
-
-            SL.Build build = SL.BinaryLog.ReadBuild(WarningsBaselineInitCommandConstant.BUILD_BINLOG_PATH);
-
-            if (build.FindChildrenRecursive<SL.Error>().Any())
-            {
-                throw new BiakApplicationException(WarningsBaselineInitCommandConstant.BUILD_CONTAINS_ERRORS);
-            }
+            SL.Build build = await WarningsBaselineBuildHelper.BuildAndReadBuildAsync(
+                WarningsBaselineInitCommandConstant.BUILD_BINLOG_PATH
+            );
 
             string originalDirectory = Directory.GetCurrentDirectory();
 
-            Dictionary<string, IReadOnlyList<string>> warnings = build.FindChildrenRecursive<SL.Warning>()
-                .Where(x =>
-                    !string.IsNullOrWhiteSpace(x.Code) &&
-                    !string.IsNullOrWhiteSpace(x.File) &&
-                    s_sourceFileExtensions.Contains(Path.GetExtension(x.File))
-                )
+            Dictionary<string, IReadOnlyList<string>> warnings = WarningsBaselineBuildHelper.GetSourceWarnings(build)
                 .GroupBy(x => x.Code)
                 .OrderBy(x => x.Key)
                 .ToDictionary(

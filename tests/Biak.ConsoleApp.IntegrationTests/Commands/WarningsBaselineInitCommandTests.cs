@@ -139,7 +139,7 @@ public class WarningsBaselineInitCommandTests
 
             Assert.NotNull(exception);
             Assert.IsType<BiakApplicationException>(exception);
-            Assert.StartsWith(WarningsBaselineInitCommandConstant.DOTNET_BUILD_FAILED, exception.Message, StringComparison.Ordinal);
+            Assert.StartsWith(WarningsBaselineBuildConstant.DOTNET_BUILD_FAILED, exception.Message, StringComparison.Ordinal);
         }
         finally
         {
@@ -178,8 +178,8 @@ public class WarningsBaselineInitCommandTests
             Assert.IsType<BiakApplicationException>(exception);
             Assert.True(
                 exception.Message.StartsWith(WarningsBaselineInitCommandConstant.INIT_FAILED, StringComparison.Ordinal)
-                    || exception.Message.StartsWith(WarningsBaselineInitCommandConstant.DOTNET_BUILD_FAILED, StringComparison.Ordinal),
-                $"Expected message to start with '{WarningsBaselineInitCommandConstant.INIT_FAILED}' or '{WarningsBaselineInitCommandConstant.DOTNET_BUILD_FAILED}', but got '{exception.Message}'."
+                    || exception.Message.StartsWith(WarningsBaselineBuildConstant.FAILED_TO_START_DOTNET_BUILD, StringComparison.Ordinal),
+                $"Expected message to start with '{WarningsBaselineInitCommandConstant.INIT_FAILED}' or '{WarningsBaselineBuildConstant.FAILED_TO_START_DOTNET_BUILD}', but got '{exception.Message}'."
             );
         }
         finally
@@ -239,9 +239,9 @@ public class WarningsBaselineInitCommandTests
             Assert.NotNull(exception);
             Assert.IsType<BiakApplicationException>(exception);
             Assert.True(
-                exception.Message.StartsWith(WarningsBaselineInitCommandConstant.DOTNET_BUILD_FAILED, StringComparison.Ordinal)
-                    || exception.Message.Equals(WarningsBaselineInitCommandConstant.BUILD_CONTAINS_ERRORS, StringComparison.Ordinal),
-                $"Expected message to start with '{WarningsBaselineInitCommandConstant.DOTNET_BUILD_FAILED}' or be '{WarningsBaselineInitCommandConstant.BUILD_CONTAINS_ERRORS}', but got '{exception.Message}'."
+                exception.Message.StartsWith(WarningsBaselineBuildConstant.DOTNET_BUILD_FAILED, StringComparison.Ordinal)
+                    || exception.Message.Equals(WarningsBaselineBuildConstant.BUILD_CONTAINS_ERRORS, StringComparison.Ordinal),
+                $"Expected message to start with '{WarningsBaselineBuildConstant.DOTNET_BUILD_FAILED}' or be '{WarningsBaselineBuildConstant.BUILD_CONTAINS_ERRORS}', but got '{exception.Message}'."
             );
             Assert.DoesNotContain(WarningsBaselineInitCommandConstant.INSERT_FILTERS_TO_EDITORCONFIG_NOTE, output.ToString(), StringComparison.Ordinal);
             Assert.False(File.Exists(WarningsBaselineInitCommandConstant.BUILD_BINLOG_PATH));
@@ -294,7 +294,7 @@ public class WarningsBaselineInitCommandTests
 
             Assert.NotNull(exception);
             Assert.IsType<BiakApplicationException>(exception);
-            Assert.Equal(WarningsBaselineInitCommandConstant.BUILD_BINLOG_NOT_FOUND, exception.Message);
+            Assert.StartsWith(WarningsBaselineBuildConstant.BUILD_BINLOG_NOT_FOUND, exception.Message, StringComparison.Ordinal);
         }
         finally
         {
