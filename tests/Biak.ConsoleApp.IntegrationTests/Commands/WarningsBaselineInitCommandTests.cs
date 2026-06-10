@@ -178,8 +178,9 @@ public class WarningsBaselineInitCommandTests
             Assert.IsType<BiakApplicationException>(exception);
             Assert.True(
                 exception.Message.StartsWith(WarningsBaselineInitCommandConstant.INIT_FAILED, StringComparison.Ordinal)
-                    || exception.Message.StartsWith(WarningsBaselineBuildConstant.FAILED_TO_START_DOTNET_BUILD, StringComparison.Ordinal),
-                $"Expected message to start with '{WarningsBaselineInitCommandConstant.INIT_FAILED}' or '{WarningsBaselineBuildConstant.FAILED_TO_START_DOTNET_BUILD}', but got '{exception.Message}'."
+                    || exception.Message.StartsWith(WarningsBaselineBuildConstant.FAILED_TO_START_DOTNET_BUILD, StringComparison.Ordinal)
+                    || exception.Message.StartsWith(WarningsBaselineBuildConstant.DOTNET_BUILD_FAILED, StringComparison.Ordinal),
+                $"Expected message to start with '{WarningsBaselineInitCommandConstant.INIT_FAILED}', '{WarningsBaselineBuildConstant.FAILED_TO_START_DOTNET_BUILD}', or '{WarningsBaselineBuildConstant.DOTNET_BUILD_FAILED}', but got '{exception.Message}'."
             );
         }
         finally
