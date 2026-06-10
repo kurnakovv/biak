@@ -509,6 +509,53 @@ dotnet_diagnostic.CA9999.severity = warning
     }
 
     [Fact]
+    public void RemoveBaselineFilters_PrunesResolvedFilesInsideKeptCodeBlock()
+    {
+        string content =
+            "[{src/File1.cs,src/File2.cs}]\n" +
+            "dotnet_diagnostic.CA2000.severity = warning # ^biak^ baseline\n" +
+            "\n";
+
+        IReadOnlyDictionary<string, IReadOnlySet<string>> activeFilesByCode =
+            new Dictionary<string, IReadOnlySet<string>>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["CA2000"] = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "src/File2.cs" },
+            };
+
+        string result = WarningsBaselineSyncHelper.RemoveBaselineFilters(
+            content,
+            new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "CA2000" },
+            activeFilesByCode);
+
+        Assert.DoesNotContain("src/File1.cs", result, StringComparison.Ordinal);
+        Assert.Contains("[{src/File2.cs}]", result, StringComparison.Ordinal);
+        Assert.Contains("CA2000", result, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void RemoveBaselineFilters_RemovesCodeBlockWhenNoFilesRemainAfterPruning()
+    {
+        string content =
+            "[{src/File1.cs}]\n" +
+            "dotnet_diagnostic.CA2000.severity = warning # ^biak^ baseline\n" +
+            "\n";
+
+        IReadOnlyDictionary<string, IReadOnlySet<string>> activeFilesByCode =
+            new Dictionary<string, IReadOnlySet<string>>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["CA2000"] = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "src/OtherFile.cs" },
+            };
+
+        string result = WarningsBaselineSyncHelper.RemoveBaselineFilters(
+            content,
+            new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "CA2000" },
+            activeFilesByCode);
+
+        Assert.DoesNotContain("CA2000", result, StringComparison.Ordinal);
+        Assert.DoesNotContain("[{", result, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void RemoveBaselineFilters_PreservesContentBeforeAndAfterRemovedBlock()
     {
         string content =
@@ -628,6 +675,38 @@ dotnet_diagnostic.CA9999.severity = error
 
         Assert.False(WarningsBaselineSyncHelper.HasBaselineMarker(synced));
         Assert.DoesNotContain("[{", synced, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void GetSynchronizedFiles_ReturnsRemovedAndPrunedFilesGroupedByFile()
+    {
+        string content =
+            "[{src/Fixed.cs}]\n" +
+            "dotnet_diagnostic.CA2000.severity = suggestion # ^biak^ baseline\n" +
+            "\n" +
+            "[{src/StillBroken.cs,src/PartiallyFixed.cs}]\n" +
+            "dotnet_diagnostic.CA1001.severity = suggestion # ^biak^ baseline\n" +
+            "\n";
+
+        HashSet<string> codesToKeep = new(StringComparer.OrdinalIgnoreCase) { "CA1001" };
+        IReadOnlyDictionary<string, IReadOnlySet<string>> activeFilesByCode =
+            new Dictionary<string, IReadOnlySet<string>>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["CA1001"] = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "src/StillBroken.cs" },
+            };
+
+        IReadOnlyDictionary<string, IReadOnlySet<string>> result = WarningsBaselineSyncHelper.GetSynchronizedFiles(
+            content,
+            codesToKeep,
+            activeFilesByCode
+        );
+
+        Assert.Equal(2, result.Count);
+        Assert.Contains("src/Fixed.cs", result.Keys, StringComparer.Ordinal);
+        Assert.Contains("src/PartiallyFixed.cs", result.Keys, StringComparer.Ordinal);
+        Assert.Equal(["CA2000"], result["src/Fixed.cs"]);
+        Assert.Equal(["CA1001"], result["src/PartiallyFixed.cs"]);
+        Assert.DoesNotContain("src/StillBroken.cs", result.Keys, StringComparer.Ordinal);
     }
 
     // -------------------------------------------------------------------------
