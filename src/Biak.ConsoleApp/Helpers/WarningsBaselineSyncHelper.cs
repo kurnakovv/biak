@@ -192,6 +192,18 @@ public static class WarningsBaselineSyncHelper
         return string.Join(newline, result);
     }
 
+    /// <summary>
+    /// Returns the files and diagnostic codes that should be synchronized after baseline cleanup.
+    /// </summary>
+    /// <param name="content">.editorconfig content.</param>
+    /// <param name="codesToKeep">Diagnostic codes that should remain in the baseline.</param>
+    /// <param name="activeFilesByCode">
+    /// Optional map of active warning files per diagnostic code (normalized as forward-slash paths).
+    /// </param>
+    /// <returns>
+    /// Map where key is section file path from baseline entries and value is diagnostic codes
+    /// that were removed by code filtering or file-level synchronization.
+    /// </returns>
     public static IReadOnlyDictionary<string, IReadOnlySet<string>> GetSynchronizedFiles(
         string content,
         IReadOnlySet<string> codesToKeep,
@@ -200,9 +212,8 @@ public static class WarningsBaselineSyncHelper
         string newline = content.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
         string[] lines = content.Split(new string[] { newline }, StringSplitOptions.None);
         Dictionary<string, HashSet<string>> synchronizedFiles = new(StringComparer.OrdinalIgnoreCase);
-        int i = 0;
 
-        while (i < lines.Length)
+        for (int i = 0; i < lines.Length; i++)
         {
             Match headerMatch = s_baselineSectionHeaderRegex.Match(lines[i]);
 
@@ -247,8 +258,6 @@ public static class WarningsBaselineSyncHelper
                     }
                 }
             }
-
-            i++;
         }
 
         return synchronizedFiles.ToDictionary(
