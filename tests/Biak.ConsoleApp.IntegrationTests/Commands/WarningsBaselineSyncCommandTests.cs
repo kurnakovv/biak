@@ -114,6 +114,37 @@ public class WarningsBaselineSyncCommandTests
                 """
             );
 
+            await File.WriteAllTextAsync(
+                Path.Join(testDir.Value, "DerivedClassCS0649.cs"),
+                """
+                // Copyright (c) 2026 kurnakovv
+                // This file is licensed under the MIT License.
+                // See the LICENSE file in the project root for full license information.
+
+                using System;
+                using System.Collections.Generic;
+                using System.Linq;
+                using System.Text;
+                using System.Threading.Tasks;
+
+                namespace Biak.ConsoleApp.IntegrationTests.Templates.SimpleProjectWithWarnings.MySimpleProjectTemplate;
+
+                internal class DerivedClassCS0649
+                {
+                }
+
+                class BaseClass
+                {
+                    public int Value = 0;
+                }
+
+                class DerivedClass : BaseClass
+                {
+                    public new int Value = 0;
+                }
+                """
+            );
+
             string result = await WarningsBaselineSyncCommand.RunAsync(
                 [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC, ".editorconfig"]
             );
@@ -121,14 +152,28 @@ public class WarningsBaselineSyncCommandTests
             string syncedContent = await File.ReadAllTextAsync(editorconfigPath);
             string consoleOutput = output.ToString();
 
-            Assert.Equal("Sync complete. Removed 1 resolved filter(s). 7 filter(s) still active.", result);
-            Assert.Contains(WarningsBaselineSyncCommandConstant.SYNC_STARTED, consoleOutput, StringComparison.Ordinal);
-            Assert.Contains(result, consoleOutput, StringComparison.Ordinal);
-            Assert.Contains("MyTestModel.cs (CS8618)", consoleOutput, StringComparison.Ordinal);
-            Assert.Contains("ProgramCS0168Warning.cs (CS0168)", consoleOutput, StringComparison.Ordinal);
+            string expectedResult = "Sync complete. Removed 3 resolved filter(s). 5 filter(s) still alive.";
+            string expectedOutput = WarningsBaselineSyncCommandConstant.SYNC_STARTED
+                + Environment.NewLine
+                + Environment.NewLine
+                + "DerivedClassCS0649.cs (CS0108, CS0649)"
+                + Environment.NewLine
+                + "MyTestModel.cs (CS8618)"
+                + Environment.NewLine
+                + "ProgramCS0168Warning.cs (CS0168)"
+                + Environment.NewLine
+                + Environment.NewLine
+                + expectedResult
+                + Environment.NewLine
+                + Environment.NewLine;
+
+            Assert.Equal(expectedResult, result);
+            Assert.Equal(expectedOutput, consoleOutput);
 
             Assert.DoesNotContain("[{ProgramCS0168Warning.cs}]", syncedContent, StringComparison.Ordinal);
             Assert.DoesNotContain("dotnet_diagnostic.CS0168.severity", syncedContent, StringComparison.Ordinal);
+            Assert.DoesNotContain("dotnet_diagnostic.CS0108.severity", syncedContent, StringComparison.Ordinal);
+            Assert.DoesNotContain("dotnet_diagnostic.CS0649.severity", syncedContent, StringComparison.Ordinal);
 
             Assert.Contains("[{MyTestForlder/MyTestModel1.cs}]", syncedContent, StringComparison.Ordinal);
             Assert.DoesNotContain("[{MyTestForlder/MyTestModel1.cs,MyTestModel.cs}]", syncedContent, StringComparison.Ordinal);
