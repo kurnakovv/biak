@@ -38,6 +38,7 @@ public static class WarningsBaselineSyncCommand
         try
         {
             Console.WriteLine(WarningsBaselineSyncCommandConstant.SYNC_STARTED);
+            Console.WriteLine();
 
             string baseDirectory = Directory.GetCurrentDirectory();
 
@@ -122,17 +123,23 @@ public static class WarningsBaselineSyncCommand
             {
                 int removedCount = baselineCodes.Count - codesToKeep.Count;
                 result = removedCount > 0
-                    ? $"Sync complete. Removed {removedCount} resolved filter(s). {codesToKeep.Count} filter(s) still active."
-                    : $"Sync complete. No filters removed. {codesToKeep.Count} filter(s) still active.";
+                    ? $"Sync complete. Removed {removedCount} resolved filter(s). {codesToKeep.Count} filter(s) still alive."
+                    : $"Sync complete. No filters removed. {codesToKeep.Count} filter(s) still alive.";
             }
-
-            Console.WriteLine(result);
 
             foreach (KeyValuePair<string, IReadOnlySet<string>> synchronizedFile in synchronizedFiles.OrderBy(x => x.Key, StringComparer.OrdinalIgnoreCase))
             {
                 string codes = string.Join(", ", synchronizedFile.Value.OrderBy(x => x, StringComparer.OrdinalIgnoreCase));
                 Console.WriteLine($"{synchronizedFile.Key} ({codes})");
             }
+
+            if (synchronizedFiles.Count > 0)
+            {
+                Console.WriteLine();
+            }
+
+            Console.WriteLine(result);
+            Console.WriteLine();
 
             return result;
         }
