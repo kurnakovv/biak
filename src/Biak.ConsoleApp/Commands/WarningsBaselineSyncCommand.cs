@@ -65,15 +65,28 @@ public static class WarningsBaselineSyncCommand
             await File.WriteAllTextAsync(resolvedPath, activatedContent);
 
             HashSet<string> activeWarningCodes;
+            IReadOnlyDictionary<string, IReadOnlySet<string>> activeFilesByCode;
             try
             {
                 SL.Build build = await WarningsBaselineBuildHelper.BuildAndReadBuildAsync(
                     WarningsBaselineSyncCommandConstant.BUILD_BINLOG_PATH
                 );
 
-                activeWarningCodes = WarningsBaselineBuildHelper.GetSourceWarnings(build)
+                List<SL.Warning> sourceWarnings = WarningsBaselineBuildHelper.GetSourceWarnings(build).ToList();
+
+                activeWarningCodes = sourceWarnings
                     .Select(x => x.Code)
                     .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+                activeFilesByCode = sourceWarnings
+                    .GroupBy(x => x.Code)
+                    .ToDictionary(
+                        x => x.Key,
+                        x => (IReadOnlySet<string>)x
+                            .Select(x => Path.GetRelativePath(baseDirectory, x.File).Replace(Path.DirectorySeparatorChar, '/'))
+                            .ToHashSet(StringComparer.OrdinalIgnoreCase),
+                        StringComparer.OrdinalIgnoreCase
+                    );
             }
             catch
             {
@@ -89,7 +102,13 @@ public static class WarningsBaselineSyncCommand
                 .Where(c => activeWarningCodes.Contains(c))
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-            string syncedContent = WarningsBaselineSyncHelper.RemoveBaselineFilters(originalContent, codesToKeep);
+            IReadOnlyDictionary<string, IReadOnlySet<string>> synchronizedFiles = WarningsBaselineSyncHelper.GetSynchronizedFiles(
+                originalContent,
+                codesToKeep,
+                activeFilesByCode
+            );
+
+            string syncedContent = WarningsBaselineSyncHelper.RemoveBaselineFilters(originalContent, codesToKeep, activeFilesByCode);
             syncedContent = WarningsBaselineSyncHelper.SetBaselineForBuild(syncedContent, activate: false);
 
             await File.WriteAllTextAsync(resolvedPath, syncedContent);
@@ -108,6 +127,13 @@ public static class WarningsBaselineSyncCommand
             }
 
             Console.WriteLine(result);
+
+            foreach (KeyValuePair<string, IReadOnlySet<string>> synchronizedFile in synchronizedFiles.OrderBy(x => x.Key, StringComparer.OrdinalIgnoreCase))
+            {
+                string codes = string.Join(", ", synchronizedFile.Value.OrderBy(x => x, StringComparer.OrdinalIgnoreCase));
+                Console.WriteLine($"{synchronizedFile.Key} ({codes})");
+            }
+
             return result;
         }
         catch (Exception ex) when (ex is not BiakApplicationException)
