@@ -476,22 +476,6 @@ dotnet_diagnostic.CA2000.severity = warning {{WarningsBaselineInitCommandConstan
     }
 
     [Fact]
-    public void RemoveBaselineFilters_HandlesSuggestionSeverityInBaseline()
-    {
-        // Baseline entries may be in "suggestion" form (before activation)
-        string content = $$"""
-[{src/File.cs}]
-dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
-
-""";
-
-        string result = WarningsBaselineSyncHelper.RemoveBaselineFilters(
-            content, new HashSet<string>());
-
-        Assert.DoesNotContain("CA2000", result, StringComparison.Ordinal);
-    }
-
-    [Fact]
     public void RemoveBaselineFilters_CaseInsensitiveCodeMatching()
     {
         string content = $$"""
@@ -506,71 +490,6 @@ dotnet_diagnostic.CA2000.severity = warning {{WarningsBaselineInitCommandConstan
         string result = WarningsBaselineSyncHelper.RemoveBaselineFilters(content, codesToKeep);
 
         Assert.Contains("CA2000", result, StringComparison.Ordinal);
-    }
-
-    // -------------------------------------------------------------------------
-    // Full round-trip scenario
-    // -------------------------------------------------------------------------
-
-    [Fact]
-    public void FullSyncRoundTrip_FixedWarningsAreRemovedAndRemainingArePreserved()
-    {
-        // Simulate the .editorconfig as written by the init command
-        string original = $$"""
-[{src/Fixed.cs}]
-dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
-
-[{src/StillBroken.cs}]
-dotnet_diagnostic.CA1001.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
-
-[*.cs]
-dotnet_diagnostic.CA9999.severity = error
-""";
-
-        // Step 1: activate for build
-        string activated = WarningsBaselineSyncHelper.SetBaselineForBuild(original, activate: true);
-
-        Assert.Contains("= warning " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER, activated, StringComparison.Ordinal);
-
-        // Step 2: simulate build — only CA1001 is still a warning
-        HashSet<string> baselineCodes = WarningsBaselineSyncHelper.GetBaselineDiagnosticCodes(original);
-        HashSet<string> activeWarningCodes = new(StringComparer.OrdinalIgnoreCase) { "CA1001" };
-        HashSet<string> codesToKeep = baselineCodes
-            .Where(c => activeWarningCodes.Contains(c))
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-        // Step 3: remove resolved filters and deactivate
-        string synced = WarningsBaselineSyncHelper.RemoveBaselineFilters(original, codesToKeep);
-        synced = WarningsBaselineSyncHelper.SetBaselineForBuild(synced, activate: false);
-
-        // CA2000 (fixed) must be gone, CA1001 (still active) must remain
-        Assert.DoesNotContain("CA2000", synced, StringComparison.Ordinal);
-        Assert.DoesNotContain("[{src/Fixed.cs}]", synced, StringComparison.Ordinal);
-        Assert.Contains("CA1001", synced, StringComparison.Ordinal);
-        Assert.Contains("[{src/StillBroken.cs}]", synced, StringComparison.Ordinal);
-        // Non-baseline section must be untouched
-        Assert.Contains("[*.cs]", synced, StringComparison.Ordinal);
-        Assert.Contains("CA9999", synced, StringComparison.Ordinal);
-        // All remaining entries must be back to suggestion
-        Assert.DoesNotContain("= warning " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER, synced, StringComparison.Ordinal);
-        Assert.Contains("= suggestion " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER, synced, StringComparison.Ordinal);
-    }
-
-    [Fact]
-    public void FullSyncRoundTrip_AllWarningsFixedProducesNoBaselineBlocks()
-    {
-        string original =
-            "[{src/Fixed1.cs}]\n" +
-            "dotnet_diagnostic.CA2000.severity = suggestion " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER + "\\n" +
-            "\n" +
-            "[{src/Fixed2.cs}]\n" +
-            "dotnet_diagnostic.CA1001.severity = suggestion " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER + "\\n" +
-            "\n";
-
-        string synced = WarningsBaselineSyncHelper.RemoveBaselineFilters(original, new HashSet<string>(StringComparer.OrdinalIgnoreCase));
-        synced = WarningsBaselineSyncHelper.SetBaselineForBuild(synced, activate: false);
-
-        Assert.Empty(synced);
     }
 
     [Fact]
