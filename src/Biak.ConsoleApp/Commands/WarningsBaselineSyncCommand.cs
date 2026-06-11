@@ -84,7 +84,7 @@ public static class WarningsBaselineSyncCommand
                     .ToDictionary(
                         x => x.Key,
                         x => (IReadOnlySet<string>)x
-                            .Select(x => Path.GetRelativePath(baseDirectory, x.File).Replace(Path.DirectorySeparatorChar, '/'))
+                            .Select(warning => Path.GetRelativePath(baseDirectory, warning.File).Replace(Path.DirectorySeparatorChar, '/'))
                             .ToHashSet(StringComparer.OrdinalIgnoreCase),
                         StringComparer.OrdinalIgnoreCase
                     );
