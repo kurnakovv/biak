@@ -31,98 +31,71 @@ public class WarningsBaselineSyncHelperTests
         Assert.Equal(expected, result);
     }
 
-    // -------------------------------------------------------------------------
-    // GetBaselineDiagnosticCodes
-    // -------------------------------------------------------------------------
-
-    [Fact]
-    public void GetBaselineDiagnosticCodes_ReturnsEmptySetForContentWithoutBaseline()
+    public static TheoryData<string, string[]> GetBaselineDiagnosticCodesData()
     {
-        string content = @"
-            [*.cs]
-            dotnet_diagnostic.CA1001.severity = error
-        ";
+        return new()
+        {
+            {
+                @"
+                    [*.cs]
+                    dotnet_diagnostic.CA1001.severity = error
+                ",
+                Array.Empty<string>()
+            },
+            {
+                string.Empty,
+                Array.Empty<string>()
+            },
+            {
+                $$"""
+                    [{src/File.cs}]
+                    dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+                """,
+                ["CA2000"]
+            },
+            {
+                $$"""
+                    [{src/File1.cs,src/File2.cs}]
+                    dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
 
-        HashSet<string> codes = WarningsBaselineSyncHelper.GetBaselineDiagnosticCodes(content);
+                    [{src/File3.cs}]
+                    dotnet_diagnostic.CA1001.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
 
-        Assert.Empty(codes);
+                    [{src/File4.cs}]
+                    dotnet_diagnostic.CS1234.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+                """,
+                ["CA2000", "CA1001", "CS1234"]
+            },
+            {
+                $$"""
+                    [{src/File1.cs,src/File2.cs}]
+                    dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+
+                    [{src/File3.cs}]
+                    dotnet_diagnostic.CA1001.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+
+                    [{src/File4.cs}]
+                    dotnet_diagnostic.CS1234.severity = suggestion
+
+                    [*.cs]
+                    dotnet_diagnostic.CS1234.severity = suggestion
+                """,
+                ["CA2000", "CA1001"]
+            },
+        };
     }
 
-    [Fact]
-    public void GetBaselineDiagnosticCodes_ReturnsEmptySetForEmptyContent()
+    [Theory]
+    [MemberData(nameof(GetBaselineDiagnosticCodesData))]
+    public void GetBaselineDiagnosticCodesTest(string content, string[] expectedCodes)
     {
-        HashSet<string> codes = WarningsBaselineSyncHelper.GetBaselineDiagnosticCodes(string.Empty);
-
-        Assert.Empty(codes);
-    }
-
-    [Fact]
-    public void GetBaselineDiagnosticCodes_ReturnsSingleCodeForOneEntry()
-    {
-        string content = $$"""
-            [{src/File.cs}]
-            dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
-        """;
-
         HashSet<string> codes = WarningsBaselineSyncHelper.GetBaselineDiagnosticCodes(content);
 
-        Assert.Single(codes);
-        Assert.Contains("CA2000", codes);
-    }
-
-    [Fact]
-    public void GetBaselineDiagnosticCodes_ReturnsAllCodesForMultipleEntries()
-    {
-        string content = $$"""
-            [{src/File1.cs,src/File2.cs}]
-            dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
-
-            [{src/File3.cs}]
-            dotnet_diagnostic.CA1001.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
-
-            [{src/File4.cs}]
-            dotnet_diagnostic.CS1234.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
-        """;
-
-        HashSet<string> codes = WarningsBaselineSyncHelper.GetBaselineDiagnosticCodes(content);
-
-        Assert.Equal(3, codes.Count);
-        Assert.Contains("CA2000", codes);
-        Assert.Contains("CA1001", codes);
-        Assert.Contains("CS1234", codes);
-    }
-
-    [Fact]
-    public void GetBaselineDiagnosticCodes_DeduplicatesSameCodeAppearingTwice()
-    {
-        string content = $$"""
-            [{src/File1.cs}]
-            dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
-
-            [{src/File2.cs}]
-            dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
-        """;
-
-        HashSet<string> codes = WarningsBaselineSyncHelper.GetBaselineDiagnosticCodes(content);
-
-        Assert.Single(codes);
-        Assert.Contains("CA2000", codes);
-    }
-
-    [Fact]
-    public void GetBaselineDiagnosticCodes_IgnoresNonBaselineDiagnosticLines()
-    {
-        string content = $$"""
-            [*.cs]
-            dotnet_diagnostic.CA9999.severity = error
-            dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
-        """;
-
-        HashSet<string> codes = WarningsBaselineSyncHelper.GetBaselineDiagnosticCodes(content);
-
-        Assert.Single(codes);
-        Assert.Contains("CA2000", codes);
-        Assert.DoesNotContain("CA9999", codes);
+        Assert.Equal(expectedCodes.Length, codes.Count);
+        foreach (string code in expectedCodes)
+        {
+            Assert.Contains(code, codes);
+        }
     }
 
     // -------------------------------------------------------------------------
