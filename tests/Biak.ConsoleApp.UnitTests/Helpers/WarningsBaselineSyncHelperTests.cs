@@ -529,15 +529,15 @@ public class WarningsBaselineSyncHelperTests
     {
         // Simulate the .editorconfig as written by the init command
         string original = $$"""
-            [{src/Fixed.cs}]
-            dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+[{src/Fixed.cs}]
+dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
 
-            [{src/StillBroken.cs}]
-            dotnet_diagnostic.CA1001.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+[{src/StillBroken.cs}]
+dotnet_diagnostic.CA1001.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
 
-            [*.cs]
-            dotnet_diagnostic.CA9999.severity = error
-        """;
+[*.cs]
+dotnet_diagnostic.CA9999.severity = error
+""";
 
         // Step 1: activate for build
         string activated = WarningsBaselineSyncHelper.SetBaselineForBuild(original, activate: true);
