@@ -35,7 +35,7 @@ public static class WarningsBaselineSyncCommandConstant
     /// The file does not contain the baseline marker.
     /// </summary>
     public const string NO_BASELINE_MARKER =
-        "The specified .editorconfig file does not contain any '# ^biak^ baseline' entries. " +
+        $"The specified .editorconfig file does not contain any '{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}' entries. " +
         "Run 'dotnet biak warnings-baseline init' first.";
 
     /// <summary>

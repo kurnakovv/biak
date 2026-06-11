@@ -41,6 +41,11 @@ public static class WarningsBaselineInitCommandConstant
     public const string INIT_FAILED = "Failed to initialize warnings baseline.";
 
     /// <summary>
+    /// Baseline marker for .editorconfig diagnostics.
+    /// </summary>
+    public const string BASELINE_DIAGNOSTIC_MARKER = "# ^biak^ baseline";
+
+    /// <summary>
     /// Treat warnings as errors configuration.
     /// </summary>
 #pragma warning disable IDE1006 // Naming Styles

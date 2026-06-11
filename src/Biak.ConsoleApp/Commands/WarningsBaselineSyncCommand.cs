@@ -56,7 +56,7 @@ public static class WarningsBaselineSyncCommand
 
             string originalContent = await File.ReadAllTextAsync(resolvedPath);
 
-            if (!originalContent.Contains("# ^biak^ baseline", StringComparison.Ordinal))
+            if (!originalContent.Contains(WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER, StringComparison.Ordinal))
             {
                 throw new BiakApplicationException(WarningsBaselineSyncCommandConstant.NO_BASELINE_MARKER);
             }

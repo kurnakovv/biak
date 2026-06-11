@@ -150,11 +150,11 @@ public class WarningsBaselineSyncCommandTests
             Assert.Contains("[{MyTestForlder/MyTestModel1.cs}]", syncedContent, StringComparison.Ordinal);
             Assert.DoesNotContain("[{MyTestForlder/MyTestModel1.cs,MyTestModel.cs}]", syncedContent, StringComparison.Ordinal);
             Assert.Contains(
-                "dotnet_diagnostic.CS8618.severity = suggestion # ^biak^ baseline",
+                $"dotnet_diagnostic.CS8618.severity = suggestion {WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}",
                 syncedContent,
                 StringComparison.Ordinal
             );
-            Assert.DoesNotContain("= warning # ^biak^ baseline", syncedContent, StringComparison.Ordinal);
+            Assert.DoesNotContain($"= warning {WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}", syncedContent, StringComparison.Ordinal);
             Assert.Contains("[{ProgramCS0219Warning.cs}]", syncedContent, StringComparison.Ordinal);
             Assert.False(File.Exists(WarningsBaselineSyncCommandConstant.BUILD_BINLOG_PATH));
         }
