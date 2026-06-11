@@ -68,7 +68,7 @@ public static class WarningsBaselineInitCommand
             foreach ((string code, IReadOnlyList<string> files) in warnings)
             {
                 editorconfigSb.AppendLine("[{" + $"{string.Join(",", files)}" + "}]");
-                editorconfigSb.AppendLine($"dotnet_diagnostic.{code}.severity = suggestion # ^biak^ baseline");
+                editorconfigSb.AppendLine($"dotnet_diagnostic.{code}.severity = suggestion {WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}");
                 editorconfigSb.AppendLine();
             }
             string result = editorconfigSb.ToString();

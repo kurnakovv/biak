@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for full license information.
 
 using System.Text.RegularExpressions;
+using Biak.ConsoleApp.Constants;
 
 namespace Biak.ConsoleApp.Helpers;
 
@@ -69,13 +70,13 @@ public static class WarningsBaselineSyncHelper
     {
         return activate
             ? content.Replace(
-                "= suggestion # ^biak^ baseline",
-                "= warning # ^biak^ baseline",
+                $"= suggestion {WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}",
+                $"= warning {WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}",
                 StringComparison.Ordinal
             )
             : content.Replace(
-                "= warning # ^biak^ baseline",
-                "= suggestion # ^biak^ baseline",
+                $"= warning {WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}",
+                $"= suggestion {WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}",
                 StringComparison.Ordinal
             );
     }

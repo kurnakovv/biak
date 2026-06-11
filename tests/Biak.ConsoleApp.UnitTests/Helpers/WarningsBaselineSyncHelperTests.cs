@@ -2,6 +2,7 @@
 // This file is licensed under the MIT License.
 // See the LICENSE file in the project root for full license information.
 
+using Biak.ConsoleApp.Constants;
 using Biak.ConsoleApp.Helpers;
 
 namespace Biak.ConsoleApp.UnitTests.Helpers;
@@ -104,10 +105,10 @@ dotnet_diagnostic.CA1001.severity = error
     [Fact]
     public void GetBaselineDiagnosticCodes_ReturnsSingleCodeForOneEntry()
     {
-        string content = @"
+        string content = $$"""
 [{src/File.cs}]
-dotnet_diagnostic.CA2000.severity = suggestion # ^biak^ baseline
-";
+dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+""";
 
         HashSet<string> codes = WarningsBaselineSyncHelper.GetBaselineDiagnosticCodes(content);
 
@@ -118,16 +119,16 @@ dotnet_diagnostic.CA2000.severity = suggestion # ^biak^ baseline
     [Fact]
     public void GetBaselineDiagnosticCodes_ReturnsAllCodesForMultipleEntries()
     {
-        string content = @"
+        string content = $$"""
 [{src/File1.cs,src/File2.cs}]
-dotnet_diagnostic.CA2000.severity = suggestion # ^biak^ baseline
+dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
 
 [{src/File3.cs}]
-dotnet_diagnostic.CA1001.severity = suggestion # ^biak^ baseline
+dotnet_diagnostic.CA1001.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
 
 [{src/File4.cs}]
-dotnet_diagnostic.CS1234.severity = suggestion # ^biak^ baseline
-";
+dotnet_diagnostic.CS1234.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+""";
 
         HashSet<string> codes = WarningsBaselineSyncHelper.GetBaselineDiagnosticCodes(content);
 
@@ -140,13 +141,13 @@ dotnet_diagnostic.CS1234.severity = suggestion # ^biak^ baseline
     [Fact]
     public void GetBaselineDiagnosticCodes_DeduplicatesSameCodeAppearingTwice()
     {
-        string content = @"
+        string content = $$"""
 [{src/File1.cs}]
-dotnet_diagnostic.CA2000.severity = suggestion # ^biak^ baseline
+dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
 
 [{src/File2.cs}]
-dotnet_diagnostic.CA2000.severity = suggestion # ^biak^ baseline
-";
+dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+""";
 
         HashSet<string> codes = WarningsBaselineSyncHelper.GetBaselineDiagnosticCodes(content);
 
@@ -157,11 +158,11 @@ dotnet_diagnostic.CA2000.severity = suggestion # ^biak^ baseline
     [Fact]
     public void GetBaselineDiagnosticCodes_IgnoresNonBaselineDiagnosticLines()
     {
-        string content = @"
+        string content = $$"""
 [*.cs]
 dotnet_diagnostic.CA9999.severity = error
-dotnet_diagnostic.CA2000.severity = suggestion # ^biak^ baseline
-";
+dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+""";
 
         HashSet<string> codes = WarningsBaselineSyncHelper.GetBaselineDiagnosticCodes(content);
 
@@ -177,8 +178,8 @@ dotnet_diagnostic.CA2000.severity = suggestion # ^biak^ baseline
     [Fact]
     public void SetBaselineForBuild_WhenActivated_ReplacesSuggestionWithWarning()
     {
-        string content = "dotnet_diagnostic.CA2000.severity = suggestion # ^biak^ baseline";
-        string expected = "dotnet_diagnostic.CA2000.severity = warning # ^biak^ baseline";
+        string content = "dotnet_diagnostic.CA2000.severity = suggestion " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER;
+        string expected = "dotnet_diagnostic.CA2000.severity = warning " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER;
 
         string result = WarningsBaselineSyncHelper.SetBaselineForBuild(content, activate: true);
 
@@ -188,17 +189,17 @@ dotnet_diagnostic.CA2000.severity = suggestion # ^biak^ baseline
     [Fact]
     public void SetBaselineForBuild_WhenActivated_ReplacesAllOccurrences()
     {
-        string content = @"
+        string content = $$"""
 [{src/File1.cs}]
-dotnet_diagnostic.CA2000.severity = suggestion # ^biak^ baseline
+dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
 
 [{src/File2.cs}]
-dotnet_diagnostic.CA1001.severity = suggestion # ^biak^ baseline
-";
+dotnet_diagnostic.CA1001.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+""";
         string result = WarningsBaselineSyncHelper.SetBaselineForBuild(content, activate: true);
 
-        Assert.DoesNotContain("suggestion # ^biak^ baseline", result, StringComparison.Ordinal);
-        Assert.Equal(2, CountOccurrences(result, "warning # ^biak^ baseline"));
+        Assert.DoesNotContain("suggestion " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER, result, StringComparison.Ordinal);
+        Assert.Equal(2, CountOccurrences(result, $"warning {WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}"));
     }
 
     [Fact]
@@ -227,8 +228,8 @@ dotnet_diagnostic.CA9999.severity = suggestion
     [Fact]
     public void SetBaselineForBuild_WhenDeactivated_ReplacesWarningWithSuggestion()
     {
-        string content = "dotnet_diagnostic.CA2000.severity = warning # ^biak^ baseline";
-        string expected = "dotnet_diagnostic.CA2000.severity = suggestion # ^biak^ baseline";
+        string content = $"dotnet_diagnostic.CA2000.severity = warning {WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}";
+        string expected = $"dotnet_diagnostic.CA2000.severity = suggestion {WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}";
 
         string result = WarningsBaselineSyncHelper.SetBaselineForBuild(content, activate: false);
 
@@ -238,18 +239,18 @@ dotnet_diagnostic.CA9999.severity = suggestion
     [Fact]
     public void SetBaselineForBuild_WhenDeactivated_ReplacesAllOccurrences()
     {
-        string content = @"
+        string content = $$"""
 [{src/File1.cs}]
-dotnet_diagnostic.CA2000.severity = warning # ^biak^ baseline
+dotnet_diagnostic.CA2000.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
 
 [{src/File2.cs}]
-dotnet_diagnostic.CA1001.severity = warning # ^biak^ baseline
-";
+dotnet_diagnostic.CA1001.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+""";
 
         string result = WarningsBaselineSyncHelper.SetBaselineForBuild(content, activate: false);
 
-        Assert.DoesNotContain("warning # ^biak^ baseline", result, StringComparison.Ordinal);
-        Assert.Equal(2, CountOccurrences(result, "suggestion # ^biak^ baseline"));
+        Assert.DoesNotContain("warning " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER, result, StringComparison.Ordinal);
+        Assert.Equal(2, CountOccurrences(result, "suggestion " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER));
     }
 
     [Fact]
@@ -268,13 +269,13 @@ dotnet_diagnostic.CA9999.severity = warning
     [Fact]
     public void SetBaselineForBuild_ActivateAndDeactivateAreInverses()
     {
-        string original = @"
+        string original = $$"""
 [{src/File.cs}]
-dotnet_diagnostic.CA2000.severity = suggestion # ^biak^ baseline
+dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
 
 [*.cs]
 dotnet_diagnostic.CA9999.severity = warning
-";
+""";
 
         string roundTripped = WarningsBaselineSyncHelper.SetBaselineForBuild(
             WarningsBaselineSyncHelper.SetBaselineForBuild(original, activate: true),
@@ -292,7 +293,7 @@ dotnet_diagnostic.CA9999.severity = warning
     {
         string content =
             "[{src/File.cs}]\n" +
-            "dotnet_diagnostic.CA2000.severity = warning # ^biak^ baseline\n" +
+            "dotnet_diagnostic.CA2000.severity = warning " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER + "\n" +
             "\n";
 
         string result = WarningsBaselineSyncHelper.RemoveBaselineFilters(
@@ -307,7 +308,7 @@ dotnet_diagnostic.CA9999.severity = warning
     {
         string content =
             "[{src/File.cs}]\n" +
-            "dotnet_diagnostic.CA2000.severity = warning # ^biak^ baseline\n" +
+            "dotnet_diagnostic.CA2000.severity = warning " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER + "\n" +
             "\n";
 
         string result = WarningsBaselineSyncHelper.RemoveBaselineFilters(
@@ -322,13 +323,13 @@ dotnet_diagnostic.CA9999.severity = warning
     {
         string content =
             "[{src/File1.cs}]\n" +
-            "dotnet_diagnostic.CA2000.severity = warning # ^biak^ baseline\n" +
+            "dotnet_diagnostic.CA2000.severity = warning " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER + "\n" +
             "\n" +
             "[{src/File2.cs}]\n" +
-            "dotnet_diagnostic.CA1001.severity = warning # ^biak^ baseline\n" +
+            "dotnet_diagnostic.CA1001.severity = warning " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER + "\n" +
             "\n" +
             "[{src/File3.cs}]\n" +
-            "dotnet_diagnostic.CS1234.severity = warning # ^biak^ baseline\n" +
+            "dotnet_diagnostic.CS1234.severity = warning " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER + "\n" +
             "\n";
 
         string result = WarningsBaselineSyncHelper.RemoveBaselineFilters(
@@ -347,10 +348,10 @@ dotnet_diagnostic.CA9999.severity = warning
     {
         string content =
             "[{src/File1.cs}]\n" +
-            "dotnet_diagnostic.CA2000.severity = warning # ^biak^ baseline\n" +
+            "dotnet_diagnostic.CA2000.severity = warning " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER + "\n" +
             "\n" +
             "[{src/File2.cs}]\n" +
-            "dotnet_diagnostic.CA1001.severity = warning # ^biak^ baseline\n" +
+            "dotnet_diagnostic.CA1001.severity = warning " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER + "\n" +
             "\n";
 
         string result = WarningsBaselineSyncHelper.RemoveBaselineFilters(
@@ -369,7 +370,7 @@ dotnet_diagnostic.CA9999.severity = warning
             "dotnet_diagnostic.CA9999.severity = error\n" +
             "\n" +
             "[{src/File.cs}]\n" +
-            "dotnet_diagnostic.CA2000.severity = warning # ^biak^ baseline\n" +
+            "dotnet_diagnostic.CA2000.severity = warning " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER + "\\n" +
             "\n" +
             "[*]\n" +
             "indent_size = 4\n";
@@ -390,10 +391,10 @@ dotnet_diagnostic.CA9999.severity = warning
     {
         string content =
             "[{src/File1.cs}]\r\n" +
-            "dotnet_diagnostic.CA2000.severity = warning # ^biak^ baseline\r\n" +
+            "dotnet_diagnostic.CA2000.severity = warning " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER + "\\r\\n" +
             "\r\n" +
             "[{src/File2.cs}]\r\n" +
-            "dotnet_diagnostic.CA1001.severity = warning # ^biak^ baseline\r\n" +
+            "dotnet_diagnostic.CA1001.severity = warning " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER + "\\r\\n" +
             "\r\n";
 
         string result = WarningsBaselineSyncHelper.RemoveBaselineFilters(
@@ -409,10 +410,10 @@ dotnet_diagnostic.CA9999.severity = warning
     {
         string content =
             "[{src/File1.cs}]\n" +
-            "dotnet_diagnostic.CA2000.severity = warning # ^biak^ baseline\n" +
+            "dotnet_diagnostic.CA2000.severity = warning " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER + "\\n" +
             "\n" +
             "[{src/File2.cs}]\n" +
-            "dotnet_diagnostic.CA1001.severity = warning # ^biak^ baseline\n" +
+            "dotnet_diagnostic.CA1001.severity = warning " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER + "\\n" +
             "\n";
 
         string result = WarningsBaselineSyncHelper.RemoveBaselineFilters(
@@ -428,10 +429,10 @@ dotnet_diagnostic.CA9999.severity = warning
     {
         string content =
             "[{src/File1.cs}]\n" +
-            "dotnet_diagnostic.CA2000.severity = warning # ^biak^ baseline\n" +
+            "dotnet_diagnostic.CA2000.severity = warning " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER + "\\n" +
             "\n" +
             "[{src/File2.cs}]\n" +
-            "dotnet_diagnostic.CA1001.severity = warning # ^biak^ baseline\n" +
+            "dotnet_diagnostic.CA1001.severity = warning " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER + "\\n" +
             "\n";
 
         string result = WarningsBaselineSyncHelper.RemoveBaselineFilters(
@@ -458,7 +459,7 @@ dotnet_diagnostic.CA9999.severity = warning
     {
         string content =
             "[{src/File1.cs,src/File2.cs,src/File3.cs}]\n" +
-            "dotnet_diagnostic.CA2000.severity = warning # ^biak^ baseline\n" +
+            "dotnet_diagnostic.CA2000.severity = warning " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER + "\\n" +
             "\n";
 
         string result = WarningsBaselineSyncHelper.RemoveBaselineFilters(
@@ -473,7 +474,7 @@ dotnet_diagnostic.CA9999.severity = warning
     {
         string content =
             "[{src/File1.cs,src/File2.cs}]\n" +
-            "dotnet_diagnostic.CA2000.severity = warning # ^biak^ baseline\n" +
+            "dotnet_diagnostic.CA2000.severity = warning " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER + "\\n" +
             "\n";
 
         IReadOnlyDictionary<string, IReadOnlySet<string>> activeFilesByCode =
@@ -497,7 +498,7 @@ dotnet_diagnostic.CA9999.severity = warning
     {
         string content =
             "[{src/File1.cs}]\n" +
-            "dotnet_diagnostic.CA2000.severity = warning # ^biak^ baseline\n" +
+            "dotnet_diagnostic.CA2000.severity = warning " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER + "\\n" +
             "\n";
 
         IReadOnlyDictionary<string, IReadOnlySet<string>> activeFilesByCode =
@@ -522,7 +523,7 @@ dotnet_diagnostic.CA9999.severity = warning
             "# top of file\n" +
             "\n" +
             "[{src/File.cs}]\n" +
-            "dotnet_diagnostic.CA2000.severity = warning # ^biak^ baseline\n" +
+            "dotnet_diagnostic.CA2000.severity = warning " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER + "\\n" +
             "\n" +
             "# bottom of file\n";
 
@@ -540,7 +541,7 @@ dotnet_diagnostic.CA9999.severity = warning
         // Baseline entries may be in "suggestion" form (before activation)
         string content =
             "[{src/File.cs}]\n" +
-            "dotnet_diagnostic.CA2000.severity = suggestion # ^biak^ baseline\n" +
+            "dotnet_diagnostic.CA2000.severity = suggestion " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER + "\\n" +
             "\n";
 
         string result = WarningsBaselineSyncHelper.RemoveBaselineFilters(
@@ -554,7 +555,7 @@ dotnet_diagnostic.CA9999.severity = warning
     {
         string content =
             "[{src/File.cs}]\n" +
-            "dotnet_diagnostic.CA2000.severity = warning # ^biak^ baseline\n" +
+            "dotnet_diagnostic.CA2000.severity = warning " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER + "\\n" +
             "\n";
 
         // codesToKeep uses lowercase — should still match CA2000
@@ -573,21 +574,21 @@ dotnet_diagnostic.CA9999.severity = warning
     public void FullSyncRoundTrip_FixedWarningsAreRemovedAndRemainingArePreserved()
     {
         // Simulate the .editorconfig as written by the init command
-        string original = @"
+        string original = $$"""
 [{src/Fixed.cs}]
-dotnet_diagnostic.CA2000.severity = suggestion # ^biak^ baseline
+dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
 
 [{src/StillBroken.cs}]
-dotnet_diagnostic.CA1001.severity = suggestion # ^biak^ baseline
+dotnet_diagnostic.CA1001.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
 
 [*.cs]
 dotnet_diagnostic.CA9999.severity = error
-";
+""";
 
         // Step 1: activate for build
         string activated = WarningsBaselineSyncHelper.SetBaselineForBuild(original, activate: true);
 
-        Assert.Contains("= warning # ^biak^ baseline", activated, StringComparison.Ordinal);
+        Assert.Contains("= warning " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER, activated, StringComparison.Ordinal);
 
         // Step 2: simulate build — only CA1001 is still a warning
         HashSet<string> baselineCodes = WarningsBaselineSyncHelper.GetBaselineDiagnosticCodes(original);
@@ -609,8 +610,8 @@ dotnet_diagnostic.CA9999.severity = error
         Assert.Contains("[*.cs]", synced, StringComparison.Ordinal);
         Assert.Contains("CA9999", synced, StringComparison.Ordinal);
         // All remaining entries must be back to suggestion
-        Assert.DoesNotContain("= warning # ^biak^ baseline", synced, StringComparison.Ordinal);
-        Assert.Contains("= suggestion # ^biak^ baseline", synced, StringComparison.Ordinal);
+        Assert.DoesNotContain("= warning " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER, synced, StringComparison.Ordinal);
+        Assert.Contains("= suggestion " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER, synced, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -618,10 +619,10 @@ dotnet_diagnostic.CA9999.severity = error
     {
         string original =
             "[{src/Fixed1.cs}]\n" +
-            "dotnet_diagnostic.CA2000.severity = suggestion # ^biak^ baseline\n" +
+            "dotnet_diagnostic.CA2000.severity = suggestion " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER + "\\n" +
             "\n" +
             "[{src/Fixed2.cs}]\n" +
-            "dotnet_diagnostic.CA1001.severity = suggestion # ^biak^ baseline\n" +
+            "dotnet_diagnostic.CA1001.severity = suggestion " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER + "\\n" +
             "\n";
 
         string synced = WarningsBaselineSyncHelper.RemoveBaselineFilters(original, new HashSet<string>(StringComparer.OrdinalIgnoreCase));
@@ -635,10 +636,10 @@ dotnet_diagnostic.CA9999.severity = error
     {
         string content =
             "[{src/Fixed.cs}]\n" +
-            "dotnet_diagnostic.CA2000.severity = suggestion # ^biak^ baseline\n" +
+            "dotnet_diagnostic.CA2000.severity = suggestion " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER + "\\n" +
             "\n" +
             "[{src/StillBroken.cs,src/PartiallyFixed.cs}]\n" +
-            "dotnet_diagnostic.CA1001.severity = suggestion # ^biak^ baseline\n" +
+            "dotnet_diagnostic.CA1001.severity = suggestion " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER + "\\n" +
             "\n";
 
         HashSet<string> codesToKeep = new(StringComparer.OrdinalIgnoreCase) { "CA1001" };

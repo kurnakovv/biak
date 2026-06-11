@@ -291,7 +291,7 @@ public class ProgramTests
             Assert.Contains(WarningsBaselineInitCommandConstant.TREAT_WARNINGS_AS_ERRORS_NOTE, result, StringComparison.Ordinal);
             Assert.Contains(WarningsBaselineInitCommandConstant.INSERT_FILTERS_TO_EDITORCONFIG_NOTE, result, StringComparison.Ordinal);
             Assert.Contains("dotnet_diagnostic.CS", result, StringComparison.Ordinal);
-            Assert.Contains("severity = suggestion # ^biak^ baseline", result, StringComparison.Ordinal);
+            Assert.Contains($"severity = suggestion {WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}", result, StringComparison.Ordinal);
         }
         finally
         {
