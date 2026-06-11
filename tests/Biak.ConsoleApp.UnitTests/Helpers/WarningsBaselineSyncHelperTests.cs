@@ -98,115 +98,115 @@ public class WarningsBaselineSyncHelperTests
         }
     }
 
-    // -------------------------------------------------------------------------
-    // SetBaselineForBuild
-    // -------------------------------------------------------------------------
+    [Theory]
+    [InlineData(
+        "SingleSuggestionToWarning",
+        $"dotnet_diagnostic.CA2000.severity = suggestion {WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}",
+        true,
+        $"dotnet_diagnostic.CA2000.severity = warning {WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}"
+    )]
+    [InlineData(
+        "ActivateAllBaselineEntries",
+        $$"""
+        [{src/File1.cs}]
+        dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
 
-    [Fact]
-    public void SetBaselineForBuild_WhenActivated_ReplacesSuggestionWithWarning()
+        [{src/File2.cs}]
+        dotnet_diagnostic.CA1001.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+        """,
+
+        true,
+
+        $$"""
+        [{src/File1.cs}]
+        dotnet_diagnostic.CA2000.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+
+        [{src/File2.cs}]
+        dotnet_diagnostic.CA1001.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+        """
+    )]
+    [InlineData(
+        "ActivateDoesNotChangeNonBaselineSuggestion",
+        """
+        [*.cs]
+        dotnet_diagnostic.CA9999.severity = suggestion
+        """,
+
+        true,
+
+        """
+        [*.cs]
+        dotnet_diagnostic.CA9999.severity = suggestion
+        """
+    )]
+    [InlineData("ActivateWithoutMarkerReturnsSameContent", "root = true", true, "root = true")]
+    [InlineData(
+        "SingleWarningToSuggestion",
+        $"dotnet_diagnostic.CA2000.severity = warning {WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}",
+        false,
+        $"dotnet_diagnostic.CA2000.severity = suggestion {WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}"
+    )]
+    [InlineData(
+        "DeactivateAllBaselineEntries",
+        $$"""
+        [{src/File1.cs}]
+        dotnet_diagnostic.CA2000.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+
+        [{src/File2.cs}]
+        dotnet_diagnostic.CA1001.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+        """,
+
+        false,
+
+        $$"""
+        [{src/File1.cs}]
+        dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+
+        [{src/File2.cs}]
+        dotnet_diagnostic.CA1001.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+        """
+    )]
+    [InlineData(
+        "DeactivateDoesNotChangeNonBaselineWarning",
+        """
+        [*.cs]
+        dotnet_diagnostic.CA9999.severity = warning
+        """,
+
+        false,
+
+        """
+        [*.cs]
+        dotnet_diagnostic.CA9999.severity = warning
+        """
+    )]
+    public void SetBaselineForBuildUpdatesContentAsExpected(string testName, string content, bool activate, string expected)
     {
-        string content = "dotnet_diagnostic.CA2000.severity = suggestion " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER;
-        string expected = "dotnet_diagnostic.CA2000.severity = warning " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER;
-
-        string result = WarningsBaselineSyncHelper.SetBaselineForBuild(content, activate: true);
+        _ = testName;
+        string result = WarningsBaselineSyncHelper.SetBaselineForBuild(content, activate);
 
         Assert.Equal(expected, result);
     }
 
-    [Fact]
-    public void SetBaselineForBuild_WhenActivated_ReplacesAllOccurrences()
+    [Theory]
+    [InlineData("InverseWithoutBaselineEntries", "root = true")]
+    [InlineData(
+        "InverseWithBaselineAndNonBaselineEntries",
+        $$"""
+        [{src/File.cs}]
+        dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+
+        [*.cs]
+        dotnet_diagnostic.CA9999.severity = warning
+        """
+    )]
+    public void SetBaselineForBuildActivateAndDeactivateAreInverses(string testName, string original)
     {
-        string content = $$"""
-            [{src/File1.cs}]
-            dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
-
-            [{src/File2.cs}]
-            dotnet_diagnostic.CA1001.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
-        """;
-        string result = WarningsBaselineSyncHelper.SetBaselineForBuild(content, activate: true);
-
-        Assert.DoesNotContain("suggestion " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER, result, StringComparison.Ordinal);
-        Assert.Equal(2, CountOccurrences(result, $"warning {WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}"));
-    }
-
-    [Fact]
-    public void SetBaselineForBuild_WhenActivated_DoesNotChangeNonBaselineLines()
-    {
-        string content = @"
-            [*.cs]
-            dotnet_diagnostic.CA9999.severity = suggestion
-        ";
-
-        string result = WarningsBaselineSyncHelper.SetBaselineForBuild(content, activate: true);
-
-        Assert.Equal(content, result);
-    }
-
-    [Fact]
-    public void SetBaselineForBuild_WhenActivated_ReturnsContentUnchangedWhenNoBaselineMarkers()
-    {
-        string content = "root = true";
-
-        string result = WarningsBaselineSyncHelper.SetBaselineForBuild(content, activate: true);
-
-        Assert.Equal(content, result);
-    }
-
-    [Fact]
-    public void SetBaselineForBuild_WhenDeactivated_ReplacesWarningWithSuggestion()
-    {
-        string content = $"dotnet_diagnostic.CA2000.severity = warning {WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}";
-        string expected = $"dotnet_diagnostic.CA2000.severity = suggestion {WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}";
-
-        string result = WarningsBaselineSyncHelper.SetBaselineForBuild(content, activate: false);
-
-        Assert.Equal(expected, result);
-    }
-
-    [Fact]
-    public void SetBaselineForBuild_WhenDeactivated_ReplacesAllOccurrences()
-    {
-        string content = $$"""
-            [{src/File1.cs}]
-            dotnet_diagnostic.CA2000.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
-
-            [{src/File2.cs}]
-            dotnet_diagnostic.CA1001.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
-        """;
-
-        string result = WarningsBaselineSyncHelper.SetBaselineForBuild(content, activate: false);
-
-        Assert.DoesNotContain("warning " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER, result, StringComparison.Ordinal);
-        Assert.Equal(2, CountOccurrences(result, "suggestion " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER));
-    }
-
-    [Fact]
-    public void SetBaselineForBuild_WhenDeactivated_DoesNotChangeNonBaselineWarningLines()
-    {
-        string content = @"
-            [*.cs]
-            dotnet_diagnostic.CA9999.severity = warning
-        ";
-
-        string result = WarningsBaselineSyncHelper.SetBaselineForBuild(content, activate: false);
-
-        Assert.Equal(content, result);
-    }
-
-    [Fact]
-    public void SetBaselineForBuild_ActivateAndDeactivateAreInverses()
-    {
-        string original = $$"""
-            [{src/File.cs}]
-            dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
-
-            [*.cs]
-            dotnet_diagnostic.CA9999.severity = warning
-        """;
-
+        _ = testName;
         string roundTripped = WarningsBaselineSyncHelper.SetBaselineForBuild(
-            WarningsBaselineSyncHelper.SetBaselineForBuild(original, activate: true),
-            activate: false);
+            content: WarningsBaselineSyncHelper.SetBaselineForBuild(original, activate: true),
+            activate: false
+        );
 
         Assert.Equal(original, roundTripped);
     }
@@ -588,22 +588,5 @@ dotnet_diagnostic.CA9999.severity = error
         Assert.Equal(["CA2000"], result["src/Fixed.cs"]);
         Assert.Equal(["CA1001"], result["src/PartiallyFixed.cs"]);
         Assert.DoesNotContain("src/StillBroken.cs", result.Keys, StringComparer.Ordinal);
-    }
-
-    // -------------------------------------------------------------------------
-    // Helper
-    // -------------------------------------------------------------------------
-
-    private static int CountOccurrences(string source, string value)
-    {
-        int count = 0;
-        int index = 0;
-        while ((index = source.IndexOf(value, index, StringComparison.Ordinal)) >= 0)
-        {
-            count++;
-            index += value.Length;
-        }
-
-        return count;
     }
 }
