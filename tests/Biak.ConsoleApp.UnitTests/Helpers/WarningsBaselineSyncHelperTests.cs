@@ -9,72 +9,26 @@ namespace Biak.ConsoleApp.UnitTests.Helpers;
 
 public class WarningsBaselineSyncHelperTests
 {
-    // -------------------------------------------------------------------------
-    // IsPathSafe
-    // -------------------------------------------------------------------------
-
-    [Fact]
-    public void IsPathSafe_ReturnsTrueForFileInBaseDirectory()
+    [Theory]
+    [InlineData(".editorconfig", true)]
+    [InlineData(".biak/.editorconfig-main", true)]
+    [InlineData(".editorconfig-legacy", true)]
+    [InlineData(".editorconfig-custom", true)]
+    [InlineData("src/nested/.editorconfig", true)]
+    [InlineData(".editorconfig/test.txt", false)]
+    [InlineData("src/.editorconfig/.editorconfig-main", false)]
+    [InlineData("test.editorconfig", false)]
+    [InlineData("src/test.editorconfig", false)]
+    [InlineData("../.editorconfig", false)]
+    [InlineData("../../.editorconfig", false)]
+    [InlineData("../other-project/.editorconfig", false)]
+    public void IsPathSafeTest(string relativePath, bool expected)
     {
         string baseDir = Path.Join(Path.GetTempPath(), "biak-test-safe");
 
-        Assert.True(WarningsBaselineSyncHelper.IsPathSafe(".editorconfig", baseDir));
-    }
+        bool result = WarningsBaselineSyncHelper.IsPathSafe(relativePath, baseDir);
 
-    [Fact]
-    public void IsPathSafe_ReturnsTrueForEditorconfigMainFileInBaseDirectory()
-    {
-        string baseDir = Path.Join(Path.GetTempPath(), "biak-test-safe");
-
-        Assert.True(WarningsBaselineSyncHelper.IsPathSafe(".editorconfig-main", baseDir));
-    }
-
-    [Fact]
-    public void IsPathSafe_ReturnsTrueForEditorconfigLegacyFileInBaseDirectory()
-    {
-        string baseDir = Path.Join(Path.GetTempPath(), "biak-test-safe");
-
-        Assert.True(WarningsBaselineSyncHelper.IsPathSafe(".editorconfig-legacy", baseDir));
-    }
-
-    [Fact]
-    public void IsPathSafe_ReturnsTrueForFileInSubdirectory()
-    {
-        string baseDir = Path.Join(Path.GetTempPath(), "biak-test-safe");
-
-        Assert.True(WarningsBaselineSyncHelper.IsPathSafe(
-            Path.Join("src", "nested", ".editorconfig"),
-            baseDir));
-    }
-
-    [Fact]
-    public void IsPathSafe_ReturnsFalseForParentDirectory()
-    {
-        string baseDir = Path.Join(Path.GetTempPath(), "biak-test-safe");
-
-        Assert.False(WarningsBaselineSyncHelper.IsPathSafe(
-            Path.Join("..", ".editorconfig"),
-            baseDir));
-    }
-
-    [Fact]
-    public void IsPathSafe_ReturnsFalseForAncestorDirectory()
-    {
-        string baseDir = Path.Join(Path.GetTempPath(), "biak-test-safe");
-
-        Assert.False(WarningsBaselineSyncHelper.IsPathSafe(
-            Path.Join("..", "..", ".editorconfig"),
-            baseDir));
-    }
-
-    [Fact]
-    public void IsPathSafe_ReturnsFalseForSiblingDirectory()
-    {
-        string baseDir = Path.Join(Path.GetTempPath(), "biak-test-safe");
-
-        Assert.False(WarningsBaselineSyncHelper.IsPathSafe(
-            Path.Join("..", "other-project", ".editorconfig"),
-            baseDir));
+        Assert.Equal(expected, result);
     }
 
     // -------------------------------------------------------------------------

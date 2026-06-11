@@ -14,6 +14,8 @@ public static class WarningsBaselineSyncHelper
 {
     private const string BASELINE_DIAGNOSTIC_REGEXT = @"dotnet_diagnostic\.([A-Z][A-Z0-9]*)\.severity[^\r\n]*#\s*\^biak\^\s*baseline";
 
+    private static readonly char[] s_pathSeparators = new[] { '/', '\\' };
+
     // Matches a [{ ... }] section header that marks a baseline block and captures the file list.
     private static readonly Regex s_baselineSectionHeaderRegex = new(
         @"^\[\{(?<files>[^\}]+)\}\]\s*$",
@@ -40,8 +42,23 @@ public static class WarningsBaselineSyncHelper
             + Path.DirectorySeparatorChar;
 
         string fullFile = Path.GetFullPath(filePath, baseDirectory);
+        if (!fullFile.StartsWith(fullBase, StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
 
-        return fullFile.StartsWith(fullBase, StringComparison.OrdinalIgnoreCase);
+        string fileName = Path.GetFileName(fullFile);
+        if (!fileName.StartsWith(".editorconfig", StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        string relativePath = Path.GetRelativePath(baseDirectory, fullFile);
+        string[] segments = relativePath.Split(s_pathSeparators, StringSplitOptions.RemoveEmptyEntries);
+
+        return !segments
+            .Take(Math.Max(segments.Length - 1, 0))
+            .Contains(".editorconfig", StringComparer.OrdinalIgnoreCase);
     }
 
     /// <summary>
