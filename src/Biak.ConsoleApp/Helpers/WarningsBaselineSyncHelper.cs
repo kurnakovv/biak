@@ -26,17 +26,6 @@ public static class WarningsBaselineSyncHelper
     private static readonly Regex s_allBaselineCodesRegex = new(BASELINE_DIAGNOSTIC_REGEXT, RegexOptions.Compiled);
 
     /// <summary>
-    /// Returns <see langword="true"/> when <paramref name="content"/> contains at least one
-    /// <c># ^biak^ baseline</c> entry.
-    /// </summary>
-    /// <param name="content">.editorconfig content.</param>
-    /// <returns><see langword="true"/> if a baseline marker exists; otherwise <see langword="false"/>.</returns>
-    public static bool HasBaselineMarker(string content)
-    {
-        return content.Contains("# ^biak^ baseline", StringComparison.Ordinal);
-    }
-
-    /// <summary>
     /// Returns <see langword="true"/> when <paramref name="filePath"/> resolves to a location
     /// inside <paramref name="baseDirectory"/> (directory-traversal protection).
     /// </summary>
