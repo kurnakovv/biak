@@ -39,9 +39,9 @@ public class WarningsBaselineSyncHelperTests
     public void GetBaselineDiagnosticCodes_ReturnsEmptySetForContentWithoutBaseline()
     {
         string content = @"
-[*.cs]
-dotnet_diagnostic.CA1001.severity = error
-";
+            [*.cs]
+            dotnet_diagnostic.CA1001.severity = error
+        ";
 
         HashSet<string> codes = WarningsBaselineSyncHelper.GetBaselineDiagnosticCodes(content);
 
@@ -60,9 +60,9 @@ dotnet_diagnostic.CA1001.severity = error
     public void GetBaselineDiagnosticCodes_ReturnsSingleCodeForOneEntry()
     {
         string content = $$"""
-[{src/File.cs}]
-dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
-""";
+            [{src/File.cs}]
+            dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+        """;
 
         HashSet<string> codes = WarningsBaselineSyncHelper.GetBaselineDiagnosticCodes(content);
 
@@ -74,15 +74,15 @@ dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandCons
     public void GetBaselineDiagnosticCodes_ReturnsAllCodesForMultipleEntries()
     {
         string content = $$"""
-[{src/File1.cs,src/File2.cs}]
-dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+            [{src/File1.cs,src/File2.cs}]
+            dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
 
-[{src/File3.cs}]
-dotnet_diagnostic.CA1001.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+            [{src/File3.cs}]
+            dotnet_diagnostic.CA1001.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
 
-[{src/File4.cs}]
-dotnet_diagnostic.CS1234.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
-""";
+            [{src/File4.cs}]
+            dotnet_diagnostic.CS1234.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+        """;
 
         HashSet<string> codes = WarningsBaselineSyncHelper.GetBaselineDiagnosticCodes(content);
 
@@ -96,12 +96,12 @@ dotnet_diagnostic.CS1234.severity = suggestion {{WarningsBaselineInitCommandCons
     public void GetBaselineDiagnosticCodes_DeduplicatesSameCodeAppearingTwice()
     {
         string content = $$"""
-[{src/File1.cs}]
-dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+            [{src/File1.cs}]
+            dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
 
-[{src/File2.cs}]
-dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
-""";
+            [{src/File2.cs}]
+            dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+        """;
 
         HashSet<string> codes = WarningsBaselineSyncHelper.GetBaselineDiagnosticCodes(content);
 
@@ -113,10 +113,10 @@ dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandCons
     public void GetBaselineDiagnosticCodes_IgnoresNonBaselineDiagnosticLines()
     {
         string content = $$"""
-[*.cs]
-dotnet_diagnostic.CA9999.severity = error
-dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
-""";
+            [*.cs]
+            dotnet_diagnostic.CA9999.severity = error
+            dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+        """;
 
         HashSet<string> codes = WarningsBaselineSyncHelper.GetBaselineDiagnosticCodes(content);
 
@@ -144,12 +144,12 @@ dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandCons
     public void SetBaselineForBuild_WhenActivated_ReplacesAllOccurrences()
     {
         string content = $$"""
-[{src/File1.cs}]
-dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+            [{src/File1.cs}]
+            dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
 
-[{src/File2.cs}]
-dotnet_diagnostic.CA1001.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
-""";
+            [{src/File2.cs}]
+            dotnet_diagnostic.CA1001.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+        """;
         string result = WarningsBaselineSyncHelper.SetBaselineForBuild(content, activate: true);
 
         Assert.DoesNotContain("suggestion " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER, result, StringComparison.Ordinal);
@@ -160,9 +160,9 @@ dotnet_diagnostic.CA1001.severity = suggestion {{WarningsBaselineInitCommandCons
     public void SetBaselineForBuild_WhenActivated_DoesNotChangeNonBaselineLines()
     {
         string content = @"
-[*.cs]
-dotnet_diagnostic.CA9999.severity = suggestion
-";
+            [*.cs]
+            dotnet_diagnostic.CA9999.severity = suggestion
+        ";
 
         string result = WarningsBaselineSyncHelper.SetBaselineForBuild(content, activate: true);
 
@@ -194,12 +194,12 @@ dotnet_diagnostic.CA9999.severity = suggestion
     public void SetBaselineForBuild_WhenDeactivated_ReplacesAllOccurrences()
     {
         string content = $$"""
-[{src/File1.cs}]
-dotnet_diagnostic.CA2000.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+            [{src/File1.cs}]
+            dotnet_diagnostic.CA2000.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
 
-[{src/File2.cs}]
-dotnet_diagnostic.CA1001.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
-""";
+            [{src/File2.cs}]
+            dotnet_diagnostic.CA1001.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+        """;
 
         string result = WarningsBaselineSyncHelper.SetBaselineForBuild(content, activate: false);
 
@@ -211,9 +211,9 @@ dotnet_diagnostic.CA1001.severity = warning {{WarningsBaselineInitCommandConstan
     public void SetBaselineForBuild_WhenDeactivated_DoesNotChangeNonBaselineWarningLines()
     {
         string content = @"
-[*.cs]
-dotnet_diagnostic.CA9999.severity = warning
-";
+            [*.cs]
+            dotnet_diagnostic.CA9999.severity = warning
+        ";
 
         string result = WarningsBaselineSyncHelper.SetBaselineForBuild(content, activate: false);
 
@@ -224,12 +224,12 @@ dotnet_diagnostic.CA9999.severity = warning
     public void SetBaselineForBuild_ActivateAndDeactivateAreInverses()
     {
         string original = $$"""
-[{src/File.cs}]
-dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+            [{src/File.cs}]
+            dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
 
-[*.cs]
-dotnet_diagnostic.CA9999.severity = warning
-""";
+            [*.cs]
+            dotnet_diagnostic.CA9999.severity = warning
+        """;
 
         string roundTripped = WarningsBaselineSyncHelper.SetBaselineForBuild(
             WarningsBaselineSyncHelper.SetBaselineForBuild(original, activate: true),
@@ -529,15 +529,15 @@ dotnet_diagnostic.CA9999.severity = warning
     {
         // Simulate the .editorconfig as written by the init command
         string original = $$"""
-[{src/Fixed.cs}]
-dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+            [{src/Fixed.cs}]
+            dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
 
-[{src/StillBroken.cs}]
-dotnet_diagnostic.CA1001.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+            [{src/StillBroken.cs}]
+            dotnet_diagnostic.CA1001.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
 
-[*.cs]
-dotnet_diagnostic.CA9999.severity = error
-""";
+            [*.cs]
+            dotnet_diagnostic.CA9999.severity = error
+        """;
 
         // Step 1: activate for build
         string activated = WarningsBaselineSyncHelper.SetBaselineForBuild(original, activate: true);
