@@ -9,46 +9,6 @@ namespace Biak.ConsoleApp.UnitTests.Helpers;
 public class WarningsBaselineSyncHelperTests
 {
     // -------------------------------------------------------------------------
-    // HasBaselineMarker
-    // -------------------------------------------------------------------------
-
-    [Fact]
-    public void HasBaselineMarker_ReturnsTrueWhenMarkerPresent()
-    {
-        string content = "dotnet_diagnostic.CA2000.severity = suggestion # ^biak^ baseline";
-
-        Assert.True(WarningsBaselineSyncHelper.HasBaselineMarker(content));
-    }
-
-    [Fact]
-    public void HasBaselineMarker_ReturnsFalseWhenMarkerAbsent()
-    {
-        string content = "dotnet_diagnostic.CA2000.severity = suggestion";
-
-        Assert.False(WarningsBaselineSyncHelper.HasBaselineMarker(content));
-    }
-
-    [Fact]
-    public void HasBaselineMarker_ReturnsFalseForEmptyString()
-    {
-        Assert.False(WarningsBaselineSyncHelper.HasBaselineMarker(string.Empty));
-    }
-
-    [Fact]
-    public void HasBaselineMarker_ReturnsTrueForMultilineContentWithMarker()
-    {
-        string content = @"
-[*.cs]
-dotnet_diagnostic.CA1001.severity = error
-
-[{src/File.cs}]
-dotnet_diagnostic.CA2000.severity = suggestion # ^biak^ baseline
-";
-
-        Assert.True(WarningsBaselineSyncHelper.HasBaselineMarker(content));
-    }
-
-    // -------------------------------------------------------------------------
     // IsPathSafe
     // -------------------------------------------------------------------------
 
@@ -667,8 +627,7 @@ dotnet_diagnostic.CA9999.severity = error
         string synced = WarningsBaselineSyncHelper.RemoveBaselineFilters(original, new HashSet<string>(StringComparer.OrdinalIgnoreCase));
         synced = WarningsBaselineSyncHelper.SetBaselineForBuild(synced, activate: false);
 
-        Assert.False(WarningsBaselineSyncHelper.HasBaselineMarker(synced));
-        Assert.DoesNotContain("[{", synced, StringComparison.Ordinal);
+        Assert.Empty(synced);
     }
 
     [Fact]
