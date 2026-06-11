@@ -218,10 +218,11 @@ public class WarningsBaselineSyncHelperTests
     [Fact]
     public void RemoveBaselineFilters_KeepsBlockWhenCodeIsInSet()
     {
-        string content =
-            "[{src/File.cs}]\n" +
-            "dotnet_diagnostic.CA2000.severity = warning " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER + "\n" +
-            "\n";
+        string content = $$"""
+[{src/File.cs}]
+dotnet_diagnostic.CA2000.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+
+""";
 
         string result = WarningsBaselineSyncHelper.RemoveBaselineFilters(
             content, new HashSet<string> { "CA2000" });
@@ -233,10 +234,11 @@ public class WarningsBaselineSyncHelperTests
     [Fact]
     public void RemoveBaselineFilters_RemovesBlockWhenCodeNotInSet()
     {
-        string content =
-            "[{src/File.cs}]\n" +
-            "dotnet_diagnostic.CA2000.severity = warning " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER + "\n" +
-            "\n";
+        string content = $$"""
+[{src/File.cs}]
+dotnet_diagnostic.CA2000.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+
+""";
 
         string result = WarningsBaselineSyncHelper.RemoveBaselineFilters(
             content, new HashSet<string>());
@@ -248,16 +250,17 @@ public class WarningsBaselineSyncHelperTests
     [Fact]
     public void RemoveBaselineFilters_KeepsOnlyCodesInSet()
     {
-        string content =
-            "[{src/File1.cs}]\n" +
-            "dotnet_diagnostic.CA2000.severity = warning " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER + "\n" +
-            "\n" +
-            "[{src/File2.cs}]\n" +
-            "dotnet_diagnostic.CA1001.severity = warning " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER + "\n" +
-            "\n" +
-            "[{src/File3.cs}]\n" +
-            "dotnet_diagnostic.CS1234.severity = warning " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER + "\n" +
-            "\n";
+        string content = $$"""
+[{src/File1.cs}]
+dotnet_diagnostic.CA2000.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+
+[{src/File2.cs}]
+dotnet_diagnostic.CA1001.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+
+[{src/File3.cs}]
+dotnet_diagnostic.CS1234.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+
+""";
 
         string result = WarningsBaselineSyncHelper.RemoveBaselineFilters(
             content, new HashSet<string> { "CA1001" });
@@ -273,13 +276,14 @@ public class WarningsBaselineSyncHelperTests
     [Fact]
     public void RemoveBaselineFilters_RemovesAllBlocksWhenSetIsEmpty()
     {
-        string content =
-            "[{src/File1.cs}]\n" +
-            "dotnet_diagnostic.CA2000.severity = warning " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER + "\n" +
-            "\n" +
-            "[{src/File2.cs}]\n" +
-            "dotnet_diagnostic.CA1001.severity = warning " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER + "\n" +
-            "\n";
+        string content = $$"""
+[{src/File1.cs}]
+dotnet_diagnostic.CA2000.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+
+[{src/File2.cs}]
+dotnet_diagnostic.CA1001.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+
+""";
 
         string result = WarningsBaselineSyncHelper.RemoveBaselineFilters(
             content, new HashSet<string>());
@@ -292,15 +296,16 @@ public class WarningsBaselineSyncHelperTests
     [Fact]
     public void RemoveBaselineFilters_PreservesNonBaselineSections()
     {
-        string content =
-            "[*.cs]\n" +
-            "dotnet_diagnostic.CA9999.severity = error\n" +
-            "\n" +
-            "[{src/File.cs}]\n" +
-            "dotnet_diagnostic.CA2000.severity = warning " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER + "\\n" +
-            "\n" +
-            "[*]\n" +
-            "indent_size = 4\n";
+        string content = $$"""
+[*.cs]
+dotnet_diagnostic.CA9999.severity = error
+
+[{src/File.cs}]
+dotnet_diagnostic.CA2000.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+
+[*]
+indent_size = 4
+""";
 
         string result = WarningsBaselineSyncHelper.RemoveBaselineFilters(
             content, new HashSet<string>());
@@ -316,13 +321,14 @@ public class WarningsBaselineSyncHelperTests
     [Fact]
     public void RemoveBaselineFilters_WorksWithCrLfLineEndings()
     {
-        string content =
-            "[{src/File1.cs}]\r\n" +
-            "dotnet_diagnostic.CA2000.severity = warning " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER + "\\r\\n" +
-            "\r\n" +
-            "[{src/File2.cs}]\r\n" +
-            "dotnet_diagnostic.CA1001.severity = warning " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER + "\\r\\n" +
-            "\r\n";
+        string content = $$"""
+[{src/File1.cs}]
+dotnet_diagnostic.CA2000.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+
+[{src/File2.cs}]
+dotnet_diagnostic.CA1001.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+
+""".ReplaceLineEndings("\r\n");
 
         string result = WarningsBaselineSyncHelper.RemoveBaselineFilters(
             content, new HashSet<string> { "CA1001" });
@@ -335,13 +341,14 @@ public class WarningsBaselineSyncHelperTests
     [Fact]
     public void RemoveBaselineFilters_WorksWithLfLineEndings()
     {
-        string content =
-            "[{src/File1.cs}]\n" +
-            "dotnet_diagnostic.CA2000.severity = warning " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER + "\\n" +
-            "\n" +
-            "[{src/File2.cs}]\n" +
-            "dotnet_diagnostic.CA1001.severity = warning " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER + "\\n" +
-            "\n";
+        string content = $$"""
+[{src/File1.cs}]
+dotnet_diagnostic.CA2000.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+
+[{src/File2.cs}]
+dotnet_diagnostic.CA1001.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+
+""".ReplaceLineEndings("\n");
 
         string result = WarningsBaselineSyncHelper.RemoveBaselineFilters(
             content, new HashSet<string> { "CA1001" });
@@ -354,13 +361,14 @@ public class WarningsBaselineSyncHelperTests
     [Fact]
     public void RemoveBaselineFilters_KeepsAllBlocksWhenAllCodesAreInSet()
     {
-        string content =
-            "[{src/File1.cs}]\n" +
-            "dotnet_diagnostic.CA2000.severity = warning " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER + "\\n" +
-            "\n" +
-            "[{src/File2.cs}]\n" +
-            "dotnet_diagnostic.CA1001.severity = warning " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER + "\\n" +
-            "\n";
+        string content = $$"""
+[{src/File1.cs}]
+dotnet_diagnostic.CA2000.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+
+[{src/File2.cs}]
+dotnet_diagnostic.CA1001.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+
+""";
 
         string result = WarningsBaselineSyncHelper.RemoveBaselineFilters(
             content, new HashSet<string> { "CA2000", "CA1001" });
@@ -371,9 +379,10 @@ public class WarningsBaselineSyncHelperTests
     [Fact]
     public void RemoveBaselineFilters_ReturnsContentUnchangedWhenNoBaselineBlocks()
     {
-        string content =
-            "[*.cs]\n" +
-            "dotnet_diagnostic.CA9999.severity = error\n";
+        string content = """
+[*.cs]
+dotnet_diagnostic.CA9999.severity = error
+""";
 
         string result = WarningsBaselineSyncHelper.RemoveBaselineFilters(
             content, new HashSet<string>());
@@ -384,10 +393,11 @@ public class WarningsBaselineSyncHelperTests
     [Fact]
     public void RemoveBaselineFilters_HandlesMultipleFilesInSectionHeader()
     {
-        string content =
-            "[{src/File1.cs,src/File2.cs,src/File3.cs}]\n" +
-            "dotnet_diagnostic.CA2000.severity = warning " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER + "\\n" +
-            "\n";
+        string content = $$"""
+[{src/File1.cs,src/File2.cs,src/File3.cs}]
+dotnet_diagnostic.CA2000.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+
+""";
 
         string result = WarningsBaselineSyncHelper.RemoveBaselineFilters(
             content, new HashSet<string>());
@@ -399,10 +409,11 @@ public class WarningsBaselineSyncHelperTests
     [Fact]
     public void RemoveBaselineFilters_PrunesResolvedFilesInsideKeptCodeBlock()
     {
-        string content =
-            "[{src/File1.cs,src/File2.cs}]\n" +
-            "dotnet_diagnostic.CA2000.severity = warning " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER + "\\n" +
-            "\n";
+        string content = $$"""
+[{src/File1.cs,src/File2.cs}]
+dotnet_diagnostic.CA2000.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+
+""";
 
         IReadOnlyDictionary<string, IReadOnlySet<string>> activeFilesByCode =
             new Dictionary<string, IReadOnlySet<string>>(StringComparer.OrdinalIgnoreCase)
@@ -423,10 +434,11 @@ public class WarningsBaselineSyncHelperTests
     [Fact]
     public void RemoveBaselineFilters_RemovesCodeBlockWhenNoFilesRemainAfterPruning()
     {
-        string content =
-            "[{src/File1.cs}]\n" +
-            "dotnet_diagnostic.CA2000.severity = warning " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER + "\\n" +
-            "\n";
+        string content = $$"""
+[{src/File1.cs}]
+dotnet_diagnostic.CA2000.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+
+""";
 
         IReadOnlyDictionary<string, IReadOnlySet<string>> activeFilesByCode =
             new Dictionary<string, IReadOnlySet<string>>(StringComparer.OrdinalIgnoreCase)
@@ -446,13 +458,14 @@ public class WarningsBaselineSyncHelperTests
     [Fact]
     public void RemoveBaselineFilters_PreservesContentBeforeAndAfterRemovedBlock()
     {
-        string content =
-            "# top of file\n" +
-            "\n" +
-            "[{src/File.cs}]\n" +
-            "dotnet_diagnostic.CA2000.severity = warning " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER + "\\n" +
-            "\n" +
-            "# bottom of file\n";
+        string content = $$"""
+# top of file
+
+[{src/File.cs}]
+dotnet_diagnostic.CA2000.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+
+# bottom of file
+""";
 
         string result = WarningsBaselineSyncHelper.RemoveBaselineFilters(
             content, new HashSet<string>());
@@ -466,10 +479,11 @@ public class WarningsBaselineSyncHelperTests
     public void RemoveBaselineFilters_HandlesSuggestionSeverityInBaseline()
     {
         // Baseline entries may be in "suggestion" form (before activation)
-        string content =
-            "[{src/File.cs}]\n" +
-            "dotnet_diagnostic.CA2000.severity = suggestion " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER + "\\n" +
-            "\n";
+        string content = $$"""
+[{src/File.cs}]
+dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+
+""";
 
         string result = WarningsBaselineSyncHelper.RemoveBaselineFilters(
             content, new HashSet<string>());
@@ -480,10 +494,11 @@ public class WarningsBaselineSyncHelperTests
     [Fact]
     public void RemoveBaselineFilters_CaseInsensitiveCodeMatching()
     {
-        string content =
-            "[{src/File.cs}]\n" +
-            "dotnet_diagnostic.CA2000.severity = warning " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER + "\\n" +
-            "\n";
+        string content = $$"""
+[{src/File.cs}]
+dotnet_diagnostic.CA2000.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+
+""";
 
         // codesToKeep uses lowercase — should still match CA2000
         HashSet<string> codesToKeep = new(StringComparer.OrdinalIgnoreCase) { "ca2000" };
