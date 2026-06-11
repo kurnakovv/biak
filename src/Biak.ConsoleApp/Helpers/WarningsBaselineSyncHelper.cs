@@ -117,7 +117,7 @@ public static class WarningsBaselineSyncHelper
         IReadOnlyDictionary<string, IReadOnlySet<string>>? activeFilesByCode = null)
     {
         string newline = content.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
-        string[] lines = content.Split(new string[] { newline }, StringSplitOptions.None);
+        string[] lines = content.Split(new[] { newline }, StringSplitOptions.None);
 
         List<string> result = new(lines.Length);
         int i = 0;
@@ -210,7 +210,7 @@ public static class WarningsBaselineSyncHelper
         IReadOnlyDictionary<string, IReadOnlySet<string>>? activeFilesByCode = null)
     {
         string newline = content.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
-        string[] lines = content.Split(new string[] { newline }, StringSplitOptions.None);
+        string[] lines = content.Split(new[] { newline }, StringSplitOptions.None);
         Dictionary<string, HashSet<string>> synchronizedFiles = new(StringComparer.OrdinalIgnoreCase);
 
         for (int i = 0; i < lines.Length; i++)
@@ -247,12 +247,11 @@ public static class WarningsBaselineSyncHelper
                                 ? files
                                 : new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-                            foreach (string sectionFile in sectionFiles)
+                            foreach (string sectionFile in sectionFiles.Where(
+                                sectionFile => !activeFilesForCode.Contains(NormalizeEditorConfigPath(sectionFile))
+                            ))
                             {
-                                if (!activeFilesForCode.Contains(NormalizeEditorConfigPath(sectionFile)))
-                                {
-                                    AddSynchronizedFile(synchronizedFiles, sectionFile, code);
-                                }
+                                AddSynchronizedFile(synchronizedFiles, sectionFile, code);
                             }
                         }
                     }

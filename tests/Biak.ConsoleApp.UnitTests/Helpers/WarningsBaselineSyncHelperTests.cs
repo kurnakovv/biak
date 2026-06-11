@@ -664,13 +664,7 @@ dotnet_diagnostic.CA9999.severity = error
             "dotnet_diagnostic.CA1001.severity = suggestion # ^biak^ baseline\n" +
             "\n";
 
-        HashSet<string> baselineCodes = WarningsBaselineSyncHelper.GetBaselineDiagnosticCodes(original);
-        HashSet<string> activeWarningCodes = new(StringComparer.OrdinalIgnoreCase); // no warnings left
-        HashSet<string> codesToKeep = baselineCodes
-            .Where(c => activeWarningCodes.Contains(c))
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-        string synced = WarningsBaselineSyncHelper.RemoveBaselineFilters(original, codesToKeep);
+        string synced = WarningsBaselineSyncHelper.RemoveBaselineFilters(original, new HashSet<string>(StringComparer.OrdinalIgnoreCase));
         synced = WarningsBaselineSyncHelper.SetBaselineForBuild(synced, activate: false);
 
         Assert.False(WarningsBaselineSyncHelper.HasBaselineMarker(synced));
