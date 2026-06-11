@@ -10,7 +10,7 @@ namespace Biak.ConsoleApp.UnitTests.Commands;
 public class WarningsBaselineSyncCommandTests
 {
     [Fact]
-    public void IsRunnable_ReturnsFalseForEmptyArgs()
+    public void IsRunnableReturnsFalseForEmptyArgs()
     {
         Assert.False(
             WarningsBaselineSyncCommand.IsRunnable([]),
@@ -19,7 +19,7 @@ public class WarningsBaselineSyncCommandTests
     }
 
     [Fact]
-    public void IsRunnable_ReturnsFalseForInvalidArgs()
+    public void IsRunnableReturnsFalseForInvalidArgs()
     {
         Assert.False(WarningsBaselineSyncCommand.IsRunnable(["blabla"]), "`blabla` is invalid");
         Assert.False(
@@ -54,7 +54,7 @@ public class WarningsBaselineSyncCommandTests
     }
 
     [Fact]
-    public void IsRunnable_ReturnsTrueForValidArgs()
+    public void IsRunnableReturnsTrueForValidArgs()
     {
         Assert.True(WarningsBaselineSyncCommand.IsRunnable(
             [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC, ".editorconfig"])
@@ -62,7 +62,7 @@ public class WarningsBaselineSyncCommandTests
     }
 
     [Fact]
-    public void IsRunnable_ReturnsTrueForAnyEditorConfigPath()
+    public void IsRunnableReturnsTrueForAnyEditorConfigPath()
     {
         Assert.True(WarningsBaselineSyncCommand.IsRunnable(
             [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC, "path/to/.editorconfig"])
