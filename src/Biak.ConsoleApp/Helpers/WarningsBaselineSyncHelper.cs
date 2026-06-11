@@ -121,7 +121,8 @@ public static class WarningsBaselineSyncHelper
     public static string RemoveBaselineFilters(
         string content,
         IReadOnlySet<string> codesToKeep,
-        IReadOnlyDictionary<string, IReadOnlySet<string>>? activeFilesByCode = null)
+        IReadOnlyDictionary<string, IReadOnlySet<string>>? activeFilesByCode = null
+    )
     {
         string newline = content.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
         string[] lines = content.Split(new[] { newline }, StringSplitOptions.None);
