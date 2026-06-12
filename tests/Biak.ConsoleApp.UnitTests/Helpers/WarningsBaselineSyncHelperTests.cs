@@ -4,6 +4,7 @@
 
 using Biak.ConsoleApp.Constants;
 using Biak.ConsoleApp.Helpers;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 
 namespace Biak.ConsoleApp.UnitTests.Helpers;
 
@@ -211,285 +212,372 @@ public class WarningsBaselineSyncHelperTests
         Assert.Equal(original, roundTripped);
     }
 
-    // -------------------------------------------------------------------------
-    // RemoveBaselineFilters
-    // -------------------------------------------------------------------------
-
-    [Fact]
-    public void RemoveBaselineFilters_KeepsBlockWhenCodeIsInSet()
+    public static TheoryData<string, string, string[], bool, string[], string[], string?> RemoveBaselineFiltersCodeSelectionData()
     {
-        string content = $$"""
-[{src/File.cs}]
-dotnet_diagnostic.CA2000.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+        return new()
+        {
+            {
+                "KeepsBlockWhenCodeIsInSet",
+                $$"""
+                [{src/File.cs}]
+                dotnet_diagnostic.CA2000.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
 
-""";
+                """,
+                ["CA2000"],
+                false,
+                ["[{src/File.cs}]", "CA2000"],
+                Array.Empty<string>(),
+                null
+            },
+            {
+                "RemovesBlockWhenCodeNotInSet",
+                $$"""
+                [{src/File.cs}]
+                dotnet_diagnostic.CA2000.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
 
-        string result = WarningsBaselineSyncHelper.RemoveBaselineFilters(
-            content, new HashSet<string> { "CA2000" });
+                """,
+                Array.Empty<string>(),
+                false,
+                Array.Empty<string>(),
+                ["[{src/File.cs}]", "CA2000"],
+                null
+            },
+            {
+                "KeepsOnlyCodesInSet",
+                $$"""
+                [{src/File1.cs}]
+                dotnet_diagnostic.CA2000.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
 
-        Assert.Contains("[{src/File.cs}]", result, StringComparison.Ordinal);
-        Assert.Contains("CA2000", result, StringComparison.Ordinal);
+                [{src/File2.cs}]
+                dotnet_diagnostic.CA1001.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+
+                [{src/File3.cs}]
+                dotnet_diagnostic.CS1234.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+
+                """,
+                ["CA1001"],
+                false,
+                ["CA1001", "[{src/File2.cs}]"],
+                ["CA2000", "[{src/File1.cs}]", "CS1234", "[{src/File3.cs}]"],
+                null
+            },
+            {
+                "RemovesAllBlocksWhenSetIsEmpty",
+                $$"""
+                [{src/File1.cs}]
+                dotnet_diagnostic.CA2000.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+
+                [{src/File2.cs}]
+                dotnet_diagnostic.CA1001.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+
+                """,
+                Array.Empty<string>(),
+                false,
+                Array.Empty<string>(),
+                ["CA2000", "CA1001", "[{"],
+                null
+            },
+            {
+                "KeepsAllBlocksWhenAllCodesAreInSet",
+                $$"""
+                [{src/File1.cs}]
+                dotnet_diagnostic.CA2000.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+
+                [{src/File2.cs}]
+                dotnet_diagnostic.CA1001.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+
+                """,
+                ["CA2000", "CA1001"],
+                false,
+                Array.Empty<string>(),
+                Array.Empty<string>(),
+                $$"""
+                [{src/File1.cs}]
+                dotnet_diagnostic.CA2000.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+
+                [{src/File2.cs}]
+                dotnet_diagnostic.CA1001.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+
+                """
+            },
+            {
+                "CaseInsensitiveCodeMatching",
+                $$"""
+                [{src/File.cs}]
+                dotnet_diagnostic.CA2000.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+
+                """,
+                ["ca2000"],
+                true,
+                ["CA2000"],
+                Array.Empty<string>(),
+                null
+            },
+        };
     }
 
-    [Fact]
-    public void RemoveBaselineFilters_RemovesBlockWhenCodeNotInSet()
+    [Theory]
+    [MemberData(nameof(RemoveBaselineFiltersCodeSelectionData))]
+    public void RemoveBaselineFiltersCodeSelectionTheory(
+        string testName,
+        string content,
+        string[] codesToKeep,
+        bool useCaseInsensitiveSet,
+        string[] mustContain,
+        string[] mustNotContain,
+        string? expectedExact
+    )
     {
-        string content = $$"""
-[{src/File.cs}]
-dotnet_diagnostic.CA2000.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+        _ = testName;
+        HashSet<string> codes = new(
+            codesToKeep,
+            useCaseInsensitiveSet
+                ? StringComparer.OrdinalIgnoreCase
+                : StringComparer.Ordinal
+        );
 
-""";
+        string result = WarningsBaselineSyncHelper.RemoveBaselineFilters(content, codes);
 
-        string result = WarningsBaselineSyncHelper.RemoveBaselineFilters(
-            content, new HashSet<string>());
+        if (expectedExact is not null)
+        {
+            Assert.Equal(expectedExact, result);
+        }
 
-        Assert.DoesNotContain("[{src/File.cs}]", result, StringComparison.Ordinal);
-        Assert.DoesNotContain("CA2000", result, StringComparison.Ordinal);
+        foreach (string value in mustContain)
+        {
+            Assert.Contains(value, result, StringComparison.Ordinal);
+        }
+
+        foreach (string value in mustNotContain)
+        {
+            Assert.DoesNotContain(value, result, StringComparison.Ordinal);
+        }
     }
 
-    [Fact]
-    public void RemoveBaselineFilters_KeepsOnlyCodesInSet()
+    public static TheoryData<string, string, string[], string[], string[], string?> RemoveBaselineFiltersContentPreservationData()
     {
-        string content = $$"""
-[{src/File1.cs}]
-dotnet_diagnostic.CA2000.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+        return new()
+        {
+            {
+                "PreservesNonBaselineSections",
+                $$"""
+                [*.cs]
+                dotnet_diagnostic.CA9999.severity = error
 
-[{src/File2.cs}]
-dotnet_diagnostic.CA1001.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+                [{src/File.cs}]
+                dotnet_diagnostic.CA2000.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
 
-[{src/File3.cs}]
-dotnet_diagnostic.CS1234.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+                [*]
+                indent_size = 4
+                """,
+                Array.Empty<string>(),
+                ["[*.cs]", "CA9999", "[*]", "indent_size = 4"],
+                ["CA2000", "[{src/File.cs}]"],
+                null
+            },
+            {
+                "ReturnsContentUnchangedWhenNoBaselineBlocks",
+                """
+                [*.cs]
+                dotnet_diagnostic.CA9999.severity = error
+                """,
+                Array.Empty<string>(),
+                Array.Empty<string>(),
+                Array.Empty<string>(),
+                """
+                [*.cs]
+                dotnet_diagnostic.CA9999.severity = error
+                """
+            },
+            {
+                "PreservesContentBeforeAndAfterRemovedBlock",
+                $$"""
+                # top of file
 
-""";
+                [{src/File.cs}]
+                dotnet_diagnostic.CA2000.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
 
-        string result = WarningsBaselineSyncHelper.RemoveBaselineFilters(
-            content, new HashSet<string> { "CA1001" });
+                # bottom of file
+                """,
+                Array.Empty<string>(),
+                ["# top of file", "# bottom of file"],
+                ["CA2000"],
+                null
+            },
+            {
+                "HandlesMultipleFilesInSectionHeader",
+                $$"""
+                [{src/File1.cs,src/File2.cs,src/File3.cs}]
+                dotnet_diagnostic.CA2000.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
 
-        Assert.DoesNotContain("CA2000", result, StringComparison.Ordinal);
-        Assert.DoesNotContain("[{src/File1.cs}]", result, StringComparison.Ordinal);
-        Assert.Contains("CA1001", result, StringComparison.Ordinal);
-        Assert.Contains("[{src/File2.cs}]", result, StringComparison.Ordinal);
-        Assert.DoesNotContain("CS1234", result, StringComparison.Ordinal);
-        Assert.DoesNotContain("[{src/File3.cs}]", result, StringComparison.Ordinal);
+                """,
+                Array.Empty<string>(),
+                Array.Empty<string>(),
+                ["CA2000", "[{"],
+                null
+            },
+        };
     }
 
-    [Fact]
-    public void RemoveBaselineFilters_RemovesAllBlocksWhenSetIsEmpty()
+    [Theory]
+    [MemberData(nameof(RemoveBaselineFiltersContentPreservationData))]
+    public void RemoveBaselineFiltersContentPreservationTheory(
+        string testName,
+        string content,
+        string[] codesToKeep,
+        string[] mustContain,
+        string[] mustNotContain,
+        string? expectedExact
+    )
     {
-        string content = $$"""
-[{src/File1.cs}]
-dotnet_diagnostic.CA2000.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+        _ = testName;
+        string result = WarningsBaselineSyncHelper.RemoveBaselineFilters(content, new HashSet<string>(codesToKeep));
 
-[{src/File2.cs}]
-dotnet_diagnostic.CA1001.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+        if (expectedExact is not null)
+        {
+            Assert.Equal(expectedExact, result);
+        }
 
-""";
+        foreach (string value in mustContain)
+        {
+            Assert.Contains(value, result, StringComparison.Ordinal);
+        }
 
-        string result = WarningsBaselineSyncHelper.RemoveBaselineFilters(
-            content, new HashSet<string>());
-
-        Assert.DoesNotContain("CA2000", result, StringComparison.Ordinal);
-        Assert.DoesNotContain("CA1001", result, StringComparison.Ordinal);
-        Assert.DoesNotContain("[{", result, StringComparison.Ordinal);
+        foreach (string value in mustNotContain)
+        {
+            Assert.DoesNotContain(value, result, StringComparison.Ordinal);
+        }
     }
 
-    [Fact]
-    public void RemoveBaselineFilters_PreservesNonBaselineSections()
+    public static TheoryData<string, string, string[], string[], string[], bool> RemoveBaselineFiltersLineEndingsData()
     {
-        string content = $$"""
-[*.cs]
-dotnet_diagnostic.CA9999.severity = error
-
-[{src/File.cs}]
-dotnet_diagnostic.CA2000.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
-
-[*]
-indent_size = 4
-""";
-
-        string result = WarningsBaselineSyncHelper.RemoveBaselineFilters(
-            content, new HashSet<string>());
-
-        Assert.Contains("[*.cs]", result, StringComparison.Ordinal);
-        Assert.Contains("CA9999", result, StringComparison.Ordinal);
-        Assert.Contains("[*]", result, StringComparison.Ordinal);
-        Assert.Contains("indent_size = 4", result, StringComparison.Ordinal);
-        Assert.DoesNotContain("CA2000", result, StringComparison.Ordinal);
-        Assert.DoesNotContain("[{src/File.cs}]", result, StringComparison.Ordinal);
+        return new()
+        {
+            {
+                "WorksWithCrLfLineEndings",
+                "\r\n",
+                ["CA1001"],
+                ["CA1001"],
+                ["CA2000"],
+                true
+            },
+            {
+                "WorksWithLfLineEndings",
+                "\n",
+                ["CA1001"],
+                ["CA1001"],
+                ["CA2000", "\r\n"],
+                false
+            },
+        };
     }
 
-    [Fact]
-    public void RemoveBaselineFilters_WorksWithCrLfLineEndings()
+    [Theory]
+    [MemberData(nameof(RemoveBaselineFiltersLineEndingsData))]
+    public void RemoveBaselineFiltersLineEndingsTheory(
+        string testName,
+        string newline,
+        string[] codesToKeep,
+        string[] mustContain,
+        string[] mustNotContain,
+        bool shouldContainCrLf
+    )
     {
+        _ = testName;
         string content = $$"""
-[{src/File1.cs}]
-dotnet_diagnostic.CA2000.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+            [{src/File1.cs}]
+            dotnet_diagnostic.CA2000.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
 
-[{src/File2.cs}]
-dotnet_diagnostic.CA1001.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+            [{src/File2.cs}]
+            dotnet_diagnostic.CA1001.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
 
-""".ReplaceLineEndings("\r\n");
+            """.ReplaceLineEndings(newline);
 
-        string result = WarningsBaselineSyncHelper.RemoveBaselineFilters(
-            content, new HashSet<string> { "CA1001" });
+        string result = WarningsBaselineSyncHelper.RemoveBaselineFilters(content, new HashSet<string>(codesToKeep));
 
-        Assert.DoesNotContain("CA2000", result, StringComparison.Ordinal);
-        Assert.Contains("CA1001", result, StringComparison.Ordinal);
-        Assert.Contains("\r\n", result, StringComparison.Ordinal);
+        foreach (string value in mustContain)
+        {
+            Assert.Contains(value, result, StringComparison.Ordinal);
+        }
+
+        foreach (string value in mustNotContain)
+        {
+            Assert.DoesNotContain(value, result, StringComparison.Ordinal);
+        }
+
+        if (shouldContainCrLf)
+        {
+            Assert.Contains("\r\n", result, StringComparison.Ordinal);
+        }
+        else
+        {
+            Assert.DoesNotContain("\r\n", result, StringComparison.Ordinal);
+        }
     }
 
-    [Fact]
-    public void RemoveBaselineFilters_WorksWithLfLineEndings()
+    public static TheoryData<string, string, string[], string[], string[], string[]> RemoveBaselineFiltersActiveFilesPruningData()
     {
-        string content = $$"""
-[{src/File1.cs}]
-dotnet_diagnostic.CA2000.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+        return new()
+        {
+            {
+                "PrunesResolvedFilesInsideKeptCodeBlock",
+                $$"""
+                [{src/File1.cs,src/File2.cs}]
+                dotnet_diagnostic.CA2000.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
 
-[{src/File2.cs}]
-dotnet_diagnostic.CA1001.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+                """,
+                ["CA2000"],
+                ["src/File2.cs"],
+                ["[{src/File2.cs}]", "CA2000"],
+                ["src/File1.cs"]
+            },
+            {
+                "RemovesCodeBlockWhenNoFilesRemainAfterPruning",
+                $$"""
+                [{src/File1.cs}]
+                dotnet_diagnostic.CA2000.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
 
-""".ReplaceLineEndings("\n");
-
-        string result = WarningsBaselineSyncHelper.RemoveBaselineFilters(
-            content, new HashSet<string> { "CA1001" });
-
-        Assert.DoesNotContain("CA2000", result, StringComparison.Ordinal);
-        Assert.Contains("CA1001", result, StringComparison.Ordinal);
-        Assert.DoesNotContain("\r\n", result, StringComparison.Ordinal);
+                """,
+                ["CA2000"],
+                ["src/OtherFile.cs"],
+                Array.Empty<string>(),
+                ["CA2000", "[{"]
+            },
+        };
     }
 
-    [Fact]
-    public void RemoveBaselineFilters_KeepsAllBlocksWhenAllCodesAreInSet()
+    [Theory]
+    [MemberData(nameof(RemoveBaselineFiltersActiveFilesPruningData))]
+    public void RemoveBaselineFiltersActiveFilesPruningTheory(
+        string testName,
+        string content,
+        string[] codesToKeep,
+        string[] activeFilesForCode,
+        string[] mustContain,
+        string[] mustNotContain
+    )
     {
-        string content = $$"""
-[{src/File1.cs}]
-dotnet_diagnostic.CA2000.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
-
-[{src/File2.cs}]
-dotnet_diagnostic.CA1001.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
-
-""";
-
-        string result = WarningsBaselineSyncHelper.RemoveBaselineFilters(
-            content, new HashSet<string> { "CA2000", "CA1001" });
-
-        Assert.Equal(content, result);
-    }
-
-    [Fact]
-    public void RemoveBaselineFilters_ReturnsContentUnchangedWhenNoBaselineBlocks()
-    {
-        string content = """
-[*.cs]
-dotnet_diagnostic.CA9999.severity = error
-""";
-
-        string result = WarningsBaselineSyncHelper.RemoveBaselineFilters(
-            content, new HashSet<string>());
-
-        Assert.Equal(content, result);
-    }
-
-    [Fact]
-    public void RemoveBaselineFilters_HandlesMultipleFilesInSectionHeader()
-    {
-        string content = $$"""
-[{src/File1.cs,src/File2.cs,src/File3.cs}]
-dotnet_diagnostic.CA2000.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
-
-""";
-
-        string result = WarningsBaselineSyncHelper.RemoveBaselineFilters(
-            content, new HashSet<string>());
-
-        Assert.DoesNotContain("CA2000", result, StringComparison.Ordinal);
-        Assert.DoesNotContain("[{", result, StringComparison.Ordinal);
-    }
-
-    [Fact]
-    public void RemoveBaselineFilters_PrunesResolvedFilesInsideKeptCodeBlock()
-    {
-        string content = $$"""
-[{src/File1.cs,src/File2.cs}]
-dotnet_diagnostic.CA2000.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
-
-""";
-
+        _ = testName;
         IReadOnlyDictionary<string, IReadOnlySet<string>> activeFilesByCode =
             new Dictionary<string, IReadOnlySet<string>>(StringComparer.OrdinalIgnoreCase)
             {
-                ["CA2000"] = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "src/File2.cs" },
+                ["CA2000"] = new HashSet<string>(activeFilesForCode, StringComparer.OrdinalIgnoreCase),
             };
 
         string result = WarningsBaselineSyncHelper.RemoveBaselineFilters(
             content,
-            new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "CA2000" },
+            new HashSet<string>(codesToKeep, StringComparer.OrdinalIgnoreCase),
             activeFilesByCode);
 
-        Assert.DoesNotContain("src/File1.cs", result, StringComparison.Ordinal);
-        Assert.Contains("[{src/File2.cs}]", result, StringComparison.Ordinal);
-        Assert.Contains("CA2000", result, StringComparison.Ordinal);
-    }
+        foreach (string value in mustContain)
+        {
+            Assert.Contains(value, result, StringComparison.Ordinal);
+        }
 
-    [Fact]
-    public void RemoveBaselineFilters_RemovesCodeBlockWhenNoFilesRemainAfterPruning()
-    {
-        string content = $$"""
-[{src/File1.cs}]
-dotnet_diagnostic.CA2000.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
-
-""";
-
-        IReadOnlyDictionary<string, IReadOnlySet<string>> activeFilesByCode =
-            new Dictionary<string, IReadOnlySet<string>>(StringComparer.OrdinalIgnoreCase)
-            {
-                ["CA2000"] = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "src/OtherFile.cs" },
-            };
-
-        string result = WarningsBaselineSyncHelper.RemoveBaselineFilters(
-            content,
-            new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "CA2000" },
-            activeFilesByCode);
-
-        Assert.DoesNotContain("CA2000", result, StringComparison.Ordinal);
-        Assert.DoesNotContain("[{", result, StringComparison.Ordinal);
-    }
-
-    [Fact]
-    public void RemoveBaselineFilters_PreservesContentBeforeAndAfterRemovedBlock()
-    {
-        string content = $$"""
-# top of file
-
-[{src/File.cs}]
-dotnet_diagnostic.CA2000.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
-
-# bottom of file
-""";
-
-        string result = WarningsBaselineSyncHelper.RemoveBaselineFilters(
-            content, new HashSet<string>());
-
-        Assert.Contains("# top of file", result, StringComparison.Ordinal);
-        Assert.Contains("# bottom of file", result, StringComparison.Ordinal);
-        Assert.DoesNotContain("CA2000", result, StringComparison.Ordinal);
-    }
-
-    [Fact]
-    public void RemoveBaselineFilters_CaseInsensitiveCodeMatching()
-    {
-        string content = $$"""
-[{src/File.cs}]
-dotnet_diagnostic.CA2000.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
-
-""";
-
-        // codesToKeep uses lowercase — should still match CA2000
-        HashSet<string> codesToKeep = new(StringComparer.OrdinalIgnoreCase) { "ca2000" };
-
-        string result = WarningsBaselineSyncHelper.RemoveBaselineFilters(content, codesToKeep);
-
-        Assert.Contains("CA2000", result, StringComparison.Ordinal);
+        foreach (string value in mustNotContain)
+        {
+            Assert.DoesNotContain(value, result, StringComparison.Ordinal);
+        }
     }
 
     [Fact]
