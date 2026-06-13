@@ -22,6 +22,7 @@ public class WarningsBaselineSyncHelperTests
     [InlineData("../.editorconfig", false)]
     [InlineData("../../.editorconfig", false)]
     [InlineData("../other-project/.editorconfig", false)]
+    [InlineData("appsettings.json", false)]
     public void IsPathSafeTest(string relativePath, bool expected)
     {
         string baseDir = Path.Join(Path.GetTempPath(), "biak-test-safe");
