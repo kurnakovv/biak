@@ -580,15 +580,15 @@ public class WarningsBaselineSyncHelperTests
     }
 
     [Fact]
-    public void GetSynchronizedFiles_ReturnsRemovedAndPrunedFilesGroupedByFile()
+    public void GetSynchronizedFilesReturnsRemovedAndPrunedFilesGroupedByFile()
     {
-        string content =
-            "[{src/Fixed.cs}]\n" +
-            "dotnet_diagnostic.CA2000.severity = suggestion " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER + "\\n" +
-            "\n" +
-            "[{src/StillBroken.cs,src/PartiallyFixed.cs}]\n" +
-            "dotnet_diagnostic.CA1001.severity = suggestion " + WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER + "\\n" +
-            "\n";
+        string content = $$"""
+            [{src/Fixed.cs}]
+            dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+
+            [{src/StillBroken.cs,src/PartiallyFixed.cs}]
+            dotnet_diagnostic.CA1001.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+            """;
 
         HashSet<string> codesToKeep = new(StringComparer.OrdinalIgnoreCase) { "CA1001" };
         IReadOnlyDictionary<string, IReadOnlySet<string>> activeFilesByCode =
