@@ -11,12 +11,15 @@ namespace Biak.ConsoleApp.IntegrationTests.Commands;
 
 public class WarningsBaselineSyncCommandTests
 {
-    [Fact]
-    public async Task RunShouldThrowBiakApplicationExceptionWhenPathEscapesDirectoryAsync()
+    [Theory]
+    [InlineData("PathEscapesDirectory", "../../.editorconfig", WarningsBaselineSyncCommandConstant.PATH_ESCAPES_DIRECTORY, false)]
+    [InlineData("EditorConfigNotFound", ".editorconfig", WarningsBaselineSyncCommandConstant.FILE_NOT_FOUND, false)]
+    [InlineData("UnexpectedException", null, WarningsBaselineSyncCommandConstant.SYNC_FAILED, true)]
+    public async Task RunShouldThrowBiakApplicationExceptionAsync(string testCaseName, string? path, string expected, bool useStartsWith)
     {
         string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new(
-            $"{nameof(WarningsBaselineSyncCommandTests)}_{nameof(RunShouldThrowBiakApplicationExceptionWhenPathEscapesDirectoryAsync)}"
+            $"{nameof(WarningsBaselineSyncCommandTests)}_{nameof(RunShouldThrowBiakApplicationExceptionAsync)}_{testCaseName}"
         );
 
         try
@@ -27,45 +30,22 @@ public class WarningsBaselineSyncCommandTests
                 async () =>
                 {
                     await WarningsBaselineSyncCommand.RunAsync(
-                        [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC, "../../.editorconfig"]
+                        [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC, path!]
                     );
                 }
             );
 
             Assert.NotNull(exception);
             Assert.IsType<BiakApplicationException>(exception);
-            Assert.Equal(WarningsBaselineSyncCommandConstant.PATH_ESCAPES_DIRECTORY, exception.Message);
-        }
-        finally
-        {
-            Directory.SetCurrentDirectory(originalDirectory);
-        }
-    }
 
-    [Fact]
-    public async Task RunShouldThrowBiakApplicationExceptionWhenEditorConfigNotFoundAsync()
-    {
-        string originalDirectory = Directory.GetCurrentDirectory();
-        TestDirectory testDir = new(
-            $"{nameof(WarningsBaselineSyncCommandTests)}_{nameof(RunShouldThrowBiakApplicationExceptionWhenEditorConfigNotFoundAsync)}"
-        );
-
-        try
-        {
-            Directory.SetCurrentDirectory(testDir.Value);
-
-            Exception? exception = await Record.ExceptionAsync(
-                async () =>
-                {
-                    await WarningsBaselineSyncCommand.RunAsync(
-                        [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC, ".editorconfig"]
-                    );
-                }
-            );
-
-            Assert.NotNull(exception);
-            Assert.IsType<BiakApplicationException>(exception);
-            Assert.Equal(WarningsBaselineSyncCommandConstant.FILE_NOT_FOUND, exception.Message);
+            if (useStartsWith)
+            {
+                Assert.StartsWith(expected, exception.Message, StringComparison.Ordinal);
+            }
+            else
+            {
+                Assert.Equal(expected, exception.Message);
+            }
         }
         finally
         {
@@ -106,37 +86,6 @@ public class WarningsBaselineSyncCommandTests
             Assert.NotNull(exception);
             Assert.IsType<BiakApplicationException>(exception);
             Assert.Equal(WarningsBaselineSyncCommandConstant.NO_BASELINE_MARKER, exception.Message);
-        }
-        finally
-        {
-            Directory.SetCurrentDirectory(originalDirectory);
-        }
-    }
-
-    [Fact]
-    public async Task RunShouldWrapUnexpectedExceptionWithSyncFailedMessageAsync()
-    {
-        string originalDirectory = Directory.GetCurrentDirectory();
-        TestDirectory testDir = new(
-            $"{nameof(WarningsBaselineSyncCommandTests)}_{nameof(RunShouldWrapUnexpectedExceptionWithSyncFailedMessageAsync)}"
-        );
-
-        try
-        {
-            Directory.SetCurrentDirectory(testDir.Value);
-
-            Exception? exception = await Record.ExceptionAsync(
-                async () =>
-                {
-                    await WarningsBaselineSyncCommand.RunAsync(
-                        [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC, null!]
-                    );
-                }
-            );
-
-            Assert.NotNull(exception);
-            Assert.IsType<BiakApplicationException>(exception);
-            Assert.StartsWith($"{WarningsBaselineSyncCommandConstant.SYNC_FAILED} ", exception.Message, StringComparison.Ordinal);
         }
         finally
         {
