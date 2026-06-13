@@ -298,6 +298,9 @@ public class WarningsBaselineSyncCommandTests
 
                 dotnet_diagnostic.CS0219.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
 
+                [{ProgramCS0168Warning.cs}]
+                dotnet_diagnostic.cs0168.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+
                 [{src/File.cs}]
 
                 """
