@@ -295,6 +295,7 @@ public class WarningsBaselineSyncCommandTests
                 root = true
 
                 [{ResolvedFile.cs}]
+
                 dotnet_diagnostic.CS0219.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
                 """
             );
