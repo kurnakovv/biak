@@ -114,6 +114,37 @@ public class WarningsBaselineSyncCommandTests
     }
 
     [Fact]
+    public async Task RunShouldWrapUnexpectedExceptionWithSyncFailedMessageAsync()
+    {
+        string originalDirectory = Directory.GetCurrentDirectory();
+        TestDirectory testDir = new(
+            $"{nameof(WarningsBaselineSyncCommandTests)}_{nameof(RunShouldWrapUnexpectedExceptionWithSyncFailedMessageAsync)}"
+        );
+
+        try
+        {
+            Directory.SetCurrentDirectory(testDir.Value);
+
+            Exception? exception = await Record.ExceptionAsync(
+                async () =>
+                {
+                    await WarningsBaselineSyncCommand.RunAsync(
+                        [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC, null!]
+                    );
+                }
+            );
+
+            Assert.NotNull(exception);
+            Assert.IsType<BiakApplicationException>(exception);
+            Assert.StartsWith($"{WarningsBaselineSyncCommandConstant.SYNC_FAILED} ", exception.Message, StringComparison.Ordinal);
+        }
+        finally
+        {
+            Directory.SetCurrentDirectory(originalDirectory);
+        }
+    }
+
+    [Fact]
     public async Task RunShouldRestoreEditorConfigWhenBuildFailsAsync()
     {
         string originalDirectory = Directory.GetCurrentDirectory();
