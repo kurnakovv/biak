@@ -43,6 +43,37 @@ public class WarningsBaselineSyncCommandTests
     }
 
     [Fact]
+    public async Task RunShouldThrowBiakApplicationExceptionWhenEditorConfigNotFoundAsync()
+    {
+        string originalDirectory = Directory.GetCurrentDirectory();
+        TestDirectory testDir = new(
+            $"{nameof(WarningsBaselineSyncCommandTests)}_{nameof(RunShouldThrowBiakApplicationExceptionWhenEditorConfigNotFoundAsync)}"
+        );
+
+        try
+        {
+            Directory.SetCurrentDirectory(testDir.Value);
+
+            Exception? exception = await Record.ExceptionAsync(
+                async () =>
+                {
+                    await WarningsBaselineSyncCommand.RunAsync(
+                        [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC, ".editorconfig"]
+                    );
+                }
+            );
+
+            Assert.NotNull(exception);
+            Assert.IsType<BiakApplicationException>(exception);
+            Assert.Equal(WarningsBaselineSyncCommandConstant.FILE_NOT_FOUND, exception.Message);
+        }
+        finally
+        {
+            Directory.SetCurrentDirectory(originalDirectory);
+        }
+    }
+
+    [Fact]
     public async Task RunShouldRemoveResolvedFiltersAndPrunePartiallyFixedGroupsAsync()
     {
         string originalDirectory = Directory.GetCurrentDirectory();
