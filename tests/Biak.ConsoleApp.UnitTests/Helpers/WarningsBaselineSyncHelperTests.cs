@@ -374,6 +374,21 @@ public class WarningsBaselineSyncHelperTests
 
                 """
             },
+            {
+                "IgnoresHeaderWhenDiagnosticLineHasInvalidFormat",
+                """
+                [{src/File.cs}]
+                dotnet_diagnostic.CA2000.severity = suggestion
+                """,
+                Array.Empty<string>(),
+                false,
+                ["[{src/File.cs}]", "dotnet_diagnostic.CA2000.severity = suggestion"],
+                Array.Empty<string>(),
+                """
+                [{src/File.cs}]
+                dotnet_diagnostic.CA2000.severity = suggestion
+                """
+            },
         };
     }
 
