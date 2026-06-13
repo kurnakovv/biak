@@ -313,6 +313,50 @@ public class WarningsBaselineSyncHelperTests
                 Array.Empty<string>(),
                 null
             },
+            {
+                "KeepsBlockWithSingleBlankLineBetweenHeaderAndDiagnostic",
+                $$"""
+                [{src/File.cs}]
+
+                dotnet_diagnostic.CA2000.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+
+                """,
+                ["CA2000"],
+                false,
+                ["[{src/File.cs}]", "CA2000"],
+                Array.Empty<string>(),
+                null
+            },
+            {
+                "RemovesBlockWithSingleBlankLineBetweenHeaderAndDiagnostic",
+                $$"""
+                [{src/File.cs}]
+
+                dotnet_diagnostic.CA2000.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+
+                """,
+                Array.Empty<string>(),
+                false,
+                Array.Empty<string>(),
+                ["[{src/File.cs}]", "CA2000"],
+                null
+            },
+            {
+                "KeepsBlockWithMultipleBlankLinesBetweenHeaderAndDiagnostic",
+                $$"""
+                [{src/File.cs}]
+
+
+
+                dotnet_diagnostic.CA2000.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+
+                """,
+                ["CA2000"],
+                false,
+                ["CA2000"],
+                Array.Empty<string>(),
+                null
+            },
         };
     }
 
