@@ -114,6 +114,44 @@ public class WarningsBaselineSyncCommandTests
     }
 
     [Fact]
+    public async Task RunShouldRestoreEditorConfigWhenBuildFailsAsync()
+    {
+        string originalDirectory = Directory.GetCurrentDirectory();
+        TestDirectory testDir = new(
+            $"{nameof(WarningsBaselineSyncCommandTests)}_{nameof(RunShouldRestoreEditorConfigWhenBuildFailsAsync)}"
+        );
+
+        try
+        {
+            Directory.SetCurrentDirectory(testDir.Value);
+
+            string editorconfigPath = Path.Join(testDir.Value, ".editorconfig");
+            await File.WriteAllTextAsync(editorconfigPath, WarningsBaselineCommandTestConstants.BASELINE_EDITORCONFIG);
+
+            Exception? exception = await Record.ExceptionAsync(
+                async () =>
+                {
+                    await WarningsBaselineSyncCommand.RunAsync(
+                        [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC, ".editorconfig"]
+                    );
+                }
+            );
+
+            string restoredContent = await File.ReadAllTextAsync(editorconfigPath);
+
+            Assert.NotNull(exception);
+            Assert.IsType<BiakApplicationException>(exception);
+            Assert.Equal(WarningsBaselineCommandTestConstants.BASELINE_EDITORCONFIG, restoredContent);
+            Assert.DoesNotContain($"= warning {WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}", restoredContent, StringComparison.Ordinal);
+            Assert.False(File.Exists(WarningsBaselineSyncCommandConstant.BUILD_BINLOG_PATH));
+        }
+        finally
+        {
+            Directory.SetCurrentDirectory(originalDirectory);
+        }
+    }
+
+    [Fact]
     public async Task RunShouldRemoveResolvedFiltersAndPrunePartiallyFixedGroupsAsync()
     {
         string originalDirectory = Directory.GetCurrentDirectory();
