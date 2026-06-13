@@ -152,6 +152,60 @@ public class WarningsBaselineSyncCommandTests
     }
 
     [Fact]
+    public async Task RunShouldReturnAllWarningsFixedWhenNoBaselineCodesAreActiveAsync()
+    {
+        string originalDirectory = Directory.GetCurrentDirectory();
+        TestDirectory testDir = new(
+            $"{nameof(WarningsBaselineSyncCommandTests)}_{nameof(RunShouldReturnAllWarningsFixedWhenNoBaselineCodesAreActiveAsync)}"
+        );
+
+        TextWriter originalOut = Console.Out;
+        await using StringWriter output = new();
+        Console.SetOut(output);
+
+        try
+        {
+            Directory.SetCurrentDirectory(testDir.Value);
+
+            string templateSimpleProject = Path.Join(
+                AppContext.BaseDirectory,
+                "Templates",
+                "SimpleProject",
+                "MySimpleProjectTemplate"
+            );
+
+            testDir.CopyDirectory(templateSimpleProject);
+
+            string editorconfigPath = Path.Join(testDir.Value, ".editorconfig");
+            await File.WriteAllTextAsync(editorconfigPath, WarningsBaselineCommandTestConstants.BASELINE_EDITORCONFIG);
+
+            string result = await WarningsBaselineSyncCommand.RunAsync(
+                [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC, ".editorconfig"]
+            );
+
+            string syncedContent = await File.ReadAllTextAsync(editorconfigPath);
+            string consoleOutput = output.ToString();
+
+            string expectedOutput = WarningsBaselineSyncCommandConstant.SYNC_STARTED
+                + Environment.NewLine
+                + Environment.NewLine
+                + WarningsBaselineSyncCommandConstant.ALL_WARNINGS_FIXED
+                + Environment.NewLine
+                + Environment.NewLine;
+
+            Assert.Equal(WarningsBaselineSyncCommandConstant.ALL_WARNINGS_FIXED, result);
+            Assert.Equal(expectedOutput, consoleOutput);
+            Assert.DoesNotContain(WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER, syncedContent, StringComparison.Ordinal);
+            Assert.False(File.Exists(WarningsBaselineSyncCommandConstant.BUILD_BINLOG_PATH));
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+            Directory.SetCurrentDirectory(originalDirectory);
+        }
+    }
+
+    [Fact]
     public async Task RunShouldRemoveResolvedFiltersAndPrunePartiallyFixedGroupsAsync()
     {
         string originalDirectory = Directory.GetCurrentDirectory();

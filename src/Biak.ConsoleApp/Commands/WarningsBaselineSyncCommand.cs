@@ -125,17 +125,17 @@ public static class WarningsBaselineSyncCommand
                 result = removedCount > 0
                     ? $"Sync complete. Removed {removedCount} resolved filter(s). {codesToKeep.Count} filter(s) still alive."
                     : $"Sync complete. No filters removed. {codesToKeep.Count} filter(s) still alive.";
-            }
 
-            foreach (KeyValuePair<string, IReadOnlySet<string>> synchronizedFile in synchronizedFiles.OrderBy(x => x.Key, StringComparer.OrdinalIgnoreCase))
-            {
-                string codes = string.Join(", ", synchronizedFile.Value.OrderBy(x => x, StringComparer.OrdinalIgnoreCase));
-                Console.WriteLine($"{synchronizedFile.Key} ({codes})");
-            }
+                foreach (KeyValuePair<string, IReadOnlySet<string>> synchronizedFile in synchronizedFiles.OrderBy(x => x.Key, StringComparer.OrdinalIgnoreCase))
+                {
+                    string codes = string.Join(", ", synchronizedFile.Value.OrderBy(x => x, StringComparer.OrdinalIgnoreCase));
+                    Console.WriteLine($"{synchronizedFile.Key} ({codes})");
+                }
 
-            if (synchronizedFiles.Count > 0)
-            {
-                Console.WriteLine();
+                if (synchronizedFiles.Count > 0)
+                {
+                    Console.WriteLine();
+                }
             }
 
             Console.WriteLine(result);
