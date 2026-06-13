@@ -122,9 +122,7 @@ public static class WarningsBaselineSyncCommand
             else
             {
                 int removedCount = baselineCodes.Count - codesToKeep.Count;
-                result = removedCount > 0
-                    ? $"Sync complete. Removed {removedCount} resolved filter(s). {codesToKeep.Count} filter(s) still alive."
-                    : $"Sync complete. No filters removed. {codesToKeep.Count} filter(s) still alive.";
+                result = $"Sync complete. Removed {synchronizedFiles.Count} file(s); resolved {removedCount} filter(s). {codesToKeep.Count} filter(s) still alive.";
 
                 foreach (KeyValuePair<string, IReadOnlySet<string>> synchronizedFile in synchronizedFiles.OrderBy(x => x.Key, StringComparer.OrdinalIgnoreCase))
                 {
