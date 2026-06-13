@@ -359,7 +359,7 @@ public class WarningsBaselineSyncHelperTests
             },
             {
                 "IgnoresHeaderAtEndOfFileWhenDiagnosticLineIsMissing",
-                $$"""
+                """
                 [{src/File.cs}]
 
 
@@ -368,7 +368,7 @@ public class WarningsBaselineSyncHelperTests
                 false,
                 ["[{src/File.cs}]"],
                 Array.Empty<string>(),
-                $$"""
+                """
                 [{src/File.cs}]
 
 
