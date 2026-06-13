@@ -243,6 +243,94 @@ public class WarningsBaselineSyncCommandTests
     }
 
     [Fact]
+    public async Task RunShouldRemoveFilterWhenCodeIsActiveButNoFilesRemainInSectionAsync()
+    {
+        string originalDirectory = Directory.GetCurrentDirectory();
+        TestDirectory testDir = new(
+            $"{nameof(WarningsBaselineSyncCommandTests)}_{nameof(RunShouldRemoveFilterWhenCodeIsActiveButNoFilesRemainInSectionAsync)}"
+        );
+
+        TextWriter originalOut = Console.Out;
+        await using StringWriter output = new();
+        Console.SetOut(output);
+
+        try
+        {
+            Directory.SetCurrentDirectory(testDir.Value);
+
+            string templateSimpleProject = Path.Join(
+                AppContext.BaseDirectory,
+                "Templates",
+                "SimpleProject",
+                "MySimpleProjectTemplate"
+            );
+
+            testDir.CopyDirectory(templateSimpleProject);
+
+            await File.WriteAllTextAsync(
+                Path.Join(testDir.Value, "Program.cs"),
+                """
+                // Copyright (c) 2026 kurnakovv
+                // This file is licensed under the MIT License.
+                // See the LICENSE file in the project root for full license information.
+
+                using System;
+
+                namespace Biak.ConsoleApp.IntegrationTests.Templates.SimpleProject.MySimpleProjectTemplate;
+
+                internal class Program
+                {
+                    static void Main()
+                    {
+                        int value = 42;
+                    }
+                }
+                """
+            );
+
+            string editorconfigPath = Path.Join(testDir.Value, ".editorconfig");
+            await File.WriteAllTextAsync(
+                editorconfigPath,
+                $$"""
+                root = true
+
+                [{ResolvedFile.cs}]
+                dotnet_diagnostic.CS0219.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+                """
+            );
+
+            string result = await WarningsBaselineSyncCommand.RunAsync(
+                [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC, ".editorconfig"]
+            );
+
+            string syncedContent = await File.ReadAllTextAsync(editorconfigPath);
+            string consoleOutput = output.ToString();
+
+            string expectedResult = "Sync complete. Removed 1 file(s); resolved 1 filter(s). 0 filter(s) still alive.";
+            string expectedOutput = WarningsBaselineSyncCommandConstant.SYNC_STARTED
+                + Environment.NewLine
+                + Environment.NewLine
+                + "ResolvedFile.cs (CS0219)"
+                + Environment.NewLine
+                + Environment.NewLine
+                + expectedResult
+                + Environment.NewLine
+                + Environment.NewLine;
+
+            Assert.Equal(expectedResult, result);
+            Assert.Equal(expectedOutput, consoleOutput);
+            Assert.DoesNotContain("[{ResolvedFile.cs}]", syncedContent, StringComparison.Ordinal);
+            Assert.DoesNotContain("dotnet_diagnostic.CS0219.severity", syncedContent, StringComparison.Ordinal);
+            Assert.False(File.Exists(WarningsBaselineSyncCommandConstant.BUILD_BINLOG_PATH));
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+            Directory.SetCurrentDirectory(originalDirectory);
+        }
+    }
+
+    [Fact]
     public async Task RunShouldRemoveResolvedFiltersAndPrunePartiallyFixedGroupsAsync()
     {
         string originalDirectory = Directory.GetCurrentDirectory();

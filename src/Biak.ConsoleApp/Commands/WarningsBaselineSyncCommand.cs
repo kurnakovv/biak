@@ -114,6 +114,8 @@ public static class WarningsBaselineSyncCommand
 
             await File.WriteAllTextAsync(resolvedPath, syncedContent);
 
+            HashSet<string> remainingBaselineCodes = WarningsBaselineSyncHelper.GetBaselineDiagnosticCodes(syncedContent);
+
             string result;
             if (codesToKeep.Count == 0)
             {
@@ -121,8 +123,8 @@ public static class WarningsBaselineSyncCommand
             }
             else
             {
-                int removedCount = baselineCodes.Count - codesToKeep.Count;
-                result = $"Sync complete. Removed {synchronizedFiles.Count} file(s); resolved {removedCount} filter(s). {codesToKeep.Count} filter(s) still alive.";
+                int removedCount = baselineCodes.Count - remainingBaselineCodes.Count;
+                result = $"Sync complete. Removed {synchronizedFiles.Count} file(s); resolved {removedCount} filter(s). {remainingBaselineCodes.Count} filter(s) still alive.";
 
                 foreach (KeyValuePair<string, IReadOnlySet<string>> synchronizedFile in synchronizedFiles.OrderBy(x => x.Key, StringComparer.OrdinalIgnoreCase))
                 {
