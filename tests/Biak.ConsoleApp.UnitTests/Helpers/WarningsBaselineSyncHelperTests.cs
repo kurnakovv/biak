@@ -357,6 +357,23 @@ public class WarningsBaselineSyncHelperTests
                 Array.Empty<string>(),
                 null
             },
+            {
+                "IgnoresHeaderAtEndOfFileWhenDiagnosticLineIsMissing",
+                $$"""
+                [{src/File.cs}]
+
+
+                """,
+                Array.Empty<string>(),
+                false,
+                ["[{src/File.cs}]"],
+                Array.Empty<string>(),
+                $$"""
+                [{src/File.cs}]
+
+
+                """
+            },
         };
     }
 
