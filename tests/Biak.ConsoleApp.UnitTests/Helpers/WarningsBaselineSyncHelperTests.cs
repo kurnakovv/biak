@@ -4,7 +4,6 @@
 
 using Biak.ConsoleApp.Constants;
 using Biak.ConsoleApp.Helpers;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 
 namespace Biak.ConsoleApp.UnitTests.Helpers;
 
