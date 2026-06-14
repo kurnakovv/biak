@@ -4,7 +4,7 @@
 ## 💻 Usage
 
 ```
-dotnet biak warnings-baseline sync --path <path>
+dotnet biak warnings-baseline sync [--path <path>]
 ```
 
 Let's imagine you have the following configuration:
