@@ -14,7 +14,7 @@ public class WarningsBaselineSyncCommandTests
     {
         Assert.False(
             WarningsBaselineSyncCommand.IsRunnable([]),
-            "warnings-baseline sync requires three arguments"
+            "warnings-baseline sync requires at least two arguments"
         );
     }
 
@@ -31,16 +31,28 @@ public class WarningsBaselineSyncCommandTests
             "`sync` alone is invalid"
         );
         Assert.False(
-            WarningsBaselineSyncCommand.IsRunnable([CommandArgumentConstant.WARNINGS_BASELINE, "invalid", ".editorconfig"]),
-            "`warnings-baseline invalid .editorconfig` is invalid"
+            WarningsBaselineSyncCommand.IsRunnable([CommandArgumentConstant.WARNINGS_BASELINE, "invalid"]),
+            "`warnings-baseline invalid` is invalid"
         );
         Assert.False(
-            WarningsBaselineSyncCommand.IsRunnable(["invalid", CommandArgumentConstant.SYNC, ".editorconfig"]),
-            "`invalid sync .editorconfig` is invalid"
+            WarningsBaselineSyncCommand.IsRunnable(["invalid", CommandArgumentConstant.SYNC]),
+            "`invalid sync` is invalid"
         );
         Assert.False(
-            WarningsBaselineSyncCommand.IsRunnable([CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC]),
-            "`warnings-baseline sync` without a path is invalid"
+            WarningsBaselineSyncCommand.IsRunnable([
+                CommandArgumentConstant.WARNINGS_BASELINE,
+                CommandArgumentConstant.SYNC,
+                ".editorconfig",
+            ]),
+            "path without --path option is invalid"
+        );
+        Assert.False(
+            WarningsBaselineSyncCommand.IsRunnable([
+                CommandArgumentConstant.WARNINGS_BASELINE,
+                CommandArgumentConstant.SYNC,
+                CommandArgumentConstant.PATH,
+            ]),
+            "`--path` without value is invalid"
         );
         Assert.False(
             WarningsBaselineSyncCommand.IsRunnable([
@@ -49,27 +61,27 @@ public class WarningsBaselineSyncCommandTests
                 ".editorconfig",
                 "extra",
             ]),
-            "extra argument makes it invalid"
+            "third argument must be --path"
         );
     }
 
     [Fact]
-    public void IsRunnableReturnsTrueForValidArgs()
+    public void IsRunnableReturnsTrueForDefaultArguments()
     {
         Assert.True(WarningsBaselineSyncCommand.IsRunnable(
-            [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC, ".editorconfig"])
+            [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC])
         );
     }
 
     [Fact]
-    public void IsRunnableReturnsTrueForAnyEditorConfigPath()
+    public void IsRunnableReturnsTrueForPathOption()
     {
         Assert.True(WarningsBaselineSyncCommand.IsRunnable(
-            [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC, "path/to/.editorconfig"])
+            [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC, CommandArgumentConstant.PATH, "path/to/.editorconfig"])
         );
 
         Assert.True(WarningsBaselineSyncCommand.IsRunnable(
-            [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC, "some-file.txt"])
+            [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC, CommandArgumentConstant.PATH, "some-file.txt"])
         );
     }
 }

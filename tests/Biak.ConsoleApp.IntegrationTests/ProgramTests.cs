@@ -328,7 +328,7 @@ public class ProgramTests
             string editorconfigPath = Path.Join(testDir.Value, ".editorconfig");
             await File.WriteAllTextAsync(editorconfigPath, WarningsBaselineCommandTestConstants.BASELINE_EDITORCONFIG);
 
-            await Program.Main([CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC, ".editorconfig"]);
+            await Program.Main([CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC]);
 
             string result = output.ToString().Trim();
             Assert.Contains(WarningsBaselineSyncCommandConstant.SYNC_STARTED, result, StringComparison.OrdinalIgnoreCase);

@@ -12,11 +12,17 @@ namespace Biak.ConsoleApp.IntegrationTests.Commands;
 public class WarningsBaselineSyncCommandTests
 {
     [Theory]
-    [InlineData("PathEscapesDirectory", "../../.editorconfig", WarningsBaselineSyncCommandConstant.PATH_ESCAPES_DIRECTORY, false)]
-    [InlineData("InvalidFileName", "not-editorconfig.txt", WarningsBaselineSyncCommandConstant.PATH_ESCAPES_DIRECTORY, false)]
-    [InlineData("EditorConfigNotFound", ".editorconfig", WarningsBaselineSyncCommandConstant.FILE_NOT_FOUND, false)]
-    [InlineData("UnexpectedException", null, WarningsBaselineSyncCommandConstant.SYNC_FAILED, true)]
-    public async Task RunShouldThrowBiakApplicationExceptionAsync(string testCaseName, string? path, string expected, bool useStartsWith)
+    [InlineData("PathEscapesDirectory", "../../.editorconfig", false, WarningsBaselineSyncCommandConstant.PATH_ESCAPES_DIRECTORY, false)]
+    [InlineData("InvalidFileName", "not-editorconfig.txt", false, WarningsBaselineSyncCommandConstant.PATH_ESCAPES_DIRECTORY, false)]
+    [InlineData("EditorConfigNotFound", ".editorconfig", false, WarningsBaselineSyncCommandConstant.FILE_NOT_FOUND, false)]
+    [InlineData("DefaultConfigNotFound", null, true, WarningsBaselineSyncCommandConstant.DEFAULT_CONFIGURATION_FILE_NOT_FOUND, false)]
+    [InlineData("UnexpectedException", null, false, WarningsBaselineSyncCommandConstant.SYNC_FAILED, true)]
+    public async Task RunShouldThrowBiakApplicationExceptionAsync(
+        string testCaseName,
+        string? editorconfigPath,
+        bool isDefaultCommand,
+        string expected,
+        bool useStartsWith)
     {
         string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new(
@@ -31,7 +37,14 @@ public class WarningsBaselineSyncCommandTests
                 async () =>
                 {
                     await WarningsBaselineSyncCommand.RunAsync(
-                        [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC, path!]
+                        isDefaultCommand
+                            ? [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC]
+                            : [
+                                CommandArgumentConstant.WARNINGS_BASELINE,
+                                CommandArgumentConstant.SYNC,
+                                CommandArgumentConstant.PATH,
+                                editorconfigPath!,
+                            ]
                     );
                 }
             );
@@ -79,8 +92,103 @@ public class WarningsBaselineSyncCommandTests
                 async () =>
                 {
                     await WarningsBaselineSyncCommand.RunAsync(
-                        [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC, ".editorconfig"]
+                        [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC]
                     );
+                }
+            );
+
+            Assert.NotNull(exception);
+            Assert.IsType<BiakApplicationException>(exception);
+            Assert.Equal(WarningsBaselineSyncCommandConstant.NO_BASELINE_MARKER, exception.Message);
+        }
+        finally
+        {
+            Directory.SetCurrentDirectory(originalDirectory);
+        }
+    }
+
+    [Fact]
+    public async Task RunShouldPreferBiakEditorconfigMainByDefaultAsync()
+    {
+        string originalDirectory = Directory.GetCurrentDirectory();
+        TestDirectory testDir = new(
+            $"{nameof(WarningsBaselineSyncCommandTests)}_{nameof(RunShouldPreferBiakEditorconfigMainByDefaultAsync)}"
+        );
+
+        try
+        {
+            Directory.SetCurrentDirectory(testDir.Value);
+
+            Directory.CreateDirectory(Path.Join(testDir.Value, ".biak"));
+
+            await File.WriteAllTextAsync(
+                Path.Join(testDir.Value, ".biak", ".editorconfig-main"),
+                "root = true"
+            );
+
+            await File.WriteAllTextAsync(
+                Path.Join(testDir.Value, ".editorconfig"),
+                $$"""
+                [{Program.cs}]
+                dotnet_diagnostic.CS0168.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+                """
+            );
+
+            Exception? exception = await Record.ExceptionAsync(
+                async () =>
+                {
+                    await WarningsBaselineSyncCommand.RunAsync(
+                        [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC]
+                    );
+                }
+            );
+
+            Assert.NotNull(exception);
+            Assert.IsType<BiakApplicationException>(exception);
+            Assert.Equal(WarningsBaselineSyncCommandConstant.NO_BASELINE_MARKER, exception.Message);
+        }
+        finally
+        {
+            Directory.SetCurrentDirectory(originalDirectory);
+        }
+    }
+
+    [Fact]
+    public async Task RunShouldUsePathOptionForUserSpecifiedConfigAsync()
+    {
+        string originalDirectory = Directory.GetCurrentDirectory();
+        TestDirectory testDir = new(
+            $"{nameof(WarningsBaselineSyncCommandTests)}_{nameof(RunShouldUsePathOptionForUserSpecifiedConfigAsync)}"
+        );
+
+        try
+        {
+            Directory.SetCurrentDirectory(testDir.Value);
+
+            Directory.CreateDirectory(Path.Join(testDir.Value, ".biak"));
+
+            await File.WriteAllTextAsync(
+                Path.Join(testDir.Value, ".biak", ".editorconfig-main"),
+                $$"""
+                [{Program.cs}]
+                dotnet_diagnostic.CS0168.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+                """
+            );
+
+            await File.WriteAllTextAsync(
+                Path.Join(testDir.Value, ".biak", ".editorconfig-specific"),
+                "root = true"
+            );
+
+            Exception? exception = await Record.ExceptionAsync(
+                async () =>
+                {
+                    await WarningsBaselineSyncCommand.RunAsync([
+                        CommandArgumentConstant.WARNINGS_BASELINE,
+                        CommandArgumentConstant.SYNC,
+                        CommandArgumentConstant.PATH,
+                        ".biak/.editorconfig-specific",
+                    ]);
                 }
             );
 
@@ -113,7 +221,7 @@ public class WarningsBaselineSyncCommandTests
                 async () =>
                 {
                     await WarningsBaselineSyncCommand.RunAsync(
-                        [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC, ".editorconfig"]
+                        [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC]
                     );
                 }
             );
@@ -161,7 +269,7 @@ public class WarningsBaselineSyncCommandTests
             await File.WriteAllTextAsync(editorconfigPath, WarningsBaselineCommandTestConstants.BASELINE_EDITORCONFIG);
 
             string result = await WarningsBaselineSyncCommand.RunAsync(
-                [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC, ".editorconfig"]
+                [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC]
             );
 
             string syncedContent = await File.ReadAllTextAsync(editorconfigPath);
@@ -216,7 +324,7 @@ public class WarningsBaselineSyncCommandTests
             await File.WriteAllTextAsync(editorconfigPath, lfBaseline);
 
             string result = await WarningsBaselineSyncCommand.RunAsync(
-                [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC, ".editorconfig"]
+                [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC]
             );
 
             string syncedContent = await File.ReadAllTextAsync(editorconfigPath);
@@ -307,7 +415,7 @@ public class WarningsBaselineSyncCommandTests
             );
 
             string result = await WarningsBaselineSyncCommand.RunAsync(
-                [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC, ".editorconfig"]
+                [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC]
             );
 
             string syncedContent = await File.ReadAllTextAsync(editorconfigPath);
@@ -445,7 +553,7 @@ public class WarningsBaselineSyncCommandTests
             );
 
             string result = await WarningsBaselineSyncCommand.RunAsync(
-                [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC, ".editorconfig"]
+                [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC]
             );
 
             string syncedContent = await File.ReadAllTextAsync(editorconfigPath);

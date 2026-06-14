@@ -21,26 +21,37 @@ public static class WarningsBaselineSyncCommand
     /// <returns>Can be run or not.</returns>
     public static bool IsRunnable(string[] args)
     {
-        return args.Length == 3
-            && args[0] == CommandArgumentConstant.WARNINGS_BASELINE
+        if (args.Length < 2)
+        {
+            return false;
+        }
+
+        bool isCommand = args[0] == CommandArgumentConstant.WARNINGS_BASELINE
             && args[1] == CommandArgumentConstant.SYNC;
+
+        if (!isCommand)
+        {
+            return false;
+        }
+
+        return args.Length == 2
+            || (args.Length == 4 && args[2] == CommandArgumentConstant.PATH && !string.IsNullOrWhiteSpace(args[3]));
     }
 
     /// <summary>
     /// Run.
     /// </summary>
-    /// <param name="args">User input arguments (args[2] is the path to the .editorconfig file).</param>
+    /// <param name="args">User input arguments.</param>
     /// <returns><placeholder>A <see cref="Task"/> representing the asynchronous operation.</placeholder></returns>
     public static async Task<string> RunAsync(string[] args)
     {
-        string editorConfigPath = args[2];
-
         try
         {
             Console.WriteLine(WarningsBaselineSyncCommandConstant.SYNC_STARTED);
             Console.WriteLine();
 
             string baseDirectory = Directory.GetCurrentDirectory();
+            string editorConfigPath = ResolveEditorConfigPath(args, baseDirectory);
 
             if (!WarningsBaselineSyncHelper.IsPathSafe(editorConfigPath, baseDirectory))
             {
@@ -154,5 +165,28 @@ public static class WarningsBaselineSyncCommand
                 File.Delete(WarningsBaselineSyncCommandConstant.BUILD_BINLOG_PATH);
             }
         }
+    }
+
+    private static string ResolveEditorConfigPath(string[] args, string baseDirectory)
+    {
+        if (args.Length == 4)
+        {
+            return args[3];
+        }
+
+        string mainEditorconfigPath = WarningsBaselineSyncCommandConstant.DEFAULT_EDITORCONFIG_MAIN_PATH;
+        string rootEditorconfigPath = WarningsBaselineSyncCommandConstant.DEFAULT_EDITORCONFIG_PATH;
+
+        if (File.Exists(Path.GetFullPath(mainEditorconfigPath, baseDirectory)))
+        {
+            return mainEditorconfigPath;
+        }
+
+        if (File.Exists(Path.GetFullPath(rootEditorconfigPath, baseDirectory)))
+        {
+            return rootEditorconfigPath;
+        }
+
+        throw new BiakApplicationException(WarningsBaselineSyncCommandConstant.DEFAULT_CONFIGURATION_FILE_NOT_FOUND);
     }
 }

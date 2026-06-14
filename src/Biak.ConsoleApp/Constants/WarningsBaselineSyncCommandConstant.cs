@@ -15,6 +15,16 @@ public static class WarningsBaselineSyncCommandConstant
     public const string BUILD_BINLOG_PATH = "biak-sync-build.binlog";
 
     /// <summary>
+    /// Main .editorconfig path inside .biak folder.
+    /// </summary>
+    public const string DEFAULT_EDITORCONFIG_MAIN_PATH = ".biak/.editorconfig-main";
+
+    /// <summary>
+    /// Root .editorconfig path.
+    /// </summary>
+    public const string DEFAULT_EDITORCONFIG_PATH = ".editorconfig";
+
+    /// <summary>
     /// Warnings-baseline sync started.
     /// </summary>
     public const string SYNC_STARTED = "warnings-baseline sync started...";
@@ -23,6 +33,12 @@ public static class WarningsBaselineSyncCommandConstant
     /// The specified file was not found.
     /// </summary>
     public const string FILE_NOT_FOUND = "The specified .editorconfig file was not found.";
+
+    /// <summary>
+    /// Default configuration files were not found.
+    /// </summary>
+    public const string DEFAULT_CONFIGURATION_FILE_NOT_FOUND =
+        $"Configuration file was not found. Checked '{DEFAULT_EDITORCONFIG_MAIN_PATH}' and '{DEFAULT_EDITORCONFIG_PATH}'.";
 
     /// <summary>
     /// The file path escapes the current directory.
