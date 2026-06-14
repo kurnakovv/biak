@@ -17,12 +17,11 @@ public class WarningsBaselineSyncHelperTests
             dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
             """;
 
-        Dictionary<string, IReadOnlySet<string>> activeFilesByCode = new(StringComparer.OrdinalIgnoreCase);
-
         string result = WarningsBaselineSyncHelper.RemoveBaselineFilters(
             content,
             new HashSet<string>(["CA2000"], StringComparer.OrdinalIgnoreCase),
-            activeFilesByCode);
+            new Dictionary<string, IReadOnlySet<string>>(StringComparer.OrdinalIgnoreCase)
+        );
 
         Assert.DoesNotContain("[{src/File.cs}]", result, StringComparison.Ordinal);
         Assert.DoesNotContain("dotnet_diagnostic.CA2000.severity", result, StringComparison.Ordinal);
@@ -36,12 +35,11 @@ public class WarningsBaselineSyncHelperTests
             dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
             """;
 
-        Dictionary<string, IReadOnlySet<string>> activeFilesByCode = new(StringComparer.OrdinalIgnoreCase);
-
         IReadOnlyDictionary<string, IReadOnlySet<string>> result = WarningsBaselineSyncHelper.GetSynchronizedFiles(
             content,
             new HashSet<string>(["CA2000"], StringComparer.OrdinalIgnoreCase),
-            activeFilesByCode);
+            new Dictionary<string, IReadOnlySet<string>>(StringComparer.OrdinalIgnoreCase)
+        );
 
         Assert.Equal(2, result.Count);
         Assert.Contains("src/File1.cs", result.Keys, StringComparer.OrdinalIgnoreCase);
