@@ -40,10 +40,10 @@ After running the command, the following output is displayed:
 ```
 warnings-baseline sync started...
 
-DerivedClassCS0649.cs (CS0108)
+DerivedClassCS0649.cs (CS0108, CS0649)
 MyTestForlder/MyTestModel1.cs (CS8618)
 
-Sync complete. Removed 2 file(s); resolved 1 filter(s). 7 filter(s) still alive.
+Sync complete. Removed 2 file(s); resolved 2 filter(s). 6 filter(s) still alive.
 ```
 
 And the `.editorconfig` file is synchronized.
