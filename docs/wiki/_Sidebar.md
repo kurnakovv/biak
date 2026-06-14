@@ -19,3 +19,8 @@
 
 ### ⚔️ Find conflicts
 * [Docs](FindConflicts)
+
+### 🚧 Warnings baseline
+* [Overview](WarningsBaselineOverview)
+* [Init](WarningsBaselineInit)
+* [Sync](WarningsBaselineSync)

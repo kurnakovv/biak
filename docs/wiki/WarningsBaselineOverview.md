@@ -55,3 +55,4 @@ Choose one: add this full snippet to `Directory.Build.props` ([what?](https://le
 
 ## 🔗 Links
 * Init ([docs](WarningsBaselineInit))
+* Sync ([docs](WarningsBaselineSync))
