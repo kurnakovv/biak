@@ -26,7 +26,7 @@ public static class WarningsBaselineBuildHelper
         ProcessStartInfo psi = new()
         {
             FileName = "dotnet",
-            Arguments = $"build --no-incremental -bl:{buildBinlogPath}",
+            Arguments = $"build --no-incremental /p:TreatWarningsAsErrors=false -bl:{buildBinlogPath}",
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             UseShellExecute = false,
