@@ -15,6 +15,11 @@ public static class CommandArgumentConstant
     public const string HELP = "--help";
 
     /// <summary>
+    /// Path option.
+    /// </summary>
+    public const string PATH = "--path";
+
+    /// <summary>
     /// Setup biak env (create .biak folder with .editorconfig-main file).
     /// </summary>
     public const string SETUP = "setup";
@@ -48,4 +53,9 @@ public static class CommandArgumentConstant
     /// Init.
     /// </summary>
     public const string INIT = "init";
+
+    /// <summary>
+    /// Sync.
+    /// </summary>
+    public const string SYNC = "sync";
 }
