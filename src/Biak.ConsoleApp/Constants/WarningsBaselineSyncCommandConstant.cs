@@ -58,7 +58,7 @@ public static class WarningsBaselineSyncCommandConstant
     /// All baseline warnings have been fixed.
     /// </summary>
     public const string ALL_WARNINGS_FIXED =
-        "Congratulations! All baseline warnings have been fixed. All filters have been removed from .editorconfig.";
+        "Congratulations! All baseline warnings have been fixed. All filters have been removed from the configuration file.";
 
     /// <summary>
     /// Failed to synchronize warnings baseline.
