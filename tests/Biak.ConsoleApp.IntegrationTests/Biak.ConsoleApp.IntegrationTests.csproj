@@ -22,6 +22,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="Templates\SimpleProjectWithWarnings\MySimpleProjectTemplate\DerivedClassCS0649.cs" />
+    <Compile Remove="Templates\SimpleProjectWithWarnings\MySimpleProjectTemplate\MyClassCS0169.cs" />
+    <Compile Remove="Templates\SimpleProjectWithWarnings\MySimpleProjectTemplate\MyTestForlder\MyTestModel1.cs" />
+    <Compile Remove="Templates\SimpleProjectWithWarnings\MySimpleProjectTemplate\MyTestModel.cs" />
+    <Compile Remove="Templates\SimpleProjectWithWarnings\MySimpleProjectTemplate\ProgramCS0168Warning.cs" />
+    <Compile Remove="Templates\SimpleProjectWithWarnings\MySimpleProjectTemplate\ProgramCS0219Warning.cs" />
+    <Compile Remove="Templates\SimpleProjectWithWarnings\MySimpleProjectTemplate\ProgramCS0612.cs" />
     <Compile Remove="Templates\SimpleProject\MySimpleProjectTemplate\TestService1.cs" />
     <Compile Remove="Templates\SimpleProject\MySimpleProjectTemplate\TestService2.cs" />
     <Compile Remove="Templates\SimpleProject\MySimpleProjectTemplate\TestService3.cs" />
