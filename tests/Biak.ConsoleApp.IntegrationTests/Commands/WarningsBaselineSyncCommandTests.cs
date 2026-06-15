@@ -466,6 +466,7 @@ public class WarningsBaselineSyncCommandTests
                 + WarningsBaselineSyncCommandConstant.ALL_WARNINGS_FIXED;
 
             Assert.Equal(WarningsBaselineSyncCommandConstant.ALL_WARNINGS_FIXED, result);
+            Assert.Equal(expectedOutput.Trim(), consoleOutput.Trim());
             Assert.DoesNotContain("[{ResolvedFile.cs}]", syncedContent, StringComparison.Ordinal);
             Assert.DoesNotContain("dotnet_diagnostic.CS0219.severity", syncedContent, StringComparison.Ordinal);
             Assert.DoesNotContain("[{ProgramCS0168Warning.cs}]", syncedContent, StringComparison.Ordinal);
