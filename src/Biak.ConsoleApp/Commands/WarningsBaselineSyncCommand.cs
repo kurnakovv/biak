@@ -59,7 +59,7 @@ public static class WarningsBaselineSyncCommand
 
             if (!WarningsBaselineSyncHelper.IsPathSafe(editorConfigPath, baseDirectory))
             {
-                throw new BiakApplicationException(WarningsBaselineSyncCommandConstant.PATH_ESCAPES_DIRECTORY);
+                throw new BiakApplicationException(WarningsBaselineSyncCommandConstant.INVALID_PATH_EDITORCONFIG);
             }
 
             if (!File.Exists(resolvedPath))

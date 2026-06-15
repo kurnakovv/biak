@@ -41,11 +41,10 @@ public static class WarningsBaselineSyncCommandConstant
         $"Configuration file was not found. Checked '{DEFAULT_EDITORCONFIG_MAIN_PATH}' and '{DEFAULT_EDITORCONFIG_PATH}'.";
 
     /// <summary>
-    /// The file path escapes the current directory.
+    /// The specified path is not allowed.
     /// </summary>
-    public const string PATH_ESCAPES_DIRECTORY =
-        "The specified file path is not allowed because it escapes the current directory. " +
-        "Please use a path within the current project.";
+    public const string INVALID_PATH_EDITORCONFIG =
+        "The specified file path is not allowed. Use a path within the current project, with a file name that starts with '.editorconfig', and not under a '.editorconfig' directory.";
 
     /// <summary>
     /// The file does not contain the baseline marker.

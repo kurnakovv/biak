@@ -12,8 +12,8 @@ namespace Biak.ConsoleApp.IntegrationTests.Commands;
 public class WarningsBaselineSyncCommandTests
 {
     [Theory]
-    [InlineData("PathEscapesDirectory", "../../.editorconfig", false, WarningsBaselineSyncCommandConstant.PATH_ESCAPES_DIRECTORY, false)]
-    [InlineData("InvalidFileName", "not-editorconfig.txt", false, WarningsBaselineSyncCommandConstant.PATH_ESCAPES_DIRECTORY, false)]
+    [InlineData("PathEscapesDirectory", "../../.editorconfig", false, WarningsBaselineSyncCommandConstant.INVALID_PATH_EDITORCONFIG, false)]
+    [InlineData("InvalidFileName", "not-editorconfig.txt", false, WarningsBaselineSyncCommandConstant.INVALID_PATH_EDITORCONFIG, false)]
     [InlineData("EditorConfigNotFound", ".editorconfig", false, WarningsBaselineSyncCommandConstant.FILE_NOT_FOUND, false)]
     [InlineData("DefaultConfigNotFound", null, true, WarningsBaselineSyncCommandConstant.DEFAULT_CONFIGURATION_FILE_NOT_FOUND, false)]
     public async Task RunShouldThrowBiakApplicationExceptionAsync(
