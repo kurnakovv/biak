@@ -42,6 +42,9 @@ dotnet_diagnostic.CS0649.severity = suggestion # ^biak^ baseline
 dotnet_diagnostic.CS8618.severity = suggestion # ^biak^ baseline
 ```
 
+> [!WARNING]
+> Do not remove the `# ^biak^ baseline` marker, as it is used for the [Sync](WarningsBaselineSync) command.
+
 ## ⚙️ Logic
 * Execute a full project build (30-minute timeout)
 * If build errors are detected, terminate execution
@@ -50,7 +53,7 @@ dotnet_diagnostic.CS8618.severity = suggestion # ^biak^ baseline
 * If no applicable warnings are found, terminate execution
 * Generate and output the corresponding `.editorconfig` baseline entries
 
-## ❔ Questions Why
+## ❔ Questions
 
 ### Why `.cs` / `.vb` extensions only?
 If a warning originates from a global project-level configuration, such as a `.csproj` setting (e.g., NU1901), it cannot be configured through an `.editorconfig` rule. In the case of F#, warning filtering via `.editorconfig` is not supported ([SOF](https://stackoverflow.com/questions/3740566/f-suppress-warnings)). Similarly, warning suppression for `.cshtml` (Razor Pages) is subject to limitations, and certain warnings cannot be disabled ([SOF](https://stackoverflow.com/questions/72488529/visual-studio-does-not-suppress-mvc1000-warning)).

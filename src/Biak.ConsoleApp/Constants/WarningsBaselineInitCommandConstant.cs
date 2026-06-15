@@ -36,34 +36,14 @@ public static class WarningsBaselineInitCommandConstant
     public const string NO_WARNINGS_FOUND = "No warnings found. Nothing to generate.";
 
     /// <summary>
-    /// Failed to start dotnet build process.
-    /// </summary>
-    public const string FAILED_TO_START_DOTNET_BUILD = "Failed to start dotnet build process.";
-
-    /// <summary>
-    /// dotnet build failed.
-    /// </summary>
-    public const string DOTNET_BUILD_FAILED = "dotnet build failed.";
-
-    /// <summary>
-    /// dotnet build timed out.
-    /// </summary>
-    public const string DOTNET_BUILD_TIMED_OUT = "dotnet build timed out after 30 minutes.";
-
-    /// <summary>
-    /// biak-build.binlog was not generated.
-    /// </summary>
-    public const string BUILD_BINLOG_NOT_FOUND = "biak-build.binlog was not generated.";
-
-    /// <summary>
-    /// Build contains errors, so warnings baseline can't be generated.
-    /// </summary>
-    public const string BUILD_CONTAINS_ERRORS = "Build contains errors. Fix them before generating warnings baseline filters.";
-
-    /// <summary>
     /// Failed to initialize warnings baseline.
     /// </summary>
     public const string INIT_FAILED = "Failed to initialize warnings baseline.";
+
+    /// <summary>
+    /// Baseline marker for .editorconfig diagnostics.
+    /// </summary>
+    public const string BASELINE_DIAGNOSTIC_MARKER = "# ^biak^ baseline";
 
     /// <summary>
     /// Treat warnings as errors configuration.
