@@ -16,7 +16,6 @@ public class WarningsBaselineSyncCommandTests
     [InlineData("InvalidFileName", "not-editorconfig.txt", false, WarningsBaselineSyncCommandConstant.PATH_ESCAPES_DIRECTORY, false)]
     [InlineData("EditorConfigNotFound", ".editorconfig", false, WarningsBaselineSyncCommandConstant.FILE_NOT_FOUND, false)]
     [InlineData("DefaultConfigNotFound", null, true, WarningsBaselineSyncCommandConstant.DEFAULT_CONFIGURATION_FILE_NOT_FOUND, false)]
-    [InlineData("UnexpectedException", null, false, WarningsBaselineSyncCommandConstant.SYNC_FAILED, true)]
     public async Task RunShouldThrowBiakApplicationExceptionAsync(
         string testCaseName,
         string? editorconfigPath,

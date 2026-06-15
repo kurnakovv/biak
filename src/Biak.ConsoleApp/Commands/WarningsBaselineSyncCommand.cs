@@ -45,27 +45,29 @@ public static class WarningsBaselineSyncCommand
     /// <returns><placeholder>A <see cref="Task"/> representing the asynchronous operation.</placeholder></returns>
     public static async Task<string> RunAsync(string[] args)
     {
+        string baseDirectory = Directory.GetCurrentDirectory();
+        string editorConfigPath = ResolveEditorConfigPath(args, baseDirectory);
+        string resolvedPath = Path.GetFullPath(editorConfigPath, baseDirectory);
+        string originalContent = string.Empty;
+        bool baselineWasActivated = false;
+        bool completedSuccessfully = false;
+
         try
         {
             Console.WriteLine(WarningsBaselineSyncCommandConstant.SYNC_STARTED);
             Console.WriteLine();
-
-            string baseDirectory = Directory.GetCurrentDirectory();
-            string editorConfigPath = ResolveEditorConfigPath(args, baseDirectory);
 
             if (!WarningsBaselineSyncHelper.IsPathSafe(editorConfigPath, baseDirectory))
             {
                 throw new BiakApplicationException(WarningsBaselineSyncCommandConstant.PATH_ESCAPES_DIRECTORY);
             }
 
-            string resolvedPath = Path.GetFullPath(editorConfigPath, baseDirectory);
-
             if (!File.Exists(resolvedPath))
             {
                 throw new BiakApplicationException(WarningsBaselineSyncCommandConstant.FILE_NOT_FOUND);
             }
 
-            string originalContent = await File.ReadAllTextAsync(resolvedPath);
+            originalContent = await File.ReadAllTextAsync(resolvedPath);
 
             if (!originalContent.Contains(WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER, StringComparison.Ordinal))
             {
@@ -75,37 +77,27 @@ public static class WarningsBaselineSyncCommand
             // Activate baseline entries as warnings so the compiler emits them during the build.
             string activatedContent = WarningsBaselineSyncHelper.SetBaselineForBuild(originalContent, activate: true);
             await File.WriteAllTextAsync(resolvedPath, activatedContent);
+            baselineWasActivated = true;
 
-            HashSet<string> activeWarningCodes;
-            IReadOnlyDictionary<string, IReadOnlySet<string>> activeFilesByCode;
-            try
-            {
-                SL.Build build = await WarningsBaselineBuildHelper.BuildAndReadBuildAsync(
-                    WarningsBaselineSyncCommandConstant.BUILD_BINLOG_PATH
+            SL.Build build = await WarningsBaselineBuildHelper.BuildAndReadBuildAsync(
+                WarningsBaselineSyncCommandConstant.BUILD_BINLOG_PATH
+            );
+
+            List<SL.Warning> sourceWarnings = WarningsBaselineBuildHelper.GetSourceWarnings(build).ToList();
+
+            HashSet<string> activeWarningCodes = sourceWarnings
+                .Select(x => x.Code)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            IReadOnlyDictionary<string, IReadOnlySet<string>> activeFilesByCode = sourceWarnings
+                .GroupBy(x => x.Code)
+                .ToDictionary(
+                    x => x.Key,
+                    x => (IReadOnlySet<string>)x
+                        .Select(warning => Path.GetRelativePath(baseDirectory, warning.File).Replace(Path.DirectorySeparatorChar, '/'))
+                        .ToHashSet(StringComparer.OrdinalIgnoreCase),
+                    StringComparer.OrdinalIgnoreCase
                 );
-
-                List<SL.Warning> sourceWarnings = WarningsBaselineBuildHelper.GetSourceWarnings(build).ToList();
-
-                activeWarningCodes = sourceWarnings
-                    .Select(x => x.Code)
-                    .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-                activeFilesByCode = sourceWarnings
-                    .GroupBy(x => x.Code)
-                    .ToDictionary(
-                        x => x.Key,
-                        x => (IReadOnlySet<string>)x
-                            .Select(warning => Path.GetRelativePath(baseDirectory, warning.File).Replace(Path.DirectorySeparatorChar, '/'))
-                            .ToHashSet(StringComparer.OrdinalIgnoreCase),
-                        StringComparer.OrdinalIgnoreCase
-                    );
-            }
-            catch
-            {
-                // Restore the original content before propagating the error.
-                await File.WriteAllTextAsync(resolvedPath, originalContent);
-                throw;
-            }
 
             HashSet<string> baselineCodes = WarningsBaselineSyncHelper.GetBaselineDiagnosticCodes(originalContent);
 
@@ -124,6 +116,7 @@ public static class WarningsBaselineSyncCommand
             syncedContent = WarningsBaselineSyncHelper.SetBaselineForBuild(syncedContent, activate: false);
 
             await File.WriteAllTextAsync(resolvedPath, syncedContent);
+            completedSuccessfully = true;
 
             HashSet<string> remainingBaselineCodes = WarningsBaselineSyncHelper.GetBaselineDiagnosticCodes(syncedContent);
 
@@ -160,6 +153,11 @@ public static class WarningsBaselineSyncCommand
         }
         finally
         {
+            if (baselineWasActivated && !completedSuccessfully)
+            {
+                await File.WriteAllTextAsync(resolvedPath, originalContent);
+            }
+
             if (File.Exists(WarningsBaselineSyncCommandConstant.BUILD_BINLOG_PATH))
             {
                 File.Delete(WarningsBaselineSyncCommandConstant.BUILD_BINLOG_PATH);
