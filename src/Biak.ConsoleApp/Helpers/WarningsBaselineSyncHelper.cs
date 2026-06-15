@@ -13,7 +13,7 @@ namespace Biak.ConsoleApp.Helpers;
 public static class WarningsBaselineSyncHelper
 {
     private static readonly string s_baselineMarkerRegexText =
-         Regex.Escape(WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER).Replace("\\ ", "\\s*", StringComparison.OrdinalIgnoreCase);
+         Regex.Escape(WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER).Replace("\\ ", "[\\t ]*", StringComparison.OrdinalIgnoreCase);
 
     private static readonly string s_baselineDiagnosticRegexText =
         @"dotnet_diagnostic\.([A-Z][A-Z0-9]*)\.severity[^\r\n]*" + s_baselineMarkerRegexText;
