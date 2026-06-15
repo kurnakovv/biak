@@ -12,7 +12,8 @@ namespace Biak.ConsoleApp.Helpers;
 /// </summary>
 public static class WarningsBaselineSyncHelper
 {
-    private const string BASELINE_DIAGNOSTIC_REGEXT = @"dotnet_diagnostic\.([A-Z][A-Z0-9]*)\.severity[^\r\n]*#\s*\^biak\^\s*baseline";
+    private const string BASELINE_DIAGNOSTIC_REGEX_TEXT =
+         @"dotnet_diagnostic\.([A-Z][A-Z0-9]*)\.severity[^\r\n]*#\s*\^biak\^\s*baseline";
 
     private static readonly char[] s_pathSeparators = new[] { '/', '\\' };
 
@@ -23,10 +24,16 @@ public static class WarningsBaselineSyncHelper
     );
 
     // Matches a dotnet_diagnostic baseline line and captures the diagnostic code.
-    private static readonly Regex s_baselineDiagnosticRegex = new(@"^\s*" + BASELINE_DIAGNOSTIC_REGEXT, RegexOptions.Compiled);
+    private static readonly Regex s_baselineDiagnosticRegex = new(
+        @"^\s*" + BASELINE_DIAGNOSTIC_REGEX_TEXT,
+        RegexOptions.Compiled | RegexOptions.IgnoreCase
+    );
 
     // Matches all diagnostic codes referenced in baseline entries anywhere in the content.
-    private static readonly Regex s_allBaselineCodesRegex = new(BASELINE_DIAGNOSTIC_REGEXT, RegexOptions.Compiled);
+    private static readonly Regex s_allBaselineCodesRegex = new(
+        BASELINE_DIAGNOSTIC_REGEX_TEXT,
+        RegexOptions.Compiled | RegexOptions.IgnoreCase
+    );
 
     /// <summary>
     /// Returns <see langword="true"/> when <paramref name="filePath"/> resolves to a location
