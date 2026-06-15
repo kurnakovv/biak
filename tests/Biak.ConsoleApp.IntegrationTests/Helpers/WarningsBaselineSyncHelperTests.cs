@@ -30,7 +30,7 @@ public class WarningsBaselineSyncHelperTests
     [Fact]
     public void RemoveBaselineFiltersShouldIgnoreBlockWhenDiagnosticLineHasInvalidFormat()
     {
-        string content = $$"""
+        string content = """
             [{src/File.cs}]
             dotnet_diagnostic.CA2000.severity = suggestion
             """;
