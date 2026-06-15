@@ -74,6 +74,10 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="MSBuild.StructuredLogger" Version="2.3.204" />
+  </ItemGroup>
+
   <Target Name="PrepareReleaseNotesNugetOrg" BeforeTargets="GenerateNuspec" Condition="$(IS_DEPLOY_NUGET_ORG_ACTION) == 'true'">
     <PropertyGroup>
       <PackageReleaseNotes>$([System.IO.File]::ReadAllText("$(MSBuildProjectDirectory)/../../docs/RELEASE-NOTES"))</PackageReleaseNotes>
