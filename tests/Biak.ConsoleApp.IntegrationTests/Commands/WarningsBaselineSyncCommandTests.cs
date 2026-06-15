@@ -240,6 +240,46 @@ public class WarningsBaselineSyncCommandTests
     }
 
     [Fact]
+    public async Task RunShouldWrapUnexpectedExceptionInBiakApplicationExceptionAsync()
+    {
+        string originalDirectory = Directory.GetCurrentDirectory();
+        TestDirectory testDir = new(
+            $"{nameof(WarningsBaselineSyncCommandTests)}_{nameof(RunShouldWrapUnexpectedExceptionInBiakApplicationExceptionAsync)}"
+        );
+
+        try
+        {
+            Directory.SetCurrentDirectory(testDir.Value);
+
+            string editorconfigPath = Path.Join(testDir.Value, ".editorconfig");
+            await File.WriteAllTextAsync(editorconfigPath, WarningsBaselineCommandTestConstants.BASELINE_EDITORCONFIG);
+
+            await using FileStream lockStream = new(editorconfigPath, FileMode.Open, FileAccess.Read, FileShare.None);
+
+            Exception? exception = await Record.ExceptionAsync(
+                async () =>
+                {
+                    await WarningsBaselineSyncCommand.RunAsync(
+                        [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC]
+                    );
+                }
+            );
+
+            Assert.NotNull(exception);
+            Assert.IsType<BiakApplicationException>(exception);
+            Assert.StartsWith(
+                WarningsBaselineSyncCommandConstant.SYNC_FAILED + " ",
+                exception.Message,
+                StringComparison.Ordinal
+            );
+        }
+        finally
+        {
+            Directory.SetCurrentDirectory(originalDirectory);
+        }
+    }
+
+    [Fact]
     public async Task RunShouldReturnAllWarningsFixedWhenNoBaselineCodesAreActiveAsync()
     {
         string originalDirectory = Directory.GetCurrentDirectory();
