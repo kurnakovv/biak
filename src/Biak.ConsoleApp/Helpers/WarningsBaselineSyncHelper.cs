@@ -44,12 +44,14 @@ public static class WarningsBaselineSyncHelper
     /// <returns><see langword="true"/> when the path is safe; otherwise <see langword="false"/>.</returns>
     public static bool IsPathSafe(string filePath, string baseDirectory)
     {
-        string fullBase = Path.GetFullPath(baseDirectory)
-            .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
-            + Path.DirectorySeparatorChar;
+        string fullBase = Path.GetFullPath(baseDirectory);
+        string fullFile = Path.GetFullPath(filePath, fullBase);
 
-        string fullFile = Path.GetFullPath(filePath, baseDirectory);
-        if (!fullFile.StartsWith(fullBase, StringComparison.OrdinalIgnoreCase))
+        string relativePath = Path.GetRelativePath(fullBase, fullFile);
+        if (Path.IsPathRooted(relativePath)
+            || relativePath.Equals("..", StringComparison.Ordinal)
+            || relativePath.StartsWith(".." + Path.DirectorySeparatorChar, StringComparison.Ordinal)
+            || relativePath.StartsWith(".." + Path.AltDirectorySeparatorChar, StringComparison.Ordinal))
         {
             return false;
         }
@@ -60,7 +62,6 @@ public static class WarningsBaselineSyncHelper
             return false;
         }
 
-        string relativePath = Path.GetRelativePath(baseDirectory, fullFile);
         string[] segments = relativePath.Split(s_pathSeparators, StringSplitOptions.RemoveEmptyEntries);
 
         return !segments
