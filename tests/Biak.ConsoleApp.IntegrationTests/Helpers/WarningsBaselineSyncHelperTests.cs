@@ -28,6 +28,23 @@ public class WarningsBaselineSyncHelperTests
     }
 
     [Fact]
+    public void RemoveBaselineFiltersShouldIgnoreBlockWhenDiagnosticLineHasInvalidFormat()
+    {
+        string content = $$"""
+            [{src/File.cs}]
+            dotnet_diagnostic.CA2000.severity = suggestion
+            """;
+
+        string result = WarningsBaselineSyncHelper.RemoveBaselineFilters(
+            content,
+            new HashSet<string>(["CA2000"], StringComparer.OrdinalIgnoreCase),
+            new Dictionary<string, IReadOnlySet<string>>(StringComparer.OrdinalIgnoreCase)
+        );
+
+        Assert.Equal(content, result);
+    }
+
+    [Fact]
     public void GetSynchronizedFilesShouldTreatAllSectionFilesAsRemovedWhenCodeIsNotInActiveFilesByCode()
     {
         string content = $$"""
