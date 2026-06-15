@@ -50,7 +50,7 @@ And the `.editorconfig` file is synchronized.
 
 ## ⚙️ Logic
 * Find the config file (`.biak/.editorconfig-main`; if it is not found, use `.editorconfig`) or get the file path from `--path <path>`
-* Check that the path starts with `.editorconfig` and does not go beyond the root directory.
+* Check that the file name starts with `.editorconfig` and the resolved path does not go beyond the root directory.
 * Check that the file contains the `# ^biak^ baseline` marker
 * Change baseline filters in the config file from `suggestion` to `warning`
 * Execute a full project build (30-minute timeout)
