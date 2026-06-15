@@ -5,6 +5,7 @@
 using Biak.ConsoleApp.Constants;
 using Biak.ConsoleApp.Exceptions;
 using Biak.ConsoleApp.Helpers;
+using Biak.ConsoleApp.IntegrationTests.Commands;
 using Biak.ConsoleApp.IntegrationTests.Mock;
 
 namespace Biak.ConsoleApp.IntegrationTests;
@@ -254,6 +255,87 @@ public class ProgramTests
         {
             Console.SetOut(originalOut);
             Console.SetIn(originalIn);
+            Directory.SetCurrentDirectory(originalDirectory);
+        }
+    }
+
+    [Fact]
+    public async Task WarningsBaselineInitCommandAsync()
+    {
+        string originalDirectory = Directory.GetCurrentDirectory();
+        TestDirectory testDir = new($"{nameof(ProgramTests)}_{nameof(WarningsBaselineInitCommandAsync)}");
+
+        TextWriter originalOut = Console.Out;
+        await using StringWriter output = new();
+        Console.SetOut(output);
+
+        TextReader originalIn = Console.In;
+        using StringReader input = new("\n");
+        Console.SetIn(input);
+
+        try
+        {
+            Directory.SetCurrentDirectory(testDir.Value);
+
+            string templateSimpleProject = Path.Join(
+                AppContext.BaseDirectory,
+                "Templates",
+                "SimpleProjectWithWarnings",
+                "MySimpleProjectTemplate"
+            );
+
+            testDir.CopyDirectory(templateSimpleProject);
+
+            await Program.Main([CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.INIT]);
+
+            string result = output.ToString().Trim();
+            Assert.Contains(WarningsBaselineInitCommandConstant.TREAT_WARNINGS_AS_ERRORS_NOTE, result, StringComparison.Ordinal);
+            Assert.Contains(WarningsBaselineInitCommandConstant.INSERT_FILTERS_TO_EDITORCONFIG_NOTE, result, StringComparison.Ordinal);
+            Assert.Contains("dotnet_diagnostic.CS", result, StringComparison.Ordinal);
+            Assert.Contains($"severity = suggestion {WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}", result, StringComparison.Ordinal);
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+            Console.SetIn(originalIn);
+            Directory.SetCurrentDirectory(originalDirectory);
+        }
+    }
+
+    [Fact]
+    public async Task WarningsBaselineSyncCommandAsync()
+    {
+        string originalDirectory = Directory.GetCurrentDirectory();
+        TestDirectory testDir = new($"{nameof(ProgramTests)}_{nameof(WarningsBaselineSyncCommandAsync)}");
+
+        TextWriter originalOut = Console.Out;
+        await using StringWriter output = new();
+        Console.SetOut(output);
+
+        try
+        {
+            Directory.SetCurrentDirectory(testDir.Value);
+
+            string templateSimpleProject = Path.Join(
+                AppContext.BaseDirectory,
+                "Templates",
+                "SimpleProjectWithWarnings",
+                "MySimpleProjectTemplate"
+            );
+
+            testDir.CopyDirectory(templateSimpleProject);
+
+            string editorconfigPath = Path.Join(testDir.Value, ".editorconfig");
+            await File.WriteAllTextAsync(editorconfigPath, WarningsBaselineCommandTestConstants.BASELINE_EDITORCONFIG);
+
+            await Program.Main([CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC]);
+
+            string result = output.ToString().Trim();
+            Assert.Contains(WarningsBaselineSyncCommandConstant.SYNC_STARTED, result, StringComparison.OrdinalIgnoreCase);
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
             Directory.SetCurrentDirectory(originalDirectory);
         }
     }

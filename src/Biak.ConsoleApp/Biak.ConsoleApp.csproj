@@ -10,7 +10,7 @@
     <NoWarn>NETSDK1138</NoWarn>
     <EnablePackageValidation>true</EnablePackageValidation>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
-    <Version>0.5.0</Version>
+    <Version>0.6.0</Version>
     <PackageId>kurnakovv.biak</PackageId>
     <Authors>kurnakovv</Authors>
     <Company>kurnakovv</Company>
@@ -72,6 +72,10 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MSBuild.StructuredLogger" Version="2.3.204" />
   </ItemGroup>
 
   <Target Name="PrepareReleaseNotesNugetOrg" BeforeTargets="GenerateNuspec" Condition="$(IS_DEPLOY_NUGET_ORG_ACTION) == 'true'">

@@ -11,8 +11,8 @@
  [![Codecov](https://codecov.io/gh/kurnakovv/biak/branch/dev/graph/badge.svg)](https://app.codecov.io/gh/kurnakovv/biak)
  [![MIT License](https://img.shields.io/github/license/kurnakovv/biak?color=%230b0&style=flat)](https://github.com/kurnakovv/biak/blob/dev/LICENSE)
 
- <!-- [![NuGet](https://img.shields.io/nuget/v/kurnakovv.biak.svg)](https://www.nuget.org/packages/kurnakovv.biak)
- [![NuGet download](https://img.shields.io/nuget/dt/kurnakovv.biak.svg)](https://www.nuget.org/packages/kurnakovv.biak) -->
+ [![NuGet](https://img.shields.io/nuget/v/kurnakovv.biak.svg)](https://www.nuget.org/packages/kurnakovv.biak)
+ [![NuGet download](https://img.shields.io/nuget/dt/kurnakovv.biak.svg)](https://www.nuget.org/packages/kurnakovv.biak)
 
  [![NuGet](https://img.shields.io/nuget/v/kurnakovv.biak-preview.svg)](https://www.nuget.org/packages/kurnakovv.biak-preview)
  [![NuGet download](https://img.shields.io/nuget/dt/kurnakovv.biak-preview.svg)](https://www.nuget.org/packages/kurnakovv.biak-preview)
@@ -44,6 +44,8 @@
 * 🧑‍💻 Find activity | Provides the ability to find active branches and files being modified within them. This feature helps gradually introduce formatting and analyzers without causing Git conflicts by excluding actively modified files from the `.editorconfig` file ([docs](https://github.com/kurnakovv/biak/wiki/FindActivity)).
 
 * ⚔️ Find conflicts | Find files with merge conflicts between the default branch and selected branches. This is especially useful for legacy projects with many rule violations, allowing gradual integration without major conflicts ([docs](https://github.com/kurnakovv/biak/wiki/FindConflicts)).
+
+* 🚧 Warnings baseline | Build a warning baseline from existing compiler and analyzer warnings, allowing [TreatWarningsAsErrors](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/compiler-options/errors-warnings#treatwarningsaserrors) to be enabled without fixing all legacy violations at once ([docs](https://github.com/kurnakovv/biak/wiki/WarningsBaselineOverview)).
 
 ## 🚀 Quick start
 1️⃣ Install

@@ -85,5 +85,12 @@ Find activity / conflicts | Features for finding active and conflicting files an
 
 * dotnet biak find-activity | Provides the ability to find active branches and files being modified within them. This feature helps gradually introduce formatting and analyzers without causing Git conflicts by excluding actively modified files from the .editorconfig file https://github.com/kurnakovv/biak/wiki/FindActivity
 * dotnet biak find-conflicts | Find files with merge conflicts between the default branch and selected branches https://github.com/kurnakovv/biak/wiki/FindConflicts
+--------------------
+Warnings baseline | Tools for initializing and maintaining a warning baseline for gradual analyzer adoption https://github.com/kurnakovv/biak/wiki/WarningsBaselineOverview
+
+---
+
+* dotnet biak warnings-baseline init | Builds the project, discovers all current compiler and analyzer warnings, and generates .editorconfig filters that exclude existing warnings from TreatWarningsAsErrors, enabling gradual cleanup while keeping new warnings blocked https://github.com/kurnakovv/biak/wiki/WarningsBaselineInit
+* dotnet biak warnings-baseline sync [--path <path>] | Synchronizes the warnings-baseline filters in .biak/.editorconfig-main by default (fallback: .editorconfig), or in a user-specified .editorconfig when --path is provided https://github.com/kurnakovv/biak/wiki/WarningsBaselineSync
 --------------------";
 }
