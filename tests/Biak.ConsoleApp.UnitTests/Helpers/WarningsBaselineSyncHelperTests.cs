@@ -473,10 +473,11 @@ public class WarningsBaselineSyncHelperTests
                 [{src/File.cs}]
                 dotnet_diagnostic.CA2000.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
 
-                # bottom of file
+                [*]
+                indent_size = 4
                 """,
                 Array.Empty<string>(),
-                ["# top of file", "# bottom of file"],
+                ["# top of file", "indent_size = 4"],
                 ["CA2000"],
                 null
             },
@@ -491,6 +492,54 @@ public class WarningsBaselineSyncHelperTests
                 Array.Empty<string>(),
                 ["CA2000", "[{"],
                 null
+            },
+            {
+                "PreservesManualSectionWithExtraPropertiesAfterDiagnostic",
+                $$"""
+                [{src/File.cs}]
+                dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+                dotnet_diagnostic.CA2000.api_surface = all
+                """,
+                Array.Empty<string>(),
+                ["[{src/File.cs}]", "CA2000", "api_surface = all"],
+                Array.Empty<string>(),
+                $$"""
+                [{src/File.cs}]
+                dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+                dotnet_diagnostic.CA2000.api_surface = all
+                """
+            },
+            {
+                "RemovesCleanBlockButPreservesManualSectionWithExtraProperties",
+                $$"""
+                [{src/File1.cs}]
+                dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+
+                [{src/File2.cs}]
+                dotnet_diagnostic.CA1001.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+                dotnet_diagnostic.CA1001.api_surface = all
+
+                """,
+                Array.Empty<string>(),
+                ["[{src/File2.cs}]", "CA1001", "api_surface = all"],
+                ["[{src/File1.cs}]", "CA2000"],
+                null
+            },
+            {
+                "PreservesBlockWhenCommentDirectlyFollowsDiagnostic",
+                $$"""
+                [{src/File.cs}]
+                dotnet_diagnostic.CA2000.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+                # section-level note
+                """,
+                Array.Empty<string>(),
+                ["[{src/File.cs}]", "CA2000", "# section-level note"],
+                Array.Empty<string>(),
+                $$"""
+                [{src/File.cs}]
+                dotnet_diagnostic.CA2000.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+                # section-level note
+                """
             },
         };
     }
