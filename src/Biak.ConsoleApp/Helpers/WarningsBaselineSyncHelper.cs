@@ -12,8 +12,11 @@ namespace Biak.ConsoleApp.Helpers;
 /// </summary>
 public static class WarningsBaselineSyncHelper
 {
-    private const string BASELINE_DIAGNOSTIC_REGEX_TEXT =
-         @"dotnet_diagnostic\.([A-Z][A-Z0-9]*)\.severity[^\r\n]*#\s*\^biak\^\s*baseline";
+    private static readonly string s_baselineMarkerRegexText =
+         Regex.Escape(WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER).Replace("\\ ", "\\s*", StringComparison.OrdinalIgnoreCase);
+
+    private static readonly string s_baselineDiagnosticRegexText =
+        @"dotnet_diagnostic\.([A-Z][A-Z0-9]*)\.severity[^\r\n]*" + s_baselineMarkerRegexText;
 
     private static readonly char[] s_pathSeparators = new[] { '/', '\\' };
 
@@ -25,13 +28,13 @@ public static class WarningsBaselineSyncHelper
 
     // Matches a dotnet_diagnostic baseline line and captures the diagnostic code.
     private static readonly Regex s_baselineDiagnosticRegex = new(
-        @"^\s*" + BASELINE_DIAGNOSTIC_REGEX_TEXT,
+        @"^\s*" + s_baselineDiagnosticRegexText,
         RegexOptions.Compiled | RegexOptions.IgnoreCase
     );
 
     // Matches all diagnostic codes referenced in baseline entries anywhere in the content.
     private static readonly Regex s_allBaselineCodesRegex = new(
-        BASELINE_DIAGNOSTIC_REGEX_TEXT,
+        s_baselineDiagnosticRegexText,
         RegexOptions.Compiled | RegexOptions.IgnoreCase
     );
 
