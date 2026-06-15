@@ -11,8 +11,8 @@
  [![Codecov](https://codecov.io/gh/kurnakovv/biak/branch/dev/graph/badge.svg)](https://app.codecov.io/gh/kurnakovv/biak)
  [![MIT License](https://img.shields.io/github/license/kurnakovv/biak?color=%230b0&style=flat)](https://github.com/kurnakovv/biak/blob/dev/LICENSE)
 
- <!-- [![NuGet](https://img.shields.io/nuget/v/kurnakovv.biak.svg)](https://www.nuget.org/packages/kurnakovv.biak)
- [![NuGet download](https://img.shields.io/nuget/dt/kurnakovv.biak.svg)](https://www.nuget.org/packages/kurnakovv.biak) -->
+ [![NuGet](https://img.shields.io/nuget/v/kurnakovv.biak.svg)](https://www.nuget.org/packages/kurnakovv.biak)
+ [![NuGet download](https://img.shields.io/nuget/dt/kurnakovv.biak.svg)](https://www.nuget.org/packages/kurnakovv.biak)
 
  [![NuGet](https://img.shields.io/nuget/v/kurnakovv.biak-preview.svg)](https://www.nuget.org/packages/kurnakovv.biak-preview)
  [![NuGet download](https://img.shields.io/nuget/dt/kurnakovv.biak-preview.svg)](https://www.nuget.org/packages/kurnakovv.biak-preview)
