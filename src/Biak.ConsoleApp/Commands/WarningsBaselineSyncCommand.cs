@@ -121,7 +121,7 @@ public static class WarningsBaselineSyncCommand
             HashSet<string> remainingBaselineCodes = WarningsBaselineSyncHelper.GetBaselineDiagnosticCodes(syncedContent);
 
             string result;
-            if (codesToKeep.Count == 0)
+            if (remainingBaselineCodes.Count == 0)
             {
                 result = WarningsBaselineSyncCommandConstant.ALL_WARNINGS_FIXED;
             }

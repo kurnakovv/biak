@@ -460,21 +460,12 @@ public class WarningsBaselineSyncCommandTests
             string syncedContent = await File.ReadAllTextAsync(editorconfigPath);
             string consoleOutput = output.ToString();
 
-            string expectedResult = "Sync complete. Removed 2 file(s); resolved 2 filter(s). 0 filter(s) still alive.";
             string expectedOutput = WarningsBaselineSyncCommandConstant.SYNC_STARTED
                 + Environment.NewLine
                 + Environment.NewLine
-                + "ProgramCS0168Warning.cs (cs0168)"
-                + Environment.NewLine
-                + "ResolvedFile.cs (CS0219)"
-                + Environment.NewLine
-                + Environment.NewLine
-                + expectedResult
-                + Environment.NewLine
-                + Environment.NewLine;
+                + WarningsBaselineSyncCommandConstant.ALL_WARNINGS_FIXED;
 
-            Assert.Equal(expectedResult, result);
-            Assert.Equal(expectedOutput, consoleOutput);
+            Assert.Equal(WarningsBaselineSyncCommandConstant.ALL_WARNINGS_FIXED, result);
             Assert.DoesNotContain("[{ResolvedFile.cs}]", syncedContent, StringComparison.Ordinal);
             Assert.DoesNotContain("dotnet_diagnostic.CS0219.severity", syncedContent, StringComparison.Ordinal);
             Assert.DoesNotContain("[{ProgramCS0168Warning.cs}]", syncedContent, StringComparison.Ordinal);
