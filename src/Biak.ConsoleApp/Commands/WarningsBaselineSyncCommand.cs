@@ -46,7 +46,7 @@ public static class WarningsBaselineSyncCommand
     public static async Task<string> RunAsync(string[] args)
     {
         string baseDirectory = Directory.GetCurrentDirectory();
-        string editorConfigPath = string.Empty;
+        string editorConfigPath;
         string resolvedPath = string.Empty;
         string originalContent = string.Empty;
         bool baselineWasActivated = false;
