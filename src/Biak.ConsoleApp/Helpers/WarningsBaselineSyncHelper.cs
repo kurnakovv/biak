@@ -275,7 +275,12 @@ public static class WarningsBaselineSyncHelper
             string[] sectionFiles = headerMatch.Groups["files"].Value
                 .Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
 
-            yield return new BaselineBlock(i, blockEnd, diagMatch.Groups[1].Value, sectionFiles);
+            yield return new BaselineBlock(
+                HeaderIndex: i,
+                BlockEndIndex: blockEnd,
+                Code: diagMatch.Groups[1].Value,
+                SectionFiles: sectionFiles
+            );
         }
     }
 
