@@ -111,7 +111,7 @@ public class WarningsBaselineInitCommandTests
         {
             Directory.SetCurrentDirectory(testDir.Value);
 
-            Exception? exception = await Record.ExceptionAsync(WarningsBaselineInitCommand.RunAsync);
+            Exception? exception = await Record.ExceptionAsync(() => WarningsBaselineInitCommand.RunAsync());
 
             Assert.NotNull(exception);
             Assert.IsType<BiakApplicationException>(exception);
@@ -148,7 +148,7 @@ public class WarningsBaselineInitCommandTests
             Directory.SetCurrentDirectory(testDir.Value);
             Environment.SetEnvironmentVariable("PATH", string.Empty);
 
-            Exception? exception = await Record.ExceptionAsync(WarningsBaselineInitCommand.RunAsync);
+            Exception? exception = await Record.ExceptionAsync(() => WarningsBaselineInitCommand.RunAsync());
 
             Assert.NotNull(exception);
             Assert.IsType<BiakApplicationException>(exception);
@@ -211,7 +211,7 @@ public class WarningsBaselineInitCommandTests
                 """
             );
 
-            Exception? exception = await Record.ExceptionAsync(WarningsBaselineInitCommand.RunAsync);
+            Exception? exception = await Record.ExceptionAsync(() => WarningsBaselineInitCommand.RunAsync());
 
             Assert.NotNull(exception);
             Assert.IsType<BiakApplicationException>(exception);
@@ -263,7 +263,7 @@ public class WarningsBaselineInitCommandTests
             string anotherDirectory = Path.Join(testDir.Value, "another");
             Directory.CreateDirectory(anotherDirectory);
 
-            Task<Exception> exceptionTask = Record.ExceptionAsync(WarningsBaselineInitCommand.RunAsync);
+            Task<Exception> exceptionTask = Record.ExceptionAsync(() => WarningsBaselineInitCommand.RunAsync());
             await Task.Delay(100);
             Directory.SetCurrentDirectory(anotherDirectory);
 
@@ -277,6 +277,72 @@ public class WarningsBaselineInitCommandTests
         {
             Console.SetOut(originalOut);
             Console.SetIn(originalIn);
+            Directory.SetCurrentDirectory(originalDirectory);
+        }
+    }
+
+    [Fact]
+    public async Task RunShouldSupportExplicitBuildTargetAsync()
+    {
+        string originalDirectory = Directory.GetCurrentDirectory();
+        TestDirectory testDir = new(
+            $"{nameof(WarningsBaselineInitCommandTests)}_{nameof(RunShouldSupportExplicitBuildTargetAsync)}"
+        );
+
+        try
+        {
+            Directory.SetCurrentDirectory(testDir.Value);
+
+            string templateSimpleProject = Path.Join(
+                AppContext.BaseDirectory,
+                "Templates",
+                "SimpleProjectWithWarnings",
+                "MySimpleProjectTemplate"
+            );
+
+            testDir.CopyDirectory(templateSimpleProject);
+
+            string result = await WarningsBaselineInitCommand.RunAsync([
+                CommandArgumentConstant.WARNINGS_BASELINE,
+                CommandArgumentConstant.INIT,
+                CommandArgumentConstant.TARGET,
+                "MySimpleProjectTemplate.csproj",
+            ]);
+
+            Assert.Contains("dotnet_diagnostic.CS0168.severity", result, StringComparison.Ordinal);
+            Assert.False(File.Exists(WarningsBaselineInitCommandConstant.BUILD_BINLOG_PATH));
+        }
+        finally
+        {
+            Directory.SetCurrentDirectory(originalDirectory);
+        }
+    }
+
+    [Fact]
+    public async Task RunShouldRejectBuildTargetOutsideCurrentDirectoryAsync()
+    {
+        string originalDirectory = Directory.GetCurrentDirectory();
+        TestDirectory testDir = new(
+            $"{nameof(WarningsBaselineInitCommandTests)}_{nameof(RunShouldRejectBuildTargetOutsideCurrentDirectoryAsync)}"
+        );
+
+        try
+        {
+            Directory.SetCurrentDirectory(testDir.Value);
+
+            Exception? exception = await Record.ExceptionAsync(() => WarningsBaselineInitCommand.RunAsync([
+                CommandArgumentConstant.WARNINGS_BASELINE,
+                CommandArgumentConstant.INIT,
+                CommandArgumentConstant.TARGET,
+                "../outside.csproj",
+            ]));
+
+            Assert.NotNull(exception);
+            Assert.IsType<BiakApplicationException>(exception);
+            Assert.Equal(WarningsBaselineBuildConstant.INVALID_BUILD_TARGET_PATH, exception.Message);
+        }
+        finally
+        {
             Directory.SetCurrentDirectory(originalDirectory);
         }
     }

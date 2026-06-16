@@ -47,14 +47,7 @@ public static class WarningsBaselineSyncHelper
     /// <returns><see langword="true"/> when the path is safe; otherwise <see langword="false"/>.</returns>
     public static bool IsPathSafe(string filePath, string baseDirectory)
     {
-        string fullBase = Path.GetFullPath(baseDirectory);
-        string fullFile = Path.GetFullPath(filePath, fullBase);
-
-        string relativePath = Path.GetRelativePath(fullBase, fullFile);
-        if (Path.IsPathRooted(relativePath)
-            || relativePath.Equals("..", StringComparison.Ordinal)
-            || relativePath.StartsWith(".." + Path.DirectorySeparatorChar, StringComparison.Ordinal)
-            || relativePath.StartsWith(".." + Path.AltDirectorySeparatorChar, StringComparison.Ordinal))
+        if (!PathSafetyHelper.TryResolvePathWithinBaseDirectory(filePath, baseDirectory, out string fullFile, out string relativePath))
         {
             return false;
         }

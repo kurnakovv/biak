@@ -34,8 +34,12 @@ public static class WarningsBaselineSyncCommand
             return false;
         }
 
-        return args.Length == 2
-            || (args.Length == 4 && args[2] == CommandArgumentConstant.PATH && !string.IsNullOrWhiteSpace(args[3]));
+        if (args.Length == 2)
+        {
+            return true;
+        }
+
+        return TryParseOptions(args, out _);
     }
 
     /// <summary>
@@ -57,6 +61,7 @@ public static class WarningsBaselineSyncCommand
             Console.WriteLine();
 
             string editorConfigPath = ResolveEditorConfigPath(args, baseDirectory);
+            string? buildTarget = ResolveBuildTarget(args);
             resolvedPath = Path.GetFullPath(editorConfigPath, baseDirectory);
 
             if (!WarningsBaselineSyncHelper.IsPathSafe(editorConfigPath, baseDirectory))
@@ -82,7 +87,8 @@ public static class WarningsBaselineSyncCommand
             baselineWasActivated = true;
 
             SL.Build build = await WarningsBaselineBuildHelper.BuildAndReadBuildAsync(
-                WarningsBaselineSyncCommandConstant.BUILD_BINLOG_PATH
+                WarningsBaselineSyncCommandConstant.BUILD_BINLOG_PATH,
+                buildTarget
             );
 
             List<SL.Warning> sourceWarnings = WarningsBaselineBuildHelper.GetSourceWarnings(build).ToList();
@@ -169,9 +175,10 @@ public static class WarningsBaselineSyncCommand
 
     private static string ResolveEditorConfigPath(string[] args, string baseDirectory)
     {
-        if (args.Length == 4)
+        if (TryParseOptions(args, out Dictionary<string, string> options)
+            && options.TryGetValue(CommandArgumentConstant.PATH, out string? configuredPath))
         {
-            return args[3];
+            return configuredPath;
         }
 
         string mainEditorconfigPath = WarningsBaselineSyncCommandConstant.DEFAULT_EDITORCONFIG_MAIN_PATH;
@@ -188,5 +195,54 @@ public static class WarningsBaselineSyncCommand
         }
 
         throw new BiakApplicationException(WarningsBaselineSyncCommandConstant.DEFAULT_CONFIGURATION_FILE_NOT_FOUND);
+    }
+
+    private static string? ResolveBuildTarget(string[] args)
+    {
+        if (TryParseOptions(args, out Dictionary<string, string> options)
+            && options.TryGetValue(CommandArgumentConstant.TARGET, out string? buildTarget))
+        {
+            return buildTarget;
+        }
+
+        return null;
+    }
+
+    private static bool TryParseOptions(string[] args, out Dictionary<string, string> options)
+    {
+        options = new Dictionary<string, string>(StringComparer.Ordinal);
+
+        if (args.Length == 2)
+        {
+            return true;
+        }
+
+        if ((args.Length - 2) % 2 != 0)
+        {
+            return false;
+        }
+
+        for (int i = 2; i < args.Length; i += 2)
+        {
+            string option = args[i];
+            string value = args[i + 1];
+
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return false;
+            }
+
+            if (option is not (CommandArgumentConstant.PATH or CommandArgumentConstant.TARGET))
+            {
+                return false;
+            }
+
+            if (!options.TryAdd(option, value))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

@@ -22,21 +22,39 @@ public static class WarningsBaselineInitCommand
     /// <returns>Can be run or not.</returns>
     public static bool IsRunnable(string[] args)
     {
-        return args.Length == 2 && args[0] == CommandArgumentConstant.WARNINGS_BASELINE && args[1] == CommandArgumentConstant.INIT;
+        if (args.Length < 2)
+        {
+            return false;
+        }
+
+        bool isCommand = args[0] == CommandArgumentConstant.WARNINGS_BASELINE
+            && args[1] == CommandArgumentConstant.INIT;
+
+        if (!isCommand)
+        {
+            return false;
+        }
+
+        return args.Length == 2
+            || (args.Length == 4 && args[2] == CommandArgumentConstant.TARGET && !string.IsNullOrWhiteSpace(args[3]));
     }
 
     /// <summary>
     /// Run.
     /// </summary>
+    /// <param name="args">User input arguments.</param>
     /// <returns><placeholder>A <see cref="Task"/> representing the asynchronous operation.</placeholder></returns>
-    public static async Task<string> RunAsync()
+    public static async Task<string> RunAsync(string[]? args = null)
     {
         try
         {
             Console.WriteLine(WarningsBaselineInitCommandConstant.INIT_STARTED);
 
+            string? buildTarget = ResolveBuildTarget(args);
+
             SL.Build build = await WarningsBaselineBuildHelper.BuildAndReadBuildAsync(
-                WarningsBaselineInitCommandConstant.BUILD_BINLOG_PATH
+                WarningsBaselineInitCommandConstant.BUILD_BINLOG_PATH,
+                buildTarget
             );
 
             string originalDirectory = Directory.GetCurrentDirectory();
@@ -86,5 +104,14 @@ public static class WarningsBaselineInitCommand
                 File.Delete(WarningsBaselineInitCommandConstant.BUILD_BINLOG_PATH);
             }
         }
+    }
+
+    private static string? ResolveBuildTarget(string[]? args)
+    {
+        return args?.Length == 4
+            && args[2] == CommandArgumentConstant.TARGET
+            && !string.IsNullOrWhiteSpace(args[3])
+            ? args[3]
+            : null;
     }
 }
