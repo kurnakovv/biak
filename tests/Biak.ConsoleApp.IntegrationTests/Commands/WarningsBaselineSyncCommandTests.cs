@@ -708,4 +708,44 @@ public class WarningsBaselineSyncCommandTests
             Directory.SetCurrentDirectory(originalDirectory);
         }
     }
+
+    [Fact]
+    public async Task RunShouldSupportExplicitBuildTargetAsync()
+    {
+        string originalDirectory = Directory.GetCurrentDirectory();
+        TestDirectory testDir = new(
+            $"{nameof(WarningsBaselineSyncCommandTests)}_{nameof(RunShouldSupportExplicitBuildTargetAsync)}"
+        );
+
+        try
+        {
+            Directory.SetCurrentDirectory(testDir.Value);
+
+            string templateSimpleProject = Path.Join(
+                AppContext.BaseDirectory,
+                "Templates",
+                "SimpleProject",
+                "MySimpleProjectTemplate"
+            );
+
+            testDir.CopyDirectory(templateSimpleProject);
+
+            string editorconfigPath = Path.Join(testDir.Value, ".editorconfig");
+            await File.WriteAllTextAsync(editorconfigPath, WarningsBaselineCommandTestConstants.BASELINE_EDITORCONFIG);
+
+            string result = await WarningsBaselineSyncCommand.RunAsync([
+                CommandArgumentConstant.WARNINGS_BASELINE,
+                CommandArgumentConstant.SYNC,
+                CommandArgumentConstant.TARGET,
+                "MySimpleProjectTemplate.csproj",
+            ]);
+
+            Assert.Equal(WarningsBaselineSyncCommandConstant.ALL_WARNINGS_FIXED, result);
+            Assert.False(File.Exists(WarningsBaselineSyncCommandConstant.BUILD_BINLOG_PATH));
+        }
+        finally
+        {
+            Directory.SetCurrentDirectory(originalDirectory);
+        }
+    }
 }

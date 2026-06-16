@@ -20,17 +20,31 @@ public static class WarningsBaselineBuildHelper
     /// Runs <c>dotnet build</c>, validates the generated binlog and returns parsed build data.
     /// </summary>
     /// <param name="buildBinlogPath">Binlog path to write and read.</param>
+    /// <param name="buildTarget">Optional explicit path to .sln/.slnx/.csproj build target.</param>
     /// <returns>Parsed MSBuild structured log build object.</returns>
-    public static async Task<SL.Build> BuildAndReadBuildAsync(string buildBinlogPath)
+    public static async Task<SL.Build> BuildAndReadBuildAsync(string buildBinlogPath, string? buildTarget = null)
     {
+        string baseDirectory = Directory.GetCurrentDirectory();
+        string? resolvedBuildTarget = ResolveBuildTarget(buildTarget, baseDirectory);
+
         ProcessStartInfo psi = new()
         {
             FileName = "dotnet",
-            Arguments = $"build --no-incremental /p:TreatWarningsAsErrors=false -bl:\"{buildBinlogPath}\"",
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             UseShellExecute = false,
         };
+
+        psi.ArgumentList.Add("build");
+
+        if (!string.IsNullOrWhiteSpace(resolvedBuildTarget))
+        {
+            psi.ArgumentList.Add(resolvedBuildTarget);
+        }
+
+        psi.ArgumentList.Add("--no-incremental");
+        psi.ArgumentList.Add("/p:TreatWarningsAsErrors=false");
+        psi.ArgumentList.Add($"-bl:{buildBinlogPath}");
 
         using Process process = Process.Start(psi)
             ?? throw new BiakApplicationException(WarningsBaselineBuildConstant.FAILED_TO_START_DOTNET_BUILD);
@@ -60,6 +74,12 @@ public static class WarningsBaselineBuildHelper
         if (process.ExitCode != 0)
         {
             string errorOutput = string.IsNullOrWhiteSpace(standardError) ? standardOutput : standardError;
+            if (string.IsNullOrWhiteSpace(buildTarget)
+                && errorOutput.Contains("MSB1011", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new BiakApplicationException(WarningsBaselineBuildConstant.AMBIGUOUS_BUILD_TARGET);
+            }
+
             throw new BiakApplicationException(
                 string.IsNullOrWhiteSpace(errorOutput)
                     ? WarningsBaselineBuildConstant.DOTNET_BUILD_FAILED
@@ -95,5 +115,25 @@ public static class WarningsBaselineBuildHelper
                 !string.IsNullOrWhiteSpace(x.File) &&
                 s_sourceFileExtensions.Contains(Path.GetExtension(x.File))
             );
+    }
+
+    private static string? ResolveBuildTarget(string? buildTarget, string baseDirectory)
+    {
+        if (string.IsNullOrWhiteSpace(buildTarget))
+        {
+            return null;
+        }
+
+        if (!PathSafetyHelper.TryResolvePathWithinBaseDirectory(buildTarget, baseDirectory, out string fullBuildTarget, out _))
+        {
+            throw new BiakApplicationException(WarningsBaselineBuildConstant.INVALID_BUILD_TARGET_PATH);
+        }
+
+        if (!File.Exists(fullBuildTarget))
+        {
+            throw new BiakApplicationException(WarningsBaselineBuildConstant.BUILD_TARGET_NOT_FOUND);
+        }
+
+        return fullBuildTarget;
     }
 }
