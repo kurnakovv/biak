@@ -11,6 +11,72 @@ namespace Biak.ConsoleApp.IntegrationTests.Commands;
 
 public class WarningsBaselineSyncCommandTests
 {
+    [Fact]
+    public void IsRunnableShouldReturnFalseWhenOptionValuePairIsIncomplete()
+    {
+        Assert.False(
+            WarningsBaselineSyncCommand.IsRunnable(
+            [
+                CommandArgumentConstant.WARNINGS_BASELINE,
+                CommandArgumentConstant.SYNC,
+                CommandArgumentConstant.PATH,
+                ".editorconfig",
+                CommandArgumentConstant.TARGET,
+            ]
+            )
+        );
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData(" ")]
+    [InlineData("\t")]
+    public void IsRunnableShouldReturnFalseWhenOptionValueIsWhitespace(string value)
+    {
+        Assert.False(
+            WarningsBaselineSyncCommand.IsRunnable(
+            [
+                CommandArgumentConstant.WARNINGS_BASELINE,
+                CommandArgumentConstant.SYNC,
+                CommandArgumentConstant.PATH,
+                value,
+            ]
+            )
+        );
+    }
+
+    [Fact]
+    public void IsRunnableShouldReturnFalseWhenOptionIsUnsupported()
+    {
+        Assert.False(
+            WarningsBaselineSyncCommand.IsRunnable(
+            [
+                CommandArgumentConstant.WARNINGS_BASELINE,
+                CommandArgumentConstant.SYNC,
+                "--unknown",
+                ".editorconfig",
+            ]
+            )
+        );
+    }
+
+    [Fact]
+    public void IsRunnableShouldReturnFalseWhenOptionIsDuplicated()
+    {
+        Assert.False(
+            WarningsBaselineSyncCommand.IsRunnable(
+            [
+                CommandArgumentConstant.WARNINGS_BASELINE,
+                CommandArgumentConstant.SYNC,
+                CommandArgumentConstant.PATH,
+                ".editorconfig",
+                CommandArgumentConstant.PATH,
+                ".biak/.editorconfig-main",
+            ]
+            )
+        );
+    }
+
     [Theory]
     [InlineData("PathEscapesDirectory", "../../.editorconfig", false, WarningsBaselineSyncCommandConstant.INVALID_PATH_EDITORCONFIG, false)]
     [InlineData("InvalidFileName", "not-editorconfig.txt", false, WarningsBaselineSyncCommandConstant.INVALID_PATH_EDITORCONFIG, false)]
