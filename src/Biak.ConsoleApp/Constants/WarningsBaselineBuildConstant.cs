@@ -28,7 +28,7 @@ public static class WarningsBaselineBuildConstant
     /// Build target path is not allowed.
     /// </summary>
     public const string INVALID_BUILD_TARGET_PATH =
-        "The specified build target path is not allowed. Use a path within the current project directory.";
+        "The specified build target path is not allowed. Use a path within the current working directory.";
 
     /// <summary>
     /// Build target file was not found.
