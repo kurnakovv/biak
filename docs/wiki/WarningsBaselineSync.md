@@ -4,7 +4,7 @@
 ## 💻 Usage
 
 ```
-dotnet biak warnings-baseline sync [--path <path>]
+dotnet biak warnings-baseline sync [--path <path>] [--target <path>]
 ```
 
 Let's imagine you have the following configuration:
@@ -53,7 +53,7 @@ And the `.editorconfig` file is synchronized.
 * Check that the file name starts with `.editorconfig` and the resolved path does not go beyond the root directory.
 * Check that the file contains the `# ^biak^ baseline` marker
 * Change baseline filters in the config file from `suggestion` to `warning`
-* Execute a full project build (30-minute timeout)
+* Execute a full project build (30-minute timeout), or build an explicit target from `--target <path>`
 * If build errors are detected, terminate execution
 * Extract warnings from the generated binary log
 * Keep only warnings associated with `.cs` and `.vb` source files
@@ -61,5 +61,5 @@ And the `.editorconfig` file is synchronized.
 * Change baseline filters in the config file from `warning` back to `suggestion`
 
 ## 🔗 Links
-* Issues: [#107](https://github.com/kurnakovv/biak/issues/107)
+* Issues: [#107](https://github.com/kurnakovv/biak/issues/107), [#113](https://github.com/kurnakovv/biak/issues/113)
 * Source code: [click](https://github.com/kurnakovv/biak/blob/dev/src/Biak.ConsoleApp/Commands/WarningsBaselineSyncCommand.cs)

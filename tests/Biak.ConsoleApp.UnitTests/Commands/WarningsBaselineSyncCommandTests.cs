@@ -61,27 +61,68 @@ public class WarningsBaselineSyncCommandTests
                 ".editorconfig",
                 "extra",
             ]),
-            "third argument must be --path"
+            "third argument must be an option"
+        );
+        Assert.False(
+            WarningsBaselineSyncCommand.IsRunnable([
+                CommandArgumentConstant.WARNINGS_BASELINE,
+                CommandArgumentConstant.SYNC,
+                CommandArgumentConstant.TARGET,
+            ]),
+            "`--target` without value is invalid"
+        );
+        Assert.False(
+            WarningsBaselineSyncCommand.IsRunnable([
+                CommandArgumentConstant.WARNINGS_BASELINE,
+                CommandArgumentConstant.SYNC,
+                CommandArgumentConstant.PATH,
+                "a.editorconfig",
+                CommandArgumentConstant.PATH,
+                "b.editorconfig",
+            ]),
+            "duplicate options are invalid"
         );
     }
 
     [Fact]
     public void IsRunnableReturnsTrueForDefaultArguments()
     {
-        Assert.True(WarningsBaselineSyncCommand.IsRunnable(
-            [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC])
+        Assert.True(
+            WarningsBaselineSyncCommand.IsRunnable([CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC])
         );
     }
 
     [Fact]
-    public void IsRunnableReturnsTrueForPathOption()
+    public void IsRunnableReturnsTrueForSupportedOptions()
     {
-        Assert.True(WarningsBaselineSyncCommand.IsRunnable(
-            [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC, CommandArgumentConstant.PATH, "path/to/.editorconfig"])
+        Assert.True(
+            WarningsBaselineSyncCommand.IsRunnable([CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC, CommandArgumentConstant.PATH, "path/to/.editorconfig"])
         );
 
-        Assert.True(WarningsBaselineSyncCommand.IsRunnable(
-            [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC, CommandArgumentConstant.PATH, "some-file.txt"])
+        Assert.True(
+            WarningsBaselineSyncCommand.IsRunnable([CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC, CommandArgumentConstant.TARGET, "path/to/app.slnx"])
         );
+
+        string[] pathThenTarget =
+        [
+            CommandArgumentConstant.WARNINGS_BASELINE,
+            CommandArgumentConstant.SYNC,
+            CommandArgumentConstant.PATH,
+            ".editorconfig",
+            CommandArgumentConstant.TARGET,
+            "path/to/app.csproj",
+        ];
+        Assert.True(WarningsBaselineSyncCommand.IsRunnable(pathThenTarget));
+
+        string[] targetThenPath =
+        [
+            CommandArgumentConstant.WARNINGS_BASELINE,
+            CommandArgumentConstant.SYNC,
+            CommandArgumentConstant.TARGET,
+            "path/to/app.csproj",
+            CommandArgumentConstant.PATH,
+            ".editorconfig",
+        ];
+        Assert.True(WarningsBaselineSyncCommand.IsRunnable(targetThenPath));
     }
 }
