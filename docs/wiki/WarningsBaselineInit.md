@@ -4,7 +4,7 @@
 ## 💻 Usage
 
 ```
-dotnet biak warnings-baseline init
+dotnet biak warnings-baseline init [--target <path>]
 ```
 
 After a few moments, something similar should appear:
@@ -46,7 +46,7 @@ dotnet_diagnostic.CS8618.severity = suggestion # ^biak^ baseline
 > Do not remove the `# ^biak^ baseline` marker, as it is used for the [Sync](WarningsBaselineSync) command.
 
 ## ⚙️ Logic
-* Execute a full project build (30-minute timeout)
+* Execute a full project build (30-minute timeout), or build an explicit target from `--target <path>`
 * If build errors are detected, terminate execution
 * Extract warnings from the generated binary log
 * Retain only warnings associated with `.cs` and `.vb` source files
@@ -63,5 +63,5 @@ If a warning originates from a global project-level configuration, such as a `.c
 Unfortunately, if you write `... = warning # ^biak^ baseline` instead of `... = suggestion # ^biak^ baseline` and set `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>`, the filter will not be applied and all warnings will become errors.
 
 ## 🔗 Links
-* Issues: [#105](https://github.com/kurnakovv/biak/issues/105)
+* Issues: [#105](https://github.com/kurnakovv/biak/issues/105), [#113](https://github.com/kurnakovv/biak/issues/113)
 * Source code: [click](https://github.com/kurnakovv/biak/blob/dev/src/Biak.ConsoleApp/Commands/WarningsBaselineInitCommand.cs)

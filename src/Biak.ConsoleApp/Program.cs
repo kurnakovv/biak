@@ -49,7 +49,7 @@ public static class Program
         }
         else if (WarningsBaselineInitCommand.IsRunnable(args))
         {
-            await WarningsBaselineInitCommand.RunAsync();
+            await WarningsBaselineInitCommand.RunAsync(args);
         }
         else if (WarningsBaselineSyncCommand.IsRunnable(args))
         {

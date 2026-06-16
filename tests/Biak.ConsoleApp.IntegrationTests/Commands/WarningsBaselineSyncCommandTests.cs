@@ -11,6 +11,72 @@ namespace Biak.ConsoleApp.IntegrationTests.Commands;
 
 public class WarningsBaselineSyncCommandTests
 {
+    [Fact]
+    public void IsRunnableShouldReturnFalseWhenOptionValuePairIsIncomplete()
+    {
+        Assert.False(
+            WarningsBaselineSyncCommand.IsRunnable(
+            [
+                CommandArgumentConstant.WARNINGS_BASELINE,
+                CommandArgumentConstant.SYNC,
+                CommandArgumentConstant.PATH,
+                ".editorconfig",
+                CommandArgumentConstant.TARGET,
+            ]
+            )
+        );
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData(" ")]
+    [InlineData("\t")]
+    public void IsRunnableShouldReturnFalseWhenOptionValueIsWhitespace(string value)
+    {
+        Assert.False(
+            WarningsBaselineSyncCommand.IsRunnable(
+            [
+                CommandArgumentConstant.WARNINGS_BASELINE,
+                CommandArgumentConstant.SYNC,
+                CommandArgumentConstant.PATH,
+                value,
+            ]
+            )
+        );
+    }
+
+    [Fact]
+    public void IsRunnableShouldReturnFalseWhenOptionIsUnsupported()
+    {
+        Assert.False(
+            WarningsBaselineSyncCommand.IsRunnable(
+            [
+                CommandArgumentConstant.WARNINGS_BASELINE,
+                CommandArgumentConstant.SYNC,
+                "--unknown",
+                ".editorconfig",
+            ]
+            )
+        );
+    }
+
+    [Fact]
+    public void IsRunnableShouldReturnFalseWhenOptionIsDuplicated()
+    {
+        Assert.False(
+            WarningsBaselineSyncCommand.IsRunnable(
+            [
+                CommandArgumentConstant.WARNINGS_BASELINE,
+                CommandArgumentConstant.SYNC,
+                CommandArgumentConstant.PATH,
+                ".editorconfig",
+                CommandArgumentConstant.PATH,
+                ".biak/.editorconfig-main",
+            ]
+            )
+        );
+    }
+
     [Theory]
     [InlineData("PathEscapesDirectory", "../../.editorconfig", false, WarningsBaselineSyncCommandConstant.INVALID_PATH_EDITORCONFIG, false)]
     [InlineData("InvalidFileName", "not-editorconfig.txt", false, WarningsBaselineSyncCommandConstant.INVALID_PATH_EDITORCONFIG, false)]
@@ -702,6 +768,46 @@ public class WarningsBaselineSyncCommandTests
                 StringComparison.Ordinal
             );
             Assert.Contains(additionalContent, syncedContent, StringComparison.Ordinal);
+        }
+        finally
+        {
+            Directory.SetCurrentDirectory(originalDirectory);
+        }
+    }
+
+    [Fact]
+    public async Task RunShouldSupportExplicitBuildTargetAsync()
+    {
+        string originalDirectory = Directory.GetCurrentDirectory();
+        TestDirectory testDir = new(
+            $"{nameof(WarningsBaselineSyncCommandTests)}_{nameof(RunShouldSupportExplicitBuildTargetAsync)}"
+        );
+
+        try
+        {
+            Directory.SetCurrentDirectory(testDir.Value);
+
+            string templateSimpleProject = Path.Join(
+                AppContext.BaseDirectory,
+                "Templates",
+                "SimpleProject",
+                "MySimpleProjectTemplate"
+            );
+
+            testDir.CopyDirectory(templateSimpleProject);
+
+            string editorconfigPath = Path.Join(testDir.Value, ".editorconfig");
+            await File.WriteAllTextAsync(editorconfigPath, WarningsBaselineCommandTestConstants.BASELINE_EDITORCONFIG);
+
+            string result = await WarningsBaselineSyncCommand.RunAsync([
+                CommandArgumentConstant.WARNINGS_BASELINE,
+                CommandArgumentConstant.SYNC,
+                CommandArgumentConstant.TARGET,
+                "MySimpleProjectTemplate.csproj",
+            ]);
+
+            Assert.Equal(WarningsBaselineSyncCommandConstant.ALL_WARNINGS_FIXED, result);
+            Assert.False(File.Exists(WarningsBaselineSyncCommandConstant.BUILD_BINLOG_PATH));
         }
         finally
         {
