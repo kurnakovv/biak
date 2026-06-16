@@ -20,6 +20,11 @@ public static class CommandArgumentConstant
     public const string PATH = "--path";
 
     /// <summary>
+    /// Build target option.
+    /// </summary>
+    public const string TARGET = "--target";
+
+    /// <summary>
     /// Setup biak env (create .biak folder with .editorconfig-main file).
     /// </summary>
     public const string SETUP = "setup";

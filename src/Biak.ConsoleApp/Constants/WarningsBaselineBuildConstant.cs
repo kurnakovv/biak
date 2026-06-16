@@ -25,6 +25,23 @@ public static class WarningsBaselineBuildConstant
     public const string DOTNET_BUILD_TIMED_OUT = "'dotnet build' timed out after 30 minutes.";
 
     /// <summary>
+    /// Build target path is not allowed.
+    /// </summary>
+    public const string INVALID_BUILD_TARGET_PATH =
+        "The specified build target path is not allowed. Use a path within the current project directory.";
+
+    /// <summary>
+    /// Build target file was not found.
+    /// </summary>
+    public const string BUILD_TARGET_NOT_FOUND = "The specified build target file was not found.";
+
+    /// <summary>
+    /// Auto-detection of build target is ambiguous.
+    /// </summary>
+    public const string AMBIGUOUS_BUILD_TARGET =
+        "Build target auto-detection is ambiguous. Specify '--target <path>' to choose a solution or project.";
+
+    /// <summary>
     /// Build binary log was not generated.
     /// </summary>
     public const string BUILD_BINLOG_NOT_FOUND = "Build binary log was not generated.";
