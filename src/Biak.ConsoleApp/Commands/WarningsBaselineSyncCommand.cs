@@ -175,7 +175,7 @@ public static class WarningsBaselineSyncCommand
 
     private static string ResolveEditorConfigPath(string[] args, string baseDirectory)
     {
-        if (TryParseOptions(args, out Dictionary<string, string>? options)
+        if (TryParseOptions(args, out Dictionary<string, string> options)
             && options.TryGetValue(CommandArgumentConstant.PATH, out string? configuredPath))
         {
             return configuredPath;
@@ -199,7 +199,7 @@ public static class WarningsBaselineSyncCommand
 
     private static string? ResolveBuildTarget(string[] args)
     {
-        if (TryParseOptions(args, out Dictionary<string, string>? options)
+        if (TryParseOptions(args, out Dictionary<string, string> options)
             && options.TryGetValue(CommandArgumentConstant.TARGET, out string? buildTarget))
         {
             return buildTarget;
