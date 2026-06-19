@@ -40,6 +40,11 @@ public static class CommandArgumentConstant
     public const string DISABLE = "disable";
 
     /// <summary>
+    /// Get current .editorconfig rules status.
+    /// </summary>
+    public const string STATUS = "status";
+
+    /// <summary>
     /// Find active branches with files.
     /// </summary>
     public const string FIND_ACTIVITY = "find-activity";

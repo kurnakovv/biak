@@ -68,4 +68,14 @@ public static class UIConstant
     /// End enable message.
     /// </summary>
     public const string END_ENABLE = ".editorconfig has been restored from backup (.biak/.editorconfig-main).";
+
+    /// <summary>
+    /// Enabled status output.
+    /// </summary>
+    public const string STATUS_ON = "on";
+
+    /// <summary>
+    /// Disabled status output.
+    /// </summary>
+    public const string STATUS_OFF = "off";
 }
