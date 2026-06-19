@@ -121,6 +121,7 @@ dotnet biak setup
 ```
 dotnet biak enable
 dotnet biak disable
+dotnet biak status
 ```
 
 That's it - biak is configured. Happy coding! 🚀
