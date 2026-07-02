@@ -130,6 +130,11 @@ If you need more details, please visit the Wiki 📚 ([where?](https://github.co
 > [!WARNING]
 > If you install `kurnakovv.biak-preview` ([what?](https://www.nuget.org/packages/kurnakovv.biak-preview/)) use `dotnet biak-preview` instead of `dotnet biak`
 
+## 🧩 Extensions / Plugins
+* [Visual Studio](https://github.com/kurnakovv/biak-visual-studio-extension)
+* Rider (soon 🔜)
+* VS Code (soon 🔜)
+
 ## ❔ Why
 In large projects with a significant number of files, `.editorconfig` rules may be evaluated with noticeable delay.
 
