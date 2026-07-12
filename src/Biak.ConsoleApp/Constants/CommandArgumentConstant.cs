@@ -25,6 +25,11 @@ public static class CommandArgumentConstant
     public const string TARGET = "--target";
 
     /// <summary>
+    /// Include debug info into command output.
+    /// </summary>
+    public const string DEBUG_INFO = "--debug-info";
+
+    /// <summary>
     /// Setup biak env (create .biak folder with .editorconfig-main file).
     /// </summary>
     public const string SETUP = "setup";

@@ -20,15 +20,27 @@ public static class StatusCommand
     /// <returns>Can be run or not.</returns>
     public static bool IsRunnable(string[] args)
     {
-        return args.Length == 1 && args[0] == CommandArgumentConstant.STATUS;
+        bool isStatusCommand = args.Length > 0 && args[0] == CommandArgumentConstant.STATUS;
+        if (!isStatusCommand)
+        {
+            return false;
+        }
+
+        return args.Length == 1
+            || (args.Length == 2 && args[1] == CommandArgumentConstant.DEBUG_INFO);
     }
 
     /// <summary>
     /// Run.
     /// </summary>
+    /// <param name="args">User input arguments.</param>
     /// <returns><placeholder>A <see cref="Task"/> representing the asynchronous operation.</placeholder></returns>
-    public static async Task RunAsync()
+    public static async Task RunAsync(string[] args)
     {
+        bool isDebugInfoEnabled = args?.Length == 2
+            && args[0] == CommandArgumentConstant.STATUS
+            && args[1] == CommandArgumentConstant.DEBUG_INFO;
+
         EditorconfigPaths editorconfigPaths = SetupHelper.GetEditorconfigPaths();
 
         if (editorconfigPaths.MainValue == null || editorconfigPaths.Value == null)
@@ -36,7 +48,16 @@ public static class StatusCommand
             return;
         }
 
-        (_, BiakConfig config) = await BiakConfigHelper.GetAsync();
+        (string? message, BiakConfig config) = await BiakConfigHelper.GetAsync();
+        if (message != null)
+        {
+            Console.WriteLine(
+                isDebugInfoEnabled
+                    ? UIConstant.STATUS_BROKEN_WITH_CONFIG_MESSAGE + message
+                    : UIConstant.STATUS_BROKEN
+            );
+            return;
+        }
 
         string currentContent = await File.ReadAllTextAsync(editorconfigPaths.Value);
         string enabledContent = await GetEnabledContentAsync(editorconfigPaths.MainValue, config);

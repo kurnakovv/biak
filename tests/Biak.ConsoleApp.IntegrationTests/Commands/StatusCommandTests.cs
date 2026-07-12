@@ -19,7 +19,7 @@ public class StatusCommandTests
 
         try
         {
-            await StatusCommand.RunAsync();
+            await StatusCommand.RunAsync([CommandArgumentConstant.STATUS]);
 
             string result = output.ToString();
             Assert.Contains(UIConstant.BIAK_NOT_INITIALIZED, result, StringComparison.OrdinalIgnoreCase);
@@ -63,7 +63,7 @@ public class StatusCommandTests
 
             try
             {
-                await StatusCommand.RunAsync();
+                await StatusCommand.RunAsync([CommandArgumentConstant.STATUS]);
 
                 string result = output.ToString();
                 Assert.Contains(UIConstant.EDITORCONFIG_NOT_FOUND, result, StringComparison.OrdinalIgnoreCase);
@@ -111,6 +111,18 @@ public class StatusCommandTests
         File.Copy(
             sourceFileName: templateEditorconfigMain,
             destFileName: Path.Join(biakDir, ".editorconfig-main"),
+            overwrite: true
+        );
+
+        string templateConfig = Path.Join(
+            AppContext.BaseDirectory,
+            "Templates",
+            "default-config.json"
+        );
+
+        File.Copy(
+            sourceFileName: templateConfig,
+            destFileName: Path.Join(biakDir, "config.json"),
             overwrite: true
         );
 
@@ -165,10 +177,68 @@ public class StatusCommandTests
 
                 output.GetStringBuilder().Clear();
 
-                await StatusCommand.RunAsync();
+                await StatusCommand.RunAsync([CommandArgumentConstant.STATUS]);
 
                 string result = output.ToString().Trim();
                 Assert.Equal(expectedStatus, result);
+            }
+            finally
+            {
+                Console.SetOut(originalOut);
+            }
+        }
+        finally
+        {
+            Directory.SetCurrentDirectory(originalDirectory);
+        }
+    }
+
+    [Fact]
+    public async Task RunWithDebugInfoAndInvalidConfigAsync()
+    {
+        string originalDirectory = Directory.GetCurrentDirectory();
+        TestDirectory testDir = new($"{nameof(StatusCommandTests)}_{nameof(RunWithDebugInfoAndInvalidConfigAsync)}");
+
+        string biakDir = Path.Join(testDir.Value, ".biak");
+        Directory.CreateDirectory(biakDir);
+
+        string templateEditorconfig = Path.Join(
+            AppContext.BaseDirectory,
+            "Templates",
+            ".editorconfig"
+        );
+        testDir.CopyTemplateEditorconfig(templateEditorconfig);
+
+        string templateEditorconfigMain = Path.Join(
+            AppContext.BaseDirectory,
+            "Templates",
+            "Disabled",
+            ".biak",
+            ".editorconfig-main"
+        );
+
+        File.Copy(
+            sourceFileName: templateEditorconfigMain,
+            destFileName: Path.Join(biakDir, ".editorconfig-main"),
+            overwrite: true
+        );
+
+        await File.WriteAllTextAsync(Path.Join(biakDir, "config.json"), "{");
+
+        try
+        {
+            Directory.SetCurrentDirectory(testDir.Value);
+
+            TextWriter originalOut = Console.Out;
+            await using StringWriter output = new();
+            Console.SetOut(output);
+
+            try
+            {
+                await StatusCommand.RunAsync([CommandArgumentConstant.STATUS, CommandArgumentConstant.DEBUG_INFO]);
+
+                string result = output.ToString().Trim();
+                Assert.Equal(UIConstant.STATUS_BROKEN_WITH_CONFIG_MESSAGE + BiakConfigConstant.INVALID_FORMAT, result);
             }
             finally
             {
