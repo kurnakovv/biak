@@ -80,9 +80,9 @@ public class StatusCommandTests
     }
 
     [Theory]
-    [InlineData(true, UIConstant.STATUS_ON)]
-    [InlineData(false, UIConstant.STATUS_OFF)]
-    public async Task RunWithEditorconfigAsync(bool enabled, string expectedStatus)
+    [InlineData(UIConstant.STATUS_ENABLED)]
+    [InlineData(UIConstant.STATUS_DISABLED)]
+    public async Task RunWithEditorconfigAsync(string expectedStatus)
     {
         string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new($"{nameof(StatusCommandTests)}_{nameof(RunWithEditorconfigAsync)}_{expectedStatus}");
@@ -166,13 +166,17 @@ public class StatusCommandTests
 
             try
             {
-                if (enabled)
+                if (expectedStatus == UIConstant.STATUS_ENABLED)
                 {
                     await EnableCommand.RunAsync();
                 }
-                else
+                else if (expectedStatus == UIConstant.STATUS_DISABLED)
                 {
                     await DisableCommand.RunAsync();
+                }
+                else
+                {
+                    throw new NotImplementedException("Not implemented expected status: " + expectedStatus);
                 }
 
                 output.GetStringBuilder().Clear();
