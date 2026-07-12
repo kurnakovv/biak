@@ -82,6 +82,7 @@ public class StatusCommandTests
     [Theory]
     [InlineData(UIConstant.STATUS_ENABLED)]
     [InlineData(UIConstant.STATUS_DISABLED)]
+    [InlineData(UIConstant.STATUS_UNSYNCHRONISED)]
     public async Task RunWithEditorconfigAsync(string expectedStatus)
     {
         string originalDirectory = Directory.GetCurrentDirectory();
@@ -173,6 +174,10 @@ public class StatusCommandTests
                 else if (expectedStatus == UIConstant.STATUS_DISABLED)
                 {
                     await DisableCommand.RunAsync();
+                }
+                else if (expectedStatus == UIConstant.STATUS_UNSYNCHRONISED)
+                {
+                    await File.WriteAllTextAsync(Path.Join(testDir.Value, ".editorconfig"), "root = true\n");
                 }
                 else
                 {

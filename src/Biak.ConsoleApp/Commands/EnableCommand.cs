@@ -44,7 +44,8 @@ public static class EnableCommand
 
         Console.WriteLine(UIConstant.START_ENABLE);
 
-        string content = await EditorconfigHelper.GetEnabledContentAsync(editorconfigPaths.MainValue, config);
+        string editorconfigMainContent = await File.ReadAllTextAsync(editorconfigPaths.MainValue);
+        string content = await EditorconfigHelper.GetEnabledContentAsync(editorconfigMainContent, config);
         await File.WriteAllTextAsync(editorconfigPaths.Value, content);
 
         Console.WriteLine(UIConstant.END_ENABLE);
