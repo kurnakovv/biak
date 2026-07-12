@@ -65,7 +65,7 @@ public static class EditorconfigHelper
         return up + content + bottom;
     }
 
-    internal static string RemoveAlwaysEnabledMarkers(string content)
+    private static string RemoveAlwaysEnabledMarkers(string content)
     {
         return Regex.Replace(
             content,
