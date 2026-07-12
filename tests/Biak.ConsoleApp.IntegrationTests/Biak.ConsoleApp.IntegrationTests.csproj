@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -22,6 +22,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="Templates\**\obj\**\*.cs" />
+    <Compile Remove="Templates\**\bin\**\*.cs" />
     <Compile Remove="Templates\SimpleProjectWithWarnings\MySimpleProjectTemplate\DerivedClassCS0649.cs" />
     <Compile Remove="Templates\SimpleProjectWithWarnings\MySimpleProjectTemplate\MyClassCS0169.cs" />
     <Compile Remove="Templates\SimpleProjectWithWarnings\MySimpleProjectTemplate\MyTestForlder\MyTestModel1.cs" />
