@@ -37,7 +37,7 @@ public static class StatusCommand
     /// <returns><placeholder>A <see cref="Task"/> representing the asynchronous operation.</placeholder></returns>
     public static async Task RunAsync(string[] args)
     {
-        bool isDebugInfoEnabled = args?.Length == 2
+        bool isDebugInfoEnabled = args.Length == 2
             && args[0] == CommandArgumentConstant.STATUS
             && args[1] == CommandArgumentConstant.DEBUG_INFO;
 
