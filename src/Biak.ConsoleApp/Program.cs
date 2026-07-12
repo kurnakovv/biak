@@ -39,6 +39,10 @@ public static class Program
         {
             await EnableCommand.RunAsync();
         }
+        else if (StatusCommand.IsRunnable(args))
+        {
+            await StatusCommand.RunAsync(args);
+        }
         else if (FindActivityCommand.IsRunnable(args))
         {
             await FindActivityCommand.RunAsync();
