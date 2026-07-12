@@ -60,18 +60,26 @@ public static class StatusCommand
             return;
         }
 
-        string currentContent = await File.ReadAllTextAsync(editorconfigPaths.Value);
-        string enabledContent = await EditorconfigHelper.GetEnabledContentAsync(editorconfigPaths.MainValue, config);
-        // ToDo: Add disabled content check
+        string editorconfigMainContent = await File.ReadAllTextAsync(editorconfigPaths.MainValue);
+        string currentContent = NormalizeLineEndings(await File.ReadAllTextAsync(editorconfigPaths.Value));
+        string disabledContent = NormalizeLineEndings(
+            await EditorconfigHelper.GetDisabledContentAsync(editorconfigMainContent, config)
+        );
+
+        if (string.Equals(currentContent, disabledContent, StringComparison.Ordinal))
+        {
+            Console.WriteLine(UIConstant.STATUS_DISABLED);
+            return;
+        }
+
+        string enabledContent = NormalizeLineEndings(
+            await EditorconfigHelper.GetEnabledContentAsync(editorconfigMainContent, config)
+        );
 
         Console.WriteLine(
-            string.Equals(
-                NormalizeLineEndings(currentContent),
-                NormalizeLineEndings(enabledContent),
-                StringComparison.Ordinal
-            )
+            string.Equals(currentContent, enabledContent, StringComparison.Ordinal)
                 ? UIConstant.STATUS_ENABLED
-                : UIConstant.STATUS_DISABLED
+                : UIConstant.STATUS_UNSYNCHRONISED
         );
     }
 

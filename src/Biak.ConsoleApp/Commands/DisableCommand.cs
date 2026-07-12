@@ -38,21 +38,14 @@ public static class DisableCommand
 
         Console.WriteLine(UIConstant.START_DISABLE);
 
-        string content = await File.ReadAllTextAsync(editorconfigPaths.MainValue);
         (string? message, BiakConfig config) = await BiakConfigHelper.GetAsync();
         if (message != null)
         {
             Console.WriteLine(message);
         }
-        content = await ImportHelper.ReplaceAsync(content, config.OnImportFailure);
-        content = IncludeExcludeFilterHelper.Apply(content);
-        content = SeverityHelper.Disable(
-            content: content,
-            severitiesToDisable: config.SeveritiesToDisable ?? BiakConfig.DefaultSeveritiesToDisable,
-            severityWhenDisabled: config.SeverityWhenDisabled
-        );
-        content = VariableHelper.Substitute(content);
-        content = EditorconfigHelper.AddAttentionBanners(content);
+
+        string editorconfigMainContent = await File.ReadAllTextAsync(editorconfigPaths.MainValue);
+        string content = await EditorconfigHelper.GetDisabledContentAsync(editorconfigMainContent, config);
         await File.WriteAllTextAsync(editorconfigPaths.Value, content);
 
         Console.WriteLine(UIConstant.END_DISABLE);

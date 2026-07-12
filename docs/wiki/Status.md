@@ -12,6 +12,7 @@ After executing this command, you may see one of the following outputs:
 
 * **enabled** - means the current `.editorconfig` matches the enabled biak configuration.
 * **disabled** - means the current `.editorconfig` matches the disabled biak configuration.
+* **unsynchronised** - means the current `.editorconfig` does not match either the enabled or disabled biak configuration.
 * **broken** - Something is incorrectly configured for the biak configuration, for example, the `.editorconfig` file was not found or other reasons that can be found using the `--debug-info` flag.
 
 ## ❔ Why

@@ -88,4 +88,9 @@ public static class UIConstant
     /// Disabled status output.
     /// </summary>
     public const string STATUS_DISABLED = "disabled";
+
+    /// <summary>
+    /// Unsynchronised status output.
+    /// </summary>
+    public const string STATUS_UNSYNCHRONISED = "unsynchronised";
 }
