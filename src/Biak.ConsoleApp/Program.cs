@@ -41,7 +41,7 @@ public static class Program
         }
         else if (StatusCommand.IsRunnable(args))
         {
-            await StatusCommand.RunAsync();
+            await StatusCommand.RunAsync(args);
         }
         else if (FindActivityCommand.IsRunnable(args))
         {

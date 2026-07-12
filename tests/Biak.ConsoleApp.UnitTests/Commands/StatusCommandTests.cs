@@ -22,11 +22,14 @@ public class StatusCommandTests
         Assert.False(StatusCommand.IsRunnable([CommandArgumentConstant.STATUS, "invalid"]), "`status` + `invalid` is invalid");
         Assert.False(StatusCommand.IsRunnable(["invalid", CommandArgumentConstant.STATUS]), "`invalid` + `status` is invalid");
         Assert.False(StatusCommand.IsRunnable([CommandArgumentConstant.SETUP]), "`setup` is invalid");
+        Assert.False(StatusCommand.IsRunnable([CommandArgumentConstant.DEBUG_INFO, CommandArgumentConstant.STATUS]), "`--debug-info` + `status` is invalid");
+        Assert.False(StatusCommand.IsRunnable([CommandArgumentConstant.STATUS, CommandArgumentConstant.DEBUG_INFO, "extra"]), "`status --debug-info` with extra argument is invalid");
     }
 
     [Fact]
-    public void IsRunnableTrueForSingleStatusParam()
+    public void IsRunnableTrueForValidParams()
     {
         Assert.True(StatusCommand.IsRunnable([CommandArgumentConstant.STATUS]));
+        Assert.True(StatusCommand.IsRunnable([CommandArgumentConstant.STATUS, CommandArgumentConstant.DEBUG_INFO]));
     }
 }
