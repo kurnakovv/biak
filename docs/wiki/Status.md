@@ -13,7 +13,7 @@ After executing this command, you may see one of the following outputs:
 * **enabled** - means the current `.editorconfig` matches the enabled biak configuration.
 * **disabled** - means the current `.editorconfig` matches the disabled biak configuration.
 * **unsynchronised** - means the current `.editorconfig` does not match either the enabled or disabled biak configuration.
-* **broken** - Something is incorrectly configured for the biak configuration, for example, the `.editorconfig` file was not found or other reasons that can be found using the `--debug-info` flag.
+* **broken** - means something is incorrectly configured in biak (for example, the `.editorconfig` file was not found). Use the `--debug-info` flag for details.
 
 ## ❔ Why
 * Provide the necessary functionality for an IDE editor UI button that displays the current biak status and enables users to toggle it directly from the editor. This removes the need to use the CLI and simplifies the development workflow.
