@@ -121,6 +121,10 @@ dotnet biak setup
 ```
 dotnet biak enable
 dotnet biak disable
+```
+
+5️⃣ Status ([docs](https://github.com/kurnakovv/biak/wiki/Status))
+```
 dotnet biak status
 ```
 
