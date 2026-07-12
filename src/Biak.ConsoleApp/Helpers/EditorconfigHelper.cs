@@ -2,6 +2,7 @@
 // This file is licensed under the MIT License.
 // See the LICENSE file in the project root for full license information.
 
+using System.Text.RegularExpressions;
 using Biak.ConsoleApp.Constants;
 using Biak.ConsoleApp.Models;
 
@@ -23,6 +24,7 @@ public static class EditorconfigHelper
         content = await ImportHelper.ReplaceAsync(content, config.OnImportFailure);
         content = IncludeExcludeFilterHelper.Apply(content);
         content = VariableHelper.Substitute(content);
+        content = RemoveAlwaysEnabledMarkers(content);
         return AddAttentionBanners(content);
     }
 
@@ -42,6 +44,7 @@ public static class EditorconfigHelper
             severityWhenDisabled: config.SeverityWhenDisabled
         );
         content = VariableHelper.Substitute(content);
+        content = RemoveAlwaysEnabledMarkers(content);
         return AddAttentionBanners(content);
     }
 
@@ -60,5 +63,15 @@ public static class EditorconfigHelper
         string bottom = EditorconfigConstant.BOTTOM_TEXT.Replace("\r\n", newline, StringComparison.Ordinal);
 
         return up + content + bottom;
+    }
+
+    internal static string RemoveAlwaysEnabledMarkers(string content)
+    {
+        return Regex.Replace(
+            content,
+            @"^[ \t]*\^biak\^[ \t]*always-enabled\s+(start|end)[ \t]*\r?\n?",
+            string.Empty,
+            RegexOptions.IgnoreCase | RegexOptions.Multiline
+        );
     }
 }

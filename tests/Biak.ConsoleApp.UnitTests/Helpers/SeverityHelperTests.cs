@@ -112,4 +112,50 @@ dotnet_diagnostic.CA1707.severity = suggestion
 
         Assert.Equal(expected, result);
     }
+
+    [Fact]
+    public void DisableShouldKeepAlwaysEnabledRules()
+    {
+        string input = @"
+dotnet_diagnostic.CA2000.severity = error
+^biak^ always-enabled start
+dotnet_diagnostic.CA9999.severity = error
+dotnet_diagnostic.CA1001.severity = warning
+^biak^ always-enabled end
+dotnet_diagnostic.CA1707.severity = suggestion
+";
+        string expected = @"
+dotnet_diagnostic.CA2000.severity = none
+
+dotnet_diagnostic.CA9999.severity = error
+dotnet_diagnostic.CA1001.severity = warning
+
+dotnet_diagnostic.CA1707.severity = none
+";
+
+        string result = SeverityHelper.Disable(input, BiakConfig.DefaultSeveritiesToDisable, SeverityLevelType.None);
+
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void DisableShouldKeepAlwaysEnabledRulesWhenSeverityWhenDisabledIsSuggestion()
+    {
+        string input = @"
+^biak^ always-enabled start
+dotnet_diagnostic.CA9999.severity = error
+^biak^ always-enabled end
+dotnet_diagnostic.CA2000.severity = warning
+";
+        string expected = @"
+
+dotnet_diagnostic.CA9999.severity = error
+
+dotnet_diagnostic.CA2000.severity = suggestion
+";
+
+        string result = SeverityHelper.Disable(input, BiakConfig.DefaultSeveritiesToDisable, SeverityLevelType.Suggestion);
+
+        Assert.Equal(expected, result);
+    }
 }
