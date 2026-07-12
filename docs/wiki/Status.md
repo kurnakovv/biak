@@ -20,6 +20,8 @@ After executing this command, you may see one of the following outputs:
 
 * Automatically detect the current biak status, eliminating the need for manual checks to determine whether biak is enabled.
 
+* Verify that the current status is correct and up to date. For example, this is useful when biak should always stay disabled locally and remain synchronised. This is also relevant for CI/CD checks to verify that the repository `.editorconfig` is in the expected biak state.
+
 ## 🔗 Links
 
 * Issues: [#117](https://github.com/kurnakovv/biak/issues/117)

@@ -21,9 +21,31 @@ public class StatusCommandTests
         {
             await StatusCommand.RunAsync([CommandArgumentConstant.STATUS]);
 
-            string result = output.ToString();
-            Assert.Contains(UIConstant.BIAK_NOT_INITIALIZED, result, StringComparison.OrdinalIgnoreCase);
-            Assert.Contains(UIConstant.RUN_BIAK_SETUP, result, StringComparison.OrdinalIgnoreCase);
+            string result = output.ToString().Trim();
+            Assert.Equal(UIConstant.STATUS_BROKEN, result);
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+        }
+    }
+
+    [Fact]
+    public async Task RunWithoutBiakFolderAndDebugInfoAsync()
+    {
+        TextWriter originalOut = Console.Out;
+        await using StringWriter output = new();
+        Console.SetOut(output);
+
+        try
+        {
+            await StatusCommand.RunAsync([CommandArgumentConstant.STATUS, CommandArgumentConstant.DEBUG_INFO]);
+
+            string result = output.ToString().Trim();
+            Assert.Equal(
+                UIConstant.STATUS_BROKEN_WITH_CONFIG_MESSAGE + UIConstant.BIAK_NOT_INITIALIZED + " " + UIConstant.RUN_BIAK_SETUP,
+                result
+            );
         }
         finally
         {
@@ -65,8 +87,59 @@ public class StatusCommandTests
             {
                 await StatusCommand.RunAsync([CommandArgumentConstant.STATUS]);
 
-                string result = output.ToString();
-                Assert.Contains(UIConstant.EDITORCONFIG_NOT_FOUND, result, StringComparison.OrdinalIgnoreCase);
+                string result = output.ToString().Trim();
+                Assert.Equal(UIConstant.STATUS_BROKEN, result);
+            }
+            finally
+            {
+                Console.SetOut(originalOut);
+            }
+        }
+        finally
+        {
+            Directory.SetCurrentDirectory(originalDirectory);
+        }
+    }
+
+    [Fact]
+    public async Task RunWithoutEditorconfigFileAndDebugInfoAsync()
+    {
+        string originalDirectory = Directory.GetCurrentDirectory();
+        TestDirectory testDir = new($"{nameof(StatusCommandTests)}_{nameof(RunWithoutEditorconfigFileAndDebugInfoAsync)}");
+
+        string biakDir = Path.Join(testDir.Value, ".biak");
+        Directory.CreateDirectory(biakDir);
+        string templateEditorconfigMain = Path.Join(
+            AppContext.BaseDirectory,
+            "Templates",
+            "Disabled",
+            ".biak",
+            ".editorconfig-main"
+        );
+
+        File.Copy(
+            sourceFileName: templateEditorconfigMain,
+            destFileName: Path.Join(biakDir, ".editorconfig-main"),
+            overwrite: true
+        );
+
+        try
+        {
+            Directory.SetCurrentDirectory(testDir.Value);
+
+            TextWriter originalOut = Console.Out;
+            await using StringWriter output = new();
+            Console.SetOut(output);
+
+            try
+            {
+                await StatusCommand.RunAsync([CommandArgumentConstant.STATUS, CommandArgumentConstant.DEBUG_INFO]);
+
+                string result = output.ToString().Trim();
+                Assert.Equal(
+                    UIConstant.STATUS_BROKEN_WITH_CONFIG_MESSAGE + UIConstant.EDITORCONFIG_NOT_FOUND + Path.Join(testDir.Value, ".editorconfig"),
+                    result
+                );
             }
             finally
             {

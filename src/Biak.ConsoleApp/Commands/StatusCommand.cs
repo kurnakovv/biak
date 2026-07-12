@@ -41,11 +41,25 @@ public static class StatusCommand
             && args[0] == CommandArgumentConstant.STATUS
             && args[1] == CommandArgumentConstant.DEBUG_INFO;
 
-        // ToDo: Add status if some problems with configs
-        EditorconfigPaths editorconfigPaths = SetupHelper.GetEditorconfigPaths();
+        EditorconfigPaths editorconfigPaths = SetupHelper.GetEditorconfigPaths(suppressConsoleOutput: true);
 
-        if (editorconfigPaths.MainValue == null || editorconfigPaths.Value == null)
+        if (editorconfigPaths.MainValue == null)
         {
+            Console.WriteLine(
+                isDebugInfoEnabled
+                    ? UIConstant.STATUS_BROKEN_WITH_CONFIG_MESSAGE + UIConstant.BIAK_NOT_INITIALIZED + " " + UIConstant.RUN_BIAK_SETUP
+                    : UIConstant.STATUS_BROKEN
+            );
+            return;
+        }
+
+        if (editorconfigPaths.Value == null)
+        {
+            Console.WriteLine(
+                isDebugInfoEnabled
+                    ? UIConstant.STATUS_BROKEN_WITH_CONFIG_MESSAGE + UIConstant.EDITORCONFIG_NOT_FOUND + Path.Join(Directory.GetCurrentDirectory(), ".editorconfig")
+                    : UIConstant.STATUS_BROKEN
+            );
             return;
         }
 
