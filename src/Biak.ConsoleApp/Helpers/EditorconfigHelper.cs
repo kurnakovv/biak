@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for full license information.
 
 using Biak.ConsoleApp.Constants;
+using Biak.ConsoleApp.Models;
 
 namespace Biak.ConsoleApp.Helpers;
 
@@ -11,6 +12,39 @@ namespace Biak.ConsoleApp.Helpers;
 /// </summary>
 public static class EditorconfigHelper
 {
+    /// <summary>
+    /// Gets enabled .editorconfig content generated from .biak/.editorconfig-main.
+    /// </summary>
+    /// <param name="content">.editorconfig-main content.</param>
+    /// <param name="config">Biak config.</param>
+    /// <returns>Enabled .editorconfig content.</returns>
+    public static async Task<string> GetEnabledContentAsync(string content, BiakConfig config)
+    {
+        content = await ImportHelper.ReplaceAsync(content, config.OnImportFailure);
+        content = IncludeExcludeFilterHelper.Apply(content);
+        content = VariableHelper.Substitute(content);
+        return AddAttentionBanners(content);
+    }
+
+    /// <summary>
+    /// Gets disabled .editorconfig content generated from .biak/.editorconfig-main.
+    /// </summary>
+    /// <param name="content">.editorconfig-main content.</param>
+    /// <param name="config">Biak config.</param>
+    /// <returns>Disabled .editorconfig content.</returns>
+    public static async Task<string> GetDisabledContentAsync(string content, BiakConfig config)
+    {
+        content = await ImportHelper.ReplaceAsync(content, config.OnImportFailure);
+        content = IncludeExcludeFilterHelper.Apply(content);
+        content = SeverityHelper.Disable(
+            content: content,
+            severitiesToDisable: config.SeveritiesToDisable ?? BiakConfig.DefaultSeveritiesToDisable,
+            severityWhenDisabled: config.SeverityWhenDisabled
+        );
+        content = VariableHelper.Substitute(content);
+        return AddAttentionBanners(content);
+    }
+
     /// <summary>
     /// Add attention banners to up and bottom with LF/CRLF support.
     /// </summary>

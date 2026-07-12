@@ -123,6 +123,11 @@ dotnet biak enable
 dotnet biak disable
 ```
 
+5️⃣ Status ([docs](https://github.com/kurnakovv/biak/wiki/Status))
+```
+dotnet biak status
+```
+
 That's it - biak is configured. Happy coding! 🚀
 
 If you need more details, please visit the Wiki 📚 ([where?](https://github.com/kurnakovv/biak/wiki))

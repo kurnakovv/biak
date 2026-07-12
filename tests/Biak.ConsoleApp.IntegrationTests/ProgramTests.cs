@@ -115,6 +115,26 @@ public class ProgramTests
     }
 
     [Fact]
+    public async Task StatusCommandNoConfigurableMessageAsync()
+    {
+        TextWriter originalOut = Console.Out;
+        await using StringWriter output = new();
+        Console.SetOut(output);
+
+        try
+        {
+            await Program.Main([CommandArgumentConstant.STATUS]);
+
+            string result = output.ToString().Trim();
+            Assert.Equal(UIConstant.STATUS_BROKEN, result);
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+        }
+    }
+
+    [Fact]
     public async Task FindActivityCommandForCurrentRepoAsync()
     {
         string originalDirectory = Directory.GetCurrentDirectory();

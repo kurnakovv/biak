@@ -77,6 +77,8 @@ Enable / Disable .editorconfig rules | Change severity level with one command wi
 
 * dotnet biak disable | The disable command takes the contents of editorconfig-main, disables all rules (error|warning|suggestion -> none) and inserts them into .editorconfig https://github.com/kurnakovv/biak/wiki/Disable
 
+* dotnet biak status [--debug-info] | The status command reports whether the root .editorconfig matches the enabled or disabled biak configuration (enabled|disabled|unsynchronised|broken) https://github.com/kurnakovv/biak/wiki/Status
+
 * Config (no command) | Configure biak behavior via the .biak/config.json file https://github.com/kurnakovv/biak/wiki/Config
 --------------------
 Find activity / conflicts | Features for finding active and conflicting files and generating filters for .editorconfig file. This is especially useful for legacy projects with many rule violations, allowing gradual integration without major conflicts.
