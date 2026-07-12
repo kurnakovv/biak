@@ -77,7 +77,7 @@ public static class UIConstant
     /// <summary>
     /// Broken status output with details about config problem.
     /// </summary>
-    public const string STATUS_BROKEN_WITH_CONFIG_MESSAGE = "broken: problems with a config, message: ";
+    public const string STATUS_BROKEN_WITH_CONFIG_MESSAGE = "broken: problems with a biak configuration, message: ";
 
     /// <summary>
     /// Enabled status output.

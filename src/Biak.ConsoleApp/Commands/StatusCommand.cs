@@ -41,6 +41,7 @@ public static class StatusCommand
             && args[0] == CommandArgumentConstant.STATUS
             && args[1] == CommandArgumentConstant.DEBUG_INFO;
 
+        // ToDo: Add status if some problems with configs
         EditorconfigPaths editorconfigPaths = SetupHelper.GetEditorconfigPaths();
 
         if (editorconfigPaths.MainValue == null || editorconfigPaths.Value == null)
@@ -61,6 +62,7 @@ public static class StatusCommand
 
         string currentContent = await File.ReadAllTextAsync(editorconfigPaths.Value);
         string enabledContent = await EditorconfigHelper.GetEnabledContentAsync(editorconfigPaths.MainValue, config);
+        // ToDo: Add disabled content check
 
         Console.WriteLine(
             string.Equals(
