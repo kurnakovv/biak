@@ -126,10 +126,10 @@ dotnet_diagnostic.CA1707.severity = suggestion
 ";
         string expected = @"
 dotnet_diagnostic.CA2000.severity = none
-
+^biak^ always-enabled start
 dotnet_diagnostic.CA9999.severity = error
 dotnet_diagnostic.CA1001.severity = warning
-
+^biak^ always-enabled end
 dotnet_diagnostic.CA1707.severity = none
 ";
 
@@ -148,9 +148,9 @@ dotnet_diagnostic.CA9999.severity = error
 dotnet_diagnostic.CA2000.severity = warning
 ";
         string expected = @"
-
+^biak^ always-enabled start
 dotnet_diagnostic.CA9999.severity = error
-
+^biak^ always-enabled end
 dotnet_diagnostic.CA2000.severity = suggestion
 ";
 
