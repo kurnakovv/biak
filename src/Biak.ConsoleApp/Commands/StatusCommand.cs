@@ -68,8 +68,8 @@ public static class StatusCommand
                 NormalizeLineEndings(enabledContent),
                 StringComparison.Ordinal
             )
-                ? UIConstant.STATUS_ON
-                : UIConstant.STATUS_OFF
+                ? UIConstant.STATUS_ENABLED
+                : UIConstant.STATUS_DISABLED
         );
     }
 

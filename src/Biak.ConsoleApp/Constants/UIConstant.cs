@@ -82,10 +82,10 @@ public static class UIConstant
     /// <summary>
     /// Enabled status output.
     /// </summary>
-    public const string STATUS_ON = "on";
+    public const string STATUS_ENABLED = "enabled";
 
     /// <summary>
     /// Disabled status output.
     /// </summary>
-    public const string STATUS_OFF = "off";
+    public const string STATUS_DISABLED = "disabled";
 }
