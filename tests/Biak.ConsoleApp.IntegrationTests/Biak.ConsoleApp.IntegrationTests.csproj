@@ -22,6 +22,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Remove="Templates\**\obj\**\*" />
+    <Content Remove="Templates\**\bin\**\*" />
     <Compile Remove="Templates\**\obj\**\*.cs" />
     <Compile Remove="Templates\**\bin\**\*.cs" />
     <Compile Remove="Templates\SimpleProjectWithWarnings\MySimpleProjectTemplate\DerivedClassCS0649.cs" />
