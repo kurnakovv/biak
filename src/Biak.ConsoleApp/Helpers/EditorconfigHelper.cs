@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for full license information.
 
 using Biak.ConsoleApp.Constants;
+using Biak.ConsoleApp.Models;
 
 namespace Biak.ConsoleApp.Helpers;
 
@@ -11,6 +12,21 @@ namespace Biak.ConsoleApp.Helpers;
 /// </summary>
 public static class EditorconfigHelper
 {
+    /// <summary>
+    /// Gets enabled .editorconfig content generated from .biak/.editorconfig-main.
+    /// </summary>
+    /// <param name="editorconfigMainPath">Path to .biak/.editorconfig-main.</param>
+    /// <param name="config">Biak config.</param>
+    /// <returns>Enabled .editorconfig content.</returns>
+    public static async Task<string> GetEnabledContentAsync(string editorconfigMainPath, BiakConfig config)
+    {
+        string content = await File.ReadAllTextAsync(editorconfigMainPath);
+        content = await ImportHelper.ReplaceAsync(content, config.OnImportFailure);
+        content = IncludeExcludeFilterHelper.Apply(content);
+        content = VariableHelper.Substitute(content);
+        return AddAttentionBanners(content);
+    }
+
     /// <summary>
     /// Add attention banners to up and bottom with LF/CRLF support.
     /// </summary>

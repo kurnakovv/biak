@@ -60,7 +60,7 @@ public static class StatusCommand
         }
 
         string currentContent = await File.ReadAllTextAsync(editorconfigPaths.Value);
-        string enabledContent = await GetEnabledContentAsync(editorconfigPaths.MainValue, config);
+        string enabledContent = await EditorconfigHelper.GetEnabledContentAsync(editorconfigPaths.MainValue, config);
 
         Console.WriteLine(
             string.Equals(
@@ -71,15 +71,6 @@ public static class StatusCommand
                 ? UIConstant.STATUS_ON
                 : UIConstant.STATUS_OFF
         );
-    }
-
-    private static async Task<string> GetEnabledContentAsync(string editorconfigMainPath, BiakConfig config)
-    {
-        string content = await File.ReadAllTextAsync(editorconfigMainPath);
-        content = await ImportHelper.ReplaceAsync(content, config.OnImportFailure);
-        content = IncludeExcludeFilterHelper.Apply(content);
-        content = VariableHelper.Substitute(content);
-        return EditorconfigHelper.AddAttentionBanners(content);
     }
 
     private static string NormalizeLineEndings(string content)
