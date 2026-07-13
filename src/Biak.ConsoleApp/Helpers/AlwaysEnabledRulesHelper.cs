@@ -79,4 +79,14 @@ internal static class AlwaysEnabledRulesHelper
         placeholders = localPlaceholders;
         return content;
     }
+
+    internal static string RemoveMarkers(string content)
+    {
+        return Regex.Replace(
+            content,
+            @"^[ \t]*\^biak\^[ \t]*always-enabled\s+(start|end)[ \t]*\r?\n?",
+            string.Empty,
+            RegexOptions.IgnoreCase | RegexOptions.Multiline
+        );
+    }
 }
