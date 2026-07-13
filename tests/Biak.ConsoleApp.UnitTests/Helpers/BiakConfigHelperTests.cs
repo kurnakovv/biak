@@ -135,14 +135,4 @@ public class BiakConfigHelperTests
         Assert.Equal([SeverityLevelType.Error, SeverityLevelType.Warning], resultConfig.SeveritiesToDisable);
         Assert.Equal(FailureBehaviorType.Error, resultConfig.OnImportFailure);
     }
-
-    [Fact]
-    public void ExistsInCurrentDirectory()
-    {
-        bool expected = File.Exists(Path.Join(".biak", "config.json"));
-
-        bool result = BiakConfigHelper.ExistsInCurrentDirectory();
-
-        Assert.Equal(expected, result);
-    }
 }

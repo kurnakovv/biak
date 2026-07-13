@@ -15,16 +15,6 @@ namespace Biak.ConsoleApp.Helpers;
 public static class BiakConfigHelper
 {
     /// <summary>
-    /// Check if .biak/config.json exists in the current directory.
-    /// </summary>
-    /// <returns>True when config exists; otherwise false.</returns>
-    public static bool ExistsInCurrentDirectory()
-    {
-        string configPath = Path.Join(".biak", "config.json");
-        return File.Exists(configPath);
-    }
-
-    /// <summary>
     /// Get .biak/config model.
     /// </summary>
     /// <param name="json">json content if you want to extract it not from '.biak/config.json' file.</param>
