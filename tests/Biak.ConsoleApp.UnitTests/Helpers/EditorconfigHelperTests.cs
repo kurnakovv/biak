@@ -64,7 +64,7 @@ public class EditorconfigHelperTests
     {
         string result = await EditorconfigHelper.GetEnabledContentAsync(content!, new BiakConfig());
 
-        Assert.Equal(content ?? string.Empty, result);
+        Assert.Equal(content, result);
     }
 
     [Theory]
@@ -75,6 +75,6 @@ public class EditorconfigHelperTests
     {
         string result = await EditorconfigHelper.GetDisabledContentAsync(content!, new BiakConfig());
 
-        Assert.Equal(content ?? string.Empty, result);
+        Assert.Equal(content, result);
     }
 }
