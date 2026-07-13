@@ -6,6 +6,9 @@
 * [Config](Config)
 * [GitHub Actions](EnableDisableGitHubAction)
 
+### 🔒 Always enabled rules
+* [Docs](AlwaysEnabledRules)
+
 ### 🗂️ Imports
 * [Docs](Import)
 
