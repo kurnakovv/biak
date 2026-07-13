@@ -30,6 +30,10 @@ public static class BiakConfigHelper
             }
             json = await File.ReadAllTextAsync(configPath);
         }
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            throw new NotImplementedException("Test codecov");
+        }
         try
         {
             BiakConfig? config = JsonSerializer.Deserialize<BiakConfig>(json, GlobalJsonSerializerOptionsHelper.Value);
