@@ -33,7 +33,7 @@ public static class SeverityHelper
             $"= {severityWhenDisabled.ToString().ToLowerInvariant()}"
         );
 
-        foreach (KeyValuePair<string, string> placeholder in placeholders)
+        foreach (KeyValuePair<string, string> placeholder in placeholders.OrderByDescending(p => p.Key.Length))
         {
             processedContent = processedContent.Replace(placeholder.Key, placeholder.Value, StringComparison.Ordinal);
         }
