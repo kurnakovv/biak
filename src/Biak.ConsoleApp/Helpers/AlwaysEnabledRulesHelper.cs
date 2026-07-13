@@ -56,22 +56,24 @@ public static class AlwaysEnabledRulesHelper
 
             int blockStart = startMatch.Index + startMatch.Length;
             int blockLength = endMatch.Index - blockStart;
-            if (blockLength > 0)
+            if (blockLength <= 0)
             {
-                string blockContent = content.Substring(blockStart, blockLength);
-                string updatedBlock = s_severityValueRegex.Replace(
-                    blockContent,
-                    m =>
-                    {
-                        string placeholder = ALWAYS_ENABLED_PREFIX + markerIndex++;
-                        localPlaceholders[placeholder] = m.Groups[1].Value;
-                        return m.Value.Replace(m.Groups[1].Value, placeholder, StringComparison.Ordinal);
-                    }
-                );
-
-                content = string.Concat(content.AsSpan(0, blockStart), updatedBlock.AsSpan(), content.AsSpan(endMatch.Index));
-                searchStart = blockStart + updatedBlock.Length + endMatch.Length;
+                continue;
             }
+
+            string blockContent = content.Substring(blockStart, blockLength);
+            string updatedBlock = s_severityValueRegex.Replace(
+                blockContent,
+                m =>
+                {
+                    string placeholder = ALWAYS_ENABLED_PREFIX + markerIndex++;
+                    localPlaceholders[placeholder] = m.Groups[1].Value;
+                    return m.Value.Replace(m.Groups[1].Value, placeholder, StringComparison.Ordinal);
+                }
+            );
+
+            content = string.Concat(content.AsSpan(0, blockStart), updatedBlock.AsSpan(), content.AsSpan(endMatch.Index));
+            searchStart = blockStart + updatedBlock.Length + endMatch.Length;
         }
 
         return (content, localPlaceholders);
