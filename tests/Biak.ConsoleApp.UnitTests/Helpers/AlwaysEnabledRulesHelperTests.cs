@@ -23,8 +23,7 @@ dotnet_diagnostic.CA9999.severity = error
     }
 
     [Fact]
-    public void ProtectSeverities_WhenBlockIsEmpty_SkipsBlockAndContinues()
-    {
+    public void ProtectSeveritiesWhenBlockIsEmptySkipsBlockAndContinues()
         string input =
             """
 
