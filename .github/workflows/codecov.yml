@@ -25,6 +25,8 @@ jobs:
         run: dotnet restore
       - name: Build
         run: dotnet build --no-restore
+      - name: Clean TestResults
+        run: rm -rf ./TestResults
       - name: Test Unit Tests with coverage
         run: dotnet test tests/Biak.ConsoleApp.UnitTests/Biak.ConsoleApp.UnitTests.csproj --no-build --verbosity normal --collect:"XPlat Code Coverage;Format=cobertura" --results-directory ./TestResults/Unit
       - name: Test Integration Tests with coverage
@@ -33,6 +35,7 @@ jobs:
         uses: codecov/codecov-action@v5
         with:
           files: ./TestResults/Unit/**/coverage.cobertura.xml
+          disable_search: true
           flags: unit-tests
           name: unit-tests-coverage
           verbose: true
@@ -40,6 +43,7 @@ jobs:
         uses: codecov/codecov-action@v5
         with:
           files: ./TestResults/Integration/**/coverage.cobertura.xml
+          disable_search: true
           flags: integration-tests
           name: integration-tests-coverage
           verbose: true
