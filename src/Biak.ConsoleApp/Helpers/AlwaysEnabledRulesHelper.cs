@@ -24,7 +24,7 @@ public static class AlwaysEnabledRulesHelper
     );
 
     private static readonly Regex s_severityValueRegex = new(
-        @"=\s*(none|silent|suggestion|warning|error)",
+        @"=\s*(none|silent|suggestion|warning|error|default)",
         RegexOptions.IgnoreCase | RegexOptions.Compiled
     );
 
