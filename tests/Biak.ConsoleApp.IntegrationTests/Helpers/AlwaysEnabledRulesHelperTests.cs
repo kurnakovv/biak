@@ -11,7 +11,7 @@ namespace Biak.ConsoleApp.IntegrationTests.Helpers;
 public class AlwaysEnabledRulesHelperTests
 {
     [Fact]
-    public void Disable_WhenNoStartMarker_ReplacesAllSeverities()
+    public void DisableWhenNoStartMarkerReplacesAllSeverities()
     {
         string input = @"
 dotnet_diagnostic.CA9999.severity = error
@@ -28,7 +28,7 @@ dotnet_diagnostic.CA1001.severity = none
     }
 
     [Fact]
-    public void Disable_WhenStartMarkerHasNoEndMarker_ReplacesAllSeverities()
+    public void DisableWhenStartMarkerHasNoEndMarkerReplacesAllSeverities()
     {
         string input = @"
 ^biak^ always-enabled start
@@ -40,6 +40,31 @@ dotnet_diagnostic.CA1001.severity = warning
 dotnet_diagnostic.CA9999.severity = none
 dotnet_diagnostic.CA1001.severity = none
 ";
+
+        string result = SeverityHelper.Disable(input, BiakConfig.DefaultSeveritiesToDisable, SeverityLevelType.None);
+
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void DisableWhenBlockIsEmptyReplacesOutsideSeverities()
+    {
+        string input =
+            """
+
+            ^biak^ always-enabled start
+            ^biak^ always-enabled end
+            dotnet_diagnostic.CA9999.severity = error
+
+            """;
+        string expected =
+            """
+
+            ^biak^ always-enabled start
+            ^biak^ always-enabled end
+            dotnet_diagnostic.CA9999.severity = none
+
+            """;
 
         string result = SeverityHelper.Disable(input, BiakConfig.DefaultSeveritiesToDisable, SeverityLevelType.None);
 

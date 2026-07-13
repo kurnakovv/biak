@@ -72,10 +72,6 @@ public static class AlwaysEnabledRulesHelper
                 content = string.Concat(content.AsSpan(0, blockStart), updatedBlock.AsSpan(), content.AsSpan(endMatch.Index));
                 searchStart = blockStart + updatedBlock.Length + endMatch.Length;
             }
-            else
-            {
-                searchStart = endMatch.Index + endMatch.Length;
-            }
         }
 
         return (content, localPlaceholders);
