@@ -4,6 +4,7 @@
 
 using Biak.ConsoleApp.Constants;
 using Biak.ConsoleApp.Helpers;
+using Biak.ConsoleApp.Models;
 
 namespace Biak.ConsoleApp.UnitTests.Helpers;
 
@@ -53,5 +54,25 @@ public class EditorconfigHelperTests
         string result = EditorconfigHelper.AddAttentionBanners(content);
 
         Assert.Contains(content, result, StringComparison.Ordinal);
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    public async Task GetEnabledContentAsyncWhenContentIsWhiteSpaceReturnsContentUnchangedAsync(string content)
+    {
+        string result = await EditorconfigHelper.GetEnabledContentAsync(content, new BiakConfig());
+
+        Assert.Equal(content, result);
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    public async Task GetDisabledContentAsyncWhenContentIsWhiteSpaceReturnsContentUnchangedAsync(string content)
+    {
+        string result = await EditorconfigHelper.GetDisabledContentAsync(content, new BiakConfig());
+
+        Assert.Equal(content, result);
     }
 }
