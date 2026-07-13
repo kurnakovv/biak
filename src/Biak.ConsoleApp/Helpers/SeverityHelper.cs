@@ -12,23 +12,6 @@ namespace Biak.ConsoleApp.Helpers;
 /// </summary>
 public static class SeverityHelper
 {
-    private const string ALWAYS_ENABLED_PREFIX = "__biak_always_enabled_severity_";
-
-    private static readonly Regex s_alwaysEnabledStartRegex = new(
-        @"^[ \t]*\^biak\^[ \t]*always-enabled\s+start[ \t]*\r?$",
-        RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Compiled
-    );
-
-    private static readonly Regex s_alwaysEnabledEndRegex = new(
-        @"^[ \t]*\^biak\^[ \t]*always-enabled\s+end[ \t]*\r?$",
-        RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Compiled
-    );
-
-    private static readonly Regex s_severityValueRegex = new(
-        @"=\s*(none|silent|suggestion|warning|error)",
-        RegexOptions.IgnoreCase | RegexOptions.Compiled
-    );
-
     /// <summary>
     /// Disable severity.
     /// </summary>
@@ -42,7 +25,7 @@ public static class SeverityHelper
         SeverityLevelType severityWhenDisabled
     )
     {
-        string processedContent = ProtectAlwaysEnabledSeverities(content, out Dictionary<string, string> placeholders);
+        string processedContent = AlwaysEnabledRulesHelper.ProtectSeverities(content, out Dictionary<string, string> placeholders);
 
         processedContent = Regex.Replace(
             processedContent,
@@ -56,60 +39,5 @@ public static class SeverityHelper
         }
 
         return processedContent;
-    }
-
-    private static string ProtectAlwaysEnabledSeverities(string content, out Dictionary<string, string> placeholders)
-    {
-        Dictionary<string, string> localPlaceholders = new();
-
-        if (string.IsNullOrEmpty(content))
-        {
-            placeholders = localPlaceholders;
-            return content;
-        }
-
-        int markerIndex = 0;
-        int searchStart = 0;
-
-        while (true)
-        {
-            Match startMatch = s_alwaysEnabledStartRegex.Match(content, searchStart);
-            if (!startMatch.Success)
-            {
-                break;
-            }
-
-            Match endMatch = s_alwaysEnabledEndRegex.Match(content, startMatch.Index + startMatch.Length);
-            if (!endMatch.Success)
-            {
-                break;
-            }
-
-            int blockStart = startMatch.Index + startMatch.Length;
-            int blockLength = endMatch.Index - blockStart;
-            if (blockLength > 0)
-            {
-                string blockContent = content.Substring(blockStart, blockLength);
-                string updatedBlock = s_severityValueRegex.Replace(
-                    blockContent,
-                    m =>
-                    {
-                        string placeholder = ALWAYS_ENABLED_PREFIX + markerIndex++;
-                        localPlaceholders[placeholder] = m.Groups[1].Value;
-                        return m.Value.Replace(m.Groups[1].Value, placeholder, StringComparison.Ordinal);
-                    }
-                );
-
-                content = string.Concat(content.AsSpan(0, blockStart), updatedBlock.AsSpan(), content.AsSpan(endMatch.Index));
-                searchStart = blockStart + updatedBlock.Length + endMatch.Length;
-            }
-            else
-            {
-                searchStart = endMatch.Index + endMatch.Length;
-            }
-        }
-
-        placeholders = localPlaceholders;
-        return content;
     }
 }
