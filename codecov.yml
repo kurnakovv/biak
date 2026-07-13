@@ -1,0 +1,20 @@
+codecov:
+  require_ci_to_pass: true
+
+coverage:
+  status:
+    project:
+      default:
+        enabled: false
+      unit-tests:
+        flags:
+          - unit-tests
+      integration-tests:
+        flags:
+          - integration-tests
+
+flags:
+  unit-tests:
+    carryforward: false
+  integration-tests:
+    carryforward: false
