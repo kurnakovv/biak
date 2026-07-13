@@ -30,11 +30,17 @@ jobs:
       - name: Test Unit Tests with coverage
         run: dotnet test tests/Biak.ConsoleApp.UnitTests/Biak.ConsoleApp.UnitTests.csproj --no-build --verbosity normal --collect:"XPlat Code Coverage;Format=cobertura" --results-directory ./TestResults/Unit
       - name: Normalize Unit coverage file
-        run: find ./TestResults/Unit -name coverage.cobertura.xml -print -quit | xargs -I{} cp "{}" ./TestResults/unit.cobertura.xml
+        run: |
+          coverage_file="$(find ./TestResults/Unit -name coverage.cobertura.xml -print -quit)"
+          test -n "$coverage_file" || (echo "Unit coverage file not found under ./TestResults/Unit" && exit 1)
+          cp "$coverage_file" ./TestResults/unit.cobertura.xml
       - name: Test Integration Tests with coverage
         run: dotnet test tests/Biak.ConsoleApp.IntegrationTests/Biak.ConsoleApp.IntegrationTests.csproj --no-build --verbosity normal --collect:"XPlat Code Coverage;Format=cobertura" --results-directory ./TestResults/Integration
       - name: Normalize Integration coverage file
-        run: find ./TestResults/Integration -name coverage.cobertura.xml -print -quit | xargs -I{} cp "{}" ./TestResults/integration.cobertura.xml
+        run: |
+          coverage_file="$(find ./TestResults/Integration -name coverage.cobertura.xml -print -quit)"
+          test -n "$coverage_file" || (echo "Integration coverage file not found under ./TestResults/Integration" && exit 1)
+          cp "$coverage_file" ./TestResults/integration.cobertura.xml
       - name: Upload Unit Test Coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
