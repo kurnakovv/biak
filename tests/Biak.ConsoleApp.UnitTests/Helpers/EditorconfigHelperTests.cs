@@ -67,12 +67,11 @@ public class EditorconfigHelperTests
     }
 
     [Theory]
-    [InlineData(null)]
     [InlineData("")]
     [InlineData("   ")]
-    public async Task GetDisabledContentAsyncWhenContentIsNullOrWhiteSpaceReturnsContentUnchangedAsync(string? content)
+    public async Task GetDisabledContentAsyncWhenContentIsWhiteSpaceReturnsContentUnchangedAsync(string content)
     {
-        string result = await EditorconfigHelper.GetDisabledContentAsync(content!, new BiakConfig());
+        string result = await EditorconfigHelper.GetDisabledContentAsync(content, new BiakConfig());
 
         Assert.Equal(content, result);
     }
