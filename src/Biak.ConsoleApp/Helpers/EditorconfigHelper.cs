@@ -20,6 +20,11 @@ public static class EditorconfigHelper
     /// <returns>Enabled .editorconfig content.</returns>
     public static async Task<string> GetEnabledContentAsync(string content, BiakConfig config)
     {
+        if (string.IsNullOrWhiteSpace(content))
+        {
+            return content;
+        }
+
         content = await ImportHelper.ReplaceAsync(content, config.OnImportFailure);
         content = IncludeExcludeFilterHelper.Apply(content);
         content = VariableHelper.Substitute(content);
@@ -35,6 +40,11 @@ public static class EditorconfigHelper
     /// <returns>Disabled .editorconfig content.</returns>
     public static async Task<string> GetDisabledContentAsync(string content, BiakConfig config)
     {
+        if (string.IsNullOrWhiteSpace(content))
+        {
+            return content;
+        }
+
         content = await ImportHelper.ReplaceAsync(content, config.OnImportFailure);
         content = IncludeExcludeFilterHelper.Apply(content);
         content = SeverityHelper.Disable(

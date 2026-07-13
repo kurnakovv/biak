@@ -42,11 +42,6 @@ public static class ImportHelper
     /// <returns>Replaced content with imports.</returns>
     public static async Task<string> ReplaceAsync(string content, FailureBehaviorType onImportFailure)
     {
-        if (string.IsNullOrWhiteSpace(content))
-        {
-            return content;
-        }
-
         MatchCollection matches = s_importRegex.Matches(content);
         if (matches.Count == 0)
         {

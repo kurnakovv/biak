@@ -24,11 +24,6 @@ public static class VariableHelper
     /// <returns>Content with substituted variables.</returns>
     public static string Substitute(string content)
     {
-        if (string.IsNullOrEmpty(content))
-        {
-            return content;
-        }
-
         Dictionary<string, string> variables = new();
 
         Regex varRegex = new(
