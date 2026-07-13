@@ -285,4 +285,33 @@ public class DisableCommandTests
             Directory.SetCurrentDirectory(originalDirectory);
         }
     }
+
+    [Fact]
+    public async Task RunWithEmptyEditorconfigMainAsync()
+    {
+        string originalDirectory = Directory.GetCurrentDirectory();
+        TestDirectory testDir = new($"{nameof(DisableCommandTests)}_{nameof(RunWithEmptyEditorconfigMainAsync)}");
+
+        string biakDir = Path.Join(testDir.Value, ".biak");
+        Directory.CreateDirectory(biakDir);
+
+        await File.WriteAllTextAsync(Path.Join(biakDir, ".editorconfig-main"), string.Empty);
+        await File.WriteAllTextAsync(Path.Join(testDir.Value, ".editorconfig"), string.Empty);
+
+        try
+        {
+            Directory.SetCurrentDirectory(testDir.Value);
+
+            await DisableCommand.RunAsync();
+
+            string editorconfigFile = Path.Join(testDir.Value, ".editorconfig");
+            string contentAfterDisable = await File.ReadAllTextAsync(editorconfigFile);
+
+            Assert.Equal(string.Empty, contentAfterDisable);
+        }
+        finally
+        {
+            Directory.SetCurrentDirectory(originalDirectory);
+        }
+    }
 }

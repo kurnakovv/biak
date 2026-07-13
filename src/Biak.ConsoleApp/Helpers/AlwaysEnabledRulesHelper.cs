@@ -29,11 +29,6 @@ internal static class AlwaysEnabledRulesHelper
     {
         Dictionary<string, string> localPlaceholders = new();
 
-        if (string.IsNullOrEmpty(content))
-        {
-            return (content, localPlaceholders);
-        }
-
         int markerIndex = 0;
         int searchStart = 0;
 
