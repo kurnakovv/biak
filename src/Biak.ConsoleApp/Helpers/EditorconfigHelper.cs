@@ -22,7 +22,7 @@ public static class EditorconfigHelper
     {
         if (string.IsNullOrWhiteSpace(content))
         {
-            return content ?? string.Empty;
+            return content;
         }
 
         content = await ImportHelper.ReplaceAsync(content, config.OnImportFailure);
@@ -42,7 +42,7 @@ public static class EditorconfigHelper
     {
         if (string.IsNullOrWhiteSpace(content))
         {
-            return content ?? string.Empty;
+            return content;
         }
 
         content = await ImportHelper.ReplaceAsync(content, config.OnImportFailure);
