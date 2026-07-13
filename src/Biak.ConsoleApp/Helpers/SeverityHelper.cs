@@ -25,10 +25,19 @@ public static class SeverityHelper
         SeverityLevelType severityWhenDisabled
     )
     {
-        return Regex.Replace(
-            content,
+        (string processedContent, Dictionary<string, string> placeholders) = AlwaysEnabledRulesHelper.ProtectSeverities(content);
+
+        processedContent = Regex.Replace(
+            processedContent,
             $@"=\s*({string.Join('|', severitiesToDisable.Select(x => x.ToString().ToLowerInvariant()))})",
             $"= {severityWhenDisabled.ToString().ToLowerInvariant()}"
         );
+
+        foreach (KeyValuePair<string, string> placeholder in placeholders)
+        {
+            processedContent = processedContent.Replace(placeholder.Key, placeholder.Value, StringComparison.Ordinal);
+        }
+
+        return processedContent;
     }
 }
