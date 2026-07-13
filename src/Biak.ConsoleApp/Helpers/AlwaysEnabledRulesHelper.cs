@@ -37,7 +37,6 @@ public static class AlwaysEnabledRulesHelper
     {
         Dictionary<string, string> localPlaceholders = new();
 
-        int markerIndex = 0;
         int searchStart = 0;
 
         while (true)
@@ -66,7 +65,7 @@ public static class AlwaysEnabledRulesHelper
                 blockContent,
                 m =>
                 {
-                    string placeholder = ALWAYS_ENABLED_PREFIX + markerIndex++;
+                    string placeholder = ALWAYS_ENABLED_PREFIX + Guid.NewGuid().ToString("N");
                     localPlaceholders[placeholder] = m.Groups[1].Value;
                     return m.Value.Replace(m.Groups[1].Value, placeholder, StringComparison.Ordinal);
                 }
