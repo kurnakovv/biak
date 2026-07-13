@@ -25,14 +25,13 @@ internal static class AlwaysEnabledRulesHelper
         RegexOptions.IgnoreCase | RegexOptions.Compiled
     );
 
-    internal static string ProtectSeverities(string content, out Dictionary<string, string> placeholders)
+    internal static (string Content, Dictionary<string, string> Placeholders) ProtectSeverities(string content)
     {
         Dictionary<string, string> localPlaceholders = new();
 
         if (string.IsNullOrEmpty(content))
         {
-            placeholders = localPlaceholders;
-            return content;
+            return (content, localPlaceholders);
         }
 
         int markerIndex = 0;
@@ -76,8 +75,7 @@ internal static class AlwaysEnabledRulesHelper
             }
         }
 
-        placeholders = localPlaceholders;
-        return content;
+        return (content, localPlaceholders);
     }
 
     internal static string RemoveMarkers(string content)

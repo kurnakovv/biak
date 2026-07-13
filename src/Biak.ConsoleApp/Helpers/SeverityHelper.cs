@@ -25,7 +25,7 @@ public static class SeverityHelper
         SeverityLevelType severityWhenDisabled
     )
     {
-        string processedContent = AlwaysEnabledRulesHelper.ProtectSeverities(content, out Dictionary<string, string> placeholders);
+        (string processedContent, Dictionary<string, string> placeholders) = AlwaysEnabledRulesHelper.ProtectSeverities(content);
 
         processedContent = Regex.Replace(
             processedContent,
