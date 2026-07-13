@@ -25,29 +25,21 @@ jobs:
         run: dotnet restore
       - name: Build
         run: dotnet build --no-restore
-      - name: Clean TestResults
-        run: rm -rf ./TestResults
       - name: Test Unit Tests with coverage
         run: dotnet test tests/Biak.ConsoleApp.UnitTests/Biak.ConsoleApp.UnitTests.csproj --no-build --verbosity normal --collect:"XPlat Code Coverage;Format=cobertura" --results-directory ./TestResults/Unit
-      - name: Normalize Unit coverage file
-        run: find ./TestResults/Unit -name coverage.cobertura.xml -print -quit | xargs -I{} cp "{}" ./TestResults/unit.cobertura.xml
       - name: Test Integration Tests with coverage
         run: dotnet test tests/Biak.ConsoleApp.IntegrationTests/Biak.ConsoleApp.IntegrationTests.csproj --no-build --verbosity normal --collect:"XPlat Code Coverage;Format=cobertura" --results-directory ./TestResults/Integration
-      - name: Normalize Integration coverage file
-        run: find ./TestResults/Integration -name coverage.cobertura.xml -print -quit | xargs -I{} cp "{}" ./TestResults/integration.cobertura.xml
       - name: Upload Unit Test Coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
-          files: ./TestResults/unit.cobertura.xml
-          disable_search: true
+          files: ./TestResults/Unit/**/coverage.cobertura.xml
           flags: unit-tests
           name: unit-tests-coverage
           verbose: true
       - name: Upload Integration Test Coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
-          files: ./TestResults/integration.cobertura.xml
-          disable_search: true
+          files: ./TestResults/Integration/**/coverage.cobertura.xml
           flags: integration-tests
           name: integration-tests-coverage
           verbose: true
