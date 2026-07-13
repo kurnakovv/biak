@@ -360,4 +360,10 @@ MigrationBackup/
 .ionide/
 
 # Fody - auto-generated XML schema
+
+# Local .NET tools
+.tools/
+
+# Test coverage reports
+CoverageReports/
 FodyWeavers.xsd
