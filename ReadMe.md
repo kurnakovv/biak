@@ -35,7 +35,7 @@
 
 * 🗂️ Imports | Import specific rule groups (e.g., CA / IDE / SA / Roslynator, etc.) from separate files or URLs for better organization and maintainability ([docs](https://github.com/kurnakovv/biak/wiki/Import)).
 
-* 🔒 Always enabled rules | Override selected rules (e.g., formatting rules) so they remain active even when you run the disable command (soon 🔜).
+* 🔒 Always enabled rules | Override selected rules (e.g., formatting rules) so they remain active even when you run the disable command ([docs](https://github.com/kurnakovv/biak/wiki/AlwaysEnabledRules)).
 
 * 📦 Variables | Extract duplicate strings (e.g., file paths) into reusable variables ([docs](https://github.com/kurnakovv/biak/wiki/Variables)).
 
