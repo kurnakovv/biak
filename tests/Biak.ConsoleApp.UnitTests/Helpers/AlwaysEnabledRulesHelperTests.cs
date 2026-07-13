@@ -21,4 +21,22 @@ dotnet_diagnostic.CA9999.severity = error
         Assert.Equal(input, content);
         Assert.Empty(placeholders);
     }
+
+    [Fact]
+    public void ProtectSeverities_WhenBlockIsEmpty_SkipsBlockAndContinues()
+    {
+        string input =
+            """
+
+            ^biak^ always-enabled start
+            ^biak^ always-enabled end
+            dotnet_diagnostic.CA9999.severity = error
+
+            """;
+
+        (string content, Dictionary<string, string> placeholders) = AlwaysEnabledRulesHelper.ProtectSeverities(input);
+
+        Assert.Equal(input, content);
+        Assert.Empty(placeholders);
+    }
 }
