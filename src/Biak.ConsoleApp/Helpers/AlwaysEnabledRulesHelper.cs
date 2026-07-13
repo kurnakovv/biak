@@ -6,7 +6,10 @@ using System.Text.RegularExpressions;
 
 namespace Biak.ConsoleApp.Helpers;
 
-internal static class AlwaysEnabledRulesHelper
+/// <summary>
+/// Helper for managing always-enabled rules marked with <c>^biak^ always-enabled start/end</c> blocks.
+/// </summary>
+public static class AlwaysEnabledRulesHelper
 {
     private const string ALWAYS_ENABLED_PREFIX = "__biak_always_enabled_severity_";
 
@@ -25,7 +28,12 @@ internal static class AlwaysEnabledRulesHelper
         RegexOptions.IgnoreCase | RegexOptions.Compiled
     );
 
-    internal static (string Content, Dictionary<string, string> Placeholders) ProtectSeverities(string content)
+    /// <summary>
+    /// Replaces severity values inside always-enabled blocks with placeholders to protect them from being disabled.
+    /// </summary>
+    /// <param name="content">.editorconfig content.</param>
+    /// <returns>Updated content with placeholders and a dictionary mapping placeholders to original severity values.</returns>
+    public static (string Content, Dictionary<string, string> Placeholders) ProtectSeverities(string content)
     {
         Dictionary<string, string> localPlaceholders = new();
 
@@ -73,7 +81,12 @@ internal static class AlwaysEnabledRulesHelper
         return (content, localPlaceholders);
     }
 
-    internal static string RemoveMarkers(string content)
+    /// <summary>
+    /// Removes <c>^biak^ always-enabled start</c> and <c>^biak^ always-enabled end</c> marker lines from content.
+    /// </summary>
+    /// <param name="content">.editorconfig content.</param>
+    /// <returns>Content with marker lines removed.</returns>
+    public static string RemoveMarkers(string content)
     {
         return Regex.Replace(
             content,
