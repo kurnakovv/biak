@@ -25,15 +25,15 @@ public sealed class InspectCodeRuleMetadata
     /// <summary>
     /// .editorconfig key for the rule.
     /// </summary>
-    public string EditorconfigConfigKey { get; init; }
+    public string EditorconfigConfigKey { get; }
 
     /// <summary>
     /// Human-readable rule title.
     /// </summary>
-    public string Title { get; init; }
+    public string Title { get; }
 
     /// <summary>
     /// Reference URL or documentation identifier.
     /// </summary>
-    public string Reference { get; init; }
+    public string Reference { get; }
 }
