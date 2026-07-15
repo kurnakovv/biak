@@ -3,12 +3,21 @@
 // See the LICENSE file in the project root for full license information.
 
 using Biak.ConsoleApp.Commands;
+using Biak.ConsoleApp.Constants;
 using Biak.ConsoleApp.IntegrationTests.Mock;
 
 namespace Biak.ConsoleApp.IntegrationTests.Commands;
 
 public class InspectCodeBaselineInitCommandTests
 {
+#pragma warning disable IDE1006 // Naming Styles
+    private static readonly string TEST_OUTPUT = InspectCodeBaselineInitCommandConstant.INIT_STARTED
+#pragma warning restore IDE1006 // Naming Styles
+        + Environment.NewLine
+        + InspectCodeBaselineInitCommandConstant.INSERT_FILTERS_NOTE
+        + Environment.NewLine
+        + InspectCodeBaselineCommandTestConstants.BASELINE_FILTERS;
+
     [Fact]
     public async Task RunShouldOutputBaselineToConsoleAsync()
     {
@@ -36,7 +45,10 @@ public class InspectCodeBaselineInitCommandTests
 
             string result = await InspectCodeBaselineInitCommand.RunAsync();
 
-            Assert.NotEmpty(result);
+            string actualOutput = output.ToString().Trim();
+
+            Assert.Equal(InspectCodeBaselineCommandTestConstants.BASELINE_FILTERS, result.Trim());
+            Assert.Equal(TEST_OUTPUT, actualOutput);
         }
         finally
         {

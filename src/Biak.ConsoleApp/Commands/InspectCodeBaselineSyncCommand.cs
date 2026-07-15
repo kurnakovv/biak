@@ -39,6 +39,8 @@ public static class InspectCodeBaselineSyncCommand
         {
             Console.WriteLine(InspectCodeBaselineSyncCommandConstant.SYNC_STARTED);
 
+            _ = args;
+
             throw new NotImplementedException();
         }
         catch (Exception ex) when (ex is not BiakApplicationException and not NotImplementedException)
