@@ -193,7 +193,7 @@ public static class InspectCodeBaselineRunHelper
         {
             string fullPath = Path.IsPathRooted(target)
                 ? target
-                : Path.GetFullPath(Path.Combine(baseDir, target));
+                : Path.GetFullPath(Path.Join(baseDir, target));
 
             if (!File.Exists(fullPath))
             {
@@ -232,6 +232,6 @@ public static class InspectCodeBaselineRunHelper
         string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
         string guid = Guid.NewGuid().ToString("N");
         string fileName = $"{timestamp}_{guid}.sarif";
-        return Path.Combine(InspectCodeBaselineRunHelperConstant.REPORTS_DIRECTORY, fileName);
+        return Path.Join(InspectCodeBaselineRunHelperConstant.REPORTS_DIRECTORY, fileName);
     }
 }
