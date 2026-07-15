@@ -31,12 +31,15 @@ public static class InspectCodeBaselineRunHelper
 
         ProcessStartInfo psi = new()
         {
-            FileName = "jb",
+            FileName = "dotnet",
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             UseShellExecute = false,
         };
 
+        psi.ArgumentList.Add("tool");
+        psi.ArgumentList.Add("run");
+        psi.ArgumentList.Add("jb");
         psi.ArgumentList.Add("inspectcode");
         psi.ArgumentList.Add(ResolveTarget(target));
         psi.ArgumentList.Add($"--output={sarifPath}");
