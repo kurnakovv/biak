@@ -59,6 +59,14 @@ public static class Program
         {
             await WarningsBaselineSyncCommand.RunAsync(args);
         }
+        else if (InspectCodeBaselineInitCommand.IsRunnable(args))
+        {
+            await InspectCodeBaselineInitCommand.RunAsync(args);
+        }
+        else if (InspectCodeBaselineSyncCommand.IsRunnable(args))
+        {
+            await InspectCodeBaselineSyncCommand.RunAsync(args);
+        }
         else
         {
             Console.WriteLine(UIConstant.NO_COMMAND);
