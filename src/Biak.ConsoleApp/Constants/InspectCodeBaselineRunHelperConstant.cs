@@ -12,7 +12,8 @@ public static class InspectCodeBaselineRunHelperConstant
     /// <summary>
     /// Failed to start jb inspectcode process.
     /// </summary>
-    public const string FAILED_TO_START_INSPECTCODE = "Failed to start 'jb' via 'dotnet tool run jb'. Make sure JetBrains.ReSharper.GlobalTools is in your .config/dotnet-tools.json and 'dotnet tool restore' has been run.";
+    public const string FAILED_TO_START_INSPECTCODE = "Failed to start 'jb' via 'dotnet tool run jb'. " +
+        "Make sure JetBrains.ReSharper.GlobalTools is in your .config/dotnet-tools.json and 'dotnet tool restore' has been run.";
 
     /// <summary>
     /// jb inspectcode failed.
