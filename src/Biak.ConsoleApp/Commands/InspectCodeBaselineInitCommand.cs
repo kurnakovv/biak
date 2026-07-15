@@ -70,6 +70,7 @@ public static class InspectCodeBaselineInitCommand
             IReadOnlyDictionary<string, string>? ruleIdOverrides = baselineConfig?.RuleIdOverrides;
 
             Dictionary<string, List<string>> issuesByEditorconfigKey = new(StringComparer.OrdinalIgnoreCase);
+            Dictionary<string, HashSet<string>> ruleIdsByEditorconfigKey = new(StringComparer.OrdinalIgnoreCase);
             HashSet<string> unmappedRuleIds = new(StringComparer.OrdinalIgnoreCase);
 
             foreach (InspectCodeIssue issue in issues)
@@ -89,6 +90,14 @@ public static class InspectCodeBaselineInitCommand
                     files = new List<string>();
                     issuesByEditorconfigKey[editorconfigKey] = files;
                 }
+
+                if (!ruleIdsByEditorconfigKey.TryGetValue(editorconfigKey, out HashSet<string>? ruleIds))
+                {
+                    ruleIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                    ruleIdsByEditorconfigKey[editorconfigKey] = ruleIds;
+                }
+
+                ruleIds.Add(issue.RuleId);
 
                 if (!files.Contains(relativePath, StringComparer.OrdinalIgnoreCase))
                 {
@@ -124,7 +133,20 @@ public static class InspectCodeBaselineInitCommand
             foreach ((string key, List<string> files) in issuesByEditorconfigKey.OrderBy(x => x.Key))
             {
                 files.Sort(StringComparer.OrdinalIgnoreCase);
+
+                string ruleId = ruleIdsByEditorconfigKey[key]
+                    .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
+                    .First();
+
+                InspectCodeRuleMetadata? metadata = InspectCodeRuleMetadataHelper.Get(ruleId);
+
                 sb.AppendLine("[{" + string.Join(",", files) + "}]");
+
+                if (metadata is not null)
+                {
+                    sb.AppendLine($"# {metadata.Title} [{ruleId}] | {metadata.Reference}");
+                }
+
                 sb.AppendLine($"{key} = {snapshotSeverity} {InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}");
                 sb.AppendLine();
             }
