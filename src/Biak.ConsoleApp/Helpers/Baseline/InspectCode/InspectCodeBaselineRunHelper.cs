@@ -91,6 +91,7 @@ public static class InspectCodeBaselineRunHelper
         return new List<ProcessStartInfo>()
         {
             CreateDotnetToolStartInfo(resolvedTarget, sarifPath, additionalArgs),
+            CreateJbStartInfo(resolvedTarget, sarifPath, additionalArgs),
             CreateNativeInspectCodeStartInfo("InspectCode.exe", resolvedTarget, sarifPath, additionalArgs),
             CreateNativeInspectCodeStartInfo("inspectcode", resolvedTarget, sarifPath, additionalArgs),
         };
@@ -106,7 +107,18 @@ public static class InspectCodeBaselineRunHelper
         psi.ArgumentList.Add("run");
         psi.ArgumentList.Add("jb");
         psi.ArgumentList.Add("inspectcode");
-        ConfigureNativeInspectCodeRunArguments(psi, resolvedTarget, sarifPath, additionalArgs);
+        ConfigureInspectCodeRunArguments(psi, resolvedTarget, sarifPath, additionalArgs);
+        return psi;
+    }
+
+    private static ProcessStartInfo CreateJbStartInfo(
+        string resolvedTarget,
+        string sarifPath,
+        IReadOnlyList<string>? additionalArgs)
+    {
+        ProcessStartInfo psi = CreateProcessStartInfo("jb");
+        psi.ArgumentList.Add("inspectcode");
+        ConfigureInspectCodeRunArguments(psi, resolvedTarget, sarifPath, additionalArgs);
         return psi;
     }
 
@@ -117,11 +129,11 @@ public static class InspectCodeBaselineRunHelper
         IReadOnlyList<string>? additionalArgs)
     {
         ProcessStartInfo psi = CreateProcessStartInfo(fileName);
-        ConfigureNativeInspectCodeRunArguments(psi, resolvedTarget, sarifPath, additionalArgs);
+        ConfigureInspectCodeRunArguments(psi, resolvedTarget, sarifPath, additionalArgs);
         return psi;
     }
 
-    private static void ConfigureNativeInspectCodeRunArguments(
+    private static void ConfigureInspectCodeRunArguments(
         ProcessStartInfo psi,
         string resolvedTarget,
         string sarifPath,
