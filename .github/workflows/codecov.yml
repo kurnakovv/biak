@@ -21,6 +21,14 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
+      - name: Cache dotnet tools
+        uses: actions/cache@v4
+        with:
+          path: ~/.dotnet/tools
+          key: dotnet-tools-${{ hashFiles('.config/dotnet-tools.json') }}
+          restore-keys: dotnet-tools-
+      - name: Restore dotnet tools
+        run: dotnet tool restore
       - name: Restore dependencies
         run: dotnet restore
       - name: Build
