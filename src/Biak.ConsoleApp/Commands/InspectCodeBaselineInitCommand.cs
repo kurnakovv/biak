@@ -105,19 +105,17 @@ public static class InspectCodeBaselineInitCommand
                 }
             }
 
-            foreach (string unmappedRuleId in unmappedRuleIds.OrderBy(x => x))
+            if (unmappedRuleIds.Count > 0)
             {
-                Console.WriteLine(
-                    InspectCodeBaselineInitCommandConstant.RULE_NOT_MAPPED_WARNING_PREFIX +
-                    unmappedRuleId +
-                    InspectCodeBaselineInitCommandConstant.RULE_NOT_MAPPED_WARNING_SUFFIX
-                );
+                Console.WriteLine(InspectCodeBaselineInitCommandConstant.RULES_NOT_MAPPED_WARNING_HEADER);
+                foreach (string unmappedRuleId in unmappedRuleIds.OrderBy(x => x))
+                {
+                    Console.WriteLine($"* {unmappedRuleId}");
+                }
+
+                Console.WriteLine();
                 Console.WriteLine(InspectCodeBaselineInitCommandConstant.RULE_NOT_MAPPED_OPEN_ISSUE);
-                Console.WriteLine(
-                    InspectCodeBaselineInitCommandConstant.RULE_NOT_MAPPED_LOCAL_WORKAROUND_PREFIX +
-                    unmappedRuleId +
-                    InspectCodeBaselineInitCommandConstant.RULE_NOT_MAPPED_LOCAL_WORKAROUND_SUFFIX
-                );
+                Console.WriteLine(InspectCodeBaselineInitCommandConstant.RULE_NOT_MAPPED_LOCAL_WORKAROUND);
                 Console.WriteLine();
             }
 

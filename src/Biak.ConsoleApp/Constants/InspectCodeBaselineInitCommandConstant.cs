@@ -35,14 +35,9 @@ public static class InspectCodeBaselineInitCommandConstant
     public const string INIT_FAILED = "Failed to initialize InspectCode baseline.";
 
     /// <summary>
-    /// Warning message prefix for rules not found in the built-in mapping (before the rule id).
+    /// Header for the list of rules not found in the built-in mapping.
     /// </summary>
-    public const string RULE_NOT_MAPPED_WARNING_PREFIX = "Warning: rule '";
-
-    /// <summary>
-    /// Warning message suffix for rules not found in the built-in mapping (after the rule id).
-    /// </summary>
-    public const string RULE_NOT_MAPPED_WARNING_SUFFIX = "' was not found in the built-in InspectCode rule mapping.";
+    public const string RULES_NOT_MAPPED_WARNING_HEADER = "Warning: these rules were not found in the built-in InspectCode rule mapping:";
 
     /// <summary>
     /// Suggestion to open a GitHub issue for an unmapped rule.
@@ -50,19 +45,14 @@ public static class InspectCodeBaselineInitCommandConstant
     public const string RULE_NOT_MAPPED_OPEN_ISSUE = "Please open a GitHub issue at https://github.com/kurnakovv/biak/issues so we can add it.";
 
     /// <summary>
-    /// Local workaround hint for an unmapped rule — first part (before the rule id).
+    /// Local workaround hint for unmapped rules, including examples for two rules.
     /// </summary>
-    public const string RULE_NOT_MAPPED_LOCAL_WORKAROUND_PREFIX =
+    public const string RULE_NOT_MAPPED_LOCAL_WORKAROUND =
         "As a local workaround add it to your .biak/config.json:\n" +
-        "  \"inspectCodeBaseline\": {{\n" +
-        "    \"ruleIdOverrides\": {{\n" +
-        "      \"";
-
-    /// <summary>
-    /// Local workaround hint for an unmapped rule — second part (after the rule id).
-    /// </summary>
-    public const string RULE_NOT_MAPPED_LOCAL_WORKAROUND_SUFFIX =
-        "\": \"resharper_your_rule_editorconfig_key_highlighting\"\n" +
-        "    }}\n" +
-        "  }}";
+        "  \"inspectCodeBaseline\": {\n" +
+        "    \"ruleIdOverrides\": {\n" +
+        "      \"RuleId1\": \"resharper_your_rule1_editorconfig_key_highlighting\",\n" +
+        "      \"RuleId2\": \"resharper_your_rule2_editorconfig_key_highlighting\"\n" +
+        "    }\n" +
+        "  }";
 }
