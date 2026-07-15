@@ -2,6 +2,7 @@
 // This file is licensed under the MIT License.
 // See the LICENSE file in the project root for full license information.
 
+using System.ComponentModel;
 using System.Diagnostics;
 using Biak.ConsoleApp.Constants;
 using Biak.ConsoleApp.Exceptions;
@@ -9,15 +10,15 @@ using Biak.ConsoleApp.Exceptions;
 namespace Biak.ConsoleApp.Helpers.Baseline.InspectCode;
 
 /// <summary>
-/// Helper that runs <c>jb inspectcode</c> and returns the path to the produced SARIF report.
+/// Helper that runs InspectCode and returns the path to the produced SARIF report.
 /// </summary>
 public static class InspectCodeBaselineRunHelper
 {
     /// <summary>
-    /// Runs <c>jb inspectcode</c> with SARIF output and returns the path to the produced report file.
+    /// Runs InspectCode with SARIF output and returns the path to the produced report file.
     /// </summary>
     /// <param name="target">Explicit path to the <c>.slnx</c>, <c>.sln</c>, or <c>.csproj</c> file. When <c>null</c>, auto-discovery is used.</param>
-    /// <param name="additionalArgs">Extra arguments forwarded to <c>jb inspectcode</c> unchanged.</param>
+    /// <param name="additionalArgs">Extra arguments forwarded to InspectCode unchanged.</param>
     /// <returns>Absolute path to the produced SARIF report file.</returns>
     public static async Task<string> RunAsync(string? target = null, IReadOnlyList<string>? additionalArgs = null)
     {
@@ -29,58 +30,44 @@ public static class InspectCodeBaselineRunHelper
             Directory.CreateDirectory(directoryPath);
         }
 
-        ProcessStartInfo psi = new()
-        {
-            FileName = "dotnet",
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            UseShellExecute = false,
-        };
+        string resolvedTarget = ResolveTarget(target);
 
-        psi.ArgumentList.Add("tool");
-        psi.ArgumentList.Add("run");
-        psi.ArgumentList.Add("jb");
-        psi.ArgumentList.Add("inspectcode");
-        psi.ArgumentList.Add(ResolveTarget(target));
-        psi.ArgumentList.Add($"--output={sarifPath}");
-        psi.ArgumentList.Add("-f=Sarif");
+        IReadOnlyList<ProcessStartInfo> candidates = BuildInspectCodeProcessCandidates(
+            resolvedTarget,
+            sarifPath,
+            additionalArgs);
 
-        if (additionalArgs is not null)
+        bool startedAnyCandidate = false;
+        string? errorOutput = null;
+
+        foreach (ProcessStartInfo candidate in candidates)
         {
-            foreach (string arg in additionalArgs)
+            try
             {
-                psi.ArgumentList.Add(arg);
+                (int exitCode, string standardOutput, string standardError) = await RunProcessAsync(candidate);
+                startedAnyCandidate = true;
+
+                if (exitCode == 0)
+                {
+                    errorOutput = null;
+                    break;
+                }
+
+                errorOutput = string.IsNullOrWhiteSpace(standardError) ? standardOutput : standardError;
+            }
+            catch (Win32Exception)
+            {
+                // Candidate executable is not available, try next one.
             }
         }
 
-        using Process process = Process.Start(psi)
-            ?? throw new BiakApplicationException(InspectCodeBaselineRunHelperConstant.FAILED_TO_START_INSPECTCODE);
-
-        Task<string> standardOutputTask = process.StandardOutput.ReadToEndAsync();
-        Task<string> standardErrorTask = process.StandardError.ReadToEndAsync();
-
-        using CancellationTokenSource timeoutCts = new(TimeSpan.FromMinutes(30));
-        string standardOutput;
-        string standardError;
-        try
+        if (!startedAnyCandidate)
         {
-            await process.WaitForExitAsync(timeoutCts.Token);
-            standardOutput = await standardOutputTask.WaitAsync(timeoutCts.Token);
-            standardError = await standardErrorTask.WaitAsync(timeoutCts.Token);
-        }
-        catch (OperationCanceledException) when (timeoutCts.IsCancellationRequested)
-        {
-            if (!process.HasExited)
-            {
-                process.Kill(entireProcessTree: true);
-            }
-
-            throw new BiakApplicationException(InspectCodeBaselineRunHelperConstant.INSPECTCODE_TIMED_OUT);
+            throw new BiakApplicationException(InspectCodeBaselineRunHelperConstant.FAILED_TO_START_INSPECTCODE);
         }
 
-        if (process.ExitCode != 0)
+        if (errorOutput is not null)
         {
-            string errorOutput = string.IsNullOrWhiteSpace(standardError) ? standardOutput : standardError;
             throw new BiakApplicationException(
                 string.IsNullOrWhiteSpace(errorOutput)
                     ? InspectCodeBaselineRunHelperConstant.INSPECTCODE_FAILED
@@ -94,6 +81,108 @@ public static class InspectCodeBaselineRunHelper
         }
 
         return sarifPath;
+    }
+
+    private static IReadOnlyList<ProcessStartInfo> BuildInspectCodeProcessCandidates(
+        string resolvedTarget,
+        string sarifPath,
+        IReadOnlyList<string>? additionalArgs)
+    {
+        return new List<ProcessStartInfo>()
+        {
+            CreateDotnetToolStartInfo(resolvedTarget, sarifPath, additionalArgs),
+            CreateNativeInspectCodeStartInfo("InspectCode.exe", resolvedTarget, sarifPath, additionalArgs),
+            CreateNativeInspectCodeStartInfo("inspectcode", resolvedTarget, sarifPath, additionalArgs),
+        };
+    }
+
+    private static ProcessStartInfo CreateDotnetToolStartInfo(
+        string resolvedTarget,
+        string sarifPath,
+        IReadOnlyList<string>? additionalArgs)
+    {
+        ProcessStartInfo psi = CreateProcessStartInfo("dotnet");
+        psi.ArgumentList.Add("tool");
+        psi.ArgumentList.Add("run");
+        psi.ArgumentList.Add("jb");
+        psi.ArgumentList.Add("inspectcode");
+        ConfigureNativeInspectCodeRunArguments(psi, resolvedTarget, sarifPath, additionalArgs);
+        return psi;
+    }
+
+    private static ProcessStartInfo CreateNativeInspectCodeStartInfo(
+        string fileName,
+        string resolvedTarget,
+        string sarifPath,
+        IReadOnlyList<string>? additionalArgs)
+    {
+        ProcessStartInfo psi = CreateProcessStartInfo(fileName);
+        ConfigureNativeInspectCodeRunArguments(psi, resolvedTarget, sarifPath, additionalArgs);
+        return psi;
+    }
+
+    private static void ConfigureNativeInspectCodeRunArguments(
+        ProcessStartInfo psi,
+        string resolvedTarget,
+        string sarifPath,
+        IReadOnlyList<string>? additionalArgs)
+    {
+        psi.ArgumentList.Add(resolvedTarget);
+        psi.ArgumentList.Add($"-o={sarifPath}");
+        psi.ArgumentList.Add("-f=Sarif");
+        AppendAdditionalArgs(psi, additionalArgs);
+    }
+
+    private static ProcessStartInfo CreateProcessStartInfo(string fileName)
+    {
+        return new ProcessStartInfo
+        {
+            FileName = fileName,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+        };
+    }
+
+    private static void AppendAdditionalArgs(ProcessStartInfo psi, IReadOnlyList<string>? additionalArgs)
+    {
+        if (additionalArgs is null)
+        {
+            return;
+        }
+
+        foreach (string arg in additionalArgs)
+        {
+            psi.ArgumentList.Add(arg);
+        }
+    }
+
+    private static async Task<(int ExitCode, string StandardOutput, string StandardError)> RunProcessAsync(ProcessStartInfo psi)
+    {
+        using Process process = Process.Start(psi)
+            ?? throw new BiakApplicationException(InspectCodeBaselineRunHelperConstant.FAILED_TO_START_INSPECTCODE);
+
+        Task<string> standardOutputTask = process.StandardOutput.ReadToEndAsync();
+        Task<string> standardErrorTask = process.StandardError.ReadToEndAsync();
+
+        using CancellationTokenSource timeoutCts = new(TimeSpan.FromMinutes(30));
+
+        try
+        {
+            await process.WaitForExitAsync(timeoutCts.Token);
+            string standardOutput = await standardOutputTask.WaitAsync(timeoutCts.Token);
+            string standardError = await standardErrorTask.WaitAsync(timeoutCts.Token);
+            return (process.ExitCode, standardOutput, standardError);
+        }
+        catch (OperationCanceledException) when (timeoutCts.IsCancellationRequested)
+        {
+            if (!process.HasExited)
+            {
+                process.Kill(entireProcessTree: true);
+            }
+
+            throw new BiakApplicationException(InspectCodeBaselineRunHelperConstant.INSPECTCODE_TIMED_OUT);
+        }
     }
 
     private static string ResolveTarget(string? target)

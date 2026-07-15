@@ -12,18 +12,18 @@ public static class InspectCodeBaselineRunHelperConstant
     /// <summary>
     /// Failed to start jb inspectcode process.
     /// </summary>
-    public const string FAILED_TO_START_INSPECTCODE = "Failed to start 'jb' via 'dotnet tool run jb'. " +
-        "Make sure JetBrains.ReSharper.GlobalTools is in your .config/dotnet-tools.json and 'dotnet tool restore' has been run.";
+    public const string FAILED_TO_START_INSPECTCODE = "Failed to start InspectCode via either 'dotnet tool run jb inspectcode' or 'InspectCode.exe'. " +
+        "Make sure JetBrains.ReSharper.GlobalTools is restored or InspectCode.exe is available on PATH.";
 
     /// <summary>
     /// jb inspectcode failed.
     /// </summary>
-    public const string INSPECTCODE_FAILED = "'dotnet tool run jb inspectcode' failed.";
+    public const string INSPECTCODE_FAILED = "InspectCode execution failed.";
 
     /// <summary>
     /// jb inspectcode timed out.
     /// </summary>
-    public const string INSPECTCODE_TIMED_OUT = "'dotnet tool run jb inspectcode' timed out after 30 minutes.";
+    public const string INSPECTCODE_TIMED_OUT = "InspectCode execution timed out after 30 minutes.";
 
     /// <summary>
     /// SARIF report file was not produced.
