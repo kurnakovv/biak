@@ -2,6 +2,7 @@
 // This file is licensed under the MIT License.
 // See the LICENSE file in the project root for full license information.
 
+using System.Linq;
 using System.Text.Json;
 using Biak.ConsoleApp.Models;
 
@@ -72,9 +73,8 @@ public static class InspectCodeBaselineSarifParser
                 continue;
             }
 
-            foreach (JsonElement location in locations.EnumerateArray())
+            foreach (string? filePath in locations.EnumerateArray().Select(TryGetFilePath))
             {
-                string? filePath = TryGetFilePath(location);
                 if (string.IsNullOrWhiteSpace(filePath))
                 {
                     continue;
