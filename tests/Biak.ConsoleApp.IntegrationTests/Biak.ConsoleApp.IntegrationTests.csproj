@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -26,6 +26,8 @@
     <Content Remove="Templates\**\bin\**\*" />
     <Compile Remove="Templates\**\obj\**\*.cs" />
     <Compile Remove="Templates\**\bin\**\*.cs" />
+    <Compile Remove="Templates\InspectCodeBaseline\InspectCodeBaselineNoIssuesTemplate\Program.cs" />
+    <Compile Remove="Templates\InspectCodeBaseline\InspectCodeBaselineNoIssuesTemplate\Service.cs" />
     <Compile Remove="Templates\InspectCodeBaseline\InspectCodeBaselineTemplate\ServiceA.cs" />
     <Compile Remove="Templates\InspectCodeBaseline\InspectCodeBaselineTemplate\ServiceB.cs" />
     <Compile Remove="Templates\InspectCodeBaseline\InspectCodeBaselineTemplate\ServiceC.cs" />
