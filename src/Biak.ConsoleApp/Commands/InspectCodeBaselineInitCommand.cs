@@ -108,10 +108,7 @@ public static class InspectCodeBaselineInitCommand
             if (unmappedRuleIds.Count > 0)
             {
                 Console.WriteLine(InspectCodeBaselineInitCommandConstant.RULES_NOT_MAPPED_WARNING_HEADER);
-                foreach (string unmappedRuleId in unmappedRuleIds.OrderBy(x => x))
-                {
-                    Console.WriteLine($"* {unmappedRuleId}");
-                }
+                Console.WriteLine(string.Join(", ", unmappedRuleIds.OrderBy(x => x, StringComparer.OrdinalIgnoreCase)));
 
                 Console.WriteLine();
                 Console.WriteLine(InspectCodeBaselineInitCommandConstant.RULE_NOT_MAPPED_OPEN_ISSUE);
