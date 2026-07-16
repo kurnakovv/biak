@@ -69,15 +69,14 @@ public static class InspectCodeBaselineInitCommand
 
             IReadOnlyDictionary<string, string>? ruleIdOverrides = baselineConfig?.RuleIdOverrides;
 
-            Dictionary<string, List<string>> issuesByEditorconfigKey = new(StringComparer.OrdinalIgnoreCase);
-            Dictionary<string, HashSet<string>> ruleIdsByEditorconfigKey = new(StringComparer.OrdinalIgnoreCase);
+            Dictionary<string, List<string>> issuesByMappedEditorconfigKey = new(StringComparer.OrdinalIgnoreCase);
+            Dictionary<string, HashSet<string>> ruleIdsByMappedEditorconfigKey = new(StringComparer.OrdinalIgnoreCase);
             HashSet<string> unmappedRuleIds = new(StringComparer.OrdinalIgnoreCase);
 
             foreach (InspectCodeIssue issue in issues)
             {
-                string? editorconfigKey = ResolveEditorconfigKey(issue.RuleId, ruleIdOverrides);
-
-                if (editorconfigKey is null)
+                string? mappedEditorconfigKey = FindMappedEditorconfigKey(issue.RuleId, ruleIdOverrides);
+                if (mappedEditorconfigKey is null)
                 {
                     unmappedRuleIds.Add(issue.RuleId);
                     continue;
@@ -85,16 +84,16 @@ public static class InspectCodeBaselineInitCommand
 
                 string relativePath = NormalizePath(issue.FilePath, baseDirectory);
 
-                if (!issuesByEditorconfigKey.TryGetValue(editorconfigKey, out List<string>? files))
+                if (!issuesByMappedEditorconfigKey.TryGetValue(mappedEditorconfigKey, out List<string>? files))
                 {
                     files = new List<string>();
-                    issuesByEditorconfigKey[editorconfigKey] = files;
+                    issuesByMappedEditorconfigKey[mappedEditorconfigKey] = files;
                 }
 
-                if (!ruleIdsByEditorconfigKey.TryGetValue(editorconfigKey, out HashSet<string>? ruleIds))
+                if (!ruleIdsByMappedEditorconfigKey.TryGetValue(mappedEditorconfigKey, out HashSet<string>? ruleIds))
                 {
                     ruleIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                    ruleIdsByEditorconfigKey[editorconfigKey] = ruleIds;
+                    ruleIdsByMappedEditorconfigKey[mappedEditorconfigKey] = ruleIds;
                 }
 
                 ruleIds.Add(issue.RuleId);
@@ -116,7 +115,7 @@ public static class InspectCodeBaselineInitCommand
                 Console.WriteLine();
             }
 
-            if (issuesByEditorconfigKey.Count == 0)
+            if (issuesByMappedEditorconfigKey.Count == 0)
             {
                 Console.WriteLine(InspectCodeBaselineInitCommandConstant.NO_ISSUES_FOUND);
                 return InspectCodeBaselineInitCommandConstant.NO_ISSUES_FOUND;
@@ -125,11 +124,11 @@ public static class InspectCodeBaselineInitCommand
             Console.WriteLine(InspectCodeBaselineInitCommandConstant.INSERT_FILTERS_NOTE);
 
             StringBuilder sb = new();
-            foreach ((string key, List<string> files) in issuesByEditorconfigKey.OrderBy(x => x.Key))
+            foreach ((string key, List<string> files) in issuesByMappedEditorconfigKey.OrderBy(x => x.Key))
             {
                 files.Sort(StringComparer.OrdinalIgnoreCase);
 
-                string ruleId = ruleIdsByEditorconfigKey[key]
+                string ruleId = ruleIdsByMappedEditorconfigKey[key]
                     .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
                     .First();
 
@@ -163,7 +162,7 @@ public static class InspectCodeBaselineInitCommand
         }
     }
 
-    private static string? ResolveEditorconfigKey(
+    private static string? FindMappedEditorconfigKey(
         string ruleId,
         IReadOnlyDictionary<string, string>? overrides)
     {
