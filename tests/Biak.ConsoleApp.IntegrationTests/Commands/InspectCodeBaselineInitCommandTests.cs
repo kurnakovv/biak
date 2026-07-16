@@ -306,4 +306,96 @@ public static class Consumer
             Console.SetOut(originalOut);
         }
     }
+
+    [Fact]
+    public async Task RunAsyncWhenRuleIdOverridesProvidedShouldUseOverrideKeysAsync()
+    {
+        string originalDirectory = Directory.GetCurrentDirectory();
+        TestDirectory testDir = new(
+            $"{nameof(InspectCodeBaselineInitCommandTests)}_{nameof(RunAsyncWhenRuleIdOverridesProvidedShouldUseOverrideKeysAsync)}"
+        );
+
+        TextWriter originalOut = Console.Out;
+        await using StringWriter output = new();
+        Console.SetOut(output);
+
+        try
+        {
+            Directory.SetCurrentDirectory(testDir.Value);
+
+            string templatePath = Path.Join(
+                AppContext.BaseDirectory,
+                "Templates",
+                "InspectCodeBaseline",
+                "InspectCodeBaselineTemplate"
+            );
+
+            testDir.CopyDirectory(templatePath);
+
+            string projectPath = Path.Join(testDir.Value, "InspectCodeBaselineTemplate.csproj");
+            string projectContent = await File.ReadAllTextAsync(projectPath);
+            projectContent = projectContent
+                .Replace("<EnableNETAnalyzers>false</EnableNETAnalyzers>", "<EnableNETAnalyzers>true</EnableNETAnalyzers>", StringComparison.Ordinal)
+                .Replace("<RunAnalyzers>false</RunAnalyzers>", "<RunAnalyzers>true</RunAnalyzers>", StringComparison.Ordinal)
+                .Replace("<RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>", "<RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>", StringComparison.Ordinal)
+                .Replace(
+                    "<GenerateDocumentationFile>false</GenerateDocumentationFile>",
+                    "<GenerateDocumentationFile>false</GenerateDocumentationFile>\n    <AnalysisMode>AllEnabledByDefault</AnalysisMode>\n    <AnalysisLevel>latest-all</AnalysisLevel>",
+                    StringComparison.Ordinal
+                );
+            await File.WriteAllTextAsync(projectPath, projectContent);
+
+            string editorconfigPath = Path.Join(testDir.Value, ".editorconfig");
+            const string EDITORCONFIG_CONTENT = """
+root = true
+
+[*.cs]
+dotnet_diagnostic.CA1822.severity = warning
+""";
+            await File.WriteAllTextAsync(editorconfigPath, EDITORCONFIG_CONTENT);
+
+            Directory.CreateDirectory(Path.Join(testDir.Value, ".biak"));
+            string configPath = Path.Join(testDir.Value, ".biak", "config.json");
+
+            // language=json
+            const string CONFIG_WITH_RULE_ID_OVERRIDES = """
+{
+  "inspectCodeBaseline": {
+    "ruleIdOverrides": {
+      "CA1822": "resharper_mocked_custom_ca_rule_highlighting",
+      "UnusedType.Global": "resharper_mocked_unused_type_global_highlighting"
+    }
+  }
+}
+""";
+            await File.WriteAllTextAsync(configPath, CONFIG_WITH_RULE_ID_OVERRIDES);
+
+            string ca1822ViolationPath = Path.Join(testDir.Value, "Ca1822ViolationService.cs");
+            const string CA1822_VIOLATION_CLASS = """
+namespace InspectCodeBaselineTemplate;
+
+public class Ca1822ViolationService
+{
+    public int GetValue()
+    {
+        return 42;
+    }
+}
+""";
+            await File.WriteAllTextAsync(ca1822ViolationPath, CA1822_VIOLATION_CLASS);
+
+            string result = await InspectCodeBaselineInitCommand.RunAsync();
+            string actualOutput = output.ToString().Trim();
+
+            Assert.Contains("resharper_mocked_custom_ca_rule_highlighting", result, StringComparison.Ordinal);
+            Assert.Contains("resharper_mocked_unused_type_global_highlighting", result, StringComparison.Ordinal);
+            Assert.DoesNotContain("resharper_unused_type_global_highlighting", result, StringComparison.Ordinal);
+            Assert.DoesNotContain("CA1822", actualOutput, StringComparison.Ordinal);
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+            Directory.SetCurrentDirectory(originalDirectory);
+        }
+    }
 }
