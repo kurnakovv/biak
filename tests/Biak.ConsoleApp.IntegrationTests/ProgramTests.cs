@@ -361,6 +361,43 @@ public class ProgramTests
     }
 
     [Fact]
+    public async Task InspectCodeBaselineInitCommandAsync()
+    {
+        string originalDirectory = Directory.GetCurrentDirectory();
+        TestDirectory testDir = new($"{nameof(ProgramTests)}_{nameof(InspectCodeBaselineInitCommandAsync)}");
+
+        TextWriter originalOut = Console.Out;
+        await using StringWriter output = new();
+        Console.SetOut(output);
+
+        try
+        {
+            Directory.SetCurrentDirectory(testDir.Value);
+
+            string templatePath = Path.Join(
+                AppContext.BaseDirectory,
+                "Templates",
+                "InspectCodeBaseline",
+                "InspectCodeBaselineTemplate"
+            );
+
+            testDir.CopyDirectory(templatePath);
+
+            await Program.Main([CommandArgumentConstant.INSPECTCODE_BASELINE, CommandArgumentConstant.INIT]);
+
+            string result = output.ToString().Trim();
+            Assert.Contains(InspectCodeBaselineInitCommandConstant.INIT_STARTED, result, StringComparison.Ordinal);
+            Assert.Contains(InspectCodeBaselineInitCommandConstant.INSERT_FILTERS_NOTE, result, StringComparison.Ordinal);
+            Assert.Contains(InspectCodeBaselineCommandTestConstants.BASELINE_FILTERS.Trim(), result, StringComparison.Ordinal);
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+            Directory.SetCurrentDirectory(originalDirectory);
+        }
+    }
+
+    [Fact]
     public async Task SetupWithInvalidCommandNoCommandMessageAsync()
     {
         TextWriter originalOut = Console.Out;
