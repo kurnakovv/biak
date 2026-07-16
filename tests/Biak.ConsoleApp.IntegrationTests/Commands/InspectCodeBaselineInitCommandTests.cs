@@ -44,12 +44,25 @@ public class InspectCodeBaselineInitCommandTests
 
             testDir.CopyDirectory(templatePath);
 
-            string result = await InspectCodeBaselineInitCommand.RunAsync();
+            string firstRunResult = await InspectCodeBaselineInitCommand.RunAsync();
 
-            string actualOutput = output.ToString().Trim();
+            string firstRunOutput = output.ToString().Trim();
 
-            Assert.Equal(InspectCodeBaselineCommandTestConstants.BASELINE_FILTERS, result.Trim());
-            Assert.Equal(TEST_OUTPUT, actualOutput);
+            Assert.Equal(InspectCodeBaselineCommandTestConstants.BASELINE_FILTERS, firstRunResult.Trim());
+            Assert.Equal(TEST_OUTPUT, firstRunOutput);
+
+            string editorconfigPath = Path.Join(testDir.Value, ".editorconfig");
+            await File.AppendAllTextAsync(editorconfigPath, firstRunResult.Trim().Replace("= suggestion", "= none", StringComparison.Ordinal));
+
+            output.GetStringBuilder().Clear();
+
+            string secondRunResult = await InspectCodeBaselineInitCommand.RunAsync();
+            string secondRunOutput = output.ToString().Trim();
+
+            Assert.Equal(InspectCodeBaselineInitCommandConstant.NO_ISSUES_FOUND, secondRunResult);
+            Assert.Contains(InspectCodeBaselineInitCommandConstant.INIT_STARTED, secondRunOutput, StringComparison.Ordinal);
+            Assert.Contains(InspectCodeBaselineInitCommandConstant.NO_ISSUES_FOUND, secondRunOutput, StringComparison.Ordinal);
+            Assert.DoesNotContain(InspectCodeBaselineInitCommandConstant.INSERT_FILTERS_NOTE, secondRunOutput, StringComparison.Ordinal);
         }
         finally
         {
