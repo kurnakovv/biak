@@ -22,7 +22,7 @@ public static class InspectCodeBaselineRunHelper
     /// <returns>Absolute path to the produced SARIF report file.</returns>
     public static async Task<string> RunAsync(string? target = null, IReadOnlyList<string>? additionalArgs = null)
     {
-        string sarifPath = BuildSarifPath();
+        string sarifPath = GenerateSarifPath();
 
         string? directoryPath = Path.GetDirectoryName(sarifPath);
         if (!string.IsNullOrWhiteSpace(directoryPath))
@@ -239,7 +239,7 @@ public static class InspectCodeBaselineRunHelper
         throw new BiakApplicationException(InspectCodeBaselineRunHelperConstant.NO_SOLUTION_OR_PROJECT_FOUND);
     }
 
-    private static string BuildSarifPath()
+    private static string GenerateSarifPath()
     {
         string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
         string guid = Guid.NewGuid().ToString("N");
