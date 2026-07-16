@@ -56,4 +56,44 @@ public class InspectCodeBaselineInitCommandTests
             Directory.SetCurrentDirectory(originalDirectory);
         }
     }
+
+    [Fact]
+    public async Task RunAsyncWhenNoIssuesFoundShouldReturnNoIssuesFoundMessageAsync()
+    {
+        string originalDirectory = Directory.GetCurrentDirectory();
+        TestDirectory testDir = new(
+            $"{nameof(InspectCodeBaselineInitCommandTests)}_{nameof(RunAsyncWhenNoIssuesFoundShouldReturnNoIssuesFoundMessageAsync)}"
+        );
+
+        TextWriter originalOut = Console.Out;
+        await using StringWriter output = new();
+        Console.SetOut(output);
+
+        try
+        {
+            Directory.SetCurrentDirectory(testDir.Value);
+
+            string templatePath = Path.Join(
+                AppContext.BaseDirectory,
+                "Templates",
+                "InspectCodeBaseline",
+                "InspectCodeBaselineNoIssuesTemplate"
+            );
+
+            testDir.CopyDirectory(templatePath);
+
+            string result = await InspectCodeBaselineInitCommand.RunAsync();
+
+            string actualOutput = output.ToString().Trim();
+
+            Assert.Equal(InspectCodeBaselineInitCommandConstant.NO_ISSUES_FOUND, result);
+            Assert.Contains(InspectCodeBaselineInitCommandConstant.INIT_STARTED, actualOutput, StringComparison.Ordinal);
+            Assert.Contains(InspectCodeBaselineInitCommandConstant.NO_ISSUES_FOUND, actualOutput, StringComparison.Ordinal);
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+            Directory.SetCurrentDirectory(originalDirectory);
+        }
+    }
 }
