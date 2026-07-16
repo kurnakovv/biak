@@ -4,6 +4,7 @@
 
 using Biak.ConsoleApp.Commands;
 using Biak.ConsoleApp.Constants;
+using Biak.ConsoleApp.Exceptions;
 using Biak.ConsoleApp.IntegrationTests.Mock;
 
 namespace Biak.ConsoleApp.IntegrationTests.Commands;
@@ -281,6 +282,28 @@ public static class Consumer
         {
             Console.SetOut(originalOut);
             Directory.SetCurrentDirectory(originalDirectory);
+        }
+    }
+
+    [Fact]
+    public async Task RunAsyncWhenUnexpectedExceptionOccursShouldWrapIntoBiakApplicationExceptionAsync()
+    {
+        TextWriter originalOut = Console.Out;
+        StringWriter disposedOutput = new();
+        await disposedOutput.DisposeAsync();
+        Console.SetOut(disposedOutput);
+
+        try
+        {
+            Exception? exception = await Record.ExceptionAsync(() => InspectCodeBaselineInitCommand.RunAsync());
+
+            Assert.NotNull(exception);
+            Assert.IsType<BiakApplicationException>(exception);
+            Assert.StartsWith(InspectCodeBaselineInitCommandConstant.INIT_FAILED, exception.Message, StringComparison.Ordinal);
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
         }
     }
 }
