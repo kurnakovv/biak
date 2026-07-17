@@ -63,7 +63,6 @@ public static class InspectCodeBaselineInitCommand
                 return InspectCodeBaselineInitCommandConstant.NO_ISSUES_FOUND;
             }
 
-            string baseDirectory = Directory.GetCurrentDirectory();
             string snapshotSeverity = baselineConfig?.SnapshotSeverity
                 ?? InspectCodeBaselineConfig.DEFAULT_SNAPSHOT_SEVERITY;
 
@@ -82,7 +81,7 @@ public static class InspectCodeBaselineInitCommand
                     continue;
                 }
 
-                string relativePath = NormalizePath(issue.FilePath, baseDirectory);
+                string relativePath = issue.FilePath.Replace(Path.DirectorySeparatorChar, '/');
 
                 if (!issuesByMappedEditorconfigKey.TryGetValue(mappedEditorconfigKey, out List<string>? files))
                 {
@@ -172,17 +171,5 @@ public static class InspectCodeBaselineInitCommand
         }
 
         return InspectCodeRuleMetadataHelper.Get(ruleId)?.EditorconfigConfigKey;
-    }
-
-    private static string NormalizePath(string filePath, string baseDirectory)
-    {
-        string path = filePath;
-
-        if (Path.IsPathRooted(path))
-        {
-            path = Path.GetRelativePath(baseDirectory, path);
-        }
-
-        return path.Replace(Path.DirectorySeparatorChar, '/');
     }
 }
