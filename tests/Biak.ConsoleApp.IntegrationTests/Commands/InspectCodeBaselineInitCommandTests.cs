@@ -307,7 +307,7 @@ public static class Consumer
     public async Task RunAsyncWhenUnexpectedExceptionOccursShouldWrapIntoBiakApplicationExceptionAsync()
     {
         TextWriter originalOut = Console.Out;
-        StringWriter disposedOutput = new();
+        await using StringWriter disposedOutput = new();
         await disposedOutput.DisposeAsync();
         Console.SetOut(disposedOutput);
 
