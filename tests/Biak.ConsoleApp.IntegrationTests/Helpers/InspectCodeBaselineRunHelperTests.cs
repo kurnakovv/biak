@@ -37,4 +37,96 @@ public class InspectCodeBaselineRunHelperTests
         Assert.IsType<BiakApplicationException>(exception);
         Assert.StartsWith(InspectCodeBaselineRunHelperConstant.INSPECTCODE_FAILED, exception.Message, StringComparison.Ordinal);
     }
+
+    [Fact]
+    public async Task RunAsyncWhenTargetNotFoundShouldThrowBiakApplicationExceptionAsync()
+    {
+        string nonExistentPath = Path.Join(Path.GetTempPath(), "nonexistent-biak-test", "Missing.csproj");
+
+        Exception? exception = await Record.ExceptionAsync(() =>
+            InspectCodeBaselineRunHelper.RunAsync(nonExistentPath));
+
+        Assert.NotNull(exception);
+        Assert.IsType<BiakApplicationException>(exception);
+        Assert.StartsWith(InspectCodeBaselineRunHelperConstant.TARGET_NOT_FOUND_PREFIX, exception.Message, StringComparison.Ordinal);
+        Assert.Contains(nonExistentPath, exception.Message, StringComparison.Ordinal);
+        Assert.EndsWith(InspectCodeBaselineRunHelperConstant.TARGET_NOT_FOUND_SUFFIX, exception.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task RunAsyncWhenNoSolutionOrProjectFoundShouldThrowBiakApplicationExceptionAsync()
+    {
+        string originalDirectory = Directory.GetCurrentDirectory();
+        TestDirectory testDir = new(
+            $"{nameof(InspectCodeBaselineRunHelperTests)}_{nameof(RunAsyncWhenNoSolutionOrProjectFoundShouldThrowBiakApplicationExceptionAsync)}"
+        );
+
+        try
+        {
+            Directory.SetCurrentDirectory(testDir.Value);
+
+            Exception? exception = await Record.ExceptionAsync(() =>
+                InspectCodeBaselineRunHelper.RunAsync());
+
+            Assert.NotNull(exception);
+            Assert.IsType<BiakApplicationException>(exception);
+            Assert.Equal(InspectCodeBaselineRunHelperConstant.NO_SOLUTION_OR_PROJECT_FOUND, exception.Message);
+        }
+        finally
+        {
+            Directory.SetCurrentDirectory(originalDirectory);
+        }
+    }
+
+    [Fact]
+    public async Task RunAsyncWhenSlnxFileExistsShouldAutoDiscoverItAsync()
+    {
+        string originalDirectory = Directory.GetCurrentDirectory();
+        TestDirectory testDir = new(
+            $"{nameof(InspectCodeBaselineRunHelperTests)}_{nameof(RunAsyncWhenSlnxFileExistsShouldAutoDiscoverItAsync)}"
+        );
+
+        try
+        {
+            Directory.SetCurrentDirectory(testDir.Value);
+            await File.WriteAllTextAsync(Path.Join(testDir.Value, "fake.slnx"), "invalid content");
+
+            Exception? exception = await Record.ExceptionAsync(() =>
+                InspectCodeBaselineRunHelper.RunAsync());
+
+            Assert.NotNull(exception);
+            Assert.IsType<BiakApplicationException>(exception);
+            Assert.StartsWith(InspectCodeBaselineRunHelperConstant.INSPECTCODE_FAILED, exception.Message, StringComparison.Ordinal);
+        }
+        finally
+        {
+            Directory.SetCurrentDirectory(originalDirectory);
+        }
+    }
+
+    [Fact]
+    public async Task RunAsyncWhenSlnFileExistsShouldAutoDiscoverItAsync()
+    {
+        string originalDirectory = Directory.GetCurrentDirectory();
+        TestDirectory testDir = new(
+            $"{nameof(InspectCodeBaselineRunHelperTests)}_{nameof(RunAsyncWhenSlnFileExistsShouldAutoDiscoverItAsync)}"
+        );
+
+        try
+        {
+            Directory.SetCurrentDirectory(testDir.Value);
+            await File.WriteAllTextAsync(Path.Join(testDir.Value, "fake.sln"), "invalid content");
+
+            Exception? exception = await Record.ExceptionAsync(() =>
+                InspectCodeBaselineRunHelper.RunAsync());
+
+            Assert.NotNull(exception);
+            Assert.IsType<BiakApplicationException>(exception);
+            Assert.StartsWith(InspectCodeBaselineRunHelperConstant.INSPECTCODE_FAILED, exception.Message, StringComparison.Ordinal);
+        }
+        finally
+        {
+            Directory.SetCurrentDirectory(originalDirectory);
+        }
+    }
 }
