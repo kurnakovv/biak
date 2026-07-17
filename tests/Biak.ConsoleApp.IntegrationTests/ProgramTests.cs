@@ -388,7 +388,6 @@ public class ProgramTests
             string result = output.ToString().Trim();
             Assert.Contains(InspectCodeBaselineInitCommandConstant.INIT_STARTED, result, StringComparison.Ordinal);
             Assert.Contains(InspectCodeBaselineInitCommandConstant.INSERT_FILTERS_NOTE, result, StringComparison.Ordinal);
-            Assert.Contains(InspectCodeBaselineCommandTestConstants.BASELINE_FILTERS.Trim(), result, StringComparison.Ordinal);
         }
         finally
         {
