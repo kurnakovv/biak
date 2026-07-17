@@ -47,7 +47,7 @@ public static class InspectCodeBaselineSarifParser
 
         JsonElement firstRun = runs[0];
 
-        if (!firstRun.TryGetProperty("results", out JsonElement results) || results.ValueKind != JsonValueKind.Array)
+        if (!firstRun.TryGetProperty("results", out JsonElement results))
         {
             return new List<InspectCodeIssue>();
         }
@@ -56,23 +56,13 @@ public static class InspectCodeBaselineSarifParser
 
         foreach (JsonElement result in results.EnumerateArray())
         {
-            if (!result.TryGetProperty("ruleId", out JsonElement ruleIdElement))
-            {
-                continue;
-            }
-
-            string? ruleId = ruleIdElement.GetString();
+            string? ruleId = result.GetProperty("ruleId").GetString();
             if (string.IsNullOrWhiteSpace(ruleId))
             {
                 continue;
             }
 
-            if (!result.TryGetProperty("locations", out JsonElement locations) || locations.ValueKind != JsonValueKind.Array)
-            {
-                continue;
-            }
-
-            foreach (string? filePath in locations.EnumerateArray().Select(TryGetFilePath))
+            foreach (string? filePath in result.GetProperty("locations").EnumerateArray().Select(GetFilePath))
             {
                 if (string.IsNullOrWhiteSpace(filePath))
                 {
@@ -86,23 +76,12 @@ public static class InspectCodeBaselineSarifParser
         return issues;
     }
 
-    private static string? TryGetFilePath(JsonElement location)
+    private static string? GetFilePath(JsonElement location)
     {
-        if (!location.TryGetProperty("physicalLocation", out JsonElement physicalLocation))
-        {
-            return null;
-        }
-
-        if (!physicalLocation.TryGetProperty("artifactLocation", out JsonElement artifactLocation))
-        {
-            return null;
-        }
-
-        if (!artifactLocation.TryGetProperty("uri", out JsonElement uri))
-        {
-            return null;
-        }
-
-        return uri.GetString();
+        return location
+            .GetProperty("physicalLocation")
+            .GetProperty("artifactLocation")
+            .GetProperty("uri")
+            .GetString();
     }
 }

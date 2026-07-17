@@ -140,60 +140,6 @@ public class InspectCodeBaselineSarifParserTests
     }
 
     [Fact]
-    public void ParseSkipsResultWithMissingRuleId()
-    {
-        // language=json
-        string sarif = """
-            {
-              "runs": [{
-                "results": [
-                  {
-                    "locations": [{
-                      "physicalLocation": { "artifactLocation": { "uri": "src/MyClass.cs" } }
-                    }]
-                  },
-                  {
-                    "ruleId": "InvertCondition.1",
-                    "locations": [{
-                      "physicalLocation": { "artifactLocation": { "uri": "src/ServiceB.cs" } }
-                    }]
-                  }
-                ]
-              }]
-            }
-            """;
-
-        IReadOnlyList<InspectCodeIssue> result = InspectCodeBaselineSarifParser.Parse(sarif);
-
-        Assert.Single(result);
-        Assert.Equal("InvertCondition.1", result[0].RuleId);
-    }
-
-    [Fact]
-    public void ParseSkipsLocationWithMissingUri()
-    {
-        // language=json
-        string sarif = """
-            {
-              "runs": [{
-                "results": [{
-                  "ruleId": "ConvertToConstant.Local",
-                  "locations": [
-                    { "physicalLocation": { "artifactLocation": {} } },
-                    { "physicalLocation": { "artifactLocation": { "uri": "src/ServiceA.cs" } } }
-                  ]
-                }]
-              }]
-            }
-            """;
-
-        IReadOnlyList<InspectCodeIssue> result = InspectCodeBaselineSarifParser.Parse(sarif);
-
-        Assert.Single(result);
-        Assert.Equal("src/ServiceA.cs", result[0].FilePath);
-    }
-
-    [Fact]
     public void ParseUsesOnlyFirstRun()
     {
         // language=json
