@@ -44,6 +44,18 @@ public class InspectCodeBaselineInitCommandTests
 
             testDir.CopyDirectory(templatePath);
 
+            Directory.CreateDirectory(Path.Join(testDir.Value, ".biak"));
+            await File.WriteAllTextAsync(
+                Path.Join(testDir.Value, ".biak", "config.json"),
+                // language=json
+                """
+                {
+                  "inspectCodeBaseline": {
+                    "additionalArgs": ["--sEverity=WARNING"]
+                  }
+                }
+                """);
+
             string firstRunResult = await InspectCodeBaselineInitCommand.RunAsync();
 
             string firstRunOutput = output.ToString().Trim();
@@ -52,7 +64,7 @@ public class InspectCodeBaselineInitCommandTests
             Assert.Equal(TEST_OUTPUT, firstRunOutput);
 
             string editorconfigPath = Path.Join(testDir.Value, ".editorconfig");
-            await File.AppendAllTextAsync(editorconfigPath, firstRunResult.Trim().Replace("= suggestion", "= none", StringComparison.Ordinal));
+            await File.AppendAllTextAsync(editorconfigPath, firstRunResult.Trim());
 
             // In rare cases, file-specific overrides are not detected reliably, clearing this source file removes the residual issue.
             // ToDo: Add to docs

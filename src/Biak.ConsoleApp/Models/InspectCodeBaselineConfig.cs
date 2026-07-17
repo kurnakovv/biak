@@ -30,7 +30,7 @@ public sealed class InspectCodeBaselineConfig
     /// Fixed severity written to baseline entries during <c>init</c> / <c>sync</c>.
     /// Defaults to <c>suggestion</c>.
     /// </summary>
-    public string SnapshotSeverity { get; } = DEFAULT_SNAPSHOT_SEVERITY;
+    public string SnapshotSeverity { get; init; } = DEFAULT_SNAPSHOT_SEVERITY;
 
     /// <summary>
     /// Custom mapping of biak RuleId to InspectCode editorconfig key.
