@@ -60,7 +60,12 @@ public class InspectCodeBaselineRunHelperTests
         Directory.CreateDirectory(emptyBinDir);
 
         string originalPath = Environment.GetEnvironmentVariable("PATH") ?? string.Empty;
+        string? originalDotnetRoot = Environment.GetEnvironmentVariable("DOTNET_ROOT");
+        string? originalDotnetHostPath = Environment.GetEnvironmentVariable("DOTNET_HOST_PATH");
+
         Environment.SetEnvironmentVariable("PATH", emptyBinDir);
+        Environment.SetEnvironmentVariable("DOTNET_ROOT", null);
+        Environment.SetEnvironmentVariable("DOTNET_HOST_PATH", null);
 
         try
         {
@@ -74,6 +79,8 @@ public class InspectCodeBaselineRunHelperTests
         finally
         {
             Environment.SetEnvironmentVariable("PATH", originalPath);
+            Environment.SetEnvironmentVariable("DOTNET_ROOT", originalDotnetRoot);
+            Environment.SetEnvironmentVariable("DOTNET_HOST_PATH", originalDotnetHostPath);
         }
     }
 }
