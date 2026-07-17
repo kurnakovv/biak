@@ -176,13 +176,7 @@ public static class InspectCodeBaselineInitCommand
 
     private static string NormalizePath(string filePath, string baseDirectory)
     {
-        // SARIF URIs may be absolute (file:///...) or relative paths — normalize both.
         string path = filePath;
-
-        if (path.StartsWith("file:///", StringComparison.OrdinalIgnoreCase))
-        {
-            path = new Uri(path).LocalPath;
-        }
 
         if (Path.IsPathRooted(path))
         {
