@@ -56,8 +56,11 @@ public class InspectCodeBaselineRunHelperTests
 
         string targetPath = Path.Join(testDir.Value, "InspectCodeBaselineTemplate.csproj");
 
+        string emptyBinDir = Path.Join(testDir.Value, "empty-bin");
+        Directory.CreateDirectory(emptyBinDir);
+
         string originalPath = Environment.GetEnvironmentVariable("PATH") ?? string.Empty;
-        Environment.SetEnvironmentVariable("PATH", Path.Join(testDir.Value, "invalid-path-bin"));
+        Environment.SetEnvironmentVariable("PATH", emptyBinDir);
 
         try
         {
