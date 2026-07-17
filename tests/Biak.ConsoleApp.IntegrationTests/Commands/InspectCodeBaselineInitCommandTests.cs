@@ -308,6 +308,7 @@ public static class Consumer
     {
         TextWriter originalOut = Console.Out;
         await using StringWriter disposedOutput = new();
+        // ReSharper disable once DisposeOnUsingVariable
         await disposedOutput.DisposeAsync();
         Console.SetOut(disposedOutput);
 
