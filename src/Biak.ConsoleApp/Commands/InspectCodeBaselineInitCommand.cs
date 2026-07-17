@@ -134,10 +134,7 @@ public static class InspectCodeBaselineInitCommand
 
                 InspectCodeRuleMetadata? metadata = InspectCodeRuleMetadataHelper.Get(ruleId);
 
-                string sectionSelector = files.Count == 1
-                    ? files[0]
-                    : "{" + string.Join(",", files) + "}";
-                sb.AppendLine($"[{sectionSelector}]");
+                sb.AppendLine("[{" + string.Join(",", files) + "}]");
 
                 if (metadata is not null)
                 {
