@@ -60,6 +60,12 @@ public static class WarningsBaselineSyncCommandConstant
         "Congratulations! All baseline warnings have been fixed. All filters have been removed from the configuration file.";
 
     /// <summary>
+    /// Message shown when legacy baseline marker is migrated to the new marker.
+    /// </summary>
+    public const string LEGACY_MARKER_MIGRATED_WARNING =
+        "Warning: legacy baseline marker '# ^biak^ baseline' was detected and migrated to '# ^biak^ warnings-baseline'.";
+
+    /// <summary>
     /// Failed to synchronize warnings baseline.
     /// </summary>
     public const string SYNC_FAILED = "Failed to synchronize warnings baseline.";
