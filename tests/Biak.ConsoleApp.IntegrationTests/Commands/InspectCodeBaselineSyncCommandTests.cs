@@ -524,4 +524,43 @@ public class InspectCodeBaselineSyncCommandTests
             Directory.SetCurrentDirectory(originalDirectory);
         }
     }
+
+    [Theory]
+    [InlineData("PathEscapesDirectory", "../../.editorconfig", InspectCodeBaselineSyncCommandConstant.INVALID_PATH_EDITORCONFIG)]
+    [InlineData("InvalidFileName", "not-editorconfig.txt", InspectCodeBaselineSyncCommandConstant.INVALID_PATH_EDITORCONFIG)]
+    [InlineData("EditorConfigNotFound", ".editorconfig-missing", InspectCodeBaselineSyncCommandConstant.FILE_NOT_FOUND)]
+    public async Task RunShouldThrowForInvalidPathScenariosAsync(
+        string testCaseName,
+        string editorconfigPath,
+        string expectedMessage)
+    {
+        string originalDirectory = Directory.GetCurrentDirectory();
+        TestDirectory testDir = new(
+            $"{nameof(InspectCodeBaselineSyncCommandTests)}_{nameof(RunShouldThrowForInvalidPathScenariosAsync)}_{testCaseName}"
+        );
+
+        try
+        {
+            Directory.SetCurrentDirectory(testDir.Value);
+
+            string[] args =
+            [
+                CommandArgumentConstant.INSPECTCODE_BASELINE,
+                CommandArgumentConstant.SYNC,
+                CommandArgumentConstant.PATH,
+                editorconfigPath,
+            ];
+
+            Exception? exception = await Record.ExceptionAsync(
+                () => InspectCodeBaselineSyncCommand.RunAsync(args));
+
+            Assert.NotNull(exception);
+            Assert.IsType<BiakApplicationException>(exception);
+            Assert.Equal(expectedMessage, exception.Message);
+        }
+        finally
+        {
+            Directory.SetCurrentDirectory(originalDirectory);
+        }
+    }
 }
