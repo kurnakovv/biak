@@ -52,6 +52,7 @@ public static class WarningsBaselineSyncCommand
         string baseDirectory = Directory.GetCurrentDirectory();
         string resolvedPath = string.Empty;
         string originalContent = string.Empty;
+        string contentBeforeSync = string.Empty;
         bool baselineWasActivated = false;
         bool completedSuccessfully = false;
 
@@ -75,10 +76,19 @@ public static class WarningsBaselineSyncCommand
             }
 
             originalContent = await File.ReadAllTextAsync(resolvedPath);
+            contentBeforeSync = originalContent;
 
-            if (!originalContent.Contains(WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER, StringComparison.Ordinal))
+            if (!WarningsBaselineSyncHelper.HasAnyBaselineMarker(originalContent))
             {
                 throw new BiakApplicationException(WarningsBaselineSyncCommandConstant.NO_BASELINE_MARKER);
+            }
+
+            bool hasLegacyMarker = originalContent.Contains(
+                WarningsBaselineInitCommandConstant.LEGACY_BASELINE_DIAGNOSTIC_MARKER,
+                StringComparison.Ordinal);
+            if (hasLegacyMarker)
+            {
+                originalContent = WarningsBaselineSyncHelper.MigrateLegacyMarker(originalContent);
             }
 
             // Activate baseline entries as warnings so the compiler emits them during the build.
@@ -150,6 +160,12 @@ public static class WarningsBaselineSyncCommand
                 }
             }
 
+            if (hasLegacyMarker)
+            {
+                Console.WriteLine(WarningsBaselineSyncCommandConstant.LEGACY_MARKER_MIGRATED_WARNING);
+                Console.WriteLine();
+            }
+
             Console.WriteLine(result);
             Console.WriteLine();
 
@@ -163,7 +179,7 @@ public static class WarningsBaselineSyncCommand
         {
             if (baselineWasActivated && !completedSuccessfully)
             {
-                await File.WriteAllTextAsync(resolvedPath, originalContent);
+                await File.WriteAllTextAsync(resolvedPath, contentBeforeSync);
             }
 
             if (File.Exists(WarningsBaselineSyncCommandConstant.BUILD_BINLOG_PATH))

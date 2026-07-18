@@ -13,8 +13,16 @@ namespace Biak.ConsoleApp.Helpers;
 /// </summary>
 public static class WarningsBaselineSyncHelper
 {
+    private static readonly string s_newMarkerRegexText =
+        Regex.Escape(WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER)
+            .Replace("\\ ", "[\\t ]*", StringComparison.OrdinalIgnoreCase);
+
+    private static readonly string s_legacyMarkerRegexText =
+        Regex.Escape(WarningsBaselineInitCommandConstant.LEGACY_BASELINE_DIAGNOSTIC_MARKER)
+            .Replace("\\ ", "[\\t ]*", StringComparison.OrdinalIgnoreCase);
+
     private static readonly string s_baselineMarkerRegexText =
-         Regex.Escape(WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER).Replace("\\ ", "[\\t ]*", StringComparison.OrdinalIgnoreCase);
+        "(?:" + s_newMarkerRegexText + "|" + s_legacyMarkerRegexText + ")";
 
     private static readonly string s_baselineDiagnosticRegexText =
         @"dotnet_diagnostic\.([A-Z][A-Z0-9]*)\.severity[^\r\n]*" + s_baselineMarkerRegexText;
@@ -54,8 +62,33 @@ public static class WarningsBaselineSyncHelper
     }
 
     /// <summary>
+    /// Returns <see langword="true"/> when content contains either new or legacy baseline marker.
+    /// </summary>
+    /// <param name="content">.editorconfig content.</param>
+    /// <returns><see langword="true"/> when baseline marker exists.</returns>
+    public static bool HasAnyBaselineMarker(string content)
+    {
+        return content.Contains(WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER, StringComparison.Ordinal)
+            || content.Contains(WarningsBaselineInitCommandConstant.LEGACY_BASELINE_DIAGNOSTIC_MARKER, StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// Migrates legacy marker to new warnings-specific marker.
+    /// </summary>
+    /// <param name="content">.editorconfig content.</param>
+    /// <returns>Updated content.</returns>
+    public static string MigrateLegacyMarker(string content)
+    {
+        return content.Replace(
+            WarningsBaselineInitCommandConstant.LEGACY_BASELINE_DIAGNOSTIC_MARKER,
+            WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER,
+            StringComparison.Ordinal
+        );
+    }
+
+    /// <summary>
     /// Switches baseline severities between <c>suggestion</c> and <c>warning</c>
-    /// for lines marked with <c># ^biak^ baseline</c>.
+    /// for lines marked with baseline marker.
     /// </summary>
     /// <param name="content">.editorconfig content.</param>
     /// <param name="activate">
@@ -65,17 +98,8 @@ public static class WarningsBaselineSyncHelper
     /// <returns>Updated content with baseline severities switched for the sync flow.</returns>
     public static string SetBaselineForBuild(string content, bool activate)
     {
-        return activate
-            ? content.Replace(
-                $"= suggestion {WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}",
-                $"= warning {WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}",
-                StringComparison.Ordinal
-            )
-            : content.Replace(
-                $"= warning {WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}",
-                $"= suggestion {WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}",
-                StringComparison.Ordinal
-            );
+        string activated = ReplaceBaselineSeverity(content, activate: activate, WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER);
+        return ReplaceBaselineSeverity(activated, activate: activate, WarningsBaselineInitCommandConstant.LEGACY_BASELINE_DIAGNOSTIC_MARKER);
     }
 
     /// <summary>
@@ -143,5 +167,20 @@ public static class WarningsBaselineSyncHelper
         return match.Success
             ? match.Groups[1].Value
             : null;
+    }
+
+    private static string ReplaceBaselineSeverity(string content, bool activate, string marker)
+    {
+        return activate
+            ? content.Replace(
+                $"= suggestion {marker}",
+                $"= warning {marker}",
+                StringComparison.Ordinal
+            )
+            : content.Replace(
+                $"= warning {marker}",
+                $"= suggestion {marker}",
+                StringComparison.Ordinal
+            );
     }
 }
