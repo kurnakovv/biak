@@ -133,13 +133,12 @@ public static class InspectCodeBaselineInitCommand
 
                 InspectCodeRuleMetadata? metadata = InspectCodeRuleMetadataHelper.Get(ruleId);
 
-                sb.AppendLine("[{" + string.Join(",", files) + "}]");
-
                 if (metadata is not null)
                 {
                     sb.AppendLine($"# {metadata.Title} [{ruleId}] | {metadata.Reference}");
                 }
 
+                sb.AppendLine("[{" + string.Join(",", files) + "}]");
                 sb.AppendLine($"{key} = {snapshotSeverity} {InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}");
                 sb.AppendLine();
             }
