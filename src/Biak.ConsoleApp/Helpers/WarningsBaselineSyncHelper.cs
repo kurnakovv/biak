@@ -4,6 +4,7 @@
 
 using System.Text.RegularExpressions;
 using Biak.ConsoleApp.Constants;
+using Biak.ConsoleApp.Helpers.Baseline;
 
 namespace Biak.ConsoleApp.Helpers;
 
@@ -18,21 +19,11 @@ public static class WarningsBaselineSyncHelper
     private static readonly string s_baselineDiagnosticRegexText =
         @"dotnet_diagnostic\.([A-Z][A-Z0-9]*)\.severity[^\r\n]*" + s_baselineMarkerRegexText;
 
-    private static readonly char[] s_pathSeparators = new[] { '/', '\\' };
-
-    // Matches a [{ ... }] section header that marks a baseline block and captures the file list.
-    private static readonly Regex s_baselineSectionHeaderRegex = new(
-        @"^\[\{(?<files>[^\}]+)\}\]\s*$",
-        RegexOptions.Compiled
-    );
-
-    // Matches a dotnet_diagnostic baseline line and captures the diagnostic code.
     private static readonly Regex s_baselineDiagnosticRegex = new(
         @"^\s*" + s_baselineDiagnosticRegexText,
         RegexOptions.Compiled | RegexOptions.IgnoreCase
     );
 
-    // Matches all diagnostic codes referenced in baseline entries anywhere in the content.
     private static readonly Regex s_allBaselineCodesRegex = new(
         s_baselineDiagnosticRegexText,
         RegexOptions.Compiled | RegexOptions.IgnoreCase
@@ -47,22 +38,7 @@ public static class WarningsBaselineSyncHelper
     /// <returns><see langword="true"/> when the path is safe; otherwise <see langword="false"/>.</returns>
     public static bool IsPathSafe(string filePath, string baseDirectory)
     {
-        if (!PathSafetyHelper.TryResolvePathWithinBaseDirectory(filePath, baseDirectory, out string fullFile, out string relativePath))
-        {
-            return false;
-        }
-
-        string fileName = Path.GetFileName(fullFile);
-        if (!fileName.StartsWith(".editorconfig", StringComparison.OrdinalIgnoreCase))
-        {
-            return false;
-        }
-
-        string[] segments = relativePath.Split(s_pathSeparators, StringSplitOptions.RemoveEmptyEntries);
-
-        return !segments
-            .Take(Math.Max(segments.Length - 1, 0))
-            .Contains(".editorconfig", StringComparer.OrdinalIgnoreCase);
+        return BaselinePathHelper.IsEditorconfigPathSafe(filePath, baseDirectory);
     }
 
     /// <summary>
@@ -128,51 +104,12 @@ public static class WarningsBaselineSyncHelper
         IReadOnlyDictionary<string, IReadOnlySet<string>>? activeFilesByCode = null
     )
     {
-        string newline = content.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
-        string[] lines = content.Split(new[] { newline }, StringSplitOptions.None);
-        Dictionary<int, BaselineBlock> blocksByHeaderIndex = EnumerateBaselineBlocks(lines)
-            .ToDictionary(x => x.HeaderIndex);
-
-        List<string> result = new(lines.Length);
-        int i = 0;
-
-        while (i < lines.Length)
-        {
-            string line = lines[i];
-
-            if (blocksByHeaderIndex.TryGetValue(i, out BaselineBlock block))
-            {
-                if (!codesToKeep.Contains(block.Code))
-                {
-                    i = block.BlockEndIndex;
-                    continue;
-                }
-
-                if (activeFilesByCode is not null)
-                {
-                    IReadOnlySet<string> activeFilesForCode = GetActiveFilesForCode(activeFilesByCode, block.Code);
-                    string[] filesToKeep = block.SectionFiles
-                        .Where(x => activeFilesForCode.Contains(NormalizeEditorConfigPath(x)))
-                        .ToArray();
-
-                    if (filesToKeep.Length == 0)
-                    {
-                        i = block.BlockEndIndex;
-                        continue;
-                    }
-
-                    if (filesToKeep.Length != block.SectionFiles.Length)
-                    {
-                        line = "[{" + string.Join(",", filesToKeep) + "}]";
-                    }
-                }
-            }
-
-            result.Add(line);
-            i++;
-        }
-
-        return string.Join(newline, result);
+        return BaselineSyncEditorconfigHelper.RemoveBaselineFilters(
+            content,
+            codesToKeep,
+            TryGetBaselineCode,
+            activeFilesByCode
+        );
     }
 
     /// <summary>
@@ -192,120 +129,19 @@ public static class WarningsBaselineSyncHelper
         IReadOnlySet<string> codesToKeep,
         IReadOnlyDictionary<string, IReadOnlySet<string>>? activeFilesByCode = null)
     {
-        string newline = content.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
-        string[] lines = content.Split(new[] { newline }, StringSplitOptions.None);
-        Dictionary<string, HashSet<string>> synchronizedFiles = new(StringComparer.OrdinalIgnoreCase);
-
-        foreach (BaselineBlock block in EnumerateBaselineBlocks(lines))
-        {
-            if (!codesToKeep.Contains(block.Code))
-            {
-                foreach (string sectionFile in block.SectionFiles)
-                {
-                    AddSynchronizedFile(synchronizedFiles, sectionFile, block.Code);
-                }
-            }
-            else if (activeFilesByCode is not null)
-            {
-                IReadOnlySet<string> activeFilesForCode = GetActiveFilesForCode(activeFilesByCode, block.Code);
-
-                foreach (string sectionFile in block.SectionFiles.Where(
-                    sectionFile => !activeFilesForCode.Contains(NormalizeEditorConfigPath(sectionFile))
-                ))
-                {
-                    AddSynchronizedFile(synchronizedFiles, sectionFile, block.Code);
-                }
-            }
-        }
-
-        return synchronizedFiles.ToDictionary(
-            x => x.Key,
-            x => (IReadOnlySet<string>)x.Value,
-            StringComparer.OrdinalIgnoreCase
+        return BaselineSyncEditorconfigHelper.GetSynchronizedFiles(
+            content,
+            codesToKeep,
+            TryGetBaselineCode,
+            activeFilesByCode
         );
     }
 
-    private static IEnumerable<BaselineBlock> EnumerateBaselineBlocks(string[] lines)
+    private static string? TryGetBaselineCode(string line)
     {
-        for (int i = 0; i < lines.Length; i++)
-        {
-            Match headerMatch = s_baselineSectionHeaderRegex.Match(lines[i]);
-            if (!headerMatch.Success)
-            {
-                continue;
-            }
-
-            int diagIndex = i + 1;
-            while (diagIndex < lines.Length && string.IsNullOrWhiteSpace(lines[diagIndex]))
-            {
-                diagIndex++;
-            }
-
-            if (diagIndex >= lines.Length)
-            {
-                continue;
-            }
-
-            Match diagMatch = s_baselineDiagnosticRegex.Match(lines[diagIndex]);
-            if (!diagMatch.Success)
-            {
-                continue;
-            }
-
-            int blockEnd = diagIndex + 1;
-            while (blockEnd < lines.Length && string.IsNullOrWhiteSpace(lines[blockEnd]))
-            {
-                blockEnd++;
-            }
-
-            // Only match baseline blocks generated by `warnings-baseline init` (single diagnostic + blank line).
-            // If there's additional content in the same section, skip it to avoid partially deleting user-maintained sections.
-            if (blockEnd < lines.Length && !lines[blockEnd].TrimStart().StartsWith('['))
-            {
-                continue;
-            }
-
-            string[] sectionFiles = headerMatch.Groups["files"].Value
-                .Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-
-            yield return new BaselineBlock(
-                HeaderIndex: i,
-                BlockEndIndex: blockEnd,
-                Code: diagMatch.Groups[1].Value,
-                SectionFiles: sectionFiles
-            );
-        }
+        Match match = s_baselineDiagnosticRegex.Match(line);
+        return match.Success
+            ? match.Groups[1].Value
+            : null;
     }
-
-    private static IReadOnlySet<string> GetActiveFilesForCode(
-        IReadOnlyDictionary<string, IReadOnlySet<string>> activeFilesByCode,
-        string code)
-    {
-        return activeFilesByCode.TryGetValue(code, out IReadOnlySet<string>? files)
-            ? files
-            : new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-    }
-
-    private static void AddSynchronizedFile(Dictionary<string, HashSet<string>> synchronizedFiles, string filePath, string code)
-    {
-        if (!synchronizedFiles.TryGetValue(filePath, out HashSet<string>? codes))
-        {
-            codes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            synchronizedFiles[filePath] = codes;
-        }
-
-        codes.Add(code);
-    }
-
-    private static string NormalizeEditorConfigPath(string path)
-    {
-        return path.Replace('\\', '/');
-    }
-
-    private readonly record struct BaselineBlock(
-        int HeaderIndex,
-        int BlockEndIndex,
-        string Code,
-        string[] SectionFiles
-    );
 }

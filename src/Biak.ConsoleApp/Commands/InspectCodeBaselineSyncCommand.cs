@@ -4,6 +4,10 @@
 
 using Biak.ConsoleApp.Constants;
 using Biak.ConsoleApp.Exceptions;
+using Biak.ConsoleApp.Helpers;
+using Biak.ConsoleApp.Helpers.Baseline;
+using Biak.ConsoleApp.Helpers.Baseline.InspectCode;
+using Biak.ConsoleApp.Models;
 
 namespace Biak.ConsoleApp.Commands;
 
@@ -24,8 +28,20 @@ public static class InspectCodeBaselineSyncCommand
             return false;
         }
 
-        return args[0] == CommandArgumentConstant.INSPECTCODE_BASELINE
+        bool isCommand = args[0] == CommandArgumentConstant.INSPECTCODE_BASELINE
             && args[1] == CommandArgumentConstant.SYNC;
+
+        if (!isCommand)
+        {
+            return false;
+        }
+
+        if (args.Length == 2)
+        {
+            return true;
+        }
+
+        return TryParseOptions(args, out _);
     }
 
     /// <summary>
@@ -33,19 +49,237 @@ public static class InspectCodeBaselineSyncCommand
     /// </summary>
     /// <param name="args">User input arguments.</param>
     /// <returns><placeholder>A <see cref="Task"/> representing the asynchronous operation.</placeholder></returns>
-    public static Task<string> RunAsync(string[]? args = null)
+    public static async Task<string> RunAsync(string[]? args = null)
     {
+        string sarifPath = string.Empty;
+
         try
         {
             Console.WriteLine(InspectCodeBaselineSyncCommandConstant.SYNC_STARTED);
+            Console.WriteLine();
 
-            _ = args;
+            string[] effectiveArgs = args
+                ?? new[]
+                {
+                    CommandArgumentConstant.INSPECTCODE_BASELINE,
+                    CommandArgumentConstant.SYNC,
+                };
 
-            throw new NotImplementedException();
+            (_, BiakConfig config) = await BiakConfigHelper.GetAsync();
+            InspectCodeBaselineConfig? baselineConfig = config.InspectCodeBaseline;
+
+            string baselinePath = ResolveBaselinePath(effectiveArgs, baselineConfig, Directory.GetCurrentDirectory());
+            string baseDirectory = Directory.GetCurrentDirectory();
+            string resolvedPath = Path.GetFullPath(baselinePath, baseDirectory);
+
+            if (!BaselinePathHelper.IsEditorconfigPathSafe(baselinePath, baseDirectory))
+            {
+                throw new BiakApplicationException(InspectCodeBaselineSyncCommandConstant.INVALID_PATH_EDITORCONFIG);
+            }
+
+            if (!File.Exists(resolvedPath))
+            {
+                throw new BiakApplicationException(InspectCodeBaselineSyncCommandConstant.FILE_NOT_FOUND);
+            }
+
+            string originalContent = await File.ReadAllTextAsync(resolvedPath);
+
+            if (!originalContent.Contains(InspectCodeBaselineInitCommandConstant.BASELINE_MARKER, StringComparison.Ordinal))
+            {
+                throw new BiakApplicationException(InspectCodeBaselineSyncCommandConstant.NO_BASELINE_MARKER);
+            }
+
+            sarifPath = await InspectCodeBaselineRunHelper.RunAsync(
+                baselineConfig?.Target,
+                baselineConfig?.AdditionalArgs);
+
+            string sarifJson = await File.ReadAllTextAsync(sarifPath);
+            IReadOnlyList<InspectCodeIssue> issues = InspectCodeBaselineSarifParser.Parse(sarifJson);
+
+            IReadOnlyDictionary<string, string>? ruleIdOverrides = baselineConfig?.RuleIdOverrides;
+
+            Dictionary<string, HashSet<string>> activeFilesByRuleKeyMutable =
+                new(StringComparer.OrdinalIgnoreCase);
+
+            foreach (InspectCodeIssue issue in issues)
+            {
+                string? mappedEditorconfigKey = FindMappedEditorconfigKey(issue.RuleId, ruleIdOverrides);
+                if (mappedEditorconfigKey is null)
+                {
+                    continue;
+                }
+
+                if (!activeFilesByRuleKeyMutable.TryGetValue(mappedEditorconfigKey, out HashSet<string>? files))
+                {
+                    files = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                    activeFilesByRuleKeyMutable[mappedEditorconfigKey] = files;
+                }
+
+                files.Add(issue.FilePath.Replace(Path.DirectorySeparatorChar, '/'));
+            }
+
+            IReadOnlyDictionary<string, IReadOnlySet<string>> activeFilesByRuleKey = activeFilesByRuleKeyMutable
+                .ToDictionary(
+                    x => x.Key,
+                    x => (IReadOnlySet<string>)x.Value,
+                    StringComparer.OrdinalIgnoreCase);
+
+            HashSet<string> baselineRuleKeys = InspectCodeBaselineSyncHelper.GetBaselineRuleKeys(originalContent);
+            HashSet<string> activeRuleKeys = activeFilesByRuleKey.Keys.ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            HashSet<string> keysToKeep = baselineRuleKeys
+                .Where(activeRuleKeys.Contains)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            IReadOnlyDictionary<string, IReadOnlySet<string>> synchronizedFiles = InspectCodeBaselineSyncHelper.GetSynchronizedFiles(
+                originalContent,
+                keysToKeep,
+                activeFilesByRuleKey);
+
+            string syncedContent = InspectCodeBaselineSyncHelper.RemoveBaselineFilters(
+                originalContent,
+                keysToKeep,
+                activeFilesByRuleKey);
+
+            string snapshotSeverity = baselineConfig?.SnapshotSeverity
+                ?? InspectCodeBaselineConfig.DEFAULT_SNAPSHOT_SEVERITY;
+
+            syncedContent = InspectCodeBaselineSyncHelper.NormalizeBaselineSeverity(syncedContent, snapshotSeverity);
+            await File.WriteAllTextAsync(resolvedPath, syncedContent);
+
+            HashSet<string> remainingBaselineRuleKeys = InspectCodeBaselineSyncHelper.GetBaselineRuleKeys(syncedContent);
+
+            string result;
+            if (remainingBaselineRuleKeys.Count == 0)
+            {
+                result = InspectCodeBaselineSyncCommandConstant.ALL_ISSUES_FIXED;
+            }
+            else
+            {
+                int removedCount = baselineRuleKeys.Count - remainingBaselineRuleKeys.Count;
+                result = $"Sync complete. Removed {synchronizedFiles.Count} file(s); resolved {removedCount} filter(s). {remainingBaselineRuleKeys.Count} filter(s) still alive.";
+
+                foreach (KeyValuePair<string, IReadOnlySet<string>> synchronizedFile in synchronizedFiles.OrderBy(x => x.Key, StringComparer.OrdinalIgnoreCase))
+                {
+                    string keys = string.Join(", ", synchronizedFile.Value.OrderBy(x => x, StringComparer.OrdinalIgnoreCase));
+                    Console.WriteLine($"{synchronizedFile.Key} ({keys})");
+                }
+
+                if (synchronizedFiles.Count > 0)
+                {
+                    Console.WriteLine();
+                }
+            }
+
+            Console.WriteLine(result);
+            Console.WriteLine();
+
+            return result;
         }
-        catch (Exception ex) when (ex is not BiakApplicationException and not NotImplementedException)
+        catch (Exception ex) when (ex is not BiakApplicationException)
         {
             throw new BiakApplicationException($"{InspectCodeBaselineSyncCommandConstant.SYNC_FAILED} {ex.Message}");
         }
+        finally
+        {
+            if (!string.IsNullOrWhiteSpace(sarifPath) && File.Exists(sarifPath))
+            {
+                File.Delete(sarifPath);
+            }
+        }
+    }
+
+    private static string ResolveBaselinePath(string[] args, InspectCodeBaselineConfig? baselineConfig, string baseDirectory)
+    {
+        if (TryParseOptions(args, out Dictionary<string, string> options)
+            && options.TryGetValue(CommandArgumentConstant.PATH, out string? pathFromCli))
+        {
+            return pathFromCli;
+        }
+
+        if (!string.IsNullOrWhiteSpace(baselineConfig?.Path))
+        {
+            return baselineConfig.Path;
+        }
+
+        string biakDirectory = Path.GetFullPath(InspectCodeBaselineSyncCommandConstant.DEFAULT_EDITORCONFIG_SEARCH_DIRECTORY, baseDirectory);
+
+        if (Directory.Exists(biakDirectory))
+        {
+            string[] discovered = Directory.GetFiles(biakDirectory, ".editorconfig*")
+                .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
+                .ToArray();
+
+            foreach (string candidate in discovered)
+            {
+                string content = File.ReadAllText(candidate);
+                if (content.Contains(InspectCodeBaselineInitCommandConstant.BASELINE_MARKER, StringComparison.Ordinal))
+                {
+                    return Path.GetRelativePath(baseDirectory, candidate);
+                }
+            }
+        }
+
+        string rootEditorconfigPath = Path.GetFullPath(InspectCodeBaselineSyncCommandConstant.DEFAULT_EDITORCONFIG_PATH, baseDirectory);
+        if (File.Exists(rootEditorconfigPath))
+        {
+            string content = File.ReadAllText(rootEditorconfigPath);
+            if (content.Contains(InspectCodeBaselineInitCommandConstant.BASELINE_MARKER, StringComparison.Ordinal))
+            {
+                return InspectCodeBaselineSyncCommandConstant.DEFAULT_EDITORCONFIG_PATH;
+            }
+        }
+
+        throw new BiakApplicationException(InspectCodeBaselineSyncCommandConstant.NO_BASELINE_MARKER);
+    }
+
+    private static string? FindMappedEditorconfigKey(
+        string ruleId,
+        IReadOnlyDictionary<string, string>? overrides)
+    {
+        if (overrides is not null && overrides.TryGetValue(ruleId, out string? overrideKey))
+        {
+            return overrideKey;
+        }
+
+        return InspectCodeRuleMetadataHelper.Get(ruleId)?.EditorconfigConfigKey;
+    }
+
+    private static bool TryParseOptions(string[] args, out Dictionary<string, string> options)
+    {
+        options = new Dictionary<string, string>(StringComparer.Ordinal);
+
+        if (args.Length == 2)
+        {
+            return true;
+        }
+
+        if ((args.Length - 2) % 2 != 0)
+        {
+            return false;
+        }
+
+        for (int i = 2; i < args.Length; i += 2)
+        {
+            string option = args[i];
+            string value = args[i + 1];
+
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return false;
+            }
+
+            if (option != CommandArgumentConstant.PATH)
+            {
+                return false;
+            }
+
+            if (!options.TryAdd(option, value))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
