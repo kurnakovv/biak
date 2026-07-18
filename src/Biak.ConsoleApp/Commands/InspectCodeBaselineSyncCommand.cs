@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for full license information.
 
 using Biak.ConsoleApp.Constants;
+using Biak.ConsoleApp.Enums;
 using Biak.ConsoleApp.Exceptions;
 using Biak.ConsoleApp.Helpers;
 using Biak.ConsoleApp.Helpers.Baseline;
@@ -68,8 +69,19 @@ public static class InspectCodeBaselineSyncCommand
             (_, BiakConfig config) = await BiakConfigHelper.GetAsync();
             InspectCodeBaselineConfig? baselineConfig = config.InspectCodeBaseline;
 
-            string baselinePath = ResolveBaselinePath(effectiveArgs, baselineConfig, Directory.GetCurrentDirectory());
             string baseDirectory = Directory.GetCurrentDirectory();
+            bool hasBiakDirectory = Directory.Exists(Path.Join(baseDirectory, ".biak"));
+
+            if (hasBiakDirectory)
+            {
+                BiakStatusResult biakStatus = await BiakStatusHelper.GetAsync();
+                if (biakStatus.StatusType is not BiakStatusType.Enabled or BiakStatusType.Disabled)
+                {
+                    throw new BiakApplicationException(InspectCodeBaselineSyncCommandConstant.BIAK_STATUS_IS_NOT_SYNCHRONIZED);
+                }
+            }
+
+            string baselinePath = ResolveBaselinePath(effectiveArgs, baselineConfig, baseDirectory);
             string resolvedPath = Path.GetFullPath(baselinePath, baseDirectory);
 
             if (!BaselinePathHelper.IsEditorconfigPathSafe(baselinePath, baseDirectory))
