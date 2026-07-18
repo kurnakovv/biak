@@ -75,7 +75,7 @@ public static class InspectCodeBaselineSyncCommand
             if (hasBiakDirectory)
             {
                 BiakStatusResult biakStatus = await BiakStatusHelper.GetAsync();
-                if (biakStatus.StatusType is not BiakStatusType.Enabled or BiakStatusType.Disabled)
+                if (biakStatus.StatusType is not (BiakStatusType.Enabled or BiakStatusType.Disabled))
                 {
                     throw new BiakApplicationException(InspectCodeBaselineSyncCommandConstant.BIAK_STATUS_IS_NOT_SYNCHRONIZED);
                 }
