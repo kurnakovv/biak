@@ -109,8 +109,11 @@ public class InspectCodeBaselineSyncCommandTests
             Assert.Contains("[{ServiceC.cs}]", syncedBaselineContent, StringComparison.Ordinal);
             Assert.DoesNotContain("ServiceA.cs,ServiceC.cs", syncedBaselineContent, StringComparison.Ordinal);
             Assert.DoesNotContain("[{ServiceA.cs}]", syncedBaselineContent, StringComparison.Ordinal);
-            Assert.Contains("resharper_field_can_be_made_read_only_local_highlighting", syncedBaselineContent, StringComparison.OrdinalIgnoreCase);
-            Assert.DoesNotContain($"suggestion{InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}", syncedBaselineContent, StringComparison.Ordinal);
+            Assert.Contains(
+                $"resharper_field_can_be_made_read_only_local_highlighting = suggestion {InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}",
+                syncedBaselineContent,
+                StringComparison.OrdinalIgnoreCase
+            );
         }
         finally
         {
@@ -292,13 +295,7 @@ public class InspectCodeBaselineSyncCommandTests
             CopyInspectCodeTemplate(testDir.Value);
             await EnsureBiakStatusConfiguredAsync(testDir.Value);
 
-            const string BIAK_BASELINE = $$"""
-                # Field can be made readonly (private accessibility) [FieldCanBeMadeReadOnly.Local] | https://www.jetbrains.com/help/resharper/FieldCanBeMadeReadOnly.Local.html
-                [{ServiceC.cs}]
-                resharper_field_can_be_made_read_only_local_highlighting = warning {{InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}}
-                """;
-
-            const string ROOT_BASELINE = $$"""
+            const string BASELINE = $$"""
                 # Field can be made readonly (private accessibility) [FieldCanBeMadeReadOnly.Local] | https://www.jetbrains.com/help/resharper/FieldCanBeMadeReadOnly.Local.html
                 [{ServiceC.cs}]
                 resharper_field_can_be_made_read_only_local_highlighting = warning {{InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}}
@@ -308,8 +305,8 @@ public class InspectCodeBaselineSyncCommandTests
             string rootBaselinePath = Path.Join(testDir.Value, ".editorconfig");
             string editorconfigMainPath = Path.Join(testDir.Value, ".biak", ".editorconfig-main");
 
-            await File.WriteAllTextAsync(biakBaselinePath, BIAK_BASELINE);
-            await File.WriteAllTextAsync(editorconfigMainPath, ROOT_BASELINE);
+            await File.WriteAllTextAsync(biakBaselinePath, BASELINE);
+            await File.WriteAllTextAsync(editorconfigMainPath, BASELINE);
             await EnableCommand.RunAsync();
 
             string[] args =
