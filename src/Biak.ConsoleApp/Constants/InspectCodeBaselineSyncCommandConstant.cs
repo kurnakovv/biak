@@ -48,6 +48,12 @@ public static class InspectCodeBaselineSyncCommandConstant
         "Congratulations! All inspectcode baseline filters have been resolved. All baseline entries have been removed from the configuration file.";
 
     /// <summary>
+    /// Sync requires biak status to be synchronized (enabled or disabled).
+    /// </summary>
+    public const string BIAK_STATUS_IS_NOT_SYNCHRONIZED =
+        "Cannot run inspectcode-baseline sync because biak status is not synchronized. Run 'dotnet biak enable' or 'dotnet biak disable', verify with 'dotnet biak status', and retry.";
+
+    /// <summary>
     /// Failed to sync InspectCode baseline.
     /// </summary>
     public const string SYNC_FAILED = "Failed to sync InspectCode baseline.";

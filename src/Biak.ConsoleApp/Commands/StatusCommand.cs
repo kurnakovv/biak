@@ -41,66 +41,7 @@ public static class StatusCommand
             && args[0] == CommandArgumentConstant.STATUS
             && args[1] == CommandArgumentConstant.DEBUG_INFO;
 
-        EditorconfigPaths editorconfigPaths = SetupHelper.GetEditorconfigPaths(suppressConsoleOutput: true);
-
-        if (editorconfigPaths.MainValue == null)
-        {
-            Console.WriteLine(
-                isDebugInfoEnabled
-                    ? UIConstant.STATUS_BROKEN_WITH_CONFIG_MESSAGE + UIConstant.BIAK_NOT_INITIALIZED + " " + UIConstant.RUN_BIAK_SETUP
-                    : UIConstant.STATUS_BROKEN
-            );
-            return;
-        }
-
-        if (editorconfigPaths.Value == null)
-        {
-            Console.WriteLine(
-                isDebugInfoEnabled
-                    ? UIConstant.STATUS_BROKEN_WITH_CONFIG_MESSAGE + UIConstant.EDITORCONFIG_NOT_FOUND + Path.Join(Directory.GetCurrentDirectory(), ".editorconfig")
-                    : UIConstant.STATUS_BROKEN
-            );
-            return;
-        }
-
-        (string? message, BiakConfig config) = await BiakConfigHelper.GetAsync();
-        if (message != null)
-        {
-            Console.WriteLine(
-                isDebugInfoEnabled
-                    ? UIConstant.STATUS_BROKEN_WITH_CONFIG_MESSAGE + message
-                    : UIConstant.STATUS_BROKEN
-            );
-            return;
-        }
-
-        string editorconfigMainContent = await File.ReadAllTextAsync(editorconfigPaths.MainValue);
-        string currentContent = NormalizeLineEndings(await File.ReadAllTextAsync(editorconfigPaths.Value));
-        string disabledContent = NormalizeLineEndings(
-            await EditorconfigHelper.GetDisabledContentAsync(editorconfigMainContent, config)
-        );
-
-        if (string.Equals(currentContent, disabledContent, StringComparison.Ordinal))
-        {
-            Console.WriteLine(UIConstant.STATUS_DISABLED);
-            return;
-        }
-
-        string enabledContent = NormalizeLineEndings(
-            await EditorconfigHelper.GetEnabledContentAsync(editorconfigMainContent, config)
-        );
-
-        Console.WriteLine(
-            string.Equals(currentContent, enabledContent, StringComparison.Ordinal)
-                ? UIConstant.STATUS_ENABLED
-                : UIConstant.STATUS_UNSYNCHRONISED
-        );
-    }
-
-    private static string NormalizeLineEndings(string content)
-    {
-        return content
-            .Replace("\r\n", "\n", StringComparison.Ordinal)
-            .Replace("\r", "\n", StringComparison.Ordinal);
+        BiakStatusResult result = await BiakStatusHelper.GetAsync(isDebugInfoEnabled);
+        Console.WriteLine(result.Message);
     }
 }
