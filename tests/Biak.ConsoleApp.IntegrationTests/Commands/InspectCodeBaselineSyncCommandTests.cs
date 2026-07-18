@@ -327,17 +327,197 @@ public class InspectCodeBaselineSyncCommandTests
                 "root = true"
             );
 
-            string result = await InspectCodeBaselineSyncCommand.RunAsync(
+            string[] args =
             [
                 CommandArgumentConstant.INSPECTCODE_BASELINE,
                 CommandArgumentConstant.SYNC,
-            ]);
+            ];
+
+            string result = await InspectCodeBaselineSyncCommand.RunAsync(args);
 
             Assert.DoesNotContain(
                 InspectCodeBaselineSyncCommandConstant.NO_BASELINE_MARKER,
                 result,
                 StringComparison.Ordinal
             );
+        }
+        finally
+        {
+            Directory.SetCurrentDirectory(originalDirectory);
+        }
+    }
+
+    [Fact]
+    public async Task RunShouldPreferBiakDiscoveryFileWhenMarkerExistsInBothBiakAndRootAsync()
+    {
+        string originalDirectory = Directory.GetCurrentDirectory();
+        TestDirectory testDir = new(
+            $"{nameof(InspectCodeBaselineSyncCommandTests)}_{nameof(RunShouldPreferBiakDiscoveryFileWhenMarkerExistsInBothBiakAndRootAsync)}"
+        );
+
+        try
+        {
+            Directory.SetCurrentDirectory(testDir.Value);
+
+            string templatePath = Path.Join(
+                AppContext.BaseDirectory,
+                "Templates",
+                "InspectCodeBaseline",
+                "InspectCodeBaselineTemplate"
+            );
+
+            testDir.CopyDirectory(templatePath);
+            Directory.CreateDirectory(Path.Join(testDir.Value, ".biak"));
+
+            const string BIAK_BASELINE = $$"""
+                # Field can be made readonly (private accessibility) [FieldCanBeMadeReadOnly.Local] | https://www.jetbrains.com/help/resharper/FieldCanBeMadeReadOnly.Local.html
+                [{ServiceC.cs}]
+                resharper_field_can_be_made_read_only_local_highlighting = warning {{InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}}
+                """;
+
+            const string ROOT_BASELINE = $$"""
+                # Field can be made readonly (private accessibility) [FieldCanBeMadeReadOnly.Local] | https://www.jetbrains.com/help/resharper/FieldCanBeMadeReadOnly.Local.html
+                [{ServiceC.cs}]
+                resharper_field_can_be_made_read_only_local_highlighting = warning {{InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}}
+                """;
+
+            string biakBaselinePath = Path.Join(testDir.Value, ".biak", ".editorconfig-discovery");
+            string rootBaselinePath = Path.Join(testDir.Value, ".editorconfig");
+
+            await File.WriteAllTextAsync(biakBaselinePath, BIAK_BASELINE);
+            await File.WriteAllTextAsync(rootBaselinePath, ROOT_BASELINE);
+
+            string[] args =
+            [
+                CommandArgumentConstant.INSPECTCODE_BASELINE,
+                CommandArgumentConstant.SYNC,
+            ];
+
+            await InspectCodeBaselineSyncCommand.RunAsync(args);
+
+            string biakContent = await File.ReadAllTextAsync(biakBaselinePath);
+            string rootContent = await File.ReadAllTextAsync(rootBaselinePath);
+
+            Assert.DoesNotContain(
+                $"= warning {InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}",
+                biakContent,
+                StringComparison.Ordinal
+            );
+            Assert.Contains(
+                $"= warning {InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}",
+                rootContent,
+                StringComparison.Ordinal
+            );
+        }
+        finally
+        {
+            Directory.SetCurrentDirectory(originalDirectory);
+        }
+    }
+
+    [Fact]
+    public async Task RunShouldFallbackToRootEditorconfigWhenNoBiakDiscoveryFileHasMarkerAsync()
+    {
+        string originalDirectory = Directory.GetCurrentDirectory();
+        TestDirectory testDir = new(
+            $"{nameof(InspectCodeBaselineSyncCommandTests)}_{nameof(RunShouldFallbackToRootEditorconfigWhenNoBiakDiscoveryFileHasMarkerAsync)}"
+        );
+
+        try
+        {
+            Directory.SetCurrentDirectory(testDir.Value);
+
+            string templatePath = Path.Join(
+                AppContext.BaseDirectory,
+                "Templates",
+                "InspectCodeBaseline",
+                "InspectCodeBaselineTemplate"
+            );
+
+            testDir.CopyDirectory(templatePath);
+            Directory.CreateDirectory(Path.Join(testDir.Value, ".biak"));
+
+            await File.WriteAllTextAsync(
+                Path.Join(testDir.Value, ".biak", ".editorconfig-empty"),
+                "root = true"
+            );
+
+            string rootBaselinePath = Path.Join(testDir.Value, ".editorconfig");
+            await File.WriteAllTextAsync(
+                rootBaselinePath,
+                $$"""
+                # Field can be made readonly (private accessibility) [FieldCanBeMadeReadOnly.Local] | https://www.jetbrains.com/help/resharper/FieldCanBeMadeReadOnly.Local.html
+                [{ServiceC.cs}]
+                resharper_field_can_be_made_read_only_local_highlighting = warning {{InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}}
+                """
+            );
+
+            string[] args =
+            [
+                CommandArgumentConstant.INSPECTCODE_BASELINE,
+                CommandArgumentConstant.SYNC,
+            ];
+
+            await InspectCodeBaselineSyncCommand.RunAsync(args);
+
+            string rootContent = await File.ReadAllTextAsync(rootBaselinePath);
+
+            Assert.DoesNotContain(
+                $"= warning {InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}",
+                rootContent,
+                StringComparison.Ordinal
+            );
+        }
+        finally
+        {
+            Directory.SetCurrentDirectory(originalDirectory);
+        }
+    }
+
+    [Fact]
+    public async Task RunShouldAskToRunInitWhenNoBaselineMarkerExistsInBiakAndRootAsync()
+    {
+        string originalDirectory = Directory.GetCurrentDirectory();
+        TestDirectory testDir = new(
+            $"{nameof(InspectCodeBaselineSyncCommandTests)}_{nameof(RunShouldAskToRunInitWhenNoBaselineMarkerExistsInBiakAndRootAsync)}"
+        );
+
+        try
+        {
+            Directory.SetCurrentDirectory(testDir.Value);
+
+            string templatePath = Path.Join(
+                AppContext.BaseDirectory,
+                "Templates",
+                "InspectCodeBaseline",
+                "InspectCodeBaselineTemplate"
+            );
+
+            testDir.CopyDirectory(templatePath);
+            Directory.CreateDirectory(Path.Join(testDir.Value, ".biak"));
+
+            await File.WriteAllTextAsync(
+                Path.Join(testDir.Value, ".biak", ".editorconfig-empty"),
+                "root = true"
+            );
+
+            await File.WriteAllTextAsync(
+                Path.Join(testDir.Value, ".editorconfig"),
+                "root = true"
+            );
+
+            string[] args =
+            [
+                CommandArgumentConstant.INSPECTCODE_BASELINE,
+                CommandArgumentConstant.SYNC,
+            ];
+
+            Exception? exception = await Record.ExceptionAsync(
+                () => InspectCodeBaselineSyncCommand.RunAsync(args));
+
+            Assert.NotNull(exception);
+            Assert.IsType<BiakApplicationException>(exception);
+            Assert.Equal(InspectCodeBaselineSyncCommandConstant.NO_BASELINE_MARKER, exception.Message);
         }
         finally
         {
