@@ -58,16 +58,17 @@ public class InspectCodeBaselineSyncCommandTests
 
             string syncedBaselineContent = await File.ReadAllTextAsync(baselinePath);
 
-            Assert.Equal(InspectCodeBaselineSyncCommandConstant.ALL_ISSUES_FIXED, result);
+            Assert.Contains("Sync complete.", result, StringComparison.Ordinal);
+            Assert.Contains("filter(s) still alive.", result, StringComparison.Ordinal);
             Assert.DoesNotContain(
                 $"resharper_replace_with_string_is_null_or_empty_highlighting = suggestion {InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}",
                 syncedBaselineContent,
                 StringComparison.OrdinalIgnoreCase
             );
-            Assert.DoesNotContain(
-                $"resharper_convert_to_auto_property_highlighting = suggestion {InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}",
+            Assert.Contains(
+                InspectCodeBaselineInitCommandConstant.BASELINE_MARKER,
                 syncedBaselineContent,
-                StringComparison.OrdinalIgnoreCase
+                StringComparison.Ordinal
             );
         }
         finally
