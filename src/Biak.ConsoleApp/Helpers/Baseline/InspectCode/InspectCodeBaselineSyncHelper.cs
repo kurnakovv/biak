@@ -98,7 +98,7 @@ public static class InspectCodeBaselineSyncHelper
                 continue;
             }
 
-            lines[i] = $"{match.Groups["prefix"].Value}{normalizedSeverity}{match.Groups["suffix"].Value}";
+            lines[i] = $"{match.Groups["prefix"].Value}{normalizedSeverity} {match.Groups["suffix"].Value.TrimStart()}";
         }
 
         return string.Join(newline, lines);
