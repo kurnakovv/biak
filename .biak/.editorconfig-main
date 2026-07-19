@@ -549,6 +549,8 @@ dotnet_naming_style.all_members_style.capitalization = pascal_case
 # Implement with Copilot (IDE3000)
 dotnet_diagnostic.IDE3000.severity = none
 
+dotnet_diagnostic.IDE0301.severity = none # .NET 6 not supported
+
 
 [tests/**]
 dotnet_naming_symbols.async_methods.applicable_accessibilities = private # This filter doesn't work for Rider

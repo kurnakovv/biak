@@ -188,9 +188,7 @@ public static class BaselineSyncEditorconfigHelper
 
     private static bool TryGetSectionFiles(string line, out string[] sectionFiles)
     {
-#pragma warning disable IDE0301 // Simplify collection initialization
         sectionFiles = Array.Empty<string>();
-#pragma warning restore IDE0301 // Simplify collection initialization
 
         string trimmed = line.Trim();
         if (!trimmed.StartsWith("[{", StringComparison.Ordinal)
