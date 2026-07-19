@@ -122,6 +122,82 @@ public class InspectCodeBaselineSyncCommandTests
     }
 
     [Fact]
+    public async Task RunShouldKeepActiveNoneFiltersAndRemoveResolvedOnesAsync()
+    {
+        string originalDirectory = Directory.GetCurrentDirectory();
+        TestDirectory testDir = new($"{nameof(InspectCodeBaselineSyncCommandTests)}_{nameof(RunShouldKeepActiveNoneFiltersAndRemoveResolvedOnesAsync)}");
+
+        try
+        {
+            Directory.SetCurrentDirectory(testDir.Value);
+            CopyInspectCodeTemplate(testDir.Value);
+            await EnsureBiakStatusConfiguredAsync(testDir.Value);
+
+            await File.WriteAllTextAsync(
+                Path.Join(testDir.Value, ".biak", "config.json"),
+                // language=json
+                """
+                {
+                  "inspectCodeBaseline": {
+                    "snapshotSeverity": "none"
+                  }
+                }
+                """
+            );
+
+            Directory.CreateDirectory(Path.Join(testDir.Value, ".biak"));
+            string baselinePath = Path.Join(testDir.Value, ".biak", ".editorconfig-main");
+            await File.WriteAllTextAsync(
+                baselinePath,
+                $$"""
+                root = true
+
+                # Field can be made readonly (private accessibility) [FieldCanBeMadeReadOnly.Local] | https://www.jetbrains.com/help/resharper/FieldCanBeMadeReadOnly.Local.html
+                [{ServiceC.cs}]
+                resharper_field_can_be_made_read_only_local_highlighting = none {{InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}}
+
+                # Use 'String.IsNullOrEmpty' [ReplaceWithStringIsNullOrEmpty] | https://www.jetbrains.com/help/resharper/ReplaceWithStringIsNullOrEmpty.html
+                [{ServiceD.cs}]
+                resharper_replace_with_string_is_null_or_empty_highlighting = warning {{InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}}
+                """
+            );
+            await EnableCommand.RunAsync();
+
+            string serviceDPath = Path.Join(testDir.Value, "ServiceD.cs");
+            string serviceDContent = await File.ReadAllTextAsync(serviceDPath);
+            serviceDContent = serviceDContent.Replace(
+                "return value == null || value.Length == 0;    // Rule 7",
+                "return string.IsNullOrEmpty(value);",
+                StringComparison.Ordinal
+            );
+            await File.WriteAllTextAsync(serviceDPath, serviceDContent);
+
+            string[] args =
+            [
+                CommandArgumentConstant.INSPECTCODE_BASELINE,
+                CommandArgumentConstant.SYNC,
+                CommandArgumentConstant.PATH,
+                ".biak/.editorconfig-main",
+            ];
+
+            string result = await InspectCodeBaselineSyncCommand.RunAsync(args);
+            string syncedBaselineContent = await File.ReadAllTextAsync(baselinePath);
+
+            Assert.Equal(InspectCodeBaselineSyncCommandConstant.ALL_ISSUES_FIXED, result);
+            Assert.DoesNotContain(InspectCodeBaselineSyncCommandConstant.NO_BASELINE_MARKER, result, StringComparison.Ordinal);
+            Assert.DoesNotContain(
+                "resharper_replace_with_string_is_null_or_empty_highlighting",
+                syncedBaselineContent,
+                StringComparison.OrdinalIgnoreCase
+            );
+        }
+        finally
+        {
+            Directory.SetCurrentDirectory(originalDirectory);
+        }
+    }
+
+    [Fact]
     public async Task RunShouldThrowWhenBiakStatusIsUnsynchronisedAsync()
     {
         string originalDirectory = Directory.GetCurrentDirectory();
