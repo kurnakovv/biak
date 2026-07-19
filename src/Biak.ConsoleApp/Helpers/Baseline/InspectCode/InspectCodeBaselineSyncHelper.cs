@@ -18,12 +18,12 @@ public static class InspectCodeBaselineSyncHelper
             .Replace("\\ ", "[\\t ]*", StringComparison.OrdinalIgnoreCase);
 
     private static readonly Regex s_inspectCodeBaselineEntryRegex = new(
-        @"^\s*(resharper_[a-z0-9_]+)\s*=\s*[^\r\n]*" + s_baselineMarkerRegexText + @"\s*$",
+        @"^\s*(?<key>[^=\s]+)\s*=\s*[^\r\n]*" + s_baselineMarkerRegexText + @"\s*$",
         RegexOptions.Compiled | RegexOptions.IgnoreCase
     );
 
     private static readonly Regex s_inspectCodeBaselineSeverityRegex = new(
-        @"^(?<prefix>\s*(resharper_[a-z0-9_]+)\s*=\s*)[^\r\n#]+(?<suffix>\s*" + s_baselineMarkerRegexText + @"\s*)$",
+        @"^(?<prefix>\s*(?<key>[^=\s]+)\s*=\s*)[^\r\n#]+(?<suffix>\s*" + s_baselineMarkerRegexText + @"\s*)$",
         RegexOptions.Compiled | RegexOptions.IgnoreCase
     );
 
@@ -132,7 +132,7 @@ public static class InspectCodeBaselineSyncHelper
     {
         Match match = s_inspectCodeBaselineEntryRegex.Match(line);
         return match.Success
-            ? match.Groups[1].Value
+            ? match.Groups["key"].Value
             : null;
     }
 }
