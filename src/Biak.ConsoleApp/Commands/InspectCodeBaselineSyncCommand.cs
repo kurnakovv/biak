@@ -53,6 +53,12 @@ public static class InspectCodeBaselineSyncCommand
     public static async Task<string> RunAsync(string[]? args = null)
     {
         string sarifPath = string.Empty;
+        string resolvedPath = string.Empty;
+        string originalContentForRestore = string.Empty;
+        string runtimeEditorconfigPath = string.Empty;
+        string runtimeEditorconfigOriginalContent = string.Empty;
+        bool runtimeEditorconfigWasTemporarilyModified = false;
+        bool completedSuccessfully = false;
 
         try
         {
@@ -82,7 +88,7 @@ public static class InspectCodeBaselineSyncCommand
             }
 
             string baselinePath = ResolveBaselinePath(effectiveArgs, baselineConfig, baseDirectory);
-            string resolvedPath = Path.GetFullPath(baselinePath, baseDirectory);
+            resolvedPath = Path.GetFullPath(baselinePath, baseDirectory);
 
             if (!BaselinePathHelper.IsEditorconfigPathSafe(baselinePath, baseDirectory))
             {
@@ -101,12 +107,35 @@ public static class InspectCodeBaselineSyncCommand
                 throw new BiakApplicationException(InspectCodeBaselineSyncCommandConstant.NO_BASELINE_MARKER);
             }
 
+            originalContentForRestore = originalContent;
+
+            runtimeEditorconfigPath = Path.Join(baseDirectory, ".editorconfig");
+            if (File.Exists(runtimeEditorconfigPath))
+            {
+                runtimeEditorconfigOriginalContent = await File.ReadAllTextAsync(runtimeEditorconfigPath);
+                string runtimeContentForAnalysis = InspectCodeBaselineSyncHelper.PrepareRuntimeContentForAnalysis(
+                    runtimeEditorconfigOriginalContent
+                );
+
+                if (!string.Equals(runtimeContentForAnalysis, runtimeEditorconfigOriginalContent, StringComparison.Ordinal))
+                {
+                    await File.WriteAllTextAsync(runtimeEditorconfigPath, runtimeContentForAnalysis);
+                    runtimeEditorconfigWasTemporarilyModified = true;
+                }
+            }
+
             sarifPath = await InspectCodeBaselineRunHelper.RunAsync(
                 baselineConfig?.Target,
                 baselineConfig?.AdditionalArgs);
 
             string sarifJson = await File.ReadAllTextAsync(sarifPath);
             IReadOnlyList<InspectCodeIssue> issues = InspectCodeBaselineSarifParser.Parse(sarifJson);
+
+            if (runtimeEditorconfigWasTemporarilyModified)
+            {
+                await File.WriteAllTextAsync(runtimeEditorconfigPath, runtimeEditorconfigOriginalContent);
+                runtimeEditorconfigWasTemporarilyModified = false;
+            }
 
             IReadOnlyDictionary<string, string>? ruleIdOverrides = baselineConfig?.RuleIdOverrides;
 
@@ -158,6 +187,7 @@ public static class InspectCodeBaselineSyncCommand
 
             syncedContent = InspectCodeBaselineSyncHelper.NormalizeBaselineSeverity(syncedContent, snapshotSeverity);
             await File.WriteAllTextAsync(resolvedPath, syncedContent);
+            completedSuccessfully = true;
 
             HashSet<string> remainingBaselineRuleKeys = InspectCodeBaselineSyncHelper.GetBaselineRuleKeys(syncedContent);
 
@@ -194,6 +224,21 @@ public static class InspectCodeBaselineSyncCommand
         }
         finally
         {
+            if (runtimeEditorconfigWasTemporarilyModified
+                && !string.IsNullOrWhiteSpace(runtimeEditorconfigPath)
+                && File.Exists(runtimeEditorconfigPath))
+            {
+                await File.WriteAllTextAsync(runtimeEditorconfigPath, runtimeEditorconfigOriginalContent);
+            }
+
+            if (!completedSuccessfully
+                && !string.IsNullOrWhiteSpace(resolvedPath)
+                && File.Exists(resolvedPath)
+                && !string.IsNullOrEmpty(originalContentForRestore))
+            {
+                await File.WriteAllTextAsync(resolvedPath, originalContentForRestore);
+            }
+
             if (!string.IsNullOrWhiteSpace(sarifPath) && File.Exists(sarifPath))
             {
                 File.Delete(sarifPath);

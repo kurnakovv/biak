@@ -28,6 +28,30 @@ public static class InspectCodeBaselineSyncHelper
     );
 
     /// <summary>
+    /// Prepares runtime .editorconfig content for InspectCode analysis by converting baseline marker rules to error without marker.
+    /// </summary>
+    /// <param name="content">.editorconfig content.</param>
+    /// <returns>Content ready for runtime analysis.</returns>
+    public static string PrepareRuntimeContentForAnalysis(string content)
+    {
+        string newline = content.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
+        string[] lines = content.Split(new[] { newline }, StringSplitOptions.None);
+
+        for (int i = 0; i < lines.Length; i++)
+        {
+            Match match = s_inspectCodeBaselineSeverityRegex.Match(lines[i]);
+            if (!match.Success)
+            {
+                continue;
+            }
+
+            lines[i] = $"{match.Groups["prefix"].Value}error";
+        }
+
+        return string.Join(newline, lines);
+    }
+
+    /// <summary>
     /// Gets all unique baseline rule keys from valid baseline blocks.
     /// </summary>
     /// <param name="content">.editorconfig content.</param>
