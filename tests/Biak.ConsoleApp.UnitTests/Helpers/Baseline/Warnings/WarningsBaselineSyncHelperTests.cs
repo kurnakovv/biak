@@ -3,9 +3,9 @@
 // See the LICENSE file in the project root for full license information.
 
 using Biak.ConsoleApp.Constants;
-using Biak.ConsoleApp.Helpers;
+using Biak.ConsoleApp.Helpers.Baseline.Warnings;
 
-namespace Biak.ConsoleApp.UnitTests.Helpers;
+namespace Biak.ConsoleApp.UnitTests.Helpers.Baseline.Warnings;
 
 public class WarningsBaselineSyncHelperTests
 {

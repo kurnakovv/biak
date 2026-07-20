@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for full license information.
 
 using Biak.ConsoleApp.Commands;
+using Biak.ConsoleApp.Commands.Baseline.InspectCode;
 using Biak.ConsoleApp.Constants;
 using Biak.ConsoleApp.Exceptions;
 using Biak.ConsoleApp.IntegrationTests.Mock;

@@ -10,7 +10,7 @@ using Biak.ConsoleApp.Helpers.Baseline;
 using Biak.ConsoleApp.Helpers.Baseline.InspectCode;
 using Biak.ConsoleApp.Models;
 
-namespace Biak.ConsoleApp.Commands;
+namespace Biak.ConsoleApp.Commands.Baseline.InspectCode;
 
 /// <summary>
 /// `dotnet biak inspectcode-baseline sync` command.

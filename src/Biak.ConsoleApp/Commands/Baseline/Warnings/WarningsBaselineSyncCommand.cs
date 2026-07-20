@@ -6,9 +6,10 @@ using Biak.ConsoleApp.Constants;
 using Biak.ConsoleApp.Exceptions;
 using Biak.ConsoleApp.Helpers;
 using Biak.ConsoleApp.Helpers.Baseline;
+using Biak.ConsoleApp.Helpers.Baseline.Warnings;
 using SL = Microsoft.Build.Logging.StructuredLogger;
 
-namespace Biak.ConsoleApp.Commands;
+namespace Biak.ConsoleApp.Commands.Baseline.Warnings;
 
 /// <summary>
 /// `dotnet biak warnings-baseline sync` command.
