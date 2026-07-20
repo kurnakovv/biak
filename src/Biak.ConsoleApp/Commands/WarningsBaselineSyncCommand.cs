@@ -39,7 +39,14 @@ public static class WarningsBaselineSyncCommand
             return true;
         }
 
-        return TryParseOptions(args, out _);
+        return CommandArgumentHelper.TryParseOptions(
+            args,
+            out _,
+            new HashSet<string>(StringComparer.Ordinal)
+            {
+                CommandArgumentConstant.PATH,
+                CommandArgumentConstant.TARGET,
+            });
     }
 
     /// <summary>
@@ -191,7 +198,14 @@ public static class WarningsBaselineSyncCommand
 
     private static string ResolveEditorConfigPath(string[] args, string baseDirectory)
     {
-        if (TryParseOptions(args, out Dictionary<string, string> options)
+        if (CommandArgumentHelper.TryParseOptions(
+            args,
+            out Dictionary<string, string> options,
+            new HashSet<string>(StringComparer.Ordinal)
+            {
+                CommandArgumentConstant.PATH,
+                CommandArgumentConstant.TARGET,
+            })
             && options.TryGetValue(CommandArgumentConstant.PATH, out string? configuredPath))
         {
             return configuredPath;
@@ -215,50 +229,19 @@ public static class WarningsBaselineSyncCommand
 
     private static string? ResolveBuildTarget(string[] args)
     {
-        if (TryParseOptions(args, out Dictionary<string, string> options)
+        if (CommandArgumentHelper.TryParseOptions(
+            args,
+            out Dictionary<string, string> options,
+            new HashSet<string>(StringComparer.Ordinal)
+            {
+                CommandArgumentConstant.PATH,
+                CommandArgumentConstant.TARGET,
+            })
             && options.TryGetValue(CommandArgumentConstant.TARGET, out string? buildTarget))
         {
             return buildTarget;
         }
 
         return null;
-    }
-
-    private static bool TryParseOptions(string[] args, out Dictionary<string, string> options)
-    {
-        options = new Dictionary<string, string>(StringComparer.Ordinal);
-
-        if (args.Length == 2)
-        {
-            return true;
-        }
-
-        if ((args.Length - 2) % 2 != 0)
-        {
-            return false;
-        }
-
-        for (int i = 2; i < args.Length; i += 2)
-        {
-            string option = args[i];
-            string value = args[i + 1];
-
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                return false;
-            }
-
-            if (option is not (CommandArgumentConstant.PATH or CommandArgumentConstant.TARGET))
-            {
-                return false;
-            }
-
-            if (!options.TryAdd(option, value))
-            {
-                return false;
-            }
-        }
-
-        return true;
     }
 }
