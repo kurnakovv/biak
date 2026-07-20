@@ -10,16 +10,6 @@ namespace Biak.ConsoleApp.Constants;
 public static class InspectCodeBaselineSyncCommandConstant
 {
     /// <summary>
-    /// Default .editorconfig search directory when path is not explicitly provided.
-    /// </summary>
-    public const string DEFAULT_EDITORCONFIG_SEARCH_DIRECTORY = ".biak";
-
-    /// <summary>
-    /// Root .editorconfig path fallback.
-    /// </summary>
-    public const string DEFAULT_EDITORCONFIG_PATH = ".editorconfig";
-
-    /// <summary>
     /// The required root .editorconfig file was not found.
     /// </summary>
     public const string ROOT_EDITORCONFIG_FILE_NOT_FOUND = "The required root .editorconfig file was not found.";

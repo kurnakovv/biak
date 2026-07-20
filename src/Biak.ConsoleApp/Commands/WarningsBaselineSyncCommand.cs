@@ -211,17 +211,14 @@ public static class WarningsBaselineSyncCommand
             return configuredPath;
         }
 
-        string mainEditorconfigPath = WarningsBaselineSyncCommandConstant.DEFAULT_EDITORCONFIG_MAIN_PATH;
-        string rootEditorconfigPath = WarningsBaselineSyncCommandConstant.DEFAULT_EDITORCONFIG_PATH;
-
-        if (File.Exists(Path.GetFullPath(mainEditorconfigPath, baseDirectory)))
+        if (File.Exists(Path.GetFullPath(WarningsBaselineSyncCommandConstant.DEFAULT_EDITORCONFIG_MAIN_PATH, baseDirectory)))
         {
-            return mainEditorconfigPath;
+            return WarningsBaselineSyncCommandConstant.DEFAULT_EDITORCONFIG_MAIN_PATH;
         }
 
-        if (File.Exists(Path.GetFullPath(rootEditorconfigPath, baseDirectory)))
+        if (File.Exists(Path.GetFullPath(".editorconfig", baseDirectory)))
         {
-            return rootEditorconfigPath;
+            return ".editorconfig";
         }
 
         throw new BiakApplicationException(WarningsBaselineSyncCommandConstant.DEFAULT_CONFIGURATION_FILE_NOT_FOUND);
