@@ -741,6 +741,69 @@ public class Ca1822ViolationService
         }
     }
 
+    [Fact]
+    public async Task RunShouldRestoreRuntimeEditorconfigWhenSyncFailsAfterTemporaryModificationAsync()
+    {
+        string originalDirectory = Directory.GetCurrentDirectory();
+        TestDirectory testDir = new(
+            $"{nameof(InspectCodeBaselineSyncCommandTests)}_{nameof(RunShouldRestoreRuntimeEditorconfigWhenSyncFailsAfterTemporaryModificationAsync)}"
+        );
+
+        try
+        {
+            Directory.SetCurrentDirectory(testDir.Value);
+            CopyInspectCodeTemplate(testDir.Value);
+            await EnsureBiakStatusConfiguredAsync(testDir.Value);
+
+            string baselinePath = Path.Join(testDir.Value, ".editorconfig-InspectCodeBaseline");
+            await File.WriteAllTextAsync(baselinePath, InspectCodeBaselineCommandTestConstants.BASELINE_FILTERS);
+
+            string biakDirectoryPath = Path.Join(testDir.Value, ".biak");
+            if (Directory.Exists(biakDirectoryPath))
+            {
+                Directory.Delete(biakDirectoryPath, recursive: true);
+            }
+
+            string runtimeEditorconfigPath = Path.Join(testDir.Value, ".editorconfig");
+            string expectedRuntimeEditorconfigContent = $$"""
+                root = true
+
+                [*.cs]
+                dotnet_diagnostic.CA1822.severity = suggestion {{InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}}
+                """;
+            await File.WriteAllTextAsync(runtimeEditorconfigPath, expectedRuntimeEditorconfigContent);
+
+            DateTime expectedLastWriteTime = DateTime.UtcNow.AddMinutes(-5);
+            File.SetLastWriteTimeUtc(runtimeEditorconfigPath, expectedLastWriteTime);
+
+            File.Delete(Path.Join(testDir.Value, "InspectCodeBaselineTemplate.csproj"));
+
+            string[] args =
+            [
+                CommandArgumentConstant.INSPECTCODE_BASELINE,
+                CommandArgumentConstant.SYNC,
+                CommandArgumentConstant.PATH,
+                ".editorconfig-InspectCodeBaseline",
+            ];
+
+            Exception? exception = await Record.ExceptionAsync(() => InspectCodeBaselineSyncCommand.RunAsync(args));
+
+            Assert.NotNull(exception);
+            Assert.IsType<BiakApplicationException>(exception);
+            Assert.Equal(InspectCodeBaselineRunHelperConstant.NO_SOLUTION_OR_PROJECT_FOUND, exception.Message);
+
+            string actualRuntimeEditorconfigContent = await File.ReadAllTextAsync(runtimeEditorconfigPath);
+            DateTime actualLastWriteTime = File.GetLastWriteTimeUtc(runtimeEditorconfigPath);
+
+            Assert.Equal(expectedRuntimeEditorconfigContent, actualRuntimeEditorconfigContent);
+            Assert.True(actualLastWriteTime > expectedLastWriteTime);
+        }
+        finally
+        {
+            Directory.SetCurrentDirectory(originalDirectory);
+        }
+    }
+
     private static void CopyInspectCodeTemplate(string testDirectory)
     {
         string templatePath = Path.Join(
