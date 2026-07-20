@@ -42,6 +42,42 @@ public class InspectCodeBaselineSyncCommandTests
             InspectCodeBaselineSyncCommand.IsRunnable([CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC]),
             "`warnings-baseline sync` must not match inspectcode-baseline sync"
         );
+        Assert.False(
+            InspectCodeBaselineSyncCommand.IsRunnable([
+                CommandArgumentConstant.INSPECTCODE_BASELINE,
+                CommandArgumentConstant.SYNC,
+                ".editorconfig",
+            ]),
+            "path without --path option is invalid"
+        );
+        Assert.False(
+            InspectCodeBaselineSyncCommand.IsRunnable([
+                CommandArgumentConstant.INSPECTCODE_BASELINE,
+                CommandArgumentConstant.SYNC,
+                CommandArgumentConstant.PATH,
+            ]),
+            "`--path` without value is invalid"
+        );
+        Assert.False(
+            InspectCodeBaselineSyncCommand.IsRunnable([
+                CommandArgumentConstant.INSPECTCODE_BASELINE,
+                CommandArgumentConstant.SYNC,
+                "--unknown",
+                ".editorconfig",
+            ]),
+            "unsupported option is invalid"
+        );
+        Assert.False(
+            InspectCodeBaselineSyncCommand.IsRunnable([
+                CommandArgumentConstant.INSPECTCODE_BASELINE,
+                CommandArgumentConstant.SYNC,
+                CommandArgumentConstant.PATH,
+                "a.editorconfig",
+                CommandArgumentConstant.PATH,
+                "b.editorconfig",
+            ]),
+            "duplicate --path options are invalid"
+        );
     }
 
     [Fact]
@@ -50,5 +86,15 @@ public class InspectCodeBaselineSyncCommandTests
         Assert.True(
             InspectCodeBaselineSyncCommand.IsRunnable([CommandArgumentConstant.INSPECTCODE_BASELINE, CommandArgumentConstant.SYNC])
         );
+
+        string[] argsWithPath =
+        [
+            CommandArgumentConstant.INSPECTCODE_BASELINE,
+            CommandArgumentConstant.SYNC,
+            CommandArgumentConstant.PATH,
+            ".biak/.editorconfig-InspectCodeBaseline",
+        ];
+
+        Assert.True(InspectCodeBaselineSyncCommand.IsRunnable(argsWithPath));
     }
 }

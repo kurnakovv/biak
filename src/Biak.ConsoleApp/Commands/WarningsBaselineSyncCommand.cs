@@ -5,6 +5,7 @@
 using Biak.ConsoleApp.Constants;
 using Biak.ConsoleApp.Exceptions;
 using Biak.ConsoleApp.Helpers;
+using Biak.ConsoleApp.Helpers.Baseline;
 using SL = Microsoft.Build.Logging.StructuredLogger;
 
 namespace Biak.ConsoleApp.Commands;
@@ -39,7 +40,14 @@ public static class WarningsBaselineSyncCommand
             return true;
         }
 
-        return TryParseOptions(args, out _);
+        return CommandArgumentHelper.TryParseOptions(
+            args,
+            out _,
+            new HashSet<string>(StringComparer.Ordinal)
+            {
+                CommandArgumentConstant.PATH,
+                CommandArgumentConstant.TARGET,
+            });
     }
 
     /// <summary>
@@ -52,6 +60,7 @@ public static class WarningsBaselineSyncCommand
         string baseDirectory = Directory.GetCurrentDirectory();
         string resolvedPath = string.Empty;
         string originalContent = string.Empty;
+        string contentBeforeSync = string.Empty;
         bool baselineWasActivated = false;
         bool completedSuccessfully = false;
 
@@ -64,7 +73,7 @@ public static class WarningsBaselineSyncCommand
             string? buildTarget = ResolveBuildTarget(args);
             resolvedPath = Path.GetFullPath(editorConfigPath, baseDirectory);
 
-            if (!WarningsBaselineSyncHelper.IsPathSafe(editorConfigPath, baseDirectory))
+            if (!BaselinePathHelper.IsSafe(editorConfigPath, baseDirectory))
             {
                 throw new BiakApplicationException(WarningsBaselineSyncCommandConstant.INVALID_PATH_EDITORCONFIG);
             }
@@ -75,14 +84,27 @@ public static class WarningsBaselineSyncCommand
             }
 
             originalContent = await File.ReadAllTextAsync(resolvedPath);
+            contentBeforeSync = originalContent;
 
-            if (!originalContent.Contains(WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER, StringComparison.Ordinal))
+            if (!WarningsBaselineSyncHelper.HasAnyMarker(originalContent))
             {
                 throw new BiakApplicationException(WarningsBaselineSyncCommandConstant.NO_BASELINE_MARKER);
             }
 
+            bool hasLegacyMarker = originalContent.Contains(
+                WarningsBaselineInitCommandConstant.LEGACY_BASELINE_DIAGNOSTIC_MARKER,
+                StringComparison.Ordinal);
+            if (hasLegacyMarker)
+            {
+                originalContent = originalContent.Replace(
+                    WarningsBaselineInitCommandConstant.LEGACY_BASELINE_DIAGNOSTIC_MARKER,
+                    WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER,
+                    StringComparison.Ordinal
+                );
+            }
+
             // Activate baseline entries as warnings so the compiler emits them during the build.
-            string activatedContent = WarningsBaselineSyncHelper.SetBaselineForBuild(originalContent, activate: true);
+            string activatedContent = WarningsBaselineSyncHelper.SetSeveritiesForBuild(originalContent, activate: true);
             await File.WriteAllTextAsync(resolvedPath, activatedContent);
             baselineWasActivated = true;
 
@@ -107,7 +129,7 @@ public static class WarningsBaselineSyncCommand
                     StringComparer.OrdinalIgnoreCase
                 );
 
-            HashSet<string> baselineCodes = WarningsBaselineSyncHelper.GetBaselineDiagnosticCodes(originalContent);
+            HashSet<string> baselineCodes = WarningsBaselineSyncHelper.GetDiagnosticCodes(originalContent);
 
             // Keep only filters whose code is still an active warning.
             HashSet<string> codesToKeep = baselineCodes
@@ -120,13 +142,13 @@ public static class WarningsBaselineSyncCommand
                 activeFilesByCode
             );
 
-            string syncedContent = WarningsBaselineSyncHelper.RemoveBaselineFilters(originalContent, codesToKeep, activeFilesByCode);
-            syncedContent = WarningsBaselineSyncHelper.SetBaselineForBuild(syncedContent, activate: false);
+            string syncedContent = WarningsBaselineSyncHelper.RemoveFilters(originalContent, codesToKeep, activeFilesByCode);
+            syncedContent = WarningsBaselineSyncHelper.SetSeveritiesForBuild(syncedContent, activate: false);
 
             await File.WriteAllTextAsync(resolvedPath, syncedContent);
             completedSuccessfully = true;
 
-            HashSet<string> remainingBaselineCodes = WarningsBaselineSyncHelper.GetBaselineDiagnosticCodes(syncedContent);
+            HashSet<string> remainingBaselineCodes = WarningsBaselineSyncHelper.GetDiagnosticCodes(syncedContent);
 
             string result;
             if (remainingBaselineCodes.Count == 0)
@@ -150,6 +172,12 @@ public static class WarningsBaselineSyncCommand
                 }
             }
 
+            if (hasLegacyMarker)
+            {
+                Console.WriteLine(WarningsBaselineSyncCommandConstant.LEGACY_MARKER_MIGRATED_WARNING);
+                Console.WriteLine();
+            }
+
             Console.WriteLine(result);
             Console.WriteLine();
 
@@ -163,7 +191,7 @@ public static class WarningsBaselineSyncCommand
         {
             if (baselineWasActivated && !completedSuccessfully)
             {
-                await File.WriteAllTextAsync(resolvedPath, originalContent);
+                await File.WriteAllTextAsync(resolvedPath, contentBeforeSync);
             }
 
             if (File.Exists(WarningsBaselineSyncCommandConstant.BUILD_BINLOG_PATH))
@@ -175,23 +203,27 @@ public static class WarningsBaselineSyncCommand
 
     private static string ResolveEditorConfigPath(string[] args, string baseDirectory)
     {
-        if (TryParseOptions(args, out Dictionary<string, string> options)
+        if (CommandArgumentHelper.TryParseOptions(
+            args,
+            out Dictionary<string, string> options,
+            new HashSet<string>(StringComparer.Ordinal)
+            {
+                CommandArgumentConstant.PATH,
+                CommandArgumentConstant.TARGET,
+            })
             && options.TryGetValue(CommandArgumentConstant.PATH, out string? configuredPath))
         {
             return configuredPath;
         }
 
-        string mainEditorconfigPath = WarningsBaselineSyncCommandConstant.DEFAULT_EDITORCONFIG_MAIN_PATH;
-        string rootEditorconfigPath = WarningsBaselineSyncCommandConstant.DEFAULT_EDITORCONFIG_PATH;
-
-        if (File.Exists(Path.GetFullPath(mainEditorconfigPath, baseDirectory)))
+        if (File.Exists(Path.GetFullPath(WarningsBaselineSyncCommandConstant.DEFAULT_EDITORCONFIG_MAIN_PATH, baseDirectory)))
         {
-            return mainEditorconfigPath;
+            return WarningsBaselineSyncCommandConstant.DEFAULT_EDITORCONFIG_MAIN_PATH;
         }
 
-        if (File.Exists(Path.GetFullPath(rootEditorconfigPath, baseDirectory)))
+        if (File.Exists(Path.GetFullPath(".editorconfig", baseDirectory)))
         {
-            return rootEditorconfigPath;
+            return ".editorconfig";
         }
 
         throw new BiakApplicationException(WarningsBaselineSyncCommandConstant.DEFAULT_CONFIGURATION_FILE_NOT_FOUND);
@@ -199,50 +231,19 @@ public static class WarningsBaselineSyncCommand
 
     private static string? ResolveBuildTarget(string[] args)
     {
-        if (TryParseOptions(args, out Dictionary<string, string> options)
+        if (CommandArgumentHelper.TryParseOptions(
+            args,
+            out Dictionary<string, string> options,
+            new HashSet<string>(StringComparer.Ordinal)
+            {
+                CommandArgumentConstant.PATH,
+                CommandArgumentConstant.TARGET,
+            })
             && options.TryGetValue(CommandArgumentConstant.TARGET, out string? buildTarget))
         {
             return buildTarget;
         }
 
         return null;
-    }
-
-    private static bool TryParseOptions(string[] args, out Dictionary<string, string> options)
-    {
-        options = new Dictionary<string, string>(StringComparer.Ordinal);
-
-        if (args.Length == 2)
-        {
-            return true;
-        }
-
-        if ((args.Length - 2) % 2 != 0)
-        {
-            return false;
-        }
-
-        for (int i = 2; i < args.Length; i += 2)
-        {
-            string option = args[i];
-            string value = args[i + 1];
-
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                return false;
-            }
-
-            if (option is not (CommandArgumentConstant.PATH or CommandArgumentConstant.TARGET))
-            {
-                return false;
-            }
-
-            if (!options.TryAdd(option, value))
-            {
-                return false;
-            }
-        }
-
-        return true;
     }
 }

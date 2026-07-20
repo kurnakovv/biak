@@ -27,7 +27,7 @@ public static class InspectCodeBaselineInitCommandConstant
     /// <summary>
     /// Baseline marker appended to every generated editorconfig entry.
     /// </summary>
-    public const string BASELINE_MARKER = "# ^biak^ baseline";
+    public const string BASELINE_MARKER = "# ^biak^ inspectcode-baseline";
 
     /// <summary>
     /// Failed to initialize InspectCode baseline.

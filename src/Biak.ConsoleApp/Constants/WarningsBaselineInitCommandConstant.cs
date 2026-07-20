@@ -41,9 +41,14 @@ public static class WarningsBaselineInitCommandConstant
     public const string INIT_FAILED = "Failed to initialize warnings baseline.";
 
     /// <summary>
+    /// Legacy baseline marker for .editorconfig diagnostics.
+    /// </summary>
+    public const string LEGACY_BASELINE_DIAGNOSTIC_MARKER = "# ^biak^ baseline";
+
+    /// <summary>
     /// Baseline marker for .editorconfig diagnostics.
     /// </summary>
-    public const string BASELINE_DIAGNOSTIC_MARKER = "# ^biak^ baseline";
+    public const string BASELINE_DIAGNOSTIC_MARKER = "# ^biak^ warnings-baseline";
 
     /// <summary>
     /// Treat warnings as errors configuration.

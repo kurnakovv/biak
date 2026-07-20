@@ -4,6 +4,7 @@
 
 using System.Text.RegularExpressions;
 using Biak.ConsoleApp.Constants;
+using Biak.ConsoleApp.Helpers.Baseline;
 
 namespace Biak.ConsoleApp.Helpers;
 
@@ -12,65 +13,36 @@ namespace Biak.ConsoleApp.Helpers;
 /// </summary>
 public static class WarningsBaselineSyncHelper
 {
+    private static readonly string s_newMarkerRegexText =
+        Regex.Escape(WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER)
+            .Replace("\\ ", "[\\t ]*", StringComparison.OrdinalIgnoreCase);
+
+    private static readonly string s_legacyMarkerRegexText =
+        Regex.Escape(WarningsBaselineInitCommandConstant.LEGACY_BASELINE_DIAGNOSTIC_MARKER)
+            .Replace("\\ ", "[\\t ]*", StringComparison.OrdinalIgnoreCase);
+
     private static readonly string s_baselineMarkerRegexText =
-         Regex.Escape(WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER).Replace("\\ ", "[\\t ]*", StringComparison.OrdinalIgnoreCase);
+        "(?:" + s_newMarkerRegexText + "|" + s_legacyMarkerRegexText + ")";
 
     private static readonly string s_baselineDiagnosticRegexText =
         @"dotnet_diagnostic\.([A-Z][A-Z0-9]*)\.severity[^\r\n]*" + s_baselineMarkerRegexText;
 
-    private static readonly char[] s_pathSeparators = new[] { '/', '\\' };
-
-    // Matches a [{ ... }] section header that marks a baseline block and captures the file list.
-    private static readonly Regex s_baselineSectionHeaderRegex = new(
-        @"^\[\{(?<files>[^\}]+)\}\]\s*$",
-        RegexOptions.Compiled
-    );
-
-    // Matches a dotnet_diagnostic baseline line and captures the diagnostic code.
     private static readonly Regex s_baselineDiagnosticRegex = new(
         @"^\s*" + s_baselineDiagnosticRegexText,
         RegexOptions.Compiled | RegexOptions.IgnoreCase
     );
 
-    // Matches all diagnostic codes referenced in baseline entries anywhere in the content.
     private static readonly Regex s_allBaselineCodesRegex = new(
         s_baselineDiagnosticRegexText,
         RegexOptions.Compiled | RegexOptions.IgnoreCase
     );
 
     /// <summary>
-    /// Returns <see langword="true"/> when <paramref name="filePath"/> resolves to a location
-    /// inside <paramref name="baseDirectory"/> (directory-traversal protection).
-    /// </summary>
-    /// <param name="filePath">Path to validate.</param>
-    /// <param name="baseDirectory">Base directory that the path must stay within.</param>
-    /// <returns><see langword="true"/> when the path is safe; otherwise <see langword="false"/>.</returns>
-    public static bool IsPathSafe(string filePath, string baseDirectory)
-    {
-        if (!PathSafetyHelper.TryResolvePathWithinBaseDirectory(filePath, baseDirectory, out string fullFile, out string relativePath))
-        {
-            return false;
-        }
-
-        string fileName = Path.GetFileName(fullFile);
-        if (!fileName.StartsWith(".editorconfig", StringComparison.OrdinalIgnoreCase))
-        {
-            return false;
-        }
-
-        string[] segments = relativePath.Split(s_pathSeparators, StringSplitOptions.RemoveEmptyEntries);
-
-        return !segments
-            .Take(Math.Max(segments.Length - 1, 0))
-            .Contains(".editorconfig", StringComparer.OrdinalIgnoreCase);
-    }
-
-    /// <summary>
     /// Returns all unique diagnostic codes that appear in baseline entries inside <paramref name="content"/>.
     /// </summary>
     /// <param name="content">.editorconfig content.</param>
     /// <returns>Unique diagnostic codes from baseline entries.</returns>
-    public static HashSet<string> GetBaselineDiagnosticCodes(string content)
+    public static HashSet<string> GetDiagnosticCodes(string content)
     {
         return s_allBaselineCodesRegex.Matches(content)
             .Select(m => m.Groups[1].Value)
@@ -78,8 +50,19 @@ public static class WarningsBaselineSyncHelper
     }
 
     /// <summary>
+    /// Returns <see langword="true"/> when content contains either new or legacy baseline marker.
+    /// </summary>
+    /// <param name="content">.editorconfig content.</param>
+    /// <returns><see langword="true"/> when baseline marker exists.</returns>
+    public static bool HasAnyMarker(string content)
+    {
+        return content.Contains(WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER, StringComparison.Ordinal)
+            || content.Contains(WarningsBaselineInitCommandConstant.LEGACY_BASELINE_DIAGNOSTIC_MARKER, StringComparison.Ordinal);
+    }
+
+    /// <summary>
     /// Switches baseline severities between <c>suggestion</c> and <c>warning</c>
-    /// for lines marked with <c># ^biak^ baseline</c>.
+    /// for lines marked with baseline marker.
     /// </summary>
     /// <param name="content">.editorconfig content.</param>
     /// <param name="activate">
@@ -87,19 +70,10 @@ public static class WarningsBaselineSyncHelper
     /// <see langword="false"/> to replace <c>warning</c> with <c>suggestion</c>.
     /// </param>
     /// <returns>Updated content with baseline severities switched for the sync flow.</returns>
-    public static string SetBaselineForBuild(string content, bool activate)
+    public static string SetSeveritiesForBuild(string content, bool activate)
     {
-        return activate
-            ? content.Replace(
-                $"= suggestion {WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}",
-                $"= warning {WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}",
-                StringComparison.Ordinal
-            )
-            : content.Replace(
-                $"= warning {WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}",
-                $"= suggestion {WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}",
-                StringComparison.Ordinal
-            );
+        string activated = ReplaceSeverity(content, activate, WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER);
+        return ReplaceSeverity(activated, activate, WarningsBaselineInitCommandConstant.LEGACY_BASELINE_DIAGNOSTIC_MARKER);
     }
 
     /// <summary>
@@ -122,57 +96,18 @@ public static class WarningsBaselineSyncHelper
     /// Optional map of active warning files per diagnostic code (normalized as forward-slash paths).
     /// </param>
     /// <returns>Content with resolved baseline blocks/files removed.</returns>
-    public static string RemoveBaselineFilters(
+    public static string RemoveFilters(
         string content,
         IReadOnlySet<string> codesToKeep,
         IReadOnlyDictionary<string, IReadOnlySet<string>>? activeFilesByCode = null
     )
     {
-        string newline = content.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
-        string[] lines = content.Split(new[] { newline }, StringSplitOptions.None);
-        Dictionary<int, BaselineBlock> blocksByHeaderIndex = EnumerateBaselineBlocks(lines)
-            .ToDictionary(x => x.HeaderIndex);
-
-        List<string> result = new(lines.Length);
-        int i = 0;
-
-        while (i < lines.Length)
-        {
-            string line = lines[i];
-
-            if (blocksByHeaderIndex.TryGetValue(i, out BaselineBlock block))
-            {
-                if (!codesToKeep.Contains(block.Code))
-                {
-                    i = block.BlockEndIndex;
-                    continue;
-                }
-
-                if (activeFilesByCode is not null)
-                {
-                    IReadOnlySet<string> activeFilesForCode = GetActiveFilesForCode(activeFilesByCode, block.Code);
-                    string[] filesToKeep = block.SectionFiles
-                        .Where(x => activeFilesForCode.Contains(NormalizeEditorConfigPath(x)))
-                        .ToArray();
-
-                    if (filesToKeep.Length == 0)
-                    {
-                        i = block.BlockEndIndex;
-                        continue;
-                    }
-
-                    if (filesToKeep.Length != block.SectionFiles.Length)
-                    {
-                        line = "[{" + string.Join(",", filesToKeep) + "}]";
-                    }
-                }
-            }
-
-            result.Add(line);
-            i++;
-        }
-
-        return string.Join(newline, result);
+        return BaselineSyncEditorconfigHelper.RemoveFilters(
+            content,
+            codesToKeep,
+            TryGetCode,
+            activeFilesByCode
+        );
     }
 
     /// <summary>
@@ -192,120 +127,34 @@ public static class WarningsBaselineSyncHelper
         IReadOnlySet<string> codesToKeep,
         IReadOnlyDictionary<string, IReadOnlySet<string>>? activeFilesByCode = null)
     {
-        string newline = content.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
-        string[] lines = content.Split(new[] { newline }, StringSplitOptions.None);
-        Dictionary<string, HashSet<string>> synchronizedFiles = new(StringComparer.OrdinalIgnoreCase);
-
-        foreach (BaselineBlock block in EnumerateBaselineBlocks(lines))
-        {
-            if (!codesToKeep.Contains(block.Code))
-            {
-                foreach (string sectionFile in block.SectionFiles)
-                {
-                    AddSynchronizedFile(synchronizedFiles, sectionFile, block.Code);
-                }
-            }
-            else if (activeFilesByCode is not null)
-            {
-                IReadOnlySet<string> activeFilesForCode = GetActiveFilesForCode(activeFilesByCode, block.Code);
-
-                foreach (string sectionFile in block.SectionFiles.Where(
-                    sectionFile => !activeFilesForCode.Contains(NormalizeEditorConfigPath(sectionFile))
-                ))
-                {
-                    AddSynchronizedFile(synchronizedFiles, sectionFile, block.Code);
-                }
-            }
-        }
-
-        return synchronizedFiles.ToDictionary(
-            x => x.Key,
-            x => (IReadOnlySet<string>)x.Value,
-            StringComparer.OrdinalIgnoreCase
+        return BaselineSyncEditorconfigHelper.GetSynchronizedFiles(
+            content,
+            codesToKeep,
+            TryGetCode,
+            activeFilesByCode
         );
     }
 
-    private static IEnumerable<BaselineBlock> EnumerateBaselineBlocks(string[] lines)
+    private static string? TryGetCode(string line)
     {
-        for (int i = 0; i < lines.Length; i++)
-        {
-            Match headerMatch = s_baselineSectionHeaderRegex.Match(lines[i]);
-            if (!headerMatch.Success)
-            {
-                continue;
-            }
+        Match match = s_baselineDiagnosticRegex.Match(line);
+        return match.Success
+            ? match.Groups[1].Value
+            : null;
+    }
 
-            int diagIndex = i + 1;
-            while (diagIndex < lines.Length && string.IsNullOrWhiteSpace(lines[diagIndex]))
-            {
-                diagIndex++;
-            }
-
-            if (diagIndex >= lines.Length)
-            {
-                continue;
-            }
-
-            Match diagMatch = s_baselineDiagnosticRegex.Match(lines[diagIndex]);
-            if (!diagMatch.Success)
-            {
-                continue;
-            }
-
-            int blockEnd = diagIndex + 1;
-            while (blockEnd < lines.Length && string.IsNullOrWhiteSpace(lines[blockEnd]))
-            {
-                blockEnd++;
-            }
-
-            // Only match baseline blocks generated by `warnings-baseline init` (single diagnostic + blank line).
-            // If there's additional content in the same section, skip it to avoid partially deleting user-maintained sections.
-            if (blockEnd < lines.Length && !lines[blockEnd].TrimStart().StartsWith('['))
-            {
-                continue;
-            }
-
-            string[] sectionFiles = headerMatch.Groups["files"].Value
-                .Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-
-            yield return new BaselineBlock(
-                HeaderIndex: i,
-                BlockEndIndex: blockEnd,
-                Code: diagMatch.Groups[1].Value,
-                SectionFiles: sectionFiles
+    private static string ReplaceSeverity(string content, bool activate, string marker)
+    {
+        return activate
+            ? content.Replace(
+                $"= suggestion {marker}",
+                $"= warning {marker}",
+                StringComparison.Ordinal
+            )
+            : content.Replace(
+                $"= warning {marker}",
+                $"= suggestion {marker}",
+                StringComparison.Ordinal
             );
-        }
     }
-
-    private static IReadOnlySet<string> GetActiveFilesForCode(
-        IReadOnlyDictionary<string, IReadOnlySet<string>> activeFilesByCode,
-        string code)
-    {
-        return activeFilesByCode.TryGetValue(code, out IReadOnlySet<string>? files)
-            ? files
-            : new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-    }
-
-    private static void AddSynchronizedFile(Dictionary<string, HashSet<string>> synchronizedFiles, string filePath, string code)
-    {
-        if (!synchronizedFiles.TryGetValue(filePath, out HashSet<string>? codes))
-        {
-            codes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            synchronizedFiles[filePath] = codes;
-        }
-
-        codes.Add(code);
-    }
-
-    private static string NormalizeEditorConfigPath(string path)
-    {
-        return path.Replace('\\', '/');
-    }
-
-    private readonly record struct BaselineBlock(
-        int HeaderIndex,
-        int BlockEndIndex,
-        string Code,
-        string[] SectionFiles
-    );
 }

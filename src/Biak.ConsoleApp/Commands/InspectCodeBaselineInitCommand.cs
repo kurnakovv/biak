@@ -68,45 +68,12 @@ public static class InspectCodeBaselineInitCommand
 
             IReadOnlyDictionary<string, string>? ruleIdOverrides = baselineConfig?.RuleIdOverrides;
 
-            Dictionary<string, List<string>> issuesByMappedEditorconfigKey = new(StringComparer.OrdinalIgnoreCase);
-            Dictionary<string, HashSet<string>> ruleIdsByMappedEditorconfigKey = new(StringComparer.OrdinalIgnoreCase);
-            HashSet<string> unmappedRuleIds = new(StringComparer.OrdinalIgnoreCase);
+            InspectCodeBaselineIssuesGroupResult groupResult = InspectCodeBaselineIssuesGrouper.Group(issues, ruleIdOverrides);
 
-            foreach (InspectCodeIssue issue in issues)
-            {
-                string? mappedEditorconfigKey = FindMappedEditorconfigKey(issue.RuleId, ruleIdOverrides);
-                if (mappedEditorconfigKey is null)
-                {
-                    unmappedRuleIds.Add(issue.RuleId);
-                    continue;
-                }
-
-                string relativePath = issue.FilePath.Replace(Path.DirectorySeparatorChar, '/');
-
-                if (!issuesByMappedEditorconfigKey.TryGetValue(mappedEditorconfigKey, out List<string>? files))
-                {
-                    files = new List<string>();
-                    issuesByMappedEditorconfigKey[mappedEditorconfigKey] = files;
-                }
-
-                if (!ruleIdsByMappedEditorconfigKey.TryGetValue(mappedEditorconfigKey, out HashSet<string>? ruleIds))
-                {
-                    ruleIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                    ruleIdsByMappedEditorconfigKey[mappedEditorconfigKey] = ruleIds;
-                }
-
-                ruleIds.Add(issue.RuleId);
-
-                if (!files.Contains(relativePath, StringComparer.OrdinalIgnoreCase))
-                {
-                    files.Add(relativePath);
-                }
-            }
-
-            if (unmappedRuleIds.Count > 0)
+            if (groupResult.UnmappedRuleIds.Count > 0)
             {
                 Console.WriteLine(InspectCodeBaselineInitCommandConstant.RULES_NOT_MAPPED_WARNING_HEADER);
-                Console.WriteLine(string.Join(", ", unmappedRuleIds.OrderBy(x => x, StringComparer.OrdinalIgnoreCase)));
+                Console.WriteLine(string.Join(", ", groupResult.UnmappedRuleIds.OrderBy(x => x, StringComparer.OrdinalIgnoreCase)));
 
                 Console.WriteLine();
                 Console.WriteLine(InspectCodeBaselineInitCommandConstant.RULE_NOT_MAPPED_OPEN_ISSUE);
@@ -114,7 +81,7 @@ public static class InspectCodeBaselineInitCommand
                 Console.WriteLine();
             }
 
-            if (issuesByMappedEditorconfigKey.Count == 0)
+            if (groupResult.GroupsByKey.Count == 0)
             {
                 Console.WriteLine(InspectCodeBaselineInitCommandConstant.NO_ISSUES_FOUND);
                 return InspectCodeBaselineInitCommandConstant.NO_ISSUES_FOUND;
@@ -123,23 +90,18 @@ public static class InspectCodeBaselineInitCommand
             Console.WriteLine(InspectCodeBaselineInitCommandConstant.INSERT_FILTERS_NOTE);
 
             StringBuilder sb = new();
-            foreach ((string key, List<string> files) in issuesByMappedEditorconfigKey.OrderBy(x => x.Key))
+            foreach ((string key, InspectCodeBaselineIssueGroup group) in groupResult.GroupsByKey.OrderBy(x => x.Key))
             {
-                files.Sort(StringComparer.OrdinalIgnoreCase);
+                IOrderedEnumerable<string> sortedFiles = group.Files.OrderBy(x => x, StringComparer.OrdinalIgnoreCase);
 
-                string ruleId = ruleIdsByMappedEditorconfigKey[key]
-                    .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
-                    .First();
-
-                InspectCodeRuleMetadata? metadata = InspectCodeRuleMetadataHelper.Get(ruleId);
-
-                sb.AppendLine("[{" + string.Join(",", files) + "}]");
+                InspectCodeRuleMetadata? metadata = InspectCodeRuleMetadataHelper.Get(group.RuleId);
 
                 if (metadata is not null)
                 {
-                    sb.AppendLine($"# {metadata.Title} [{ruleId}] | {metadata.Reference}");
+                    sb.AppendLine($"# {metadata.Title} [{group.RuleId}] | {metadata.Reference}");
                 }
 
+                sb.AppendLine("[{" + string.Join(",", sortedFiles) + "}]");
                 sb.AppendLine($"{key} = {snapshotSeverity} {InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}");
                 sb.AppendLine();
             }
@@ -159,17 +121,5 @@ public static class InspectCodeBaselineInitCommand
                 File.Delete(sarifPath);
             }
         }
-    }
-
-    private static string? FindMappedEditorconfigKey(
-        string ruleId,
-        IReadOnlyDictionary<string, string>? overrides)
-    {
-        if (overrides is not null && overrides.TryGetValue(ruleId, out string? overrideKey))
-        {
-            return overrideKey;
-        }
-
-        return InspectCodeRuleMetadataHelper.Get(ruleId)?.EditorconfigConfigKey;
     }
 }
