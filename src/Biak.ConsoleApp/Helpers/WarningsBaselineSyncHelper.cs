@@ -46,7 +46,7 @@ public static class WarningsBaselineSyncHelper
     /// <returns><see langword="true"/> when the path is safe; otherwise <see langword="false"/>.</returns>
     public static bool IsPathSafe(string filePath, string baseDirectory)
     {
-        return BaselinePathHelper.IsEditorconfigPathSafe(filePath, baseDirectory);
+        return BaselinePathHelper.IsSafe(filePath, baseDirectory);
     }
 
     /// <summary>
