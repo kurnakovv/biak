@@ -20,11 +20,6 @@ public static class WarningsBaselineSyncCommandConstant
     public const string DEFAULT_EDITORCONFIG_MAIN_PATH = ".biak/.editorconfig-main";
 
     /// <summary>
-    /// Root .editorconfig path.
-    /// </summary>
-    public const string DEFAULT_EDITORCONFIG_PATH = ".editorconfig";
-
-    /// <summary>
     /// Warnings-baseline sync started.
     /// </summary>
     public const string SYNC_STARTED = "warnings-baseline sync started...";

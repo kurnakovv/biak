@@ -253,7 +253,7 @@ public static class InspectCodeBaselineSyncCommand
             return baselineConfig.Path;
         }
 
-        string biakDirectory = Path.GetFullPath(InspectCodeBaselineSyncCommandConstant.DEFAULT_EDITORCONFIG_SEARCH_DIRECTORY, baseDirectory);
+        string biakDirectory = Path.GetFullPath(".biak", baseDirectory);
 
         if (Directory.Exists(biakDirectory))
         {
@@ -271,13 +271,13 @@ public static class InspectCodeBaselineSyncCommand
             }
         }
 
-        string rootEditorconfigPath = Path.GetFullPath(InspectCodeBaselineSyncCommandConstant.DEFAULT_EDITORCONFIG_PATH, baseDirectory);
+        string rootEditorconfigPath = Path.GetFullPath(".editorconfig", baseDirectory);
         if (File.Exists(rootEditorconfigPath))
         {
             string content = File.ReadAllText(rootEditorconfigPath);
             if (content.Contains(InspectCodeBaselineInitCommandConstant.BASELINE_MARKER, StringComparison.Ordinal))
             {
-                return InspectCodeBaselineSyncCommandConstant.DEFAULT_EDITORCONFIG_PATH;
+                return ".editorconfig";
             }
         }
 
