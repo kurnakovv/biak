@@ -2,6 +2,7 @@
 // This file is licensed under the MIT License.
 // See the LICENSE file in the project root for full license information.
 
+using System.Reflection.Metadata;
 using Biak.ConsoleApp.Constants;
 using Biak.ConsoleApp.Exceptions;
 using Biak.ConsoleApp.Helpers;
@@ -96,7 +97,11 @@ public static class WarningsBaselineSyncCommand
                 StringComparison.Ordinal);
             if (hasLegacyMarker)
             {
-                originalContent = WarningsBaselineSyncHelper.MigrateLegacyMarker(originalContent);
+                originalContent = originalContent.Replace(
+                    WarningsBaselineInitCommandConstant.LEGACY_BASELINE_DIAGNOSTIC_MARKER,
+                    WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER,
+                    StringComparison.Ordinal
+                );
             }
 
             // Activate baseline entries as warnings so the compiler emits them during the build.
