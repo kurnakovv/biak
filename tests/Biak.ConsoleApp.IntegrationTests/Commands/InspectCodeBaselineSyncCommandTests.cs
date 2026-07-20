@@ -598,6 +598,100 @@ public class Ca1822ViolationService
         }
     }
 
+    [Fact]
+    public async Task RunAsyncWhenRuleIdOverrideMapsCa1822ShouldKeepBaselineFilterAsync()
+    {
+        string originalDirectory = Directory.GetCurrentDirectory();
+        TestDirectory testDir = new(
+            $"{nameof(InspectCodeBaselineSyncCommandTests)}_{nameof(RunAsyncWhenRuleIdOverrideMapsCa1822ShouldKeepBaselineFilterAsync)}"
+        );
+
+        try
+        {
+            Directory.SetCurrentDirectory(testDir.Value);
+            CopyInspectCodeTemplate(testDir.Value);
+            await EnsureBiakStatusConfiguredAsync(testDir.Value);
+
+            string projectPath = Path.Join(testDir.Value, "InspectCodeBaselineTemplate.csproj");
+            string projectContent = await File.ReadAllTextAsync(projectPath);
+            projectContent = projectContent
+                .Replace("<EnableNETAnalyzers>false</EnableNETAnalyzers>", "<EnableNETAnalyzers>true</EnableNETAnalyzers>", StringComparison.Ordinal)
+                .Replace("<RunAnalyzers>false</RunAnalyzers>", "<RunAnalyzers>true</RunAnalyzers>", StringComparison.Ordinal)
+                .Replace("<RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>", "<RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>", StringComparison.Ordinal)
+                .Replace(
+                    "<GenerateDocumentationFile>false</GenerateDocumentationFile>",
+                    "<GenerateDocumentationFile>false</GenerateDocumentationFile>\n    <AnalysisMode>AllEnabledByDefault</AnalysisMode>\n    <AnalysisLevel>latest-all</AnalysisLevel>",
+                    StringComparison.Ordinal
+                );
+            await File.WriteAllTextAsync(projectPath, projectContent);
+
+            const string EDITORCONFIG_WITH_CA1822 = """
+root = true
+
+[*.cs]
+dotnet_diagnostic.CA1822.severity = warning
+""";
+            await File.WriteAllTextAsync(Path.Join(testDir.Value, ".editorconfig"), EDITORCONFIG_WITH_CA1822);
+
+            await File.WriteAllTextAsync(
+                Path.Join(testDir.Value, ".biak", "config.json"),
+                // language=json
+                """
+                {
+                  "inspectCodeBaseline": {
+                    "ruleIdOverrides": {
+                      "CA1822": "dotnet_diagnostic.CA1822.severity"
+                    }
+                  }
+                }
+                """
+            );
+
+            const string CA1822_VIOLATION_CLASS = """
+namespace InspectCodeBaselineTemplate;
+
+public class Ca1822ViolationService
+{
+    public int GetValue()
+    {
+        return 42;
+    }
+}
+""";
+            await File.WriteAllTextAsync(Path.Join(testDir.Value, "Ca1822ViolationService.cs"), CA1822_VIOLATION_CLASS);
+
+            string baselinePath = Path.Join(testDir.Value, ".biak", ".editorconfig-InspectCodeBaseline");
+            await File.WriteAllTextAsync(
+                baselinePath,
+                $$"""
+                # Mocked CA1822 baseline mapping
+                [{Ca1822ViolationService.cs}]
+                dotnet_diagnostic.CA1822.severity = suggestion {{InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}}
+                """
+            );
+            await EnableCommand.RunAsync();
+
+            string[] args =
+            [
+                CommandArgumentConstant.INSPECTCODE_BASELINE,
+                CommandArgumentConstant.SYNC,
+                CommandArgumentConstant.PATH,
+                ".biak/.editorconfig-InspectCodeBaseline",
+            ];
+
+            string result = await InspectCodeBaselineSyncCommand.RunAsync(args);
+            string syncedBaselineContent = await File.ReadAllTextAsync(baselinePath);
+
+            Assert.Contains("filter(s) still alive.", result, StringComparison.Ordinal);
+            Assert.Contains("dotnet_diagnostic.CA1822.severity", syncedBaselineContent, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains(InspectCodeBaselineInitCommandConstant.BASELINE_MARKER, syncedBaselineContent, StringComparison.Ordinal);
+        }
+        finally
+        {
+            Directory.SetCurrentDirectory(originalDirectory);
+        }
+    }
+
     private static void CopyInspectCodeTemplate(string testDirectory)
     {
         string templatePath = Path.Join(

@@ -139,8 +139,7 @@ public static class InspectCodeBaselineSyncCommand
 
             IReadOnlyDictionary<string, string>? ruleIdOverrides = baselineConfig?.RuleIdOverrides;
 
-            Dictionary<string, HashSet<string>> activeFilesByRuleKeyMutable =
-                new(StringComparer.OrdinalIgnoreCase);
+            Dictionary<string, HashSet<string>> activeFilesByRuleKeyMutable = new(StringComparer.OrdinalIgnoreCase);
 
             foreach (InspectCodeIssue issue in issues)
             {
