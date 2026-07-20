@@ -61,20 +61,6 @@ public static class WarningsBaselineSyncHelper
     }
 
     /// <summary>
-    /// Migrates legacy marker to new warnings-specific marker.
-    /// </summary>
-    /// <param name="content">.editorconfig content.</param>
-    /// <returns>Updated content.</returns>
-    public static string MigrateLegacyMarker(string content)
-    {
-        return content.Replace(
-            WarningsBaselineInitCommandConstant.LEGACY_BASELINE_DIAGNOSTIC_MARKER,
-            WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER,
-            StringComparison.Ordinal
-        );
-    }
-
-    /// <summary>
     /// Switches baseline severities between <c>suggestion</c> and <c>warning</c>
     /// for lines marked with baseline marker.
     /// </summary>
