@@ -145,29 +145,12 @@ public static class InspectCodeBaselineSyncCommand
 
             IReadOnlyDictionary<string, string>? ruleIdOverrides = baselineConfig?.RuleIdOverrides;
 
-            Dictionary<string, HashSet<string>> activeFilesByRuleKeyMutable = new(StringComparer.OrdinalIgnoreCase);
+            InspectCodeBaselineIssuesGroupResult groupResult = InspectCodeBaselineIssuesGrouper.Group(issues, ruleIdOverrides);
 
-            foreach (InspectCodeIssue issue in issues)
-            {
-                string? mappedEditorconfigKey = FindMappedEditorconfigKey(issue.RuleId, ruleIdOverrides);
-                if (mappedEditorconfigKey is null)
-                {
-                    continue;
-                }
-
-                if (!activeFilesByRuleKeyMutable.TryGetValue(mappedEditorconfigKey, out HashSet<string>? files))
-                {
-                    files = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                    activeFilesByRuleKeyMutable[mappedEditorconfigKey] = files;
-                }
-
-                files.Add(issue.FilePath.Replace(Path.DirectorySeparatorChar, '/'));
-            }
-
-            IReadOnlyDictionary<string, IReadOnlySet<string>> activeFilesByRuleKey = activeFilesByRuleKeyMutable
+            IReadOnlyDictionary<string, IReadOnlySet<string>> activeFilesByRuleKey = groupResult.GroupsByKey
                 .ToDictionary(
                     x => x.Key,
-                    x => (IReadOnlySet<string>)x.Value,
+                    x => (IReadOnlySet<string>)x.Value.Files,
                     StringComparer.OrdinalIgnoreCase);
 
             HashSet<string> baselineRuleKeys = InspectCodeBaselineSyncHelper.GetBaselineRuleKeys(originalContent);
@@ -299,17 +282,5 @@ public static class InspectCodeBaselineSyncCommand
         }
 
         throw new BiakApplicationException(InspectCodeBaselineSyncCommandConstant.NO_BASELINE_MARKER);
-    }
-
-    private static string? FindMappedEditorconfigKey(
-        string ruleId,
-        IReadOnlyDictionary<string, string>? overrides)
-    {
-        if (overrides is not null && overrides.TryGetValue(ruleId, out string? overrideKey))
-        {
-            return overrideKey;
-        }
-
-        return InspectCodeRuleMetadataHelper.Get(ruleId)?.EditorconfigConfigKey;
     }
 }
