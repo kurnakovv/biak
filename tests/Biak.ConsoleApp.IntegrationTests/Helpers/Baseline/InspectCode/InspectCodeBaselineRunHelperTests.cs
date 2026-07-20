@@ -7,7 +7,7 @@ using Biak.ConsoleApp.Exceptions;
 using Biak.ConsoleApp.Helpers.Baseline.InspectCode;
 using Biak.ConsoleApp.IntegrationTests.Mock;
 
-namespace Biak.ConsoleApp.IntegrationTests.Helpers;
+namespace Biak.ConsoleApp.IntegrationTests.Helpers.Baseline.InspectCode;
 
 public class InspectCodeBaselineRunHelperTests
 {

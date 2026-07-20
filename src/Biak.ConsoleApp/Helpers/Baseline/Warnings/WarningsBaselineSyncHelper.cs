@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 using Biak.ConsoleApp.Constants;
 using Biak.ConsoleApp.Helpers.Baseline;
 
-namespace Biak.ConsoleApp.Helpers;
+namespace Biak.ConsoleApp.Helpers.Baseline.Warnings;
 
 /// <summary>
 /// `dotnet biak warnings-baseline sync` command helper.

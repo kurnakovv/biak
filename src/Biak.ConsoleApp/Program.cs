@@ -3,6 +3,8 @@
 // See the LICENSE file in the project root for full license information.
 
 using Biak.ConsoleApp.Commands;
+using Biak.ConsoleApp.Commands.Baseline.InspectCode;
+using Biak.ConsoleApp.Commands.Baseline.Warnings;
 using Biak.ConsoleApp.Constants;
 
 namespace Biak.ConsoleApp;
