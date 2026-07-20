@@ -115,6 +115,70 @@ public class InspectCodeBaselineSyncCommandTests
     }
 
     [Fact]
+    public async Task RunShouldCountAliveRulesWhenBadFormattingAsync()
+    {
+        string originalDirectory = Directory.GetCurrentDirectory();
+        TestDirectory testDir = new(
+            $"{nameof(InspectCodeBaselineSyncCommandTests)}_{nameof(RunShouldCountAliveRulesWhenBadFormattingAsync)}"
+        );
+
+        try
+        {
+            Directory.SetCurrentDirectory(testDir.Value);
+            CopyInspectCodeTemplate(testDir.Value);
+            await EnsureBiakStatusConfiguredAsync(testDir.Value);
+
+            string baselinePath = Path.Join(testDir.Value, ".biak", ".editorconfig-InspectCodeBaseline");
+            await File.WriteAllTextAsync(
+                baselinePath,
+                $$"""
+                # Field can be made readonly (private accessibility) [FieldCanBeMadeReadOnly.Local] | https://www.jetbrains.com/help/resharper/FieldCanBeMadeReadOnly.Local.html
+                [{ServiceC.cs}]
+                resharper_field_can_be_made_read_only_local_highlighting  =  suggestion    {{InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}}      
+                    # user comment after baseline rule with extra spaces      
+                # Use 'String.IsNullOrEmpty' [ReplaceWithStringIsNullOrEmpty] | https://www.jetbrains.com/help/resharper/ReplaceWithStringIsNullOrEmpty.html
+                [{ServiceD.cs}]
+                resharper_replace_with_string_is_null_or_empty_highlighting        =         suggestion         {{InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}}     
+                    # another user comment right after diagnostic
+
+
+                # Convert local variable or field into constant (private accessibility) [ConvertToConstant.Local]
+                [{ServiceA.cs}]
+                resharper_convert_to_constant_local_highlighting = suggestion {{InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}}
+                # user note: keep for now
+                # Member can be made private (non-private accessibility) [MemberCanBePrivate.Global]
+                [{ServiceB.cs}]
+                resharper_member_can_be_private_global_highlighting = suggestion {{InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}}
+
+
+
+
+
+                # Convert property into auto-property [ConvertToAutoProperty]
+                [{ServiceE.cs}]
+                resharper_convert_to_auto_property_highlighting = suggestion {{InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}}
+                """
+            );
+
+            string[] args =
+            [
+                CommandArgumentConstant.INSPECTCODE_BASELINE,
+                CommandArgumentConstant.SYNC,
+                CommandArgumentConstant.PATH,
+                ".biak/.editorconfig-InspectCodeBaseline",
+            ];
+
+            string result = await InspectCodeBaselineSyncCommand.RunAsync(args);
+
+            Assert.Equal("Sync complete. Removed 0 file(s); resolved 0 filter(s). 5 filter(s) still alive.", result);
+        }
+        finally
+        {
+            Directory.SetCurrentDirectory(originalDirectory);
+        }
+    }
+
+    [Fact]
     public async Task RunShouldTrimFilesInsideKeptRuleBlockAsync()
     {
         string originalDirectory = Directory.GetCurrentDirectory();
