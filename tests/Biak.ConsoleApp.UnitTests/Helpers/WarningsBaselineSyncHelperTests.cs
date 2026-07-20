@@ -9,29 +9,6 @@ namespace Biak.ConsoleApp.UnitTests.Helpers;
 
 public class WarningsBaselineSyncHelperTests
 {
-    [Theory]
-    [InlineData(".editorconfig", true)]
-    [InlineData(".biak/.editorconfig-main", true)]
-    [InlineData(".editorconfig-legacy", true)]
-    [InlineData(".editorconfig-custom", true)]
-    [InlineData("src/nested/.editorconfig", true)]
-    [InlineData(".editorconfig/test.txt", false)]
-    [InlineData("src/.editorconfig/.editorconfig-main", false)]
-    [InlineData("test.editorconfig", false)]
-    [InlineData("src/test.editorconfig", false)]
-    [InlineData("../.editorconfig", false)]
-    [InlineData("../../.editorconfig", false)]
-    [InlineData("../other-project/.editorconfig", false)]
-    [InlineData("appsettings.json", false)]
-    public void IsPathSafeReturnsExpectedResult(string relativePath, bool expected)
-    {
-        string baseDir = Path.Join(Path.GetTempPath(), "biak-test-safe");
-
-        bool result = WarningsBaselineSyncHelper.IsPathSafe(relativePath, baseDir);
-
-        Assert.Equal(expected, result);
-    }
-
     public static TheoryData<string, string[]> GetDiagnosticCodesData()
     {
         return new()

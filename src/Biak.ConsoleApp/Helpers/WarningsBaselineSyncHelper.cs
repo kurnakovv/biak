@@ -38,18 +38,6 @@ public static class WarningsBaselineSyncHelper
     );
 
     /// <summary>
-    /// Returns <see langword="true"/> when <paramref name="filePath"/> resolves to a location
-    /// inside <paramref name="baseDirectory"/> (directory-traversal protection).
-    /// </summary>
-    /// <param name="filePath">Path to validate.</param>
-    /// <param name="baseDirectory">Base directory that the path must stay within.</param>
-    /// <returns><see langword="true"/> when the path is safe; otherwise <see langword="false"/>.</returns>
-    public static bool IsPathSafe(string filePath, string baseDirectory)
-    {
-        return BaselinePathHelper.IsSafe(filePath, baseDirectory);
-    }
-
-    /// <summary>
     /// Returns all unique diagnostic codes that appear in baseline entries inside <paramref name="content"/>.
     /// </summary>
     /// <param name="content">.editorconfig content.</param>
