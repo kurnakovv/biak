@@ -56,9 +56,9 @@ public static class InspectCodeBaselineSyncHelper
     /// </summary>
     /// <param name="content">.editorconfig content.</param>
     /// <returns>Unique inspectcode baseline rule keys.</returns>
-    public static HashSet<string> GetBaselineRuleKeys(string content)
+    public static HashSet<string> GetRuleKeys(string content)
     {
-        return BaselineSyncEditorconfigHelper.GetBaselineIdentifiers(content, TryGetBaselineRuleKey);
+        return BaselineSyncEditorconfigHelper.GetIdentifiers(content, TryGetRuleKey);
     }
 
     /// <summary>
@@ -68,15 +68,15 @@ public static class InspectCodeBaselineSyncHelper
     /// <param name="keysToKeep">Rule keys to keep.</param>
     /// <param name="activeFilesByRuleKey">Current active files by rule key.</param>
     /// <returns>Synchronized .editorconfig content.</returns>
-    public static string RemoveBaselineFilters(
+    public static string RemoveFilters(
         string content,
         IReadOnlySet<string> keysToKeep,
         IReadOnlyDictionary<string, IReadOnlySet<string>> activeFilesByRuleKey)
     {
-        return BaselineSyncEditorconfigHelper.RemoveBaselineFilters(
+        return BaselineSyncEditorconfigHelper.RemoveFilters(
             content,
             keysToKeep,
-            TryGetBaselineRuleKey,
+            TryGetRuleKey,
             activeFilesByRuleKey);
     }
 
@@ -95,7 +95,7 @@ public static class InspectCodeBaselineSyncHelper
         return BaselineSyncEditorconfigHelper.GetSynchronizedFiles(
             content,
             keysToKeep,
-            TryGetBaselineRuleKey,
+            TryGetRuleKey,
             activeFilesByRuleKey);
     }
 
@@ -105,7 +105,7 @@ public static class InspectCodeBaselineSyncHelper
     /// <param name="content">.editorconfig content.</param>
     /// <param name="snapshotSeverity">Snapshot severity.</param>
     /// <returns>Updated content with normalized baseline severity.</returns>
-    public static string NormalizeBaselineSeverity(string content, string snapshotSeverity)
+    public static string NormalizeSeverity(string content, string snapshotSeverity)
     {
         string normalizedSeverity = string.IsNullOrWhiteSpace(snapshotSeverity)
             ? InspectCodeBaselineConfig.DEFAULT_SNAPSHOT_SEVERITY
@@ -128,7 +128,7 @@ public static class InspectCodeBaselineSyncHelper
         return string.Join(newline, lines);
     }
 
-    private static string? TryGetBaselineRuleKey(string line)
+    private static string? TryGetRuleKey(string line)
     {
         Match match = s_inspectCodeBaselineEntryRegex.Match(line);
         return match.Success

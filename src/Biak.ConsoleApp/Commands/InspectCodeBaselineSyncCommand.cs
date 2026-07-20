@@ -153,7 +153,7 @@ public static class InspectCodeBaselineSyncCommand
                     x => (IReadOnlySet<string>)x.Value.Files,
                     StringComparer.OrdinalIgnoreCase);
 
-            HashSet<string> baselineRuleKeys = InspectCodeBaselineSyncHelper.GetBaselineRuleKeys(originalContent);
+            HashSet<string> baselineRuleKeys = InspectCodeBaselineSyncHelper.GetRuleKeys(originalContent);
             HashSet<string> activeRuleKeys = activeFilesByRuleKey.Keys.ToHashSet(StringComparer.OrdinalIgnoreCase);
 
             HashSet<string> keysToKeep = baselineRuleKeys
@@ -165,7 +165,7 @@ public static class InspectCodeBaselineSyncCommand
                 keysToKeep,
                 activeFilesByRuleKey);
 
-            string syncedContent = InspectCodeBaselineSyncHelper.RemoveBaselineFilters(
+            string syncedContent = InspectCodeBaselineSyncHelper.RemoveFilters(
                 originalContent,
                 keysToKeep,
                 activeFilesByRuleKey);
@@ -173,11 +173,11 @@ public static class InspectCodeBaselineSyncCommand
             string snapshotSeverity = baselineConfig?.SnapshotSeverity
                 ?? InspectCodeBaselineConfig.DEFAULT_SNAPSHOT_SEVERITY;
 
-            syncedContent = InspectCodeBaselineSyncHelper.NormalizeBaselineSeverity(syncedContent, snapshotSeverity);
+            syncedContent = InspectCodeBaselineSyncHelper.NormalizeSeverity(syncedContent, snapshotSeverity);
             await File.WriteAllTextAsync(resolvedPath, syncedContent);
             completedSuccessfully = true;
 
-            HashSet<string> remainingBaselineRuleKeys = InspectCodeBaselineSyncHelper.GetBaselineRuleKeys(syncedContent);
+            HashSet<string> remainingBaselineRuleKeys = InspectCodeBaselineSyncHelper.GetRuleKeys(syncedContent);
 
             string result;
             if (remainingBaselineRuleKeys.Count == 0)

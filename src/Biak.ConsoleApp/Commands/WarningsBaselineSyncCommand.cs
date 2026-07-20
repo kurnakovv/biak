@@ -85,7 +85,7 @@ public static class WarningsBaselineSyncCommand
             originalContent = await File.ReadAllTextAsync(resolvedPath);
             contentBeforeSync = originalContent;
 
-            if (!WarningsBaselineSyncHelper.HasAnyBaselineMarker(originalContent))
+            if (!WarningsBaselineSyncHelper.HasAnyMarker(originalContent))
             {
                 throw new BiakApplicationException(WarningsBaselineSyncCommandConstant.NO_BASELINE_MARKER);
             }
@@ -99,7 +99,7 @@ public static class WarningsBaselineSyncCommand
             }
 
             // Activate baseline entries as warnings so the compiler emits them during the build.
-            string activatedContent = WarningsBaselineSyncHelper.SetBaselineForBuild(originalContent, activate: true);
+            string activatedContent = WarningsBaselineSyncHelper.SetSeveritiesForBuild(originalContent, activate: true);
             await File.WriteAllTextAsync(resolvedPath, activatedContent);
             baselineWasActivated = true;
 
@@ -124,7 +124,7 @@ public static class WarningsBaselineSyncCommand
                     StringComparer.OrdinalIgnoreCase
                 );
 
-            HashSet<string> baselineCodes = WarningsBaselineSyncHelper.GetBaselineDiagnosticCodes(originalContent);
+            HashSet<string> baselineCodes = WarningsBaselineSyncHelper.GetDiagnosticCodes(originalContent);
 
             // Keep only filters whose code is still an active warning.
             HashSet<string> codesToKeep = baselineCodes
@@ -137,13 +137,13 @@ public static class WarningsBaselineSyncCommand
                 activeFilesByCode
             );
 
-            string syncedContent = WarningsBaselineSyncHelper.RemoveBaselineFilters(originalContent, codesToKeep, activeFilesByCode);
-            syncedContent = WarningsBaselineSyncHelper.SetBaselineForBuild(syncedContent, activate: false);
+            string syncedContent = WarningsBaselineSyncHelper.RemoveFilters(originalContent, codesToKeep, activeFilesByCode);
+            syncedContent = WarningsBaselineSyncHelper.SetSeveritiesForBuild(syncedContent, activate: false);
 
             await File.WriteAllTextAsync(resolvedPath, syncedContent);
             completedSuccessfully = true;
 
-            HashSet<string> remainingBaselineCodes = WarningsBaselineSyncHelper.GetBaselineDiagnosticCodes(syncedContent);
+            HashSet<string> remainingBaselineCodes = WarningsBaselineSyncHelper.GetDiagnosticCodes(syncedContent);
 
             string result;
             if (remainingBaselineCodes.Count == 0)
