@@ -503,20 +503,16 @@ public class WarningsBaselineSyncHelperTests
                 null
             },
             {
-                "PreservesBlockWhenCommentDirectlyFollowsDiagnostic",
+                "RemovesBlockWhenCommentDirectlyFollowsDiagnostic",
                 $$"""
                 [{src/File.cs}]
                 dotnet_diagnostic.CA2000.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
                 # section-level note
                 """,
                 Array.Empty<string>(),
-                ["[{src/File.cs}]", "CA2000", "# section-level note"],
                 Array.Empty<string>(),
-                $$"""
-                [{src/File.cs}]
-                dotnet_diagnostic.CA2000.severity = warning {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
-                # section-level note
-                """
+                ["[{src/File.cs}]", "CA2000"],
+                "# section-level note"
             },
         };
     }

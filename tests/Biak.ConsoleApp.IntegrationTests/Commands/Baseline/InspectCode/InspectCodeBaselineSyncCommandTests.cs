@@ -157,6 +157,12 @@ public class InspectCodeBaselineSyncCommandTests
                 # Convert property into auto-property [ConvertToAutoProperty]
                 [{ServiceE.cs}]
                 resharper_convert_to_auto_property_highlighting = suggestion {{InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}}
+                [{ServiceC.cs}]
+                resharper_unused_member_local_highlighting = suggestion {{InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}}
+
+
+                [{ServiceE.cs}]
+                resharper_replace_with_single_call_to_first_or_default_highlighting = suggestion {{InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}}
                 """
             );
 
@@ -170,7 +176,7 @@ public class InspectCodeBaselineSyncCommandTests
 
             string result = await InspectCodeBaselineSyncCommand.RunAsync(args);
 
-            Assert.Equal("Sync complete. Removed 0 file(s); resolved 0 filter(s). 5 filter(s) still alive.", result);
+            Assert.Equal("Sync complete. Removed 0 file(s); resolved 0 filter(s). 7 filter(s) still alive.", result);
         }
         finally
         {

@@ -167,17 +167,15 @@ public static class BaselineSyncEditorconfigHelper
             }
 
             int blockEnd = diagIndex + 1;
-            bool hasBlankLineAfterDiagnostic = false;
             while (blockEnd < lines.Length && string.IsNullOrWhiteSpace(lines[blockEnd]))
             {
-                hasBlankLineAfterDiagnostic = true;
                 blockEnd++;
             }
 
             int nextSectionIndex = blockEnd;
             while (nextSectionIndex < lines.Length
                 && (string.IsNullOrWhiteSpace(lines[nextSectionIndex])
-                    || (hasBlankLineAfterDiagnostic && IsCommentLine(lines[nextSectionIndex]))))
+                    || IsCommentLine(lines[nextSectionIndex])))
             {
                 nextSectionIndex++;
             }
