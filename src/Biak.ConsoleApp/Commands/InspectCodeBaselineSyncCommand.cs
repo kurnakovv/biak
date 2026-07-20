@@ -42,7 +42,13 @@ public static class InspectCodeBaselineSyncCommand
             return true;
         }
 
-        return TryParseOptions(args, out _);
+        return CommandArgumentHelper.TryParseOptions(
+            args,
+            out _,
+            new HashSet<string>(StringComparer.Ordinal)
+            {
+                CommandArgumentConstant.PATH,
+            });
     }
 
     /// <summary>
@@ -247,7 +253,13 @@ public static class InspectCodeBaselineSyncCommand
 
     private static string ResolveBaselinePath(string[] args, InspectCodeBaselineConfig? baselineConfig, string baseDirectory)
     {
-        if (TryParseOptions(args, out Dictionary<string, string> options)
+        if (CommandArgumentHelper.TryParseOptions(
+            args,
+            out Dictionary<string, string> options,
+            new HashSet<string>(StringComparer.Ordinal)
+            {
+                CommandArgumentConstant.PATH,
+            })
             && options.TryGetValue(CommandArgumentConstant.PATH, out string? pathFromCli))
         {
             return pathFromCli;
@@ -299,43 +311,5 @@ public static class InspectCodeBaselineSyncCommand
         }
 
         return InspectCodeRuleMetadataHelper.Get(ruleId)?.EditorconfigConfigKey;
-    }
-
-    private static bool TryParseOptions(string[] args, out Dictionary<string, string> options)
-    {
-        options = new Dictionary<string, string>(StringComparer.Ordinal);
-
-        if (args.Length == 2)
-        {
-            return true;
-        }
-
-        if ((args.Length - 2) % 2 != 0)
-        {
-            return false;
-        }
-
-        for (int i = 2; i < args.Length; i += 2)
-        {
-            string option = args[i];
-            string value = args[i + 1];
-
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                return false;
-            }
-
-            if (option != CommandArgumentConstant.PATH)
-            {
-                return false;
-            }
-
-            if (!options.TryAdd(option, value))
-            {
-                return false;
-            }
-        }
-
-        return true;
     }
 }
