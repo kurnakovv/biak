@@ -68,7 +68,7 @@ public static class InspectCodeBaselineInitCommand
 
             IReadOnlyDictionary<string, string>? ruleIdOverrides = baselineConfig?.RuleIdOverrides;
 
-            Dictionary<string, (string RuleId, List<string> Files)> issuesByMappedEditorconfigKey = new(StringComparer.OrdinalIgnoreCase);
+            Dictionary<string, (string RuleId, HashSet<string> Files)> issuesByMappedEditorconfigKey = new(StringComparer.OrdinalIgnoreCase);
             HashSet<string> unmappedRuleIds = new(StringComparer.OrdinalIgnoreCase);
 
             foreach (InspectCodeIssue issue in issues)
@@ -80,18 +80,15 @@ public static class InspectCodeBaselineInitCommand
                     continue;
                 }
 
-                if (!issuesByMappedEditorconfigKey.TryGetValue(mappedEditorconfigKey, out (string RuleId, List<string> Files) entry))
+                if (!issuesByMappedEditorconfigKey.TryGetValue(mappedEditorconfigKey, out (string RuleId, HashSet<string> Files) entry))
                 {
-                    entry = (issue.RuleId, new List<string>());
+                    entry = (issue.RuleId, new HashSet<string>(StringComparer.OrdinalIgnoreCase));
                     issuesByMappedEditorconfigKey[mappedEditorconfigKey] = entry;
                 }
 
                 string relativePath = issue.FilePath.Replace(Path.DirectorySeparatorChar, '/');
 
-                if (!entry.Files.Contains(relativePath, StringComparer.OrdinalIgnoreCase))
-                {
-                    entry.Files.Add(relativePath);
-                }
+                entry.Files.Add(relativePath);
             }
 
             if (unmappedRuleIds.Count > 0)
@@ -114,9 +111,9 @@ public static class InspectCodeBaselineInitCommand
             Console.WriteLine(InspectCodeBaselineInitCommandConstant.INSERT_FILTERS_NOTE);
 
             StringBuilder sb = new();
-            foreach ((string key, (string ruleId, List<string> files)) in issuesByMappedEditorconfigKey.OrderBy(x => x.Key))
+            foreach ((string key, (string ruleId, HashSet<string> files)) in issuesByMappedEditorconfigKey.OrderBy(x => x.Key))
             {
-                files.Sort(StringComparer.OrdinalIgnoreCase);
+                IOrderedEnumerable<string> sortedFiles = files.OrderBy(x => x, StringComparer.OrdinalIgnoreCase);
 
                 InspectCodeRuleMetadata? metadata = InspectCodeRuleMetadataHelper.Get(ruleId);
 
@@ -125,7 +122,7 @@ public static class InspectCodeBaselineInitCommand
                     sb.AppendLine($"# {metadata.Title} [{ruleId}] | {metadata.Reference}");
                 }
 
-                sb.AppendLine("[{" + string.Join(",", files) + "}]");
+                sb.AppendLine("[{" + string.Join(",", sortedFiles) + "}]");
                 sb.AppendLine($"{key} = {snapshotSeverity} {InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}");
                 sb.AppendLine();
             }
