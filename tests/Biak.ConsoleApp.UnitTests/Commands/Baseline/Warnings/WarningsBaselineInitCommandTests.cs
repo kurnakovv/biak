@@ -5,7 +5,7 @@
 using Biak.ConsoleApp.Commands.Baseline.Warnings;
 using Biak.ConsoleApp.Constants;
 
-namespace Biak.ConsoleApp.UnitTests.Commands;
+namespace Biak.ConsoleApp.UnitTests.Commands.Baseline.Warnings;
 
 public class WarningsBaselineInitCommandTests
 {
