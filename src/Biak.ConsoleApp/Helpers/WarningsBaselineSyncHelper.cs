@@ -54,7 +54,7 @@ public static class WarningsBaselineSyncHelper
     /// </summary>
     /// <param name="content">.editorconfig content.</param>
     /// <returns>Unique diagnostic codes from baseline entries.</returns>
-    public static HashSet<string> GetBaselineDiagnosticCodes(string content)
+    public static HashSet<string> GetDiagnosticCodes(string content)
     {
         return s_allBaselineCodesRegex.Matches(content)
             .Select(m => m.Groups[1].Value)
@@ -66,7 +66,7 @@ public static class WarningsBaselineSyncHelper
     /// </summary>
     /// <param name="content">.editorconfig content.</param>
     /// <returns><see langword="true"/> when baseline marker exists.</returns>
-    public static bool HasAnyBaselineMarker(string content)
+    public static bool HasAnyMarker(string content)
     {
         return content.Contains(WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER, StringComparison.Ordinal)
             || content.Contains(WarningsBaselineInitCommandConstant.LEGACY_BASELINE_DIAGNOSTIC_MARKER, StringComparison.Ordinal);
@@ -96,10 +96,10 @@ public static class WarningsBaselineSyncHelper
     /// <see langword="false"/> to replace <c>warning</c> with <c>suggestion</c>.
     /// </param>
     /// <returns>Updated content with baseline severities switched for the sync flow.</returns>
-    public static string SetBaselineForBuild(string content, bool activate)
+    public static string SetSeveritiesForBuild(string content, bool activate)
     {
-        string activated = ReplaceBaselineSeverity(content, activate: activate, WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER);
-        return ReplaceBaselineSeverity(activated, activate: activate, WarningsBaselineInitCommandConstant.LEGACY_BASELINE_DIAGNOSTIC_MARKER);
+        string activated = ReplaceSeverity(content, activate, WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER);
+        return ReplaceSeverity(activated, activate, WarningsBaselineInitCommandConstant.LEGACY_BASELINE_DIAGNOSTIC_MARKER);
     }
 
     /// <summary>
@@ -122,16 +122,16 @@ public static class WarningsBaselineSyncHelper
     /// Optional map of active warning files per diagnostic code (normalized as forward-slash paths).
     /// </param>
     /// <returns>Content with resolved baseline blocks/files removed.</returns>
-    public static string RemoveBaselineFilters(
+    public static string RemoveFilters(
         string content,
         IReadOnlySet<string> codesToKeep,
         IReadOnlyDictionary<string, IReadOnlySet<string>>? activeFilesByCode = null
     )
     {
-        return BaselineSyncEditorconfigHelper.RemoveBaselineFilters(
+        return BaselineSyncEditorconfigHelper.RemoveFilters(
             content,
             codesToKeep,
-            TryGetBaselineCode,
+            TryGetCode,
             activeFilesByCode
         );
     }
@@ -156,12 +156,12 @@ public static class WarningsBaselineSyncHelper
         return BaselineSyncEditorconfigHelper.GetSynchronizedFiles(
             content,
             codesToKeep,
-            TryGetBaselineCode,
+            TryGetCode,
             activeFilesByCode
         );
     }
 
-    private static string? TryGetBaselineCode(string line)
+    private static string? TryGetCode(string line)
     {
         Match match = s_baselineDiagnosticRegex.Match(line);
         return match.Success
@@ -169,7 +169,7 @@ public static class WarningsBaselineSyncHelper
             : null;
     }
 
-    private static string ReplaceBaselineSeverity(string content, bool activate, string marker)
+    private static string ReplaceSeverity(string content, bool activate, string marker)
     {
         return activate
             ? content.Replace(

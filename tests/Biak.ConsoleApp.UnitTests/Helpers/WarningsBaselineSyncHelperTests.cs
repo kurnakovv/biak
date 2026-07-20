@@ -23,7 +23,7 @@ public class WarningsBaselineSyncHelperTests
     [InlineData("../../.editorconfig", false)]
     [InlineData("../other-project/.editorconfig", false)]
     [InlineData("appsettings.json", false)]
-    public void IsPathSafeTest(string relativePath, bool expected)
+    public void IsPathSafeReturnsExpectedResult(string relativePath, bool expected)
     {
         string baseDir = Path.Join(Path.GetTempPath(), "biak-test-safe");
 
@@ -32,7 +32,7 @@ public class WarningsBaselineSyncHelperTests
         Assert.Equal(expected, result);
     }
 
-    public static TheoryData<string, string[]> GetBaselineDiagnosticCodesData()
+    public static TheoryData<string, string[]> GetDiagnosticCodesData()
     {
         return new()
         {
@@ -87,10 +87,10 @@ public class WarningsBaselineSyncHelperTests
     }
 
     [Theory]
-    [MemberData(nameof(GetBaselineDiagnosticCodesData))]
-    public void GetBaselineDiagnosticCodesTest(string content, string[] expectedCodes)
+    [MemberData(nameof(GetDiagnosticCodesData))]
+    public void GetDiagnosticCodesReturnsExpectedResults(string content, string[] expectedCodes)
     {
-        HashSet<string> codes = WarningsBaselineSyncHelper.GetBaselineDiagnosticCodes(content);
+        HashSet<string> codes = WarningsBaselineSyncHelper.GetDiagnosticCodes(content);
 
         Assert.Equal(expectedCodes.Length, codes.Count);
         foreach (string code in expectedCodes)
@@ -181,10 +181,10 @@ public class WarningsBaselineSyncHelperTests
         dotnet_diagnostic.CA9999.severity = warning
         """
     )]
-    public void SetBaselineForBuildUpdatesContentAsExpected(string testName, string content, bool activate, string expected)
+    public void SetSeveritiesForBuildUpdatesContentAsExpected(string testName, string content, bool activate, string expected)
     {
         _ = testName;
-        string result = WarningsBaselineSyncHelper.SetBaselineForBuild(content, activate);
+        string result = WarningsBaselineSyncHelper.SetSeveritiesForBuild(content, activate);
 
         Assert.Equal(expected, result);
     }
@@ -201,18 +201,18 @@ public class WarningsBaselineSyncHelperTests
         dotnet_diagnostic.CA9999.severity = warning
         """
     )]
-    public void SetBaselineForBuildActivateAndDeactivateAreInverses(string testName, string original)
+    public void SetSeveritiesForBuildActivateAndDeactivateAreInverses(string testName, string original)
     {
         _ = testName;
-        string roundTripped = WarningsBaselineSyncHelper.SetBaselineForBuild(
-            content: WarningsBaselineSyncHelper.SetBaselineForBuild(original, activate: true),
+        string roundTripped = WarningsBaselineSyncHelper.SetSeveritiesForBuild(
+            content: WarningsBaselineSyncHelper.SetSeveritiesForBuild(original, activate: true),
             activate: false
         );
 
         Assert.Equal(original, roundTripped);
     }
 
-    public static TheoryData<string, string, string[], bool, string[], string[], string?> RemoveBaselineFiltersCodeSelectionData()
+    public static TheoryData<string, string, string[], bool, string[], string[], string?> RemoveFiltersCodeSelectionData()
     {
         return new()
         {
@@ -393,8 +393,8 @@ public class WarningsBaselineSyncHelperTests
     }
 
     [Theory]
-    [MemberData(nameof(RemoveBaselineFiltersCodeSelectionData))]
-    public void RemoveBaselineFiltersCodeSelectionTheory(
+    [MemberData(nameof(RemoveFiltersCodeSelectionData))]
+    public void RemoveFiltersCodeSelectionTheory(
         string testName,
         string content,
         string[] codesToKeep,
@@ -412,7 +412,7 @@ public class WarningsBaselineSyncHelperTests
                 : StringComparer.Ordinal
         );
 
-        string result = WarningsBaselineSyncHelper.RemoveBaselineFilters(content, codes);
+        string result = WarningsBaselineSyncHelper.RemoveFilters(content, codes);
 
         if (expectedExact is not null)
         {
@@ -430,7 +430,7 @@ public class WarningsBaselineSyncHelperTests
         }
     }
 
-    public static TheoryData<string, string, string[], string[], string[], string?> RemoveBaselineFiltersContentPreservationData()
+    public static TheoryData<string, string, string[], string[], string[], string?> RemoveFiltersContentPreservationData()
     {
         return new()
         {
@@ -545,8 +545,8 @@ public class WarningsBaselineSyncHelperTests
     }
 
     [Theory]
-    [MemberData(nameof(RemoveBaselineFiltersContentPreservationData))]
-    public void RemoveBaselineFiltersContentPreservationTheory(
+    [MemberData(nameof(RemoveFiltersContentPreservationData))]
+    public void RemoveFiltersContentPreservationTheory(
         string testName,
         string content,
         string[] codesToKeep,
@@ -556,7 +556,7 @@ public class WarningsBaselineSyncHelperTests
     )
     {
         _ = testName;
-        string result = WarningsBaselineSyncHelper.RemoveBaselineFilters(content, new HashSet<string>(codesToKeep));
+        string result = WarningsBaselineSyncHelper.RemoveFilters(content, new HashSet<string>(codesToKeep));
 
         if (expectedExact is not null)
         {
@@ -574,7 +574,7 @@ public class WarningsBaselineSyncHelperTests
         }
     }
 
-    public static TheoryData<string, string, string[], string[], string[], bool> RemoveBaselineFiltersLineEndingsData()
+    public static TheoryData<string, string, string[], string[], string[], bool> RemoveFiltersLineEndingsData()
     {
         return new()
         {
@@ -598,8 +598,8 @@ public class WarningsBaselineSyncHelperTests
     }
 
     [Theory]
-    [MemberData(nameof(RemoveBaselineFiltersLineEndingsData))]
-    public void RemoveBaselineFiltersLineEndingsTheory(
+    [MemberData(nameof(RemoveFiltersLineEndingsData))]
+    public void RemoveFiltersLineEndingsTheory(
         string testName,
         string newline,
         string[] codesToKeep,
@@ -618,7 +618,7 @@ public class WarningsBaselineSyncHelperTests
 
             """.ReplaceLineEndings(newline);
 
-        string result = WarningsBaselineSyncHelper.RemoveBaselineFilters(content, new HashSet<string>(codesToKeep));
+        string result = WarningsBaselineSyncHelper.RemoveFilters(content, new HashSet<string>(codesToKeep));
 
         foreach (string value in mustContain)
         {
@@ -640,7 +640,7 @@ public class WarningsBaselineSyncHelperTests
         }
     }
 
-    public static TheoryData<string, string, string[], string[], string[], string[]> RemoveBaselineFiltersActiveFilesPruningData()
+    public static TheoryData<string, string, string[], string[], string[], string[]> RemoveFiltersActiveFilesPruningData()
     {
         return new()
         {
@@ -672,8 +672,8 @@ public class WarningsBaselineSyncHelperTests
     }
 
     [Theory]
-    [MemberData(nameof(RemoveBaselineFiltersActiveFilesPruningData))]
-    public void RemoveBaselineFiltersActiveFilesPruningTheory(
+    [MemberData(nameof(RemoveFiltersActiveFilesPruningData))]
+    public void RemoveFiltersActiveFilesPruningTheory(
         string testName,
         string content,
         string[] codesToKeep,
@@ -689,7 +689,7 @@ public class WarningsBaselineSyncHelperTests
                 ["CA2000"] = new HashSet<string>(activeFilesForCode, StringComparer.OrdinalIgnoreCase),
             };
 
-        string result = WarningsBaselineSyncHelper.RemoveBaselineFilters(
+        string result = WarningsBaselineSyncHelper.RemoveFilters(
             content,
             new HashSet<string>(codesToKeep, StringComparer.OrdinalIgnoreCase),
             activeFilesByCode);

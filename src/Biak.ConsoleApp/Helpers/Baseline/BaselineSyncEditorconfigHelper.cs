@@ -17,14 +17,14 @@ public static class BaselineSyncEditorconfigHelper
     /// <param name="content">.editorconfig content.</param>
     /// <param name="tryGetIdentifier">Function that extracts baseline identifier from a baseline setting line.</param>
     /// <returns>Unique baseline identifiers.</returns>
-    public static HashSet<string> GetBaselineIdentifiers(
+    public static HashSet<string> GetIdentifiers(
         string content,
         Func<string, string?> tryGetIdentifier)
     {
         string newline = content.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
         string[] lines = content.Split(new[] { newline }, StringSplitOptions.None);
 
-        return EnumerateBaselineBlocks(lines, tryGetIdentifier)
+        return EnumerateBlocks(lines, tryGetIdentifier)
             .Select(x => x.Identifier)
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
     }
@@ -38,7 +38,7 @@ public static class BaselineSyncEditorconfigHelper
     /// <param name="tryGetIdentifier">Function that extracts baseline identifier from a baseline setting line.</param>
     /// <param name="activeFilesByIdentifier">Optional map of active files per identifier.</param>
     /// <returns>Updated .editorconfig content.</returns>
-    public static string RemoveBaselineFilters(
+    public static string RemoveFilters(
         string content,
         IReadOnlySet<string> identifiersToKeep,
         Func<string, string?> tryGetIdentifier,
@@ -47,7 +47,7 @@ public static class BaselineSyncEditorconfigHelper
         string newline = content.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
         string[] lines = content.Split(new[] { newline }, StringSplitOptions.None);
 
-        Dictionary<int, BaselineBlock> blocksByHeaderIndex = EnumerateBaselineBlocks(lines, tryGetIdentifier)
+        Dictionary<int, BaselineBlock> blocksByHeaderIndex = EnumerateBlocks(lines, tryGetIdentifier)
             .ToDictionary(x => x.HeaderIndex);
 
         List<string> result = new(lines.Length);
@@ -111,7 +111,7 @@ public static class BaselineSyncEditorconfigHelper
 
         Dictionary<string, HashSet<string>> synchronizedFiles = new(StringComparer.OrdinalIgnoreCase);
 
-        foreach (BaselineBlock block in EnumerateBaselineBlocks(lines, tryGetIdentifier))
+        foreach (BaselineBlock block in EnumerateBlocks(lines, tryGetIdentifier))
         {
             if (!identifiersToKeep.Contains(block.Identifier))
             {
@@ -140,7 +140,7 @@ public static class BaselineSyncEditorconfigHelper
         );
     }
 
-    private static IEnumerable<BaselineBlock> EnumerateBaselineBlocks(string[] lines, Func<string, string?> tryGetIdentifier)
+    private static IEnumerable<BaselineBlock> EnumerateBlocks(string[] lines, Func<string, string?> tryGetIdentifier)
     {
         for (int i = 0; i < lines.Length; i++)
         {
