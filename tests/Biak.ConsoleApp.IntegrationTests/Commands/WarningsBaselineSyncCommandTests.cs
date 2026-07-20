@@ -400,6 +400,65 @@ public class WarningsBaselineSyncCommandTests
     }
 
     [Fact]
+    public async Task RunShouldMigrateLegacyMarkerAndPrintWarningAsync()
+    {
+        string originalDirectory = Directory.GetCurrentDirectory();
+        TestDirectory testDir = new(
+            $"{nameof(WarningsBaselineSyncCommandTests)}_{nameof(RunShouldMigrateLegacyMarkerAndPrintWarningAsync)}"
+        );
+
+        TextWriter originalOut = Console.Out;
+        await using StringWriter output = new();
+        Console.SetOut(output);
+
+        try
+        {
+            Directory.SetCurrentDirectory(testDir.Value);
+
+            string templateSimpleProject = Path.Join(
+                AppContext.BaseDirectory,
+                "Templates",
+                "SimpleProjectWithWarnings",
+                "MySimpleProjectTemplate"
+            );
+
+            testDir.CopyDirectory(templateSimpleProject);
+
+            string editorconfigPath = Path.Join(testDir.Value, ".editorconfig");
+            string legacyBaseline = ("root = true" + Environment.NewLine + Environment.NewLine + WarningsBaselineCommandTestConstants.BASELINE_FILTERS)
+                .Replace(
+                    WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER,
+                    WarningsBaselineInitCommandConstant.LEGACY_BASELINE_DIAGNOSTIC_MARKER,
+                    StringComparison.Ordinal
+                );
+            await File.WriteAllTextAsync(editorconfigPath, legacyBaseline);
+
+            _ = await WarningsBaselineSyncCommand.RunAsync(
+            [
+                CommandArgumentConstant.WARNINGS_BASELINE,
+                CommandArgumentConstant.SYNC,
+                CommandArgumentConstant.PATH,
+                ".editorconfig",
+            ]);
+
+            string syncedContent = await File.ReadAllTextAsync(editorconfigPath);
+            string consoleOutput = output.ToString();
+
+            Assert.DoesNotContain(WarningsBaselineInitCommandConstant.LEGACY_BASELINE_DIAGNOSTIC_MARKER, syncedContent, StringComparison.Ordinal);
+            Assert.Contains(WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER, syncedContent, StringComparison.Ordinal);
+            Assert.Contains("dotnet_diagnostic.CS0219.severity", syncedContent, StringComparison.Ordinal);
+            Assert.Contains("dotnet_diagnostic.CS8618.severity", syncedContent, StringComparison.Ordinal);
+            Assert.Contains(WarningsBaselineSyncCommandConstant.LEGACY_MARKER_MIGRATED_WARNING, consoleOutput, StringComparison.Ordinal);
+            Assert.False(File.Exists(WarningsBaselineSyncCommandConstant.BUILD_BINLOG_PATH));
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+            Directory.SetCurrentDirectory(originalDirectory);
+        }
+    }
+
+    [Fact]
     public async Task RunShouldHandleLfEditorConfigLineEndingsAsync()
     {
         string originalDirectory = Directory.GetCurrentDirectory();
