@@ -82,6 +82,12 @@ public static class InspectCodeBaselineSyncCommand
             InspectCodeBaselineConfig? baselineConfig = config.InspectCodeBaseline;
 
             string baseDirectory = Directory.GetCurrentDirectory();
+            runtimeEditorconfigPath = Path.Join(baseDirectory, ".editorconfig");
+            if (!File.Exists(runtimeEditorconfigPath))
+            {
+                throw new BiakApplicationException(InspectCodeBaselineSyncCommandConstant.ROOT_EDITORCONFIG_FILE_NOT_FOUND);
+            }
+
             bool hasBiakDirectory = Directory.Exists(Path.Join(baseDirectory, ".biak"));
 
             if (hasBiakDirectory)
@@ -113,19 +119,15 @@ public static class InspectCodeBaselineSyncCommand
                 throw new BiakApplicationException(InspectCodeBaselineSyncCommandConstant.NO_BASELINE_MARKER);
             }
 
-            runtimeEditorconfigPath = Path.Join(baseDirectory, ".editorconfig");
-            if (File.Exists(runtimeEditorconfigPath))
-            {
-                runtimeEditorconfigOriginalContent = await File.ReadAllTextAsync(runtimeEditorconfigPath);
-                string runtimeContentForAnalysis = InspectCodeBaselineSyncHelper.PrepareRuntimeContentForAnalysis(
-                    runtimeEditorconfigOriginalContent
-                );
+            runtimeEditorconfigOriginalContent = await File.ReadAllTextAsync(runtimeEditorconfigPath);
+            string runtimeContentForAnalysis = InspectCodeBaselineSyncHelper.PrepareRuntimeContentForAnalysis(
+                runtimeEditorconfigOriginalContent
+            );
 
-                if (!string.Equals(runtimeContentForAnalysis, runtimeEditorconfigOriginalContent, StringComparison.Ordinal))
-                {
-                    await File.WriteAllTextAsync(runtimeEditorconfigPath, runtimeContentForAnalysis);
-                    runtimeEditorconfigWasTemporarilyModified = true;
-                }
+            if (!string.Equals(runtimeContentForAnalysis, runtimeEditorconfigOriginalContent, StringComparison.Ordinal))
+            {
+                await File.WriteAllTextAsync(runtimeEditorconfigPath, runtimeContentForAnalysis);
+                runtimeEditorconfigWasTemporarilyModified = true;
             }
 
             sarifPath = await InspectCodeBaselineRunHelper.RunAsync(
