@@ -8,7 +8,7 @@ using Biak.ConsoleApp.Constants;
 using Biak.ConsoleApp.Exceptions;
 using Biak.ConsoleApp.IntegrationTests.Mock;
 
-namespace Biak.ConsoleApp.IntegrationTests.Commands;
+namespace Biak.ConsoleApp.IntegrationTests.Commands.Baseline.InspectCode;
 
 public class InspectCodeBaselineSyncCommandTests
 {
