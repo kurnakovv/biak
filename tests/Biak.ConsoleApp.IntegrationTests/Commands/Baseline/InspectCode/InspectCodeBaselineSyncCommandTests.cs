@@ -48,7 +48,7 @@ public class InspectCodeBaselineSyncCommandTests
             string result = await InspectCodeBaselineSyncCommand.RunAsync(args);
             string syncedBaselineContent = await File.ReadAllTextAsync(baselinePath);
 
-            Assert.Contains("Sync complete.", result, StringComparison.Ordinal);
+            Assert.Equal("Sync complete. Removed 1 file(s); resolved 1 filter(s). 7 filter(s) still alive.", result);
             Assert.Contains(InspectCodeBaselineInitCommandConstant.BASELINE_MARKER, syncedBaselineContent, StringComparison.Ordinal);
             Assert.DoesNotContain($"suggestion{InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}", syncedBaselineContent, StringComparison.Ordinal);
         }
@@ -96,7 +96,7 @@ public class InspectCodeBaselineSyncCommandTests
             string result = await InspectCodeBaselineSyncCommand.RunAsync(args);
             string syncedBaselineContent = await File.ReadAllTextAsync(baselinePath);
 
-            Assert.Contains("Sync complete.", result, StringComparison.Ordinal);
+            Assert.Equal("Sync complete. Removed 0 file(s); resolved 0 filter(s). 8 filter(s) still alive.", result);
             Assert.DoesNotContain(
                 $"= suggestion {InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}",
                 syncedBaselineContent,
@@ -162,7 +162,7 @@ public class InspectCodeBaselineSyncCommandTests
             string result = await InspectCodeBaselineSyncCommand.RunAsync(args);
             string syncedBaselineContent = await File.ReadAllTextAsync(baselinePath);
 
-            Assert.Contains("Sync complete.", result, StringComparison.Ordinal);
+            Assert.Equal("Sync complete. Removed 1 file(s); resolved 0 filter(s). 1 filter(s) still alive.", result);
             Assert.Contains("[{ServiceC.cs}]", syncedBaselineContent, StringComparison.Ordinal);
             Assert.DoesNotContain("ServiceA.cs,ServiceC.cs", syncedBaselineContent, StringComparison.Ordinal);
             Assert.DoesNotContain("[{ServiceA.cs}]", syncedBaselineContent, StringComparison.Ordinal);
@@ -451,7 +451,7 @@ public class InspectCodeBaselineSyncCommandTests
             ];
 
             string result = await InspectCodeBaselineSyncCommand.RunAsync(args);
-            Assert.DoesNotContain(InspectCodeBaselineSyncCommandConstant.NO_BASELINE_MARKER, result, StringComparison.Ordinal);
+            Assert.Equal("Sync complete. Removed 0 file(s); resolved 0 filter(s). 8 filter(s) still alive.", result);
         }
         finally
         {
@@ -491,11 +491,12 @@ public class InspectCodeBaselineSyncCommandTests
                 CommandArgumentConstant.SYNC,
             ];
 
-            await InspectCodeBaselineSyncCommand.RunAsync(args);
+            string result = await InspectCodeBaselineSyncCommand.RunAsync(args);
 
             string biakContent = await File.ReadAllTextAsync(biakBaselinePath);
             string rootContent = await File.ReadAllTextAsync(rootBaselinePath);
 
+            Assert.Equal("Sync complete. Removed 0 file(s); resolved 0 filter(s). 1 filter(s) still alive.", result);
             Assert.DoesNotContain($"= warning {InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}", biakContent, StringComparison.Ordinal);
             Assert.Contains($"= warning {InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}", rootContent, StringComparison.Ordinal);
         }
@@ -541,9 +542,9 @@ public class InspectCodeBaselineSyncCommandTests
             string result = await InspectCodeBaselineSyncCommand.RunAsync(args);
 
             string rootContent = await File.ReadAllTextAsync(rootBaselinePath);
+            Assert.Equal("Sync complete. Removed 0 file(s); resolved 0 filter(s). 1 filter(s) still alive.", result);
             Assert.DoesNotContain($"= warning {InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}", rootContent, StringComparison.Ordinal);
             Assert.Contains($"= suggestion {InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}", rootContent, StringComparison.Ordinal);
-            Assert.Contains("filter(s) still alive.", result, StringComparison.Ordinal);
         }
         finally
         {
@@ -782,7 +783,7 @@ public class Ca1822ViolationService
             string result = await InspectCodeBaselineSyncCommand.RunAsync(args);
             string syncedBaselineContent = await File.ReadAllTextAsync(baselinePath);
 
-            Assert.Contains("filter(s) still alive.", result, StringComparison.Ordinal);
+            Assert.Equal("Sync complete. Removed 0 file(s); resolved 0 filter(s). 1 filter(s) still alive.", result);
             Assert.Contains("dotnet_diagnostic.CA1822.severity", syncedBaselineContent, StringComparison.OrdinalIgnoreCase);
             Assert.Contains(InspectCodeBaselineInitCommandConstant.BASELINE_MARKER, syncedBaselineContent, StringComparison.Ordinal);
         }
