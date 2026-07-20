@@ -20,6 +20,11 @@ public static class InspectCodeBaselineSyncCommandConstant
     public const string DEFAULT_EDITORCONFIG_PATH = ".editorconfig";
 
     /// <summary>
+    /// The required root .editorconfig file was not found.
+    /// </summary>
+    public const string ROOT_EDITORCONFIG_FILE_NOT_FOUND = "The required root .editorconfig file was not found.";
+
+    /// <summary>
     /// InspectCode baseline sync started.
     /// </summary>
     public const string SYNC_STARTED = "inspectcode-baseline sync started...";

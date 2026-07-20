@@ -198,6 +198,49 @@ public class InspectCodeBaselineSyncCommandTests
     }
 
     [Fact]
+    public async Task RunShouldThrowWhenRootEditorconfigIsMissingAsync()
+    {
+        string originalDirectory = Directory.GetCurrentDirectory();
+        TestDirectory testDir = new($"{nameof(InspectCodeBaselineSyncCommandTests)}_{nameof(RunShouldThrowWhenRootEditorconfigIsMissingAsync)}");
+
+        try
+        {
+            Directory.SetCurrentDirectory(testDir.Value);
+            CopyInspectCodeTemplate(testDir.Value);
+            await EnsureBiakStatusConfiguredAsync(testDir.Value);
+
+            string rootEditorconfigPath = Path.Join(testDir.Value, ".editorconfig");
+            if (File.Exists(rootEditorconfigPath))
+            {
+                File.Delete(rootEditorconfigPath);
+            }
+
+            Directory.CreateDirectory(Path.Join(testDir.Value, ".biak"));
+            string baselinePath = Path.Join(testDir.Value, ".biak", ".editorconfig-InspectCodeBaseline");
+            await File.WriteAllTextAsync(baselinePath, InspectCodeBaselineCommandTestConstants.BASELINE_FILTERS);
+
+            string[] args =
+            [
+                CommandArgumentConstant.INSPECTCODE_BASELINE,
+                CommandArgumentConstant.SYNC,
+                CommandArgumentConstant.PATH,
+                ".biak/.editorconfig-InspectCodeBaseline",
+            ];
+
+            Exception? exception = await Record.ExceptionAsync(() => InspectCodeBaselineSyncCommand.RunAsync(args));
+
+            Assert.NotNull(exception);
+            Assert.IsType<BiakApplicationException>(exception);
+            Assert.Equal(InspectCodeBaselineSyncCommandConstant.ROOT_EDITORCONFIG_FILE_NOT_FOUND, exception.Message);
+            Assert.Equal(InspectCodeBaselineCommandTestConstants.BASELINE_FILTERS, await File.ReadAllTextAsync(baselinePath));
+        }
+        finally
+        {
+            Directory.SetCurrentDirectory(originalDirectory);
+        }
+    }
+
+    [Fact]
     public async Task RunShouldThrowWhenBiakStatusIsUnsynchronisedAsync()
     {
         string originalDirectory = Directory.GetCurrentDirectory();
