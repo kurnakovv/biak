@@ -33,7 +33,7 @@ public static class WarningsBaselineSyncCommandConstant
     /// Default configuration files were not found.
     /// </summary>
     public const string DEFAULT_CONFIGURATION_FILE_NOT_FOUND =
-        $"Configuration file was not found. Checked '{DEFAULT_EDITORCONFIG_MAIN_PATH}' and '{DEFAULT_EDITORCONFIG_PATH}'.";
+        $"Configuration file was not found. Checked '{DEFAULT_EDITORCONFIG_MAIN_PATH}' and '.editorconfig'.";
 
     /// <summary>
     /// The specified path is not allowed.
