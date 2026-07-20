@@ -48,6 +48,21 @@ public class InspectCodeBaselineSyncHelperTests
                     "resharper_replace_with_string_is_null_or_empty_highlighting"
                 ]
             },
+            {
+                $$"""
+                    # Field can be made readonly
+                    [{src/File1.cs}]
+                    resharper_field_can_be_made_read_only_local_highlighting = suggestion {{InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}}
+
+                    # Replace with string.IsNullOrEmpty
+                    [{src/File2.cs}]
+                    resharper_replace_with_string_is_null_or_empty_highlighting = warning {{InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}}
+                """,
+                [
+                    "resharper_field_can_be_made_read_only_local_highlighting",
+                    "resharper_replace_with_string_is_null_or_empty_highlighting"
+                ]
+            },
         };
     }
 

@@ -172,7 +172,13 @@ public static class BaselineSyncEditorconfigHelper
                 blockEnd++;
             }
 
-            if (blockEnd < lines.Length && !lines[blockEnd].TrimStart().StartsWith('['))
+            int nextSectionIndex = blockEnd;
+            while (nextSectionIndex < lines.Length && (string.IsNullOrWhiteSpace(lines[nextSectionIndex]) || IsCommentLine(lines[nextSectionIndex])))
+            {
+                nextSectionIndex++;
+            }
+
+            if (nextSectionIndex < lines.Length && !lines[nextSectionIndex].TrimStart().StartsWith('['))
             {
                 continue;
             }
@@ -212,6 +218,12 @@ public static class BaselineSyncEditorconfigHelper
         return activeFilesByIdentifier.TryGetValue(identifier, out IReadOnlySet<string>? files)
             ? files
             : new HashSet<string>(s_pathComparer);
+    }
+
+    private static bool IsCommentLine(string line)
+    {
+        string trimmed = line.TrimStart();
+        return trimmed.StartsWith('#') || trimmed.StartsWith(';');
     }
 
     private static void AddSynchronizedFile(Dictionary<string, HashSet<string>> synchronizedFiles, string filePath, string identifier)
