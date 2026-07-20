@@ -692,6 +692,55 @@ public class Ca1822ViolationService
         }
     }
 
+    [Fact]
+    public async Task RunShouldRestoreBaselineFileWhenSyncFailsAfterOriginalContentCapturedAsync()
+    {
+        string originalDirectory = Directory.GetCurrentDirectory();
+        TestDirectory testDir = new(
+            $"{nameof(InspectCodeBaselineSyncCommandTests)}_{nameof(RunShouldRestoreBaselineFileWhenSyncFailsAfterOriginalContentCapturedAsync)}"
+        );
+
+        try
+        {
+            Directory.SetCurrentDirectory(testDir.Value);
+            CopyInspectCodeTemplate(testDir.Value);
+            await EnsureBiakStatusConfiguredAsync(testDir.Value);
+
+            string baselinePath = Path.Join(testDir.Value, ".biak", ".editorconfig-InspectCodeBaseline");
+            await File.WriteAllTextAsync(baselinePath, InspectCodeBaselineCommandTestConstants.BASELINE_FILTERS);
+
+            string expectedBaselineContent = await File.ReadAllTextAsync(baselinePath);
+            DateTime expectedLastWriteTime = DateTime.UtcNow.AddMinutes(-5);
+            File.SetLastWriteTimeUtc(baselinePath, expectedLastWriteTime);
+
+            File.Delete(Path.Join(testDir.Value, "InspectCodeBaselineTemplate.csproj"));
+
+            string[] args =
+            [
+                CommandArgumentConstant.INSPECTCODE_BASELINE,
+                CommandArgumentConstant.SYNC,
+                CommandArgumentConstant.PATH,
+                ".biak/.editorconfig-InspectCodeBaseline",
+            ];
+
+            Exception? exception = await Record.ExceptionAsync(() => InspectCodeBaselineSyncCommand.RunAsync(args));
+
+            Assert.NotNull(exception);
+            Assert.IsType<BiakApplicationException>(exception);
+            Assert.Equal(InspectCodeBaselineRunHelperConstant.NO_SOLUTION_OR_PROJECT_FOUND, exception.Message);
+
+            string actualBaselineContent = await File.ReadAllTextAsync(baselinePath);
+            DateTime actualLastWriteTime = File.GetLastWriteTimeUtc(baselinePath);
+
+            Assert.Equal(expectedBaselineContent, actualBaselineContent);
+            Assert.True(actualLastWriteTime > expectedLastWriteTime);
+        }
+        finally
+        {
+            Directory.SetCurrentDirectory(originalDirectory);
+        }
+    }
+
     private static void CopyInspectCodeTemplate(string testDirectory)
     {
         string templatePath = Path.Join(
