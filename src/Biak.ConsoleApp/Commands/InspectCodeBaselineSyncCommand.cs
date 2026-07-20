@@ -96,7 +96,7 @@ public static class InspectCodeBaselineSyncCommand
             string baselinePath = ResolveBaselinePath(effectiveArgs, baselineConfig, baseDirectory);
             resolvedPath = Path.GetFullPath(baselinePath, baseDirectory);
 
-            if (!BaselinePathHelper.IsEditorconfigPathSafe(baselinePath, baseDirectory))
+            if (!BaselinePathHelper.IsSafe(baselinePath, baseDirectory))
             {
                 throw new BiakApplicationException(InspectCodeBaselineSyncCommandConstant.INVALID_PATH_EDITORCONFIG);
             }

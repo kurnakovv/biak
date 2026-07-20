@@ -18,7 +18,7 @@ public static class BaselinePathHelper
     /// <param name="filePath">Path to validate.</param>
     /// <param name="baseDirectory">Base directory that the path must stay within.</param>
     /// <returns><see langword="true"/> when the path is safe; otherwise <see langword="false"/>.</returns>
-    public static bool IsEditorconfigPathSafe(string filePath, string baseDirectory)
+    public static bool IsSafe(string filePath, string baseDirectory)
     {
         if (!PathSafetyHelper.TryResolvePathWithinBaseDirectory(filePath, baseDirectory, out string fullFile, out string relativePath))
         {
