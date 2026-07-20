@@ -5,7 +5,7 @@
 using Biak.ConsoleApp.Commands.Baseline.InspectCode;
 using Biak.ConsoleApp.Constants;
 
-namespace Biak.ConsoleApp.UnitTests.Commands;
+namespace Biak.ConsoleApp.UnitTests.Commands.Baseline.InspectCode;
 
 public class InspectCodeBaselineInitCommandTests
 {
