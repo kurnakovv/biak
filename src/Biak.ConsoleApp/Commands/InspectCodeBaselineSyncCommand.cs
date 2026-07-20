@@ -60,7 +60,7 @@ public static class InspectCodeBaselineSyncCommand
     {
         string sarifPath = string.Empty;
         string resolvedPath = string.Empty;
-        string originalContentForRestore = string.Empty;
+        string originalContent = string.Empty;
         string runtimeEditorconfigPath = string.Empty;
         string runtimeEditorconfigOriginalContent = string.Empty;
         bool runtimeEditorconfigWasTemporarilyModified = false;
@@ -94,26 +94,24 @@ public static class InspectCodeBaselineSyncCommand
             }
 
             string baselinePath = ResolveBaselinePath(effectiveArgs, baselineConfig, baseDirectory);
-            resolvedPath = Path.GetFullPath(baselinePath, baseDirectory);
 
             if (!BaselinePathHelper.IsSafe(baselinePath, baseDirectory))
             {
                 throw new BiakApplicationException(InspectCodeBaselineSyncCommandConstant.INVALID_PATH_EDITORCONFIG);
             }
 
+            resolvedPath = Path.GetFullPath(baselinePath, baseDirectory);
             if (!File.Exists(resolvedPath))
             {
                 throw new BiakApplicationException(InspectCodeBaselineSyncCommandConstant.FILE_NOT_FOUND);
             }
 
-            string originalContent = await File.ReadAllTextAsync(resolvedPath);
+            originalContent = await File.ReadAllTextAsync(resolvedPath);
 
             if (!originalContent.Contains(InspectCodeBaselineInitCommandConstant.BASELINE_MARKER, StringComparison.Ordinal))
             {
                 throw new BiakApplicationException(InspectCodeBaselineSyncCommandConstant.NO_BASELINE_MARKER);
             }
-
-            originalContentForRestore = originalContent;
 
             runtimeEditorconfigPath = Path.Join(baseDirectory, ".editorconfig");
             if (File.Exists(runtimeEditorconfigPath))
@@ -239,9 +237,9 @@ public static class InspectCodeBaselineSyncCommand
             if (!completedSuccessfully
                 && !string.IsNullOrWhiteSpace(resolvedPath)
                 && File.Exists(resolvedPath)
-                && !string.IsNullOrEmpty(originalContentForRestore))
+                && !string.IsNullOrEmpty(originalContent))
             {
-                await File.WriteAllTextAsync(resolvedPath, originalContentForRestore);
+                await File.WriteAllTextAsync(resolvedPath, originalContent);
             }
 
             if (!string.IsNullOrWhiteSpace(sarifPath) && File.Exists(sarifPath))
