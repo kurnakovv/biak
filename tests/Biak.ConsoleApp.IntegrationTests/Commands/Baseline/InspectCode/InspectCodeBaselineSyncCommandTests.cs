@@ -59,6 +59,62 @@ public class InspectCodeBaselineSyncCommandTests
     }
 
     [Fact]
+    public async Task RunShouldNormalizeAliveFiltersToUpdatedSnapshotSeverityAsync()
+    {
+        string originalDirectory = Directory.GetCurrentDirectory();
+        TestDirectory testDir = new($"{nameof(InspectCodeBaselineSyncCommandTests)}_{nameof(RunShouldNormalizeAliveFiltersToUpdatedSnapshotSeverityAsync)}");
+
+        try
+        {
+            Directory.SetCurrentDirectory(testDir.Value);
+            CopyInspectCodeTemplate(testDir.Value);
+            await EnsureBiakStatusConfiguredAsync(testDir.Value);
+
+            await File.WriteAllTextAsync(
+                Path.Join(testDir.Value, ".biak", "config.json"),
+                // language=json
+                """
+                {
+                  "inspectCodeBaseline": {
+                    "snapshotSeverity": "none"
+                  }
+                }
+                """
+            );
+
+            string baselinePath = Path.Join(testDir.Value, ".biak", ".editorconfig-InspectCodeBaseline");
+            await File.WriteAllTextAsync(baselinePath, InspectCodeBaselineCommandTestConstants.BASELINE_FILTERS);
+
+            string[] args =
+            [
+                CommandArgumentConstant.INSPECTCODE_BASELINE,
+                CommandArgumentConstant.SYNC,
+                CommandArgumentConstant.PATH,
+                ".biak/.editorconfig-InspectCodeBaseline",
+            ];
+
+            string result = await InspectCodeBaselineSyncCommand.RunAsync(args);
+            string syncedBaselineContent = await File.ReadAllTextAsync(baselinePath);
+
+            Assert.Contains("Sync complete.", result, StringComparison.Ordinal);
+            Assert.DoesNotContain(
+                $"= suggestion {InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}",
+                syncedBaselineContent,
+                StringComparison.Ordinal
+            );
+            Assert.Contains(
+                $"= none {InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}",
+                syncedBaselineContent,
+                StringComparison.Ordinal
+            );
+        }
+        finally
+        {
+            Directory.SetCurrentDirectory(originalDirectory);
+        }
+    }
+
+    [Fact]
     public async Task RunShouldTrimFilesInsideKeptRuleBlockAsync()
     {
         string originalDirectory = Directory.GetCurrentDirectory();
