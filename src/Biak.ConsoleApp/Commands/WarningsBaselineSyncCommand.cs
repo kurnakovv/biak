@@ -5,6 +5,7 @@
 using Biak.ConsoleApp.Constants;
 using Biak.ConsoleApp.Exceptions;
 using Biak.ConsoleApp.Helpers;
+using Biak.ConsoleApp.Helpers.Baseline;
 using SL = Microsoft.Build.Logging.StructuredLogger;
 
 namespace Biak.ConsoleApp.Commands;
@@ -72,7 +73,7 @@ public static class WarningsBaselineSyncCommand
             string? buildTarget = ResolveBuildTarget(args);
             resolvedPath = Path.GetFullPath(editorConfigPath, baseDirectory);
 
-            if (!WarningsBaselineSyncHelper.IsPathSafe(editorConfigPath, baseDirectory))
+            if (!BaselinePathHelper.IsSafe(editorConfigPath, baseDirectory))
             {
                 throw new BiakApplicationException(WarningsBaselineSyncCommandConstant.INVALID_PATH_EDITORCONFIG);
             }
