@@ -68,8 +68,7 @@ public static class InspectCodeBaselineInitCommand
 
             IReadOnlyDictionary<string, string>? ruleIdOverrides = baselineConfig?.RuleIdOverrides;
 
-            Dictionary<string, List<string>> issuesByMappedEditorconfigKey = new(StringComparer.OrdinalIgnoreCase);
-            Dictionary<string, HashSet<string>> ruleIdsByMappedEditorconfigKey = new(StringComparer.OrdinalIgnoreCase);
+            Dictionary<string, (string RuleId, List<string> Files)> issuesByMappedEditorconfigKey = new(StringComparer.OrdinalIgnoreCase);
             HashSet<string> unmappedRuleIds = new(StringComparer.OrdinalIgnoreCase);
 
             foreach (InspectCodeIssue issue in issues)
@@ -81,25 +80,17 @@ public static class InspectCodeBaselineInitCommand
                     continue;
                 }
 
+                if (!issuesByMappedEditorconfigKey.TryGetValue(mappedEditorconfigKey, out (string RuleId, List<string> Files) entry))
+                {
+                    entry = (issue.RuleId, new List<string>());
+                    issuesByMappedEditorconfigKey[mappedEditorconfigKey] = entry;
+                }
+
                 string relativePath = issue.FilePath.Replace(Path.DirectorySeparatorChar, '/');
 
-                if (!issuesByMappedEditorconfigKey.TryGetValue(mappedEditorconfigKey, out List<string>? files))
+                if (!entry.Files.Contains(relativePath, StringComparer.OrdinalIgnoreCase))
                 {
-                    files = new List<string>();
-                    issuesByMappedEditorconfigKey[mappedEditorconfigKey] = files;
-                }
-
-                if (!ruleIdsByMappedEditorconfigKey.TryGetValue(mappedEditorconfigKey, out HashSet<string>? ruleIds))
-                {
-                    ruleIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                    ruleIdsByMappedEditorconfigKey[mappedEditorconfigKey] = ruleIds;
-                }
-
-                ruleIds.Add(issue.RuleId);
-
-                if (!files.Contains(relativePath, StringComparer.OrdinalIgnoreCase))
-                {
-                    files.Add(relativePath);
+                    entry.Files.Add(relativePath);
                 }
             }
 
@@ -123,13 +114,9 @@ public static class InspectCodeBaselineInitCommand
             Console.WriteLine(InspectCodeBaselineInitCommandConstant.INSERT_FILTERS_NOTE);
 
             StringBuilder sb = new();
-            foreach ((string key, List<string> files) in issuesByMappedEditorconfigKey.OrderBy(x => x.Key))
+            foreach ((string key, (string ruleId, List<string> files)) in issuesByMappedEditorconfigKey.OrderBy(x => x.Key))
             {
                 files.Sort(StringComparer.OrdinalIgnoreCase);
-
-                string ruleId = ruleIdsByMappedEditorconfigKey[key]
-                    .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
-                    .First();
 
                 InspectCodeRuleMetadata? metadata = InspectCodeRuleMetadataHelper.Get(ruleId);
 
