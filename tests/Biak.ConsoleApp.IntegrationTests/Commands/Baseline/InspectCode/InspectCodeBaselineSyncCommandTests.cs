@@ -310,7 +310,7 @@ public class InspectCodeBaselineSyncCommandTests
             string result = await InspectCodeBaselineSyncCommand.RunAsync(args);
             string syncedBaselineContent = await File.ReadAllTextAsync(baselinePath);
 
-            Assert.Equal(InspectCodeBaselineSyncCommandConstant.ALL_ISSUES_FIXED, result);
+            Assert.Equal("Sync complete. Removed 1 file(s); resolved 1 filter(s). 1 filter(s) still alive.", result);
             Assert.DoesNotContain(InspectCodeBaselineSyncCommandConstant.NO_BASELINE_MARKER, result, StringComparison.Ordinal);
             Assert.DoesNotContain(
                 "resharper_replace_with_string_is_null_or_empty_highlighting",
