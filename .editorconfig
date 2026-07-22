@@ -1093,7 +1093,7 @@ resharper_member_initializer_value_ignored_highlighting = none # (For .NET 6 `nu
 resharper_unused_auto_property_accessor_global_highlighting = none # (Invalid for JsonSerializer) Code inspection: Auto-property accessor is never used (non-private accessibility) https://www.jetbrains.com/help/resharper/UnusedAutoPropertyAccessor.Global.html
 resharper_class_never_instantiated_global_highlighting = none # (Invalid for JsonSerializer) Code inspection: Class is never instantiated (non-private accessibility) https://www.jetbrains.com/help/resharper/ClassNeverInstantiated.Global.html
 resharper_merge_into_pattern_highlighting = none # (For .NET 6) Code inspection: Merge null/pattern checks into complex pattern https://www.jetbrains.com/help/resharper/MergeIntoPattern.html
-resharper_auto_property_can_be_made_get_only_global_highlighting # rejected
+resharper_auto_property_can_be_made_get_only_global_highlighting = none # rejected
 
 ## *END* ReSharper Inspect Code
 
