@@ -257,7 +257,7 @@ public static class InspectCodeBaselineSyncCommand
 
         if (Directory.Exists(biakDirectory))
         {
-            string[] discovered = Directory.GetFiles(biakDirectory, ".editorconfig*")
+            string[] discovered = Directory.GetFiles(biakDirectory, ".editorconfig*", SearchOption.AllDirectories)
                 .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
                 .ToArray();
 

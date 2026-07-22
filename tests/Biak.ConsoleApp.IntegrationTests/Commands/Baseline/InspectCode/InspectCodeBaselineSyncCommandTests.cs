@@ -501,10 +501,10 @@ public class InspectCodeBaselineSyncCommandTests
     }
 
     [Fact]
-    public async Task RunShouldUseDiscoveryWhenCliAndConfigPathsAreNotProvidedAsync()
+    public async Task RunShouldUseDiscoveryFromNestedBiakDirectoryWhenCliAndConfigPathsAreNotProvidedAsync()
     {
         string originalDirectory = Directory.GetCurrentDirectory();
-        TestDirectory testDir = new($"{nameof(InspectCodeBaselineSyncCommandTests)}_{nameof(RunShouldUseDiscoveryWhenCliAndConfigPathsAreNotProvidedAsync)}");
+        TestDirectory testDir = new($"{nameof(InspectCodeBaselineSyncCommandTests)}_{nameof(RunShouldUseDiscoveryFromNestedBiakDirectoryWhenCliAndConfigPathsAreNotProvidedAsync)}");
 
         try
         {
@@ -512,7 +512,9 @@ public class InspectCodeBaselineSyncCommandTests
             CopyInspectCodeTemplate(testDir.Value);
             await EnsureBiakStatusConfiguredAsync(testDir.Value);
 
-            await File.WriteAllTextAsync(Path.Join(testDir.Value, ".biak", ".editorconfig-discovery"), InspectCodeBaselineCommandTestConstants.BASELINE_FILTERS);
+            string nestedDirectory = Path.Join(testDir.Value, ".biak", "Categories");
+            Directory.CreateDirectory(nestedDirectory);
+            await File.WriteAllTextAsync(Path.Join(nestedDirectory, ".editorconfig-discovery"), InspectCodeBaselineCommandTestConstants.BASELINE_FILTERS);
 
             string[] args =
             [
