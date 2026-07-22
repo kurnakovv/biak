@@ -23,12 +23,8 @@ public static class InspectCodeBaselineInitCommand
     /// <returns>Can be run or not.</returns>
     public static bool IsRunnable(string[] args)
     {
-        if (args.Length < 2)
-        {
-            return false;
-        }
-
-        return args[0] == CommandArgumentConstant.INSPECTCODE_BASELINE
+        return args.Length == 2
+            && args[0] == CommandArgumentConstant.INSPECTCODE_BASELINE
             && args[1] == CommandArgumentConstant.INIT;
     }
 
