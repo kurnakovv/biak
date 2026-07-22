@@ -89,6 +89,7 @@ public static class InspectCodeBaselineSyncCommand
             }
 
             bool hasBiakDirectory = Directory.Exists(Path.Join(baseDirectory, ".biak"));
+            BiakStatusType? biakStatusType = null;
 
             if (hasBiakDirectory)
             {
@@ -97,6 +98,8 @@ public static class InspectCodeBaselineSyncCommand
                 {
                     throw new BiakApplicationException(InspectCodeBaselineSyncCommandConstant.BIAK_STATUS_IS_NOT_SYNCHRONIZED);
                 }
+
+                biakStatusType = biakStatus.StatusType;
             }
 
             string baselinePath = ResolveBaselinePath(effectiveArgs, baselineConfig, baseDirectory);
@@ -175,6 +178,27 @@ public static class InspectCodeBaselineSyncCommand
 
             syncedContent = InspectCodeBaselineSyncHelper.NormalizeSeverity(syncedContent, snapshotSeverity);
             await File.WriteAllTextAsync(resolvedPath, syncedContent);
+
+            string biakDirectory = Path.GetFullPath(".biak", baseDirectory);
+            bool shouldResyncRootEditorconfig = resolvedPath.StartsWith(
+                biakDirectory + Path.DirectorySeparatorChar,
+                StringComparison.OrdinalIgnoreCase);
+
+            if (shouldResyncRootEditorconfig && biakStatusType.HasValue)
+            {
+                EditorconfigPaths editorconfigPaths = SetupHelper.GetEditorconfigPaths();
+
+                if (editorconfigPaths.MainValue != null && editorconfigPaths.Value != null)
+                {
+                    string editorconfigMainContent = await File.ReadAllTextAsync(editorconfigPaths.MainValue);
+                    string rootEditorconfigContent = biakStatusType.Value == BiakStatusType.Enabled
+                        ? await EditorconfigHelper.GetEnabledContentAsync(editorconfigMainContent, config)
+                        : await EditorconfigHelper.GetDisabledContentAsync(editorconfigMainContent, config);
+
+                    await File.WriteAllTextAsync(editorconfigPaths.Value, rootEditorconfigContent);
+                }
+            }
+
             completedSuccessfully = true;
 
             HashSet<string> remainingBaselineRuleKeys = InspectCodeBaselineSyncHelper.GetRuleKeys(syncedContent);
