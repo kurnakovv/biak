@@ -67,7 +67,6 @@ public class InspectCodeBaselineInitCommandTests
             await File.AppendAllTextAsync(editorconfigPath, firstRunResult.Trim());
 
             // In rare cases, file-specific overrides are not detected reliably, clearing this source file removes the residual issue.
-            // ToDo: Add to docs
             string serviceEPath = Path.Join(testDir.Value, "ServiceE.cs");
             await File.WriteAllTextAsync(serviceEPath, string.Empty);
 
