@@ -37,7 +37,7 @@ And your baseline file is synchronized.
 * Resolve baseline file path with precedence:
   * `--path <path>`
   * `inspectCodeBaseline.path` from `.biak/config.json`
-  * auto-discovery in `.biak/.editorconfig*` files containing marker
+  * recursive auto-discovery in `.biak/**/.editorconfig*` files containing marker
   * root `.editorconfig` containing marker
 * Validate path safety (must stay inside project and file name must start with `.editorconfig`).
 * Verify that baseline marker exists: `# ^biak^ inspectcode-baseline`.
@@ -47,6 +47,9 @@ And your baseline file is synchronized.
 * Run Inspect Code and parse active issues from SARIF.
 * Remove resolved filters / stale file entries from baseline.
 * Normalize remaining baseline severity to `inspectCodeBaseline.snapshotSeverity` (default `suggestion`).
+* If the synced baseline file is located in `.biak/...`, re-synchronize root `.editorconfig` according to current biak status:
+  * `Enabled` -> Run enable command
+  * `Disabled` -> Run disable command
 
 ## 🔗 Links
 * Source code: [click](https://github.com/kurnakovv/biak/blob/dev/src/Biak.ConsoleApp/Commands/Baseline/InspectCode/InspectCodeBaselineSyncCommand.cs)
