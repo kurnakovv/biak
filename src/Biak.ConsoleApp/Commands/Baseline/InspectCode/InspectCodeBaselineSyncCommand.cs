@@ -78,7 +78,13 @@ public static class InspectCodeBaselineSyncCommand
                     CommandArgumentConstant.SYNC,
                 };
 
-            (_, BiakConfig config) = await BiakConfigHelper.GetAsync();
+            (string? message, BiakConfig config) = await BiakConfigHelper.GetAsync();
+            if (message is not null)
+            {
+                Console.WriteLine(message);
+                Console.WriteLine();
+            }
+
             InspectCodeBaselineConfig? baselineConfig = config.InspectCodeBaseline;
 
             string baseDirectory = Directory.GetCurrentDirectory();
