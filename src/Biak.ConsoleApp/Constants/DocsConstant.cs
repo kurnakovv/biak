@@ -94,5 +94,5 @@ Warnings baseline | Tools for initializing and maintaining a warning baseline fo
 
 * dotnet biak warnings-baseline init [--target <path>] | Builds the project, discovers all current compiler and analyzer warnings, and generates .editorconfig filters that exclude existing warnings from TreatWarningsAsErrors, enabling gradual cleanup while keeping new warnings blocked. Use --target to explicitly select a solution/project build target file https://github.com/kurnakovv/biak/wiki/WarningsBaselineInit
 * dotnet biak warnings-baseline sync [--path <path>] [--target <path>] | Synchronizes the warnings-baseline filters in .biak/.editorconfig-main by default (fallback: .editorconfig), or in a user-specified .editorconfig when --path is provided. Use --target to explicitly select a solution/project build target file https://github.com/kurnakovv/biak/wiki/WarningsBaselineSync
---------------------";
+--------------------"; // ToDo: Add inspect code baseline
 }

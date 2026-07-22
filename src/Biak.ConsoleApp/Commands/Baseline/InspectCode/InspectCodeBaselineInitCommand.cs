@@ -31,9 +31,8 @@ public static class InspectCodeBaselineInitCommand
     /// <summary>
     /// Run.
     /// </summary>
-    /// <param name="args">User input arguments.</param>
     /// <returns>Generated editorconfig baseline content printed to console.</returns>
-    public static async Task<string> RunAsync(string[]? args = null)
+    public static async Task<string> RunAsync()
     {
         string sarifPath = string.Empty;
 
@@ -41,9 +40,12 @@ public static class InspectCodeBaselineInitCommand
         {
             Console.WriteLine(InspectCodeBaselineInitCommandConstant.INIT_STARTED);
 
-            _ = args;
-
-            (_, BiakConfig config) = await BiakConfigHelper.GetAsync();
+            (string? message, BiakConfig config) = await BiakConfigHelper.GetAsync();
+            if (message is not null)
+            {
+                Console.WriteLine(message);
+                Console.WriteLine();
+            }
             InspectCodeBaselineConfig? baselineConfig = config.InspectCodeBaseline;
 
             sarifPath = await InspectCodeBaselineRunHelper.RunAsync(
