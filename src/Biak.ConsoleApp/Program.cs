@@ -63,7 +63,7 @@ public static class Program
         }
         else if (InspectCodeBaselineInitCommand.IsRunnable(args))
         {
-            await InspectCodeBaselineInitCommand.RunAsync(args);
+            await InspectCodeBaselineInitCommand.RunAsync();
         }
         else if (InspectCodeBaselineSyncCommand.IsRunnable(args))
         {
