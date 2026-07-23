@@ -3,21 +3,21 @@
 // See the LICENSE file in the project root for full license information.
 
 using Biak.ConsoleApp.Constants;
-using Biak.ConsoleApp.Helpers;
+using Biak.ConsoleApp.Helpers.Baseline.Warnings;
 
-namespace Biak.ConsoleApp.IntegrationTests.Helpers;
+namespace Biak.ConsoleApp.IntegrationTests.Helpers.Baseline.Warnings;
 
 public class WarningsBaselineSyncHelperTests
 {
     [Fact]
-    public void RemoveBaselineFiltersShouldRemoveBlockWhenCodeIsNotInActiveFilesByCode()
+    public void RemoveFiltersShouldRemoveBlockWhenCodeIsNotInActiveFilesByCode()
     {
         string content = $$"""
             [{src/File.cs}]
             dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
             """;
 
-        string result = WarningsBaselineSyncHelper.RemoveBaselineFilters(
+        string result = WarningsBaselineSyncHelper.RemoveFilters(
             content,
             new HashSet<string>(["CA2000"], StringComparer.OrdinalIgnoreCase),
             new Dictionary<string, IReadOnlySet<string>>(StringComparer.OrdinalIgnoreCase)
@@ -28,14 +28,14 @@ public class WarningsBaselineSyncHelperTests
     }
 
     [Fact]
-    public void RemoveBaselineFiltersShouldIgnoreBlockWhenDiagnosticLineHasInvalidFormat()
+    public void RemoveFiltersShouldIgnoreBlockWhenDiagnosticLineHasInvalidFormat()
     {
         string content = """
             [{src/File.cs}]
             dotnet_diagnostic.CA2000.severity = suggestion
             """;
 
-        string result = WarningsBaselineSyncHelper.RemoveBaselineFilters(
+        string result = WarningsBaselineSyncHelper.RemoveFilters(
             content,
             new HashSet<string>(["CA2000"], StringComparer.OrdinalIgnoreCase),
             new Dictionary<string, IReadOnlySet<string>>(StringComparer.OrdinalIgnoreCase)

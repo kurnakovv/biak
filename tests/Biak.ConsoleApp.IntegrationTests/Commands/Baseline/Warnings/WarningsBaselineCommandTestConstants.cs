@@ -4,7 +4,7 @@
 
 using Biak.ConsoleApp.Constants;
 
-namespace Biak.ConsoleApp.IntegrationTests.Commands;
+namespace Biak.ConsoleApp.IntegrationTests.Commands.Baseline.Warnings;
 
 internal static class WarningsBaselineCommandTestConstants
 {

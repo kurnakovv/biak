@@ -24,7 +24,12 @@
 ### ⚔️ Find conflicts
 * [Docs](FindConflicts)
 
-### 🚧 Warnings baseline
-* [Overview](WarningsBaselineOverview)
-* [Init](WarningsBaselineInit)
-* [Sync](WarningsBaselineSync)
+### 🚧 Baseline
+* Warnings
+  * [Overview](WarningsBaselineOverview)
+  * [Init](WarningsBaselineInit)
+  * [Sync](WarningsBaselineSync)
+* Inspect Code
+  * [Overview](InspectCodeBaselineOverview)
+  * [Init](InspectCodeBaselineInit)
+  * [Sync](InspectCodeBaselineSync)

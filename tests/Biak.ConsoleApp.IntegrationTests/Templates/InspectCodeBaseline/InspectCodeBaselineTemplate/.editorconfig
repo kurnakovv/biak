@@ -1,0 +1,32 @@
+root = true
+
+[*.cs]
+# Rule 1: ConvertToConstant.Local — private field/var can be made constant
+resharper_convert_to_constant_local_highlighting = warning
+
+# Rule 2: MemberCanBePrivate.Global — public member only used internally, can be made private
+resharper_member_can_be_private_global_highlighting = error
+
+# Rule 3: InvertCondition.1 — !(x == y) can be simplified
+resharper_invert_condition_1_highlighting = warning
+
+# Rule 4: FieldCanBeMadeReadOnly.Local — private field only assigned in initializer/constructor
+resharper_field_can_be_made_read_only_local_highlighting = warning
+
+# Rule 5: MemberCanBeMadeStatic.Local — private method does not use instance members
+resharper_member_can_be_made_static_local_highlighting = warning
+
+# Rule 6: ConvertIfStatementToConditionalTernaryExpression — if/else assignment can be ?:
+resharper_convert_if_statement_to_conditional_ternary_expression_highlighting = warning
+
+# Rule 7: ReplaceWithStringIsNullOrEmpty — manual null+length check
+resharper_replace_with_string_is_null_or_empty_highlighting = warning
+
+# Rule 8: UseArrayEmptyMethod — new T[0] should be Array.Empty<T>()
+resharper_use_array_empty_method_highlighting = error
+
+# Rule 9: ReplaceWithSingleCallToFirstOrDefault — .Where(...).FirstOrDefault() can be simplified
+resharper_replace_with_single_call_to_first_or_default_highlighting = warning
+
+# Rule 10: ConvertToAutoProperty — property with trivial backing field can be auto-property
+resharper_convert_to_auto_property_highlighting = warning

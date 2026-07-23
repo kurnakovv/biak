@@ -2,12 +2,12 @@
 // This file is licensed under the MIT License.
 // See the LICENSE file in the project root for full license information.
 
-using Biak.ConsoleApp.Commands;
+using Biak.ConsoleApp.Commands.Baseline.Warnings;
 using Biak.ConsoleApp.Constants;
 using Biak.ConsoleApp.Exceptions;
 using Biak.ConsoleApp.IntegrationTests.Mock;
 
-namespace Biak.ConsoleApp.IntegrationTests.Commands;
+namespace Biak.ConsoleApp.IntegrationTests.Commands.Baseline.Warnings;
 
 public class WarningsBaselineSyncCommandTests
 {
@@ -400,6 +400,65 @@ public class WarningsBaselineSyncCommandTests
     }
 
     [Fact]
+    public async Task RunShouldMigrateLegacyMarkerAndPrintWarningAsync()
+    {
+        string originalDirectory = Directory.GetCurrentDirectory();
+        TestDirectory testDir = new(
+            $"{nameof(WarningsBaselineSyncCommandTests)}_{nameof(RunShouldMigrateLegacyMarkerAndPrintWarningAsync)}"
+        );
+
+        TextWriter originalOut = Console.Out;
+        await using StringWriter output = new();
+        Console.SetOut(output);
+
+        try
+        {
+            Directory.SetCurrentDirectory(testDir.Value);
+
+            string templateSimpleProject = Path.Join(
+                AppContext.BaseDirectory,
+                "Templates",
+                "SimpleProjectWithWarnings",
+                "MySimpleProjectTemplate"
+            );
+
+            testDir.CopyDirectory(templateSimpleProject);
+
+            string editorconfigPath = Path.Join(testDir.Value, ".editorconfig");
+            string legacyBaseline = ("root = true" + Environment.NewLine + Environment.NewLine + WarningsBaselineCommandTestConstants.BASELINE_FILTERS)
+                .Replace(
+                    WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER,
+                    WarningsBaselineInitCommandConstant.LEGACY_BASELINE_DIAGNOSTIC_MARKER,
+                    StringComparison.Ordinal
+                );
+            await File.WriteAllTextAsync(editorconfigPath, legacyBaseline);
+
+            _ = await WarningsBaselineSyncCommand.RunAsync(
+            [
+                CommandArgumentConstant.WARNINGS_BASELINE,
+                CommandArgumentConstant.SYNC,
+                CommandArgumentConstant.PATH,
+                ".editorconfig",
+            ]);
+
+            string syncedContent = await File.ReadAllTextAsync(editorconfigPath);
+            string consoleOutput = output.ToString();
+
+            Assert.DoesNotContain(WarningsBaselineInitCommandConstant.LEGACY_BASELINE_DIAGNOSTIC_MARKER, syncedContent, StringComparison.Ordinal);
+            Assert.Contains(WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER, syncedContent, StringComparison.Ordinal);
+            Assert.Contains("dotnet_diagnostic.CS0219.severity", syncedContent, StringComparison.Ordinal);
+            Assert.Contains("dotnet_diagnostic.CS8618.severity", syncedContent, StringComparison.Ordinal);
+            Assert.Contains(WarningsBaselineSyncCommandConstant.LEGACY_MARKER_MIGRATED_WARNING, consoleOutput, StringComparison.Ordinal);
+            Assert.False(File.Exists(WarningsBaselineSyncCommandConstant.BUILD_BINLOG_PATH));
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+            Directory.SetCurrentDirectory(originalDirectory);
+        }
+    }
+
+    [Fact]
     public async Task RunShouldHandleLfEditorConfigLineEndingsAsync()
     {
         string originalDirectory = Directory.GetCurrentDirectory();
@@ -701,16 +760,12 @@ public class WarningsBaselineSyncCommandTests
         }
     }
 
-    [Theory]
-    [InlineData("ExtraProperty", "dotnet_diagnostic.CS0219.api_surface = all")]
-    [InlineData("Comment", "# user note")]
-    public async Task RunShouldNotRemoveSectionWhenAdditionalContentFollowsDiagnosticAsync(
-        string testCaseName,
-        string additionalContent)
+    [Fact]
+    public async Task RunShouldNotRemoveSectionWhenAdditionalPropertyFollowsDiagnosticAsync()
     {
         string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new(
-            $"{nameof(WarningsBaselineSyncCommandTests)}_{nameof(RunShouldNotRemoveSectionWhenAdditionalContentFollowsDiagnosticAsync)}_{testCaseName}"
+            $"{nameof(WarningsBaselineSyncCommandTests)}_{nameof(RunShouldNotRemoveSectionWhenAdditionalPropertyFollowsDiagnosticAsync)}"
         );
 
         try
@@ -742,6 +797,7 @@ public class WarningsBaselineSyncCommandTests
                 """
             );
 
+            const string ADDITIONAL_CONTENT = "dotnet_diagnostic.CS0219.api_surface = all";
             string editorconfigPath = Path.Join(testDir.Value, ".editorconfig");
             await File.WriteAllTextAsync(
                 editorconfigPath,
@@ -750,7 +806,7 @@ public class WarningsBaselineSyncCommandTests
 
                 [{ResolvedFile.cs}]
                 dotnet_diagnostic.CS0219.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
-                {{additionalContent}}
+                {{ADDITIONAL_CONTENT}}
 
                 """
             );
@@ -767,7 +823,75 @@ public class WarningsBaselineSyncCommandTests
                 syncedContent,
                 StringComparison.Ordinal
             );
-            Assert.Contains(additionalContent, syncedContent, StringComparison.Ordinal);
+            Assert.Contains(ADDITIONAL_CONTENT, syncedContent, StringComparison.Ordinal);
+        }
+        finally
+        {
+            Directory.SetCurrentDirectory(originalDirectory);
+        }
+    }
+
+    [Fact]
+    public async Task RunShouldRemoveSectionWhenOnlyCommentFollowsDiagnosticAsync()
+    {
+        string originalDirectory = Directory.GetCurrentDirectory();
+        TestDirectory testDir = new(
+            $"{nameof(WarningsBaselineSyncCommandTests)}_{nameof(RunShouldRemoveSectionWhenOnlyCommentFollowsDiagnosticAsync)}"
+        );
+
+        try
+        {
+            Directory.SetCurrentDirectory(testDir.Value);
+
+            string templateSimpleProject = Path.Join(
+                AppContext.BaseDirectory,
+                "Templates",
+                "SimpleProject",
+                "MySimpleProjectTemplate"
+            );
+
+            testDir.CopyDirectory(templateSimpleProject);
+
+            await File.WriteAllTextAsync(
+                Path.Join(testDir.Value, "Program.cs"),
+                """
+                // Copyright (c) 2026 kurnakovv
+                // This file is licensed under the MIT License.
+                // See the LICENSE file in the project root for full license information.
+
+                namespace Biak.ConsoleApp.IntegrationTests.Templates.SimpleProject.MySimpleProjectTemplate;
+
+                internal class Program
+                {
+                    static void Main() { }
+                }
+                """
+            );
+
+            const string ADDITIONAL_CONTENT = "# user note";
+            string editorconfigPath = Path.Join(testDir.Value, ".editorconfig");
+            await File.WriteAllTextAsync(
+                editorconfigPath,
+                $$"""
+                root = true
+
+                [{ResolvedFile.cs}]
+                dotnet_diagnostic.CS0219.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+                {{ADDITIONAL_CONTENT}}
+
+                """
+            );
+
+            string result = await WarningsBaselineSyncCommand.RunAsync(
+                [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC]
+            );
+
+            string syncedContent = await File.ReadAllTextAsync(editorconfigPath);
+
+            Assert.Equal(WarningsBaselineSyncCommandConstant.ALL_WARNINGS_FIXED, result);
+            Assert.DoesNotContain("[{ResolvedFile.cs}]", syncedContent, StringComparison.Ordinal);
+            Assert.DoesNotContain("dotnet_diagnostic.CS0219.severity", syncedContent, StringComparison.Ordinal);
+            Assert.Contains(ADDITIONAL_CONTENT, syncedContent, StringComparison.Ordinal);
         }
         finally
         {

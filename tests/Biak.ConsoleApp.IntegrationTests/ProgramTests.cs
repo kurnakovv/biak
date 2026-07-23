@@ -5,7 +5,7 @@
 using Biak.ConsoleApp.Constants;
 using Biak.ConsoleApp.Exceptions;
 using Biak.ConsoleApp.Helpers;
-using Biak.ConsoleApp.IntegrationTests.Commands;
+using Biak.ConsoleApp.IntegrationTests.Commands.Baseline.Warnings;
 using Biak.ConsoleApp.IntegrationTests.Mock;
 
 namespace Biak.ConsoleApp.IntegrationTests;
@@ -352,6 +352,42 @@ public class ProgramTests
 
             string result = output.ToString().Trim();
             Assert.Contains(WarningsBaselineSyncCommandConstant.SYNC_STARTED, result, StringComparison.OrdinalIgnoreCase);
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+            Directory.SetCurrentDirectory(originalDirectory);
+        }
+    }
+
+    [Fact]
+    public async Task InspectCodeBaselineInitCommandAsync()
+    {
+        string originalDirectory = Directory.GetCurrentDirectory();
+        TestDirectory testDir = new($"{nameof(ProgramTests)}_{nameof(InspectCodeBaselineInitCommandAsync)}");
+
+        TextWriter originalOut = Console.Out;
+        await using StringWriter output = new();
+        Console.SetOut(output);
+
+        try
+        {
+            Directory.SetCurrentDirectory(testDir.Value);
+
+            string templatePath = Path.Join(
+                AppContext.BaseDirectory,
+                "Templates",
+                "InspectCodeBaseline",
+                "InspectCodeBaselineTemplate"
+            );
+
+            testDir.CopyDirectory(templatePath);
+
+            await Program.Main([CommandArgumentConstant.INSPECTCODE_BASELINE, CommandArgumentConstant.INIT]);
+
+            string result = output.ToString().Trim();
+            Assert.Contains(InspectCodeBaselineInitCommandConstant.INIT_STARTED, result, StringComparison.Ordinal);
+            Assert.Contains(InspectCodeBaselineInitCommandConstant.INSERT_FILTERS_NOTE, result, StringComparison.Ordinal);
         }
         finally
         {
