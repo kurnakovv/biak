@@ -15,6 +15,21 @@ public static class CommandArgumentConstant
     public const string HELP = "--help";
 
     /// <summary>
+    /// Path option.
+    /// </summary>
+    public const string PATH = "--path";
+
+    /// <summary>
+    /// Build target option.
+    /// </summary>
+    public const string TARGET = "--target";
+
+    /// <summary>
+    /// Include debug info into command output.
+    /// </summary>
+    public const string DEBUG_INFO = "--debug-info";
+
+    /// <summary>
     /// Setup biak env (create .biak folder with .editorconfig-main file).
     /// </summary>
     public const string SETUP = "setup";
@@ -28,4 +43,39 @@ public static class CommandArgumentConstant
     /// Disable .editorconfig rules.
     /// </summary>
     public const string DISABLE = "disable";
+
+    /// <summary>
+    /// Get current .editorconfig rules status.
+    /// </summary>
+    public const string STATUS = "status";
+
+    /// <summary>
+    /// Find active branches with files.
+    /// </summary>
+    public const string FIND_ACTIVITY = "find-activity";
+
+    /// <summary>
+    /// Find git conflicts files.
+    /// </summary>
+    public const string FIND_CONFLICTS = "find-conflicts";
+
+    /// <summary>
+    /// Warnings baseline.
+    /// </summary>
+    public const string WARNINGS_BASELINE = "warnings-baseline";
+
+    /// <summary>
+    /// InspectCode baseline.
+    /// </summary>
+    public const string INSPECTCODE_BASELINE = "inspectcode-baseline";
+
+    /// <summary>
+    /// Init.
+    /// </summary>
+    public const string INIT = "init";
+
+    /// <summary>
+    /// Sync.
+    /// </summary>
+    public const string SYNC = "sync";
 }

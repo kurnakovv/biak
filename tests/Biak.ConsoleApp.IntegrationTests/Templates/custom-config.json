@@ -1,0 +1,8 @@
+{
+  "severityWhenDisabled": "suggestion",
+  "severitiesToDisable": [
+    "error",
+    "warning"
+  ],
+  "onImportFailure": "error"
+}

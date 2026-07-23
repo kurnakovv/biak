@@ -11,8 +11,8 @@
  [![Codecov](https://codecov.io/gh/kurnakovv/biak/branch/dev/graph/badge.svg)](https://app.codecov.io/gh/kurnakovv/biak)
  [![MIT License](https://img.shields.io/github/license/kurnakovv/biak?color=%230b0&style=flat)](https://github.com/kurnakovv/biak/blob/dev/LICENSE)
 
- <!-- [![NuGet](https://img.shields.io/nuget/v/kurnakovv.biak.svg)](https://www.nuget.org/packages/kurnakovv.biak)
- [![NuGet download](https://img.shields.io/nuget/dt/kurnakovv.biak.svg)](https://www.nuget.org/packages/kurnakovv.biak) -->
+ [![NuGet](https://img.shields.io/nuget/v/kurnakovv.biak.svg)](https://www.nuget.org/packages/kurnakovv.biak)
+ [![NuGet download](https://img.shields.io/nuget/dt/kurnakovv.biak.svg)](https://www.nuget.org/packages/kurnakovv.biak)
 
  [![NuGet](https://img.shields.io/nuget/v/kurnakovv.biak-preview.svg)](https://www.nuget.org/packages/kurnakovv.biak-preview)
  [![NuGet download](https://img.shields.io/nuget/dt/kurnakovv.biak-preview.svg)](https://www.nuget.org/packages/kurnakovv.biak-preview)
@@ -24,16 +24,30 @@
 ## 📙 Description
 👁️🟣👁️ biak is a C# tool for managing `.editorconfig` rules via a centralized, modular configuration with enable/disable modes, imports, variables, and conflict-aware formatting checks
 
+## 📺 Preview
+
+<!-- ![preview](docs/images/preview.gif) -->
+
+<kbd><img src="docs/images/preview.gif" /></kbd>
+
 ## 💡 Features
 * ⚙️ Enable / Disable `.editorconfig` rules | Change severity level ([what?](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/configuration-options#severity-level)) with one command without losing the original values ([docs](https://github.com/kurnakovv/biak/wiki/Setup)).
 
-* 🗂️ `.editorconfig` categories | Split specific rule groups (e.g., CA / IDE / SA / Roslynator, etc.) into separate files for better organization and maintainability (soon 🔜).
+* 🗂️ Imports | Import specific rule groups (e.g., CA / IDE / SA / Roslynator, etc.) from separate files or URLs for better organization and maintainability ([docs](https://github.com/kurnakovv/biak/wiki/Import)).
 
-* 🔒 Always enabled rules | Override selected rules (e.g., formatting rules) so they remain active even when you run the disable command (soon 🔜).
+* 🔒 Always enabled rules | Override selected rules (e.g., formatting rules) so they remain active even when you run the disable command ([docs](https://github.com/kurnakovv/biak/wiki/AlwaysEnabledRules)).
 
-* 🔎 Include/Exclude filter | Apply rules to all C# `[*.cs]` files except selected ones (e.g., `[{TestClass1.cs,TestClass2.cs}]`). While `[!name]` ([what?](https://editorconfig.org/#wildcards)) is supported, it affects all file types - not just C# files (soon 🔜).
+* 📦 Variables | Extract duplicate strings (e.g., file paths) into reusable variables ([docs](https://github.com/kurnakovv/biak/wiki/Variables)).
 
-* 🕸️ Apply rules without git conflicts | Automatically detect all active branches, run `dotnet format` (no changes), and identify conflicting files. This is especially useful for legacy projects with many rule violations, allowing gradual integration without major conflicts (soon 🔜).
+* 🔎 Include / Exclude filter | Apply rules to all C# `[*.cs]` files except selected ones, e.g., `[{TestClass1.cs,TestClass2.cs}]` ([docs](https://github.com/kurnakovv/biak/wiki/IncludeExcludeFilter)).
+
+* 🧑‍💻 Find activity | Provides the ability to find active branches and files being modified within them. This feature helps gradually introduce formatting and analyzers without causing Git conflicts by excluding actively modified files from the `.editorconfig` file ([docs](https://github.com/kurnakovv/biak/wiki/FindActivity)).
+
+* ⚔️ Find conflicts | Find files with merge conflicts between the default branch and selected branches. This is especially useful for legacy projects with many rule violations, allowing gradual integration without major conflicts ([docs](https://github.com/kurnakovv/biak/wiki/FindConflicts)).
+
+* 🚧 Baseline | Create a baseline from existing diagnostics to keep legacy violations under control and enforce stricter checks for new or changed code without fixing everything at once.
+  * Warnings | .NET compiler and analyzer warnings reported during build. Baseline lets you enable [TreatWarningsAsErrors](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/compiler-options/errors-warnings#treatwarningsaserrors) while preserving current warning debt ([docs](https://github.com/kurnakovv/biak/wiki/WarningsBaselineOverview)).
+  * Inspect Code | ReSharper Inspect Code rules reported by `jb inspectcode`. Baseline keeps existing issues tracked so new violations are surfaced and can be handled incrementally ([docs](https://github.com/kurnakovv/biak/wiki/InspectCodeBaselineOverview)).
 
 ## 🚀 Quick start
 1️⃣ Install
@@ -111,12 +125,22 @@ dotnet biak enable
 dotnet biak disable
 ```
 
+5️⃣ Status ([docs](https://github.com/kurnakovv/biak/wiki/Status))
+```
+dotnet biak status
+```
+
 That's it - biak is configured. Happy coding! 🚀
 
 If you need more details, please visit the Wiki 📚 ([where?](https://github.com/kurnakovv/biak/wiki))
 
 > [!WARNING]
 > If you install `kurnakovv.biak-preview` ([what?](https://www.nuget.org/packages/kurnakovv.biak-preview/)) use `dotnet biak-preview` instead of `dotnet biak`
+
+## 🧩 Extensions / Plugins
+* [Visual Studio](https://github.com/kurnakovv/biak-visual-studio-extension)
+* Rider (soon 🔜)
+* VS Code (soon 🔜)
 
 ## ❔ Why
 In large projects with a significant number of files, `.editorconfig` rules may be evaluated with noticeable delay.
@@ -143,7 +167,7 @@ This tool allows you to temporarily enable or disable specific `.editorconfig` r
 * Why not create two `.editorconfig` files (one with rules enabled, one disabled)? | This would require duplicating values in two places, which is error-prone and harder to maintain.
 
 ## 🗣️ Recommendations
-* Setup CI/CD integration (e.g., using GitHub Actions) to improve reliability and consistency, since not everyone will run this tool locally.
+* Set up CI/CD integration (e.g., using GitHub Actions ([how?](https://github.com/kurnakovv/biak/wiki/EnableDisableGitHubAction))) to improve reliability and consistency, since not everyone will run this tool locally.
 
 * If you configure this tool through CI/CD, make sure to periodically validate the rules locally as well. Rules may be misconfigured accidentally, so you should verify what is generated in the `.editorconfig` file. Additionally, not all rules are enforced by `dotnet build`; some may only appear within the IDE (for example, Visual Studio).
 

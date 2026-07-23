@@ -3,6 +3,8 @@
 // See the LICENSE file in the project root for full license information.
 
 using Biak.ConsoleApp.Commands;
+using Biak.ConsoleApp.Commands.Baseline.InspectCode;
+using Biak.ConsoleApp.Commands.Baseline.Warnings;
 using Biak.ConsoleApp.Constants;
 
 namespace Biak.ConsoleApp;
@@ -38,6 +40,34 @@ public static class Program
         else if (EnableCommand.IsRunnable(args))
         {
             await EnableCommand.RunAsync();
+        }
+        else if (StatusCommand.IsRunnable(args))
+        {
+            await StatusCommand.RunAsync(args);
+        }
+        else if (FindActivityCommand.IsRunnable(args))
+        {
+            await FindActivityCommand.RunAsync();
+        }
+        else if (FindConflictsCommand.IsRunnable(args))
+        {
+            await FindConflictsCommand.RunAsync();
+        }
+        else if (WarningsBaselineInitCommand.IsRunnable(args))
+        {
+            await WarningsBaselineInitCommand.RunAsync(args);
+        }
+        else if (WarningsBaselineSyncCommand.IsRunnable(args))
+        {
+            await WarningsBaselineSyncCommand.RunAsync(args);
+        }
+        else if (InspectCodeBaselineInitCommand.IsRunnable(args))
+        {
+            await InspectCodeBaselineInitCommand.RunAsync();
+        }
+        else if (InspectCodeBaselineSyncCommand.IsRunnable(args))
+        {
+            await InspectCodeBaselineSyncCommand.RunAsync(args);
         }
         else
         {

@@ -57,7 +57,7 @@ public static class UIConstant
     /// <summary>
     /// End disable message.
     /// </summary>
-    public const string END_DISABLE = "All rules in .editorconfig have been disabled (error|warning|suggestion -> none).";
+    public const string END_DISABLE = "All rules in .editorconfig have been disabled.";
 
     /// <summary>
     /// Start enable message.
@@ -68,4 +68,29 @@ public static class UIConstant
     /// End enable message.
     /// </summary>
     public const string END_ENABLE = ".editorconfig has been restored from backup (.biak/.editorconfig-main).";
+
+    /// <summary>
+    /// Broken status output.
+    /// </summary>
+    public const string STATUS_BROKEN = "broken";
+
+    /// <summary>
+    /// Broken status output with details about config problem.
+    /// </summary>
+    public const string STATUS_BROKEN_WITH_CONFIG_MESSAGE = "broken: problems with a biak configuration, message: ";
+
+    /// <summary>
+    /// Enabled status output.
+    /// </summary>
+    public const string STATUS_ENABLED = "enabled";
+
+    /// <summary>
+    /// Disabled status output.
+    /// </summary>
+    public const string STATUS_DISABLED = "disabled";
+
+    /// <summary>
+    /// Unsynchronised status output.
+    /// </summary>
+    public const string STATUS_UNSYNCHRONISED = "unsynchronised";
 }

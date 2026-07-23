@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -19,6 +19,36 @@
     <Content Include="Templates\**">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="Templates\**\obj\**\*" />
+    <Content Remove="Templates\**\bin\**\*" />
+    <Compile Remove="Templates\**\obj\**\*.cs" />
+    <Compile Remove="Templates\**\bin\**\*.cs" />
+    <Compile Remove="Templates\InspectCodeBaseline\InspectCodeBaselineNoIssuesTemplate\Program.cs" />
+    <Compile Remove="Templates\InspectCodeBaseline\InspectCodeBaselineNoIssuesTemplate\Service.cs" />
+    <Compile Remove="Templates\InspectCodeBaseline\InspectCodeBaselineTemplate\ServiceA.cs" />
+    <Compile Remove="Templates\InspectCodeBaseline\InspectCodeBaselineTemplate\ServiceB.cs" />
+    <Compile Remove="Templates\InspectCodeBaseline\InspectCodeBaselineTemplate\ServiceC.cs" />
+    <Compile Remove="Templates\InspectCodeBaseline\InspectCodeBaselineTemplate\ServiceD.cs" />
+    <Compile Remove="Templates\InspectCodeBaseline\InspectCodeBaselineTemplate\ServiceE.cs" />
+    <Compile Remove="Templates\SimpleProjectWithWarnings\MySimpleProjectTemplate\DerivedClassCS0649.cs" />
+    <Compile Remove="Templates\SimpleProjectWithWarnings\MySimpleProjectTemplate\MyClassCS0169.cs" />
+    <Compile Remove="Templates\SimpleProjectWithWarnings\MySimpleProjectTemplate\MyTestForlder\MyTestModel1.cs" />
+    <Compile Remove="Templates\SimpleProjectWithWarnings\MySimpleProjectTemplate\MyTestModel.cs" />
+    <Compile Remove="Templates\SimpleProjectWithWarnings\MySimpleProjectTemplate\ProgramCS0168Warning.cs" />
+    <Compile Remove="Templates\SimpleProjectWithWarnings\MySimpleProjectTemplate\ProgramCS0219Warning.cs" />
+    <Compile Remove="Templates\SimpleProjectWithWarnings\MySimpleProjectTemplate\ProgramCS0612.cs" />
+    <Compile Remove="Templates\SimpleProject\MySimpleProjectTemplate\TestService1.cs" />
+    <Compile Remove="Templates\SimpleProject\MySimpleProjectTemplate\TestService2.cs" />
+    <Compile Remove="Templates\SimpleProject\MySimpleProjectTemplate\TestService3.cs" />
+    <Compile Remove="Templates\SimpleProject\MySimpleProjectTemplate\TestService4.cs" />
+    <Compile Remove="Templates\SimpleProject\MySimpleProjectTemplate\TestService5.cs" />
+    <Compile Remove="Templates\SimpleProject\MySimpleProjectTemplate\TestService6.cs" />
+    <Compile Remove="Templates\SimpleProject\MySimpleProjectTemplate\TestService7.cs" />
+    <Compile Remove="Templates\SimpleProject\MySimpleProjectTemplate\TestService8.cs" />
+    <Compile Remove="Templates\SimpleProject\MySimpleProjectTemplate\TestService9.cs" />
   </ItemGroup>
 
   <ItemGroup>
