@@ -25,6 +25,16 @@ jobs:
         with:
           dotnet-version: 8.0.x
 
+      - name: Cache dotnet tools
+        uses: actions/cache@v4
+        with:
+          path: ~/.dotnet/tools
+          key: dotnet-tools-${{ hashFiles('.config/dotnet-tools.json') }}
+          restore-keys: dotnet-tools-
+
+      - name: Restore dotnet tools
+        run: dotnet tool restore
+
       - name: Set release notes
         run: |
           echo "https://github.com/kurnakovv/biak/releases/tag/${{ github.event.release.tag_name }}" > docs/RELEASE-NOTES

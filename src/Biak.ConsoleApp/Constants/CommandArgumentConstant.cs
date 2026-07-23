@@ -65,6 +65,11 @@ public static class CommandArgumentConstant
     public const string WARNINGS_BASELINE = "warnings-baseline";
 
     /// <summary>
+    /// InspectCode baseline.
+    /// </summary>
+    public const string INSPECTCODE_BASELINE = "inspectcode-baseline";
+
+    /// <summary>
     /// Init.
     /// </summary>
     public const string INIT = "init";

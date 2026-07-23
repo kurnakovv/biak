@@ -45,7 +45,9 @@
 
 * ⚔️ Find conflicts | Find files with merge conflicts between the default branch and selected branches. This is especially useful for legacy projects with many rule violations, allowing gradual integration without major conflicts ([docs](https://github.com/kurnakovv/biak/wiki/FindConflicts)).
 
-* 🚧 Warnings baseline | Build a warning baseline from existing compiler and analyzer warnings, allowing [TreatWarningsAsErrors](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/compiler-options/errors-warnings#treatwarningsaserrors) to be enabled without fixing all legacy violations at once ([docs](https://github.com/kurnakovv/biak/wiki/WarningsBaselineOverview)).
+* 🚧 Baseline | Create a baseline from existing diagnostics to keep legacy violations under control and enforce stricter checks for new or changed code without fixing everything at once.
+  * Warnings | .NET compiler and analyzer warnings reported during build. Baseline lets you enable [TreatWarningsAsErrors](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/compiler-options/errors-warnings#treatwarningsaserrors) while preserving current warning debt ([docs](https://github.com/kurnakovv/biak/wiki/WarningsBaselineOverview)).
+  * Inspect Code | ReSharper Inspect Code rules reported by `jb inspectcode`. Baseline keeps existing issues tracked so new violations are surfaced and can be handled incrementally ([docs](https://github.com/kurnakovv/biak/wiki/InspectCodeBaselineOverview)).
 
 ## 🚀 Quick start
 1️⃣ Install

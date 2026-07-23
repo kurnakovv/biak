@@ -2,10 +2,10 @@
 // This file is licensed under the MIT License.
 // See the LICENSE file in the project root for full license information.
 
-using Biak.ConsoleApp.Commands;
+using Biak.ConsoleApp.Commands.Baseline.Warnings;
 using Biak.ConsoleApp.Constants;
 
-namespace Biak.ConsoleApp.UnitTests.Commands;
+namespace Biak.ConsoleApp.UnitTests.Commands.Baseline.Warnings;
 
 public class WarningsBaselineSyncCommandTests
 {
