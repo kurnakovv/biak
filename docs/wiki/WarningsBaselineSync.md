@@ -61,5 +61,5 @@ And the `.editorconfig` file is synchronized.
 * Change baseline filters in the config file from `warning` back to `suggestion`
 
 ## 🔗 Links
-* Issues: [#107](https://github.com/kurnakovv/biak/issues/107) | [#113](https://github.com/kurnakovv/biak/issues/113)
+* Issues: [#107](https://github.com/kurnakovv/biak/issues/107), [#113](https://github.com/kurnakovv/biak/issues/113)
 * Source code: [click](https://github.com/kurnakovv/biak/blob/dev/src/Biak.ConsoleApp/Commands/WarningsBaselineSyncCommand.cs)

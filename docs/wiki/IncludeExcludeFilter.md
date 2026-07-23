@@ -2,7 +2,7 @@
 Apply rules to all C# `[*.cs]` files except selected ones (e.g., `[{TestClass1.cs,TestClass2.cs}]`).
 
 ## 💻 Usage
-.biak/.editorconfig-main
+.editorconfig-main
 ```.editorconfig
 # StyleCop.Analyzers rules
 ^biak^ include [*.cs]

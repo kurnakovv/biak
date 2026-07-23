@@ -63,5 +63,5 @@ If a warning originates from a global project-level configuration, such as a `.c
 Unfortunately, if you write `... = warning # ^biak^ baseline` instead of `... = suggestion # ^biak^ baseline` and set `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>`, the filter will not be applied and all warnings will become errors.
 
 ## 🔗 Links
-* Issues: [#105](https://github.com/kurnakovv/biak/issues/105) | [#113](https://github.com/kurnakovv/biak/issues/113)
+* Issues: [#105](https://github.com/kurnakovv/biak/issues/105), [#113](https://github.com/kurnakovv/biak/issues/113)
 * Source code: [click](https://github.com/kurnakovv/biak/blob/dev/src/Biak.ConsoleApp/Commands/WarningsBaselineInitCommand.cs)

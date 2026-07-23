@@ -202,7 +202,7 @@ All active files via variable
 ```
 A biak variable ([Docs](Variables)) which can be used together with 🔎 Include / Exclude filter ([Docs](IncludeExcludeFilter))
 
-.biak/.editorconfig-main
+.editorconfig-main
 ```.editorconfig
 ^biak^ var activeFiles = "TestService1.cs"
     + ",TestService2.cs"

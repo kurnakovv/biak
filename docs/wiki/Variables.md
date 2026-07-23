@@ -3,7 +3,7 @@
 Extract duplicate strings (e.g., file paths) into reusable variables.
 
 ## 💻 Usage
-.biak/.editorconfig-main
+.editorconfig-main
 ```.editorconfig
 ^biak^ var excludedFiles = "TestFile1.cs,TestFile2.cs";
 
@@ -62,7 +62,7 @@ dotnet_diagnostic.CA1716.severity = none
 As you can see, `$excludedFiles` is replaced with `TestFile1.cs,TestFile2.cs`.
 
 ## 📜 Rules
-* Can only be defined within `.biak/.editorconfig-main`
+* Can only be defined within `.editorconfig-main`
 * Supports concatenation of strings using line breaks
     ```.editorconfig
     ^biak^ var excludedFiles = "TestFile1.cs"

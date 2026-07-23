@@ -17,7 +17,7 @@ Structure
 └── config.json
 ```
 
-.biak/.editorconfig-main
+.editorconfig-main
 ```.editorconfig
 root = true
 
