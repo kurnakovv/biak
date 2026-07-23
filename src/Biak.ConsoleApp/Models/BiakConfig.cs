@@ -43,6 +43,11 @@ public class BiakConfig
     /// dotnet biak find-activity settings.
     /// </summary>
     public FindActivityInputConfigModel? FindActivity { get; init; }
+
+    /// <summary>
+    /// dotnet biak inspectcode-baseline settings.
+    /// </summary>
+    public InspectCodeBaselineConfig? InspectCodeBaseline { get; init; }
 }
 
 /// <summary>

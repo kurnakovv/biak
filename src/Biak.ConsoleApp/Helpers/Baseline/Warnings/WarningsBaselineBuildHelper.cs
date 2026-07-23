@@ -7,7 +7,7 @@ using Biak.ConsoleApp.Constants;
 using Biak.ConsoleApp.Exceptions;
 using SL = Microsoft.Build.Logging.StructuredLogger;
 
-namespace Biak.ConsoleApp.Helpers;
+namespace Biak.ConsoleApp.Helpers.Baseline.Warnings;
 
 /// <summary>
 /// Helper for building the current solution and reading the generated binlog.

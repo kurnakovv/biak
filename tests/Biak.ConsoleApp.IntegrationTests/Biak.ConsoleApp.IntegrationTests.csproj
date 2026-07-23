@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -22,6 +22,17 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Remove="Templates\**\obj\**\*" />
+    <Content Remove="Templates\**\bin\**\*" />
+    <Compile Remove="Templates\**\obj\**\*.cs" />
+    <Compile Remove="Templates\**\bin\**\*.cs" />
+    <Compile Remove="Templates\InspectCodeBaseline\InspectCodeBaselineNoIssuesTemplate\Program.cs" />
+    <Compile Remove="Templates\InspectCodeBaseline\InspectCodeBaselineNoIssuesTemplate\Service.cs" />
+    <Compile Remove="Templates\InspectCodeBaseline\InspectCodeBaselineTemplate\ServiceA.cs" />
+    <Compile Remove="Templates\InspectCodeBaseline\InspectCodeBaselineTemplate\ServiceB.cs" />
+    <Compile Remove="Templates\InspectCodeBaseline\InspectCodeBaselineTemplate\ServiceC.cs" />
+    <Compile Remove="Templates\InspectCodeBaseline\InspectCodeBaselineTemplate\ServiceD.cs" />
+    <Compile Remove="Templates\InspectCodeBaseline\InspectCodeBaselineTemplate\ServiceE.cs" />
     <Compile Remove="Templates\SimpleProjectWithWarnings\MySimpleProjectTemplate\DerivedClassCS0649.cs" />
     <Compile Remove="Templates\SimpleProjectWithWarnings\MySimpleProjectTemplate\MyClassCS0169.cs" />
     <Compile Remove="Templates\SimpleProjectWithWarnings\MySimpleProjectTemplate\MyTestForlder\MyTestModel1.cs" />

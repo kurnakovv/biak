@@ -16,8 +16,9 @@ public static class SetupHelper
     /// <summary>
     /// Get .editorconfig paths.
     /// </summary>
+    /// <param name="suppressConsoleOutput">When true, does not write missing-file diagnostics to console output.</param>
     /// <returns>.editorconfig paths.</returns>
-    public static EditorconfigPaths GetEditorconfigPaths()
+    public static EditorconfigPaths GetEditorconfigPaths(bool suppressConsoleOutput = false)
     {
         EditorconfigPaths result = new();
 
@@ -27,8 +28,12 @@ public static class SetupHelper
 
         if (!File.Exists(editorconfigMainPath))
         {
-            Console.WriteLine(UIConstant.BIAK_NOT_INITIALIZED);
-            Console.WriteLine(UIConstant.RUN_BIAK_SETUP);
+            if (!suppressConsoleOutput)
+            {
+                Console.WriteLine(UIConstant.BIAK_NOT_INITIALIZED);
+                Console.WriteLine(UIConstant.RUN_BIAK_SETUP);
+            }
+
             return result;
         }
         result.MainValue = editorconfigMainPath;
@@ -37,7 +42,11 @@ public static class SetupHelper
 
         if (!File.Exists(editorConfigPath))
         {
-            Console.WriteLine(UIConstant.EDITORCONFIG_NOT_FOUND + editorConfigPath);
+            if (!suppressConsoleOutput)
+            {
+                Console.WriteLine(UIConstant.EDITORCONFIG_NOT_FOUND + editorConfigPath);
+            }
+
             return result;
         }
         result.Value = editorConfigPath;

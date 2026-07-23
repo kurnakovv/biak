@@ -43,11 +43,6 @@ public static class IncludeExcludeFilterHelper
     /// <returns>Content with applied filters.</returns>
     public static string Apply(string content)
     {
-        if (string.IsNullOrWhiteSpace(content))
-        {
-            return content;
-        }
-
         return s_blockRegex.Replace(
             content,
             match =>

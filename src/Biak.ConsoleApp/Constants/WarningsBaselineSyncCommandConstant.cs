@@ -20,11 +20,6 @@ public static class WarningsBaselineSyncCommandConstant
     public const string DEFAULT_EDITORCONFIG_MAIN_PATH = ".biak/.editorconfig-main";
 
     /// <summary>
-    /// Root .editorconfig path.
-    /// </summary>
-    public const string DEFAULT_EDITORCONFIG_PATH = ".editorconfig";
-
-    /// <summary>
     /// Warnings-baseline sync started.
     /// </summary>
     public const string SYNC_STARTED = "warnings-baseline sync started...";
@@ -38,7 +33,7 @@ public static class WarningsBaselineSyncCommandConstant
     /// Default configuration files were not found.
     /// </summary>
     public const string DEFAULT_CONFIGURATION_FILE_NOT_FOUND =
-        $"Configuration file was not found. Checked '{DEFAULT_EDITORCONFIG_MAIN_PATH}' and '{DEFAULT_EDITORCONFIG_PATH}'.";
+        $"Configuration file was not found. Checked '{DEFAULT_EDITORCONFIG_MAIN_PATH}' and '.editorconfig'.";
 
     /// <summary>
     /// The specified path is not allowed.
@@ -58,6 +53,12 @@ public static class WarningsBaselineSyncCommandConstant
     /// </summary>
     public const string ALL_WARNINGS_FIXED =
         "Congratulations! All baseline warnings have been fixed. All filters have been removed from the configuration file.";
+
+    /// <summary>
+    /// Message shown when legacy baseline marker is migrated to the new marker.
+    /// </summary>
+    public const string LEGACY_MARKER_MIGRATED_WARNING =
+        "Warning: legacy baseline marker '# ^biak^ baseline' was detected and migrated to '# ^biak^ warnings-baseline'.";
 
     /// <summary>
     /// Failed to synchronize warnings baseline.

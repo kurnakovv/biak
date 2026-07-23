@@ -2,12 +2,12 @@
 // This file is licensed under the MIT License.
 // See the LICENSE file in the project root for full license information.
 
-using Biak.ConsoleApp.Commands;
+using Biak.ConsoleApp.Commands.Baseline.Warnings;
 using Biak.ConsoleApp.Constants;
 using Biak.ConsoleApp.Exceptions;
 using Biak.ConsoleApp.IntegrationTests.Mock;
 
-namespace Biak.ConsoleApp.IntegrationTests.Commands;
+namespace Biak.ConsoleApp.IntegrationTests.Commands.Baseline.Warnings;
 
 public class WarningsBaselineInitCommandTests
 {
