@@ -324,6 +324,23 @@ public class InspectCodeBaselineSyncHelperTests
                 null
             },
             {
+                "RemovesAssociatedCommentWhenRuleIdHasInnerSpaces",
+                $$"""
+                # Field can be made readonly [ FieldCanBeMadeReadOnly.Local ] | https://www.jetbrains.com/help/resharper/FieldCanBeMadeReadOnly.Local.html
+                [{src/File.cs}]
+                resharper_field_can_be_made_read_only_local_highlighting = warning {{InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}}
+                """,
+                Array.Empty<string>(),
+                Array.Empty<string>(),
+                Array.Empty<string>(),
+                [
+                    "# Field can be made readonly [ FieldCanBeMadeReadOnly.Local ] | https://www.jetbrains.com/help/resharper/FieldCanBeMadeReadOnly.Local.html",
+                    "[{src/File.cs}]",
+                    "resharper_field_can_be_made_read_only_local_highlighting = warning"
+                ],
+                null
+            },
+            {
                 "KeepsCommentWhenRuleIdDoesNotMatchRemovedRule",
                 $$"""
                 # Use String.IsNullOrEmpty [ReplaceWithStringIsNullOrEmpty] | https://www.jetbrains.com/help/resharper/ReplaceWithStringIsNullOrEmpty.html

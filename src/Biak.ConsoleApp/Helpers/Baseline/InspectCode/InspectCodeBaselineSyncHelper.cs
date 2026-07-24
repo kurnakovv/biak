@@ -142,7 +142,7 @@ public static class InspectCodeBaselineSyncHelper
             return false;
         }
 
-        string ruleId = match.Groups["ruleId"].Value;
+        string ruleId = match.Groups["ruleId"].Value.Trim();
         InspectCodeRuleMetadata? metadata = InspectCodeRuleMetadataHelper.Get(ruleId);
         return metadata is not null
             && string.Equals(metadata.EditorconfigConfigKey, ruleKey, StringComparison.OrdinalIgnoreCase);
