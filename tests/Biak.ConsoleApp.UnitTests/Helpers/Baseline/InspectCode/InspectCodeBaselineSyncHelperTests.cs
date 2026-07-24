@@ -514,6 +514,30 @@ public class InspectCodeBaselineSyncHelperTests
     }
 
     [Fact]
+    public void RemoveFiltersRemovesAssociatedCommentWhenRuleIdOverrideMapsToBlockKey()
+    {
+        string content = $$"""
+            # Use 'String.IsNullOrEmpty' [ReplaceWithStringIsNullOrEmpty] | https://www.jetbrains.com/help/resharper/ReplaceWithStringIsNullOrEmpty.html
+            [{src/File.cs}]
+            custom_override_rule_key = suggestion {{InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}}
+            """;
+
+        IReadOnlyDictionary<string, string> ruleIdOverrides =
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["ReplaceWithStringIsNullOrEmpty"] = "custom_override_rule_key",
+            };
+
+        string result = InspectCodeBaselineSyncHelper.RemoveFilters(
+            content,
+            new HashSet<string>(StringComparer.OrdinalIgnoreCase),
+            new Dictionary<string, IReadOnlySet<string>>(StringComparer.OrdinalIgnoreCase),
+            ruleIdOverrides);
+
+        Assert.Equal(string.Empty, result);
+    }
+
+    [Fact]
     public void GetSynchronizedFilesReturnsRemovedAndPrunedFilesGroupedByFile()
     {
         string content = $$"""
