@@ -37,12 +37,14 @@ public static class BaselineSyncEditorconfigHelper
     /// <param name="identifiersToKeep">Identifiers to keep in baseline.</param>
     /// <param name="tryGetIdentifier">Function that extracts baseline identifier from a baseline setting line.</param>
     /// <param name="activeFilesByIdentifier">Optional map of active files per identifier.</param>
+    /// <param name="isAssociatedCommentLine">Optional function to detect comment line associated with removed identifier.</param>
     /// <returns>Updated .editorconfig content.</returns>
     public static string RemoveFilters(
         string content,
         IReadOnlySet<string> identifiersToKeep,
         Func<string, string?> tryGetIdentifier,
-        IReadOnlyDictionary<string, IReadOnlySet<string>>? activeFilesByIdentifier = null)
+        IReadOnlyDictionary<string, IReadOnlySet<string>>? activeFilesByIdentifier = null,
+        Func<string, string, bool>? isAssociatedCommentLine = null)
     {
         string newline = content.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
         string[] lines = content.Split(new[] { newline }, StringSplitOptions.None);
@@ -61,6 +63,7 @@ public static class BaselineSyncEditorconfigHelper
             {
                 if (!identifiersToKeep.Contains(block.Identifier))
                 {
+                    RemoveTrailingAssociatedComment(result, block.Identifier, isAssociatedCommentLine);
                     i = block.BlockEndIndex;
                     continue;
                 }
@@ -74,6 +77,7 @@ public static class BaselineSyncEditorconfigHelper
 
                     if (filesToKeep.Length == 0)
                     {
+                        RemoveTrailingAssociatedComment(result, block.Identifier, isAssociatedCommentLine);
                         i = block.BlockEndIndex;
                         continue;
                     }
@@ -191,6 +195,28 @@ public static class BaselineSyncEditorconfigHelper
                 Identifier: identifier,
                 SectionFiles: sectionFiles
             );
+        }
+    }
+
+    private static void RemoveTrailingAssociatedComment(
+        List<string> lines,
+        string identifier,
+        Func<string, string, bool>? isAssociatedCommentLine)
+    {
+        if (isAssociatedCommentLine is null || lines.Count == 0)
+        {
+            return;
+        }
+
+        int index = lines.Count - 1;
+        while (index >= 0 && string.IsNullOrWhiteSpace(lines[index]))
+        {
+            index--;
+        }
+
+        if (index >= 0 && isAssociatedCommentLine(lines[index], identifier))
+        {
+            lines.RemoveAt(index);
         }
     }
 

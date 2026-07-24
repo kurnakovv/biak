@@ -27,6 +27,11 @@ public static class InspectCodeBaselineSyncHelper
         RegexOptions.Compiled | RegexOptions.IgnoreCase
     );
 
+    private static readonly Regex s_inspectCodeRuleCommentRegex = new(
+        @"^\s*#\s*.+\[(?<ruleId>[^\]]+)\]\s*\|\s*https://www\.jetbrains\.com/help/resharper/[^\s]+\.html(?:#[^\s]+)?\s*$",
+        RegexOptions.Compiled | RegexOptions.IgnoreCase
+    );
+
     /// <summary>
     /// Prepares runtime .editorconfig content for InspectCode analysis by converting baseline marker rules to error without marker.
     /// </summary>
@@ -67,17 +72,20 @@ public static class InspectCodeBaselineSyncHelper
     /// <param name="content">.editorconfig content.</param>
     /// <param name="keysToKeep">Rule keys to keep.</param>
     /// <param name="activeFilesByRuleKey">Current active files by rule key.</param>
+    /// <param name="ruleIdOverrides">Optional RuleId to .editorconfig key overrides.</param>
     /// <returns>Synchronized .editorconfig content.</returns>
     public static string RemoveFilters(
         string content,
         IReadOnlySet<string> keysToKeep,
-        IReadOnlyDictionary<string, IReadOnlySet<string>> activeFilesByRuleKey)
+        IReadOnlyDictionary<string, IReadOnlySet<string>> activeFilesByRuleKey,
+        IReadOnlyDictionary<string, string>? ruleIdOverrides = null)
     {
         return BaselineSyncEditorconfigHelper.RemoveFilters(
             content,
             keysToKeep,
             TryGetRuleKey,
-            activeFilesByRuleKey);
+            activeFilesByRuleKey,
+            (line, ruleKey) => IsAssociatedInspectCodeRuleCommentLine(line, ruleKey, ruleIdOverrides));
     }
 
     /// <summary>
@@ -126,6 +134,26 @@ public static class InspectCodeBaselineSyncHelper
         }
 
         return string.Join(newline, lines);
+    }
+
+    private static bool IsAssociatedInspectCodeRuleCommentLine(
+        string line,
+        string ruleKey,
+        IReadOnlyDictionary<string, string>? ruleIdOverrides)
+    {
+        Match match = s_inspectCodeRuleCommentRegex.Match(line);
+        if (!match.Success)
+        {
+            return false;
+        }
+
+        string ruleId = match.Groups["ruleId"].Value.Trim();
+        string? mappedRuleKey = ruleIdOverrides is not null && ruleIdOverrides.TryGetValue(ruleId, out string? overrideRuleKey)
+            ? overrideRuleKey
+            : InspectCodeRuleMetadataHelper.Get(ruleId)?.EditorconfigConfigKey;
+
+        return !string.IsNullOrWhiteSpace(mappedRuleKey)
+            && string.Equals(mappedRuleKey, ruleKey, StringComparison.OrdinalIgnoreCase);
     }
 
     private static string? TryGetRuleKey(string line)
