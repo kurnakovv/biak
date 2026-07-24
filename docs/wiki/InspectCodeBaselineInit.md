@@ -38,7 +38,7 @@ resharper_replace_with_string_is_null_or_empty_highlighting = suggestion # ^biak
 ## ❔ Questions
 
 ### Why are some rules skipped?
-If a `ruleId` is not found in the built-in mapping and not provided in `ruleIdOverrides`, it cannot be converted to a valid `.editorconfig` key and is skipped.
+JetBrains does not provide a public API for InspectCode rule metadata, so this project stores rule key/value mappings directly in code. Because of that, mapping data may be incomplete or outdated, and if a `ruleId` is not found in the built-in mapping and not provided in `ruleIdOverrides`, it cannot be converted to a valid `.editorconfig` key and is skipped.
 
 ## 🔗 Links
 * Source code: [click](https://github.com/kurnakovv/biak/blob/dev/src/Biak.ConsoleApp/Commands/Baseline/InspectCode/InspectCodeBaselineInitCommand.cs)
