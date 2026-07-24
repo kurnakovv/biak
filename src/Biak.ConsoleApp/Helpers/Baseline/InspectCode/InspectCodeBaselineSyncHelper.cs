@@ -150,14 +150,9 @@ public static class InspectCodeBaselineSyncHelper
         string ruleId = match.Groups["ruleId"].Value.Trim();
         string? mappedRuleKey = null;
 
-        if (ruleIdOverrides is not null && ruleIdOverrides.TryGetValue(ruleId, out string? overrideRuleKey))
-        {
-            mappedRuleKey = overrideRuleKey;
-        }
-        else
-        {
-            mappedRuleKey = InspectCodeRuleMetadataHelper.Get(ruleId)?.EditorconfigConfigKey;
-        }
+        mappedRuleKey = ruleIdOverrides is not null && ruleIdOverrides.TryGetValue(ruleId, out string? overrideRuleKey)
+            ? overrideRuleKey
+            : InspectCodeRuleMetadataHelper.Get(ruleId)?.EditorconfigConfigKey;
 
         return !string.IsNullOrWhiteSpace(mappedRuleKey)
             && string.Equals(mappedRuleKey, ruleKey, StringComparison.OrdinalIgnoreCase);
