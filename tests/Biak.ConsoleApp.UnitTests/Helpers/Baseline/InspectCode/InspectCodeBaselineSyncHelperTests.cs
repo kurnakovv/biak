@@ -285,7 +285,13 @@ public class InspectCodeBaselineSyncHelperTests
                     "[{src/File.cs}]",
                     "resharper_field_can_be_made_read_only_local_highlighting = suggestion"
                 ],
-                null
+                """
+                [*.cs]
+
+                # Field can be made readonly [FieldCanBeMadeReadOnly.Local] | https://www.jetbrains.com/help/resharper/FieldCanBeMadeReadOnly.Local.html
+                resharper_field_can_be_made_read_only_local_highlighting = error
+
+                """
             },
             {
                 "RemovesAssociatedCommentWithUrlAnchorWhenRuleIsRemoved",
