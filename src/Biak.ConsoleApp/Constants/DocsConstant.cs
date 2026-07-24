@@ -86,6 +86,7 @@ Find activity / conflicts | Features for finding active and conflicting files an
 ---
 
 * dotnet biak find-activity | Provides the ability to find active branches and files being modified within them. This feature helps gradually introduce formatting and analyzers without causing Git conflicts by excluding actively modified files from the .editorconfig file https://github.com/kurnakovv/biak/wiki/FindActivity
+
 * dotnet biak find-conflicts | Find files with merge conflicts between the default branch and selected branches https://github.com/kurnakovv/biak/wiki/FindConflicts
 --------------------
 Warnings baseline | Tools for initializing and maintaining a warning baseline for gradual analyzer adoption https://github.com/kurnakovv/biak/wiki/WarningsBaselineOverview
@@ -93,6 +94,7 @@ Warnings baseline | Tools for initializing and maintaining a warning baseline fo
 ---
 
 * dotnet biak warnings-baseline init [--target <path>] | Builds the project, discovers all current compiler and analyzer warnings, and generates .editorconfig filters that exclude existing warnings from TreatWarningsAsErrors, enabling gradual cleanup while keeping new warnings blocked. Use --target to explicitly select a solution/project build target file https://github.com/kurnakovv/biak/wiki/WarningsBaselineInit
+
 * dotnet biak warnings-baseline sync [--path <path>] [--target <path>] | Synchronizes the warnings-baseline filters in .biak/.editorconfig-main by default (fallback: .editorconfig), or in a user-specified .editorconfig when --path is provided. Use --target to explicitly select a solution/project build target file https://github.com/kurnakovv/biak/wiki/WarningsBaselineSync
 --------------------
 InspectCode baseline | Tools for initializing and maintaining an Inspect Code baseline for gradual ReSharper/InspectCode adoption https://github.com/kurnakovv/biak/wiki/InspectCodeBaselineOverview
@@ -100,6 +102,7 @@ InspectCode baseline | Tools for initializing and maintaining an Inspect Code ba
 ---
 
 * dotnet biak inspectcode-baseline init | Runs Inspect Code, groups current issues by .editorconfig rule key, and prints baseline filters marked for later synchronization. Optionally, you can configure target, snapshotSeverity, additionalArgs, and ruleIdOverrides via .biak/config.json https://github.com/kurnakovv/biak/wiki/InspectCodeBaselineInit
+
 * dotnet biak inspectcode-baseline sync [--path <path>] | Synchronizes Inspect Code baseline filters by removing entries for issues that are no longer present. By default, the baseline file is discovered by marker inside .biak/.editorconfig* or falls back to the root .editorconfig; use --path to target a specific .editorconfig file https://github.com/kurnakovv/biak/wiki/InspectCodeBaselineSync
 --------------------";
 }
