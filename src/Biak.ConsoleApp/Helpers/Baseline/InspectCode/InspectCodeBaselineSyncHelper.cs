@@ -27,6 +27,11 @@ public static class InspectCodeBaselineSyncHelper
         RegexOptions.Compiled | RegexOptions.IgnoreCase
     );
 
+    private static readonly Regex s_inspectCodeRuleCommentRegex = new(
+        @"^\s*#\s*.+\[(?<ruleId>[^\]]+)\]\s*\|\s*https://www\.jetbrains\.com/help/resharper/[^\s]+\.html(?:#[^\s]+)?\s*$",
+        RegexOptions.Compiled | RegexOptions.IgnoreCase
+    );
+
     /// <summary>
     /// Prepares runtime .editorconfig content for InspectCode analysis by converting baseline marker rules to error without marker.
     /// </summary>
@@ -77,7 +82,8 @@ public static class InspectCodeBaselineSyncHelper
             content,
             keysToKeep,
             TryGetRuleKey,
-            activeFilesByRuleKey);
+            activeFilesByRuleKey,
+            IsAssociatedInspectCodeRuleCommentLine);
     }
 
     /// <summary>
@@ -126,6 +132,20 @@ public static class InspectCodeBaselineSyncHelper
         }
 
         return string.Join(newline, lines);
+    }
+
+    private static bool IsAssociatedInspectCodeRuleCommentLine(string line, string ruleKey)
+    {
+        Match match = s_inspectCodeRuleCommentRegex.Match(line);
+        if (!match.Success)
+        {
+            return false;
+        }
+
+        string ruleId = match.Groups["ruleId"].Value;
+        InspectCodeRuleMetadata? metadata = InspectCodeRuleMetadataHelper.Get(ruleId);
+        return metadata is not null
+            && string.Equals(metadata.EditorconfigConfigKey, ruleKey, StringComparison.OrdinalIgnoreCase);
     }
 
     private static string? TryGetRuleKey(string line)

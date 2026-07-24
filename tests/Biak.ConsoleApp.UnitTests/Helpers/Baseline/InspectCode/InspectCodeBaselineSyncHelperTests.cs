@@ -263,16 +263,102 @@ public class InspectCodeBaselineSyncHelperTests
                 null
             },
             {
-                "RemovesBlockWhenNoFilesRemainAfterPruning",
+                "RemovesOnlyAssociatedCommentWhenNoFilesRemainAfterPruning",
                 $$"""
+                [*.cs]
+
+                # Field can be made readonly [FieldCanBeMadeReadOnly.Local] | https://www.jetbrains.com/help/resharper/FieldCanBeMadeReadOnly.Local.html
+                resharper_field_can_be_made_read_only_local_highlighting = error
+
+                # Field can be made readonly [FieldCanBeMadeReadOnly.Local] | https://www.jetbrains.com/help/resharper/FieldCanBeMadeReadOnly.Local.html
+                [{src/File.cs}]
+                resharper_field_can_be_made_read_only_local_highlighting = suggestion {{InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}}
+                """,
+                ["resharper_field_can_be_made_read_only_local_highlighting"],
+                ["src/OtherFile.cs"],
+                [
+                    "[*.cs]",
+                    "# Field can be made readonly [FieldCanBeMadeReadOnly.Local] | https://www.jetbrains.com/help/resharper/FieldCanBeMadeReadOnly.Local.html",
+                    "resharper_field_can_be_made_read_only_local_highlighting = error"
+                ],
+                [
+                    "[{src/File.cs}]",
+                    "resharper_field_can_be_made_read_only_local_highlighting = suggestion"
+                ],
+                null
+            },
+            {
+                "RemovesAssociatedCommentWithUrlAnchorWhenRuleIsRemoved",
+                $$"""
+                # Field can be made readonly [FieldCanBeMadeReadOnly.Local] | https://www.jetbrains.com/help/resharper/FieldCanBeMadeReadOnly.Local.html#details
                 [{src/File.cs}]
                 resharper_field_can_be_made_read_only_local_highlighting = warning {{InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}}
 
                 """,
-                ["resharper_field_can_be_made_read_only_local_highlighting"],
-                ["src/OtherFile.cs"],
                 Array.Empty<string>(),
-                ["[{src/File.cs}]", "resharper_field_can_be_made_read_only_local_highlighting"],
+                Array.Empty<string>(),
+                Array.Empty<string>(),
+                [
+                    "# Field can be made readonly [FieldCanBeMadeReadOnly.Local] | https://www.jetbrains.com/help/resharper/FieldCanBeMadeReadOnly.Local.html#details",
+                    "[{src/File.cs}]",
+                    "resharper_field_can_be_made_read_only_local_highlighting = warning"
+                ],
+                null
+            },
+            {
+                "RemovesAssociatedCommentWhenBlankLineSeparatesCommentAndBlock",
+                $$"""
+                # Field can be made readonly [FieldCanBeMadeReadOnly.Local] | https://www.jetbrains.com/help/resharper/FieldCanBeMadeReadOnly.Local.html
+
+                [{src/File.cs}]
+                resharper_field_can_be_made_read_only_local_highlighting = warning {{InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}}
+                """,
+                Array.Empty<string>(),
+                Array.Empty<string>(),
+                Array.Empty<string>(),
+                [
+                    "# Field can be made readonly [FieldCanBeMadeReadOnly.Local] | https://www.jetbrains.com/help/resharper/FieldCanBeMadeReadOnly.Local.html",
+                    "[{src/File.cs}]",
+                    "resharper_field_can_be_made_read_only_local_highlighting = warning"
+                ],
+                null
+            },
+            {
+                "KeepsCommentWhenRuleIdDoesNotMatchRemovedRule",
+                $$"""
+                # Use String.IsNullOrEmpty [ReplaceWithStringIsNullOrEmpty] | https://www.jetbrains.com/help/resharper/ReplaceWithStringIsNullOrEmpty.html
+                [{src/File.cs}]
+                resharper_field_can_be_made_read_only_local_highlighting = warning {{InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}}
+
+                """,
+                Array.Empty<string>(),
+                Array.Empty<string>(),
+                [
+                    "# Use String.IsNullOrEmpty [ReplaceWithStringIsNullOrEmpty] | https://www.jetbrains.com/help/resharper/ReplaceWithStringIsNullOrEmpty.html"
+                ],
+                [
+                    "[{src/File.cs}]",
+                    "resharper_field_can_be_made_read_only_local_highlighting = warning"
+                ],
+                null
+            },
+            {
+                "KeepsCommentWhenRuleIdIsUnknown",
+                $$"""
+                # Custom note [UnknownRuleId] | https://www.jetbrains.com/help/resharper/UnknownRuleId.html
+                [{src/File.cs}]
+                resharper_field_can_be_made_read_only_local_highlighting = warning {{InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}}
+
+                """,
+                Array.Empty<string>(),
+                Array.Empty<string>(),
+                [
+                    "# Custom note [UnknownRuleId] | https://www.jetbrains.com/help/resharper/UnknownRuleId.html"
+                ],
+                [
+                    "[{src/File.cs}]",
+                    "resharper_field_can_be_made_read_only_local_highlighting = warning"
+                ],
                 null
             },
             {
@@ -335,6 +421,79 @@ public class InspectCodeBaselineSyncHelperTests
         {
             Assert.DoesNotContain(value, result, StringComparison.Ordinal);
         }
+    }
+
+    [Fact]
+    public void RemoveFiltersProducesExpectedFullTextWithPrunedRemovedAndPreservedRules()
+    {
+        string content = $$"""
+            [*.cs]
+
+            # Field can be made readonly [FieldCanBeMadeReadOnly.Local] | https://www.jetbrains.com/help/resharper/FieldCanBeMadeReadOnly.Local.html
+            resharper_field_can_be_made_read_only_local_highlighting = warning
+
+            # Use 'String.IsNullOrEmpty' [ReplaceWithStringIsNullOrEmpty] | https://www.jetbrains.com/help/resharper/ReplaceWithStringIsNullOrEmpty.html
+            resharper_replace_with_string_is_null_or_empty_highlighting = warning
+
+            # Member can be made private [MemberCanBePrivate.Local] | https://www.jetbrains.com/help/resharper/MemberCanBePrivate.Local.html
+            resharper_member_can_be_private_local_highlighting = warning
+
+            # Field can be made readonly [FieldCanBeMadeReadOnly.Local] | https://www.jetbrains.com/help/resharper/FieldCanBeMadeReadOnly.Local.html
+            [{src/FileA.cs,src/FileB.cs}]
+            resharper_field_can_be_made_read_only_local_highlighting = suggestion {{InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}}
+
+            # Use 'String.IsNullOrEmpty' [ReplaceWithStringIsNullOrEmpty] | https://www.jetbrains.com/help/resharper/ReplaceWithStringIsNullOrEmpty.html
+            [{src/FileC.cs}]
+            resharper_replace_with_string_is_null_or_empty_highlighting = suggestion {{InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}}
+
+            # Member can be made private [MemberCanBePrivate.Local] | https://www.jetbrains.com/help/resharper/MemberCanBePrivate.Local.html
+            [{src/FileD.cs}]
+            resharper_member_can_be_private_local_highlighting = suggestion {{InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}}
+            """;
+
+        HashSet<string> keysToKeep =
+        [
+            "resharper_field_can_be_made_read_only_local_highlighting",
+            "resharper_member_can_be_private_local_highlighting",
+        ];
+
+        IReadOnlyDictionary<string, IReadOnlySet<string>> activeFilesByRuleKey =
+            new Dictionary<string, IReadOnlySet<string>>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["resharper_field_can_be_made_read_only_local_highlighting"] = new HashSet<string>(
+                    ["src/FileB.cs"],
+                    StringComparer.OrdinalIgnoreCase
+                ),
+                ["resharper_member_can_be_private_local_highlighting"] = new HashSet<string>(
+                    ["src/FileD.cs"],
+                    StringComparer.OrdinalIgnoreCase
+                ),
+            };
+
+        string result = InspectCodeBaselineSyncHelper.RemoveFilters(content, keysToKeep, activeFilesByRuleKey);
+
+        string expected = $$"""
+            [*.cs]
+
+            # Field can be made readonly [FieldCanBeMadeReadOnly.Local] | https://www.jetbrains.com/help/resharper/FieldCanBeMadeReadOnly.Local.html
+            resharper_field_can_be_made_read_only_local_highlighting = warning
+
+            # Use 'String.IsNullOrEmpty' [ReplaceWithStringIsNullOrEmpty] | https://www.jetbrains.com/help/resharper/ReplaceWithStringIsNullOrEmpty.html
+            resharper_replace_with_string_is_null_or_empty_highlighting = warning
+
+            # Member can be made private [MemberCanBePrivate.Local] | https://www.jetbrains.com/help/resharper/MemberCanBePrivate.Local.html
+            resharper_member_can_be_private_local_highlighting = warning
+
+            # Field can be made readonly [FieldCanBeMadeReadOnly.Local] | https://www.jetbrains.com/help/resharper/FieldCanBeMadeReadOnly.Local.html
+            [{src/FileB.cs}]
+            resharper_field_can_be_made_read_only_local_highlighting = suggestion {{InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}}
+
+            # Member can be made private [MemberCanBePrivate.Local] | https://www.jetbrains.com/help/resharper/MemberCanBePrivate.Local.html
+            [{src/FileD.cs}]
+            resharper_member_can_be_private_local_highlighting = suggestion {{InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}}
+            """;
+
+        Assert.Equal(expected, result);
     }
 
     [Fact]
