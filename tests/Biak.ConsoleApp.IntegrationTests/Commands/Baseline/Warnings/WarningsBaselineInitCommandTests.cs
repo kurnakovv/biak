@@ -162,7 +162,7 @@ public class WarningsBaselineInitCommandTests
         Task<Exception> exceptionTask = Record.ExceptionAsync(() => WarningsBaselineInitCommand.RunAsync(executionContext: context));
         await DeleteFileWhileTaskIsRunningAsync(exceptionTask, buildBinlogPath, TimeSpan.FromSeconds(30));
 
-        Exception? exception = await exceptionTask;
+        Exception exception = await exceptionTask;
 
         Assert.NotNull(exception);
         Assert.IsType<BiakApplicationException>(exception);
