@@ -18,14 +18,13 @@ public static class InspectCodeBaselineRunHelper
     /// <summary>
     /// Runs InspectCode with SARIF output and returns the path to the produced report file.
     /// </summary>
+    /// <param name="executionContext">Execution context with working-directory settings; when <c>null</c>, the default context is used.</param>
     /// <param name="target">Explicit path to the <c>.slnx</c>, <c>.sln</c>, or <c>.csproj</c> file. When <c>null</c>, auto-discovery is used.</param>
     /// <param name="additionalArgs">Extra arguments forwarded to InspectCode unchanged.</param>
-    /// <param name="executionContext">Execution context with working-directory settings; when <c>null</c>, the default context is used.</param>
     /// <returns>Absolute path to the produced SARIF report file.</returns>
-    public static async Task<string> RunAsync(string? target = null, IReadOnlyList<string>? additionalArgs = null, AppExecutionContext? executionContext = null)
+    public static async Task<string> RunAsync(AppExecutionContext executionContext, string? target = null, IReadOnlyList<string>? additionalArgs = null)
     {
-        AppExecutionContext context = executionContext ?? AppExecutionContext.CreateDefault();
-        string sarifPath = GenerateSarifPath(context.WorkingDirectory);
+        string sarifPath = GenerateSarifPath(executionContext.WorkingDirectory);
 
         string? directoryPath = Path.GetDirectoryName(sarifPath);
         if (!string.IsNullOrWhiteSpace(directoryPath))
@@ -33,12 +32,12 @@ public static class InspectCodeBaselineRunHelper
             Directory.CreateDirectory(directoryPath);
         }
 
-        string resolvedTarget = ResolveTarget(target, context.WorkingDirectory);
+        string resolvedTarget = ResolveTarget(target, executionContext.WorkingDirectory);
 
         IReadOnlyList<ProcessStartInfo> candidates = BuildInspectCodeProcessCandidates(
             resolvedTarget,
             sarifPath,
-            context.WorkingDirectory,
+            executionContext.WorkingDirectory,
             additionalArgs);
 
         bool startedAnyCandidate = false;

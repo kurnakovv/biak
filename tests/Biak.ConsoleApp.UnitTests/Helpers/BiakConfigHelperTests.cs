@@ -72,7 +72,7 @@ public class BiakConfigHelperTests
     [InlineData(/*lang=json,strict*/ "{\"severitiesToDisable\": [\"someValue\", \"someValue2\"]}", BiakConfigConstant.INVALID_FORMAT)]
     public async Task GetInvalidStringsAsync(string? json, string expectedMessage)
     {
-        (string? resultMessage, _) = await BiakConfigHelper.GetAsync(json);
+        (string? resultMessage, _) = await BiakConfigHelper.GetAsync(AppExecutionContext.CreateDefault(), json);
 
         Assert.Equal(expectedMessage, resultMessage);
     }
@@ -88,7 +88,7 @@ public class BiakConfigHelperTests
     [InlineData(/*lang=json,strict*/ "{\"severityWhenDisabled\": \"default\"}", SeverityLevelType.Default)]
     public async Task GetValidStringsForSeverityWhenDisabledAsync(string json, SeverityLevelType expectedSeverity)
     {
-        (string? resultMessage, BiakConfig resultConfig) = await BiakConfigHelper.GetAsync(json);
+        (string? resultMessage, BiakConfig resultConfig) = await BiakConfigHelper.GetAsync(AppExecutionContext.CreateDefault(), json);
 
         Assert.Null(resultMessage);
         Assert.NotNull(resultConfig);
@@ -99,7 +99,7 @@ public class BiakConfigHelperTests
     [MemberData(nameof(SeveritiesToDisableData))]
     public async Task GetValidStringsForSeveritiesToDisableAsync(string? expectedMessage, string json, IEnumerable<SeverityLevelType> expectedSeveritiesToDisable)
     {
-        (string? resultMessage, BiakConfig resultConfig) = await BiakConfigHelper.GetAsync(json);
+        (string? resultMessage, BiakConfig resultConfig) = await BiakConfigHelper.GetAsync(AppExecutionContext.CreateDefault(), json);
 
         Assert.Equal(expectedMessage, resultMessage);
         Assert.NotNull(resultConfig);
@@ -115,7 +115,7 @@ public class BiakConfigHelperTests
     [InlineData(/*lang=json,strict*/ "{\"onImportFailure\": \"error\"}", FailureBehaviorType.Error)]
     public async Task GetValidStringsForOnImportFailureAsync(string json, FailureBehaviorType expectedOnImportFailure)
     {
-        (string? resultMessage, BiakConfig resultConfig) = await BiakConfigHelper.GetAsync(json);
+        (string? resultMessage, BiakConfig resultConfig) = await BiakConfigHelper.GetAsync(AppExecutionContext.CreateDefault(), json);
 
         Assert.Null(resultMessage);
         Assert.NotNull(resultConfig);
@@ -127,7 +127,7 @@ public class BiakConfigHelperTests
     {
         string json = /*lang=json,strict*/ "{\"severityWhenDisabled\": \"suggestion\", \"severitiesToDisable\": [\"error\", \"warning\"], \"onImportFailure\": \"error\"}";
 
-        (string? resultMessage, BiakConfig resultConfig) = await BiakConfigHelper.GetAsync(json);
+        (string? resultMessage, BiakConfig resultConfig) = await BiakConfigHelper.GetAsync(AppExecutionContext.CreateDefault(), json);
 
         Assert.Null(resultMessage);
         Assert.NotNull(resultConfig);

@@ -55,13 +55,12 @@ public static class WarningsBaselineSyncCommand
     /// <summary>
     /// Run.
     /// </summary>
-    /// <param name="args">User input arguments.</param>
     /// <param name="executionContext">Execution context with working directory for command execution.</param>
+    /// <param name="args">User input arguments.</param>
     /// <returns><placeholder>A <see cref="Task"/> representing the asynchronous operation.</placeholder></returns>
-    public static async Task<string> RunAsync(string[] args, AppExecutionContext? executionContext = null)
+    public static async Task<string> RunAsync(AppExecutionContext executionContext, string[] args)
     {
-        AppExecutionContext context = executionContext ?? AppExecutionContext.CreateDefault();
-        string baseDirectory = context.WorkingDirectory;
+        string baseDirectory = executionContext.WorkingDirectory;
         string resolvedPath = string.Empty;
         string originalContent = string.Empty;
         string contentBeforeSync = string.Empty;
@@ -71,8 +70,8 @@ public static class WarningsBaselineSyncCommand
 
         try
         {
-            await context.Out.WriteLineAsync(WarningsBaselineSyncCommandConstant.SYNC_STARTED);
-            await context.Out.WriteLineAsync();
+            await executionContext.Out.WriteLineAsync(WarningsBaselineSyncCommandConstant.SYNC_STARTED);
+            await executionContext.Out.WriteLineAsync();
 
             string editorConfigPath = ResolveEditorConfigPath(args, baseDirectory);
             string? buildTarget = ResolveBuildTarget(args);
@@ -115,8 +114,8 @@ public static class WarningsBaselineSyncCommand
 
             SL.Build build = await WarningsBaselineBuildHelper.BuildAndReadBuildAsync(
                 buildBinlogPath,
-                buildTarget,
-                context
+                executionContext,
+                buildTarget
             );
 
             List<SL.Warning> sourceWarnings = WarningsBaselineBuildHelper.GetSourceWarnings(build).ToList();
@@ -169,23 +168,23 @@ public static class WarningsBaselineSyncCommand
                 foreach (KeyValuePair<string, IReadOnlySet<string>> synchronizedFile in synchronizedFiles.OrderBy(x => x.Key, StringComparer.OrdinalIgnoreCase))
                 {
                     string codes = string.Join(", ", synchronizedFile.Value.OrderBy(x => x, StringComparer.OrdinalIgnoreCase));
-                    await context.Out.WriteLineAsync($"{synchronizedFile.Key} ({codes})");
+                    await executionContext.Out.WriteLineAsync($"{synchronizedFile.Key} ({codes})");
                 }
 
                 if (synchronizedFiles.Count > 0)
                 {
-                    await context.Out.WriteLineAsync();
+                    await executionContext.Out.WriteLineAsync();
                 }
             }
 
             if (hasLegacyMarker)
             {
-                await context.Out.WriteLineAsync(WarningsBaselineSyncCommandConstant.LEGACY_MARKER_MIGRATED_WARNING);
-                await context.Out.WriteLineAsync();
+                await executionContext.Out.WriteLineAsync(WarningsBaselineSyncCommandConstant.LEGACY_MARKER_MIGRATED_WARNING);
+                await executionContext.Out.WriteLineAsync();
             }
 
-            await context.Out.WriteLineAsync(result);
-            await context.Out.WriteLineAsync();
+            await executionContext.Out.WriteLineAsync(result);
+            await executionContext.Out.WriteLineAsync();
 
             return result;
         }

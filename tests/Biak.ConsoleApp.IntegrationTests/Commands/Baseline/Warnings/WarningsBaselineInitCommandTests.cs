@@ -188,13 +188,13 @@ public class WarningsBaselineInitCommandTests
         testDir.CopyDirectory(templateSimpleProject);
 
         string result = await WarningsBaselineInitCommand.RunAsync(
+            executionContext: context,
             [
                 CommandArgumentConstant.WARNINGS_BASELINE,
                 CommandArgumentConstant.INIT,
                 CommandArgumentConstant.TARGET,
                 "MySimpleProjectTemplate.csproj",
-            ],
-            executionContext: context
+            ]
         );
 
         Assert.Contains("dotnet_diagnostic.CS0168.severity", result, StringComparison.Ordinal);
@@ -211,13 +211,13 @@ public class WarningsBaselineInitCommandTests
         AppExecutionContext context = new() { WorkingDirectory = testDir.Value, Out = output };
 
         Exception? exception = await Record.ExceptionAsync(() => WarningsBaselineInitCommand.RunAsync(
+            executionContext: context,
             [
                 CommandArgumentConstant.WARNINGS_BASELINE,
                 CommandArgumentConstant.INIT,
                 CommandArgumentConstant.TARGET,
                 "../outside.csproj",
-            ],
-            executionContext: context
+            ]
         ));
 
         Assert.NotNull(exception);

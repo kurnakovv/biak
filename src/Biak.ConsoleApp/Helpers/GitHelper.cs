@@ -20,7 +20,7 @@ public static class GitHelper
     /// <param name="arguments">Arguments after git.</param>
     /// <param name="executionContext">Execution context with working-directory settings; when <c>null</c>, the default context is used.</param>
     /// <returns>git output.</returns>
-    public static async Task<string> RunAsync(string arguments, AppExecutionContext? executionContext = null)
+    public static async Task<string> RunAsync(string arguments, AppExecutionContext executionContext)
     {
         GitResult model = await RunWithModelAsync(arguments, executionContext);
 
@@ -38,20 +38,18 @@ public static class GitHelper
     /// <param name="arguments">Arguments after git.</param>
     /// <param name="executionContext">Execution context with working-directory settings; when <c>null</c>, the default context is used.</param>
     /// <returns>A <see cref="GitResult"/> containing the exit code, standard output, and standard error from git.</returns>
-    public static async Task<GitResult> RunWithModelAsync(string arguments, AppExecutionContext? executionContext = null)
+    public static async Task<GitResult> RunWithModelAsync(string arguments, AppExecutionContext executionContext)
     {
-        AppExecutionContext context = executionContext ?? AppExecutionContext.CreateDefault();
-
         using Process process = new();
 
         process.StartInfo.FileName = "git";
         process.StartInfo.Arguments = arguments;
-        process.StartInfo.WorkingDirectory = context.WorkingDirectory;
+        process.StartInfo.WorkingDirectory = executionContext.WorkingDirectory;
         process.StartInfo.RedirectStandardOutput = true;
         process.StartInfo.RedirectStandardError = true;
         process.StartInfo.UseShellExecute = false;
 
-        foreach ((string key, string? value) in context.EnvironmentVariables)
+        foreach ((string key, string? value) in executionContext.EnvironmentVariables)
         {
             if (value == null)
             {

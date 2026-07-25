@@ -43,7 +43,7 @@ public class InspectCodeBaselineSyncCommandTests
                 ".biak/.editorconfig-InspectCodeBaseline",
             ];
 
-        string result = await InspectCodeBaselineSyncCommand.RunAsync(args, context);
+        string result = await InspectCodeBaselineSyncCommand.RunAsync(context, args);
         string syncedBaselineContent = await File.ReadAllTextAsync(baselinePath);
 
         Assert.Equal("Sync complete. Removed 1 file(s); resolved 1 filter(s). 7 filter(s) still alive.", result);
@@ -83,7 +83,7 @@ public class InspectCodeBaselineSyncCommandTests
                 ".biak/.editorconfig-InspectCodeBaseline",
             ];
 
-        string result = await InspectCodeBaselineSyncCommand.RunAsync(args, context);
+        string result = await InspectCodeBaselineSyncCommand.RunAsync(context, args);
         string syncedBaselineContent = await File.ReadAllTextAsync(baselinePath);
 
         Assert.Equal("Sync complete. Removed 0 file(s); resolved 0 filter(s). 8 filter(s) still alive.", result);
@@ -156,7 +156,7 @@ public class InspectCodeBaselineSyncCommandTests
                 ".biak/.editorconfig-InspectCodeBaseline",
             ];
 
-        string result = await InspectCodeBaselineSyncCommand.RunAsync(args, context);
+        string result = await InspectCodeBaselineSyncCommand.RunAsync(context, args);
 
         Assert.Equal("Sync complete. Removed 0 file(s); resolved 0 filter(s). 7 filter(s) still alive.", result);
     }
@@ -203,7 +203,7 @@ public class InspectCodeBaselineSyncCommandTests
                 ".biak/.editorconfig-InspectCodeBaseline",
             ];
 
-        string result = await InspectCodeBaselineSyncCommand.RunAsync(args, context);
+        string result = await InspectCodeBaselineSyncCommand.RunAsync(context, args);
         string syncedBaselineContent = await File.ReadAllTextAsync(baselinePath);
 
         Assert.Equal("Sync complete. Removed 1 file(s); resolved 0 filter(s). 1 filter(s) still alive.", result);
@@ -273,7 +273,7 @@ public class InspectCodeBaselineSyncCommandTests
                 ".biak/.editorconfig-main",
             ];
 
-        string result = await InspectCodeBaselineSyncCommand.RunAsync(args, context);
+        string result = await InspectCodeBaselineSyncCommand.RunAsync(context, args);
         string syncedBaselineContent = await File.ReadAllTextAsync(baselinePath);
         string rootEditorconfigContent = await File.ReadAllTextAsync(Path.Join(testDir.Value, ".editorconfig"));
 
@@ -318,7 +318,7 @@ public class InspectCodeBaselineSyncCommandTests
                 ".biak/.editorconfig-InspectCodeBaseline",
             ];
 
-        Exception? exception = await Record.ExceptionAsync(() => InspectCodeBaselineSyncCommand.RunAsync(args, context));
+        Exception? exception = await Record.ExceptionAsync(() => InspectCodeBaselineSyncCommand.RunAsync(context, args));
 
         Assert.NotNull(exception);
         Assert.IsType<BiakApplicationException>(exception);
@@ -351,7 +351,7 @@ public class InspectCodeBaselineSyncCommandTests
                 ".biak/.editorconfig-InspectCodeBaseline",
             ];
 
-        Exception? exception = await Record.ExceptionAsync(() => InspectCodeBaselineSyncCommand.RunAsync(args, context));
+        Exception? exception = await Record.ExceptionAsync(() => InspectCodeBaselineSyncCommand.RunAsync(context, args));
 
         Assert.NotNull(exception);
         Assert.IsType<BiakApplicationException>(exception);
@@ -391,7 +391,7 @@ public class InspectCodeBaselineSyncCommandTests
                 ".biak/.editorconfig-cli",
             ];
 
-        Exception? exception = await Record.ExceptionAsync(() => InspectCodeBaselineSyncCommand.RunAsync(args, context));
+        Exception? exception = await Record.ExceptionAsync(() => InspectCodeBaselineSyncCommand.RunAsync(context, args));
 
         Assert.NotNull(exception);
         Assert.IsType<BiakApplicationException>(exception);
@@ -428,7 +428,7 @@ public class InspectCodeBaselineSyncCommandTests
                 CommandArgumentConstant.SYNC,
             ];
 
-        Exception? exception = await Record.ExceptionAsync(() => InspectCodeBaselineSyncCommand.RunAsync(args, context));
+        Exception? exception = await Record.ExceptionAsync(() => InspectCodeBaselineSyncCommand.RunAsync(context, args));
 
         Assert.NotNull(exception);
         Assert.IsType<BiakApplicationException>(exception);
@@ -454,7 +454,7 @@ public class InspectCodeBaselineSyncCommandTests
                 CommandArgumentConstant.SYNC,
             ];
 
-        string result = await InspectCodeBaselineSyncCommand.RunAsync(args, context);
+        string result = await InspectCodeBaselineSyncCommand.RunAsync(context, args);
         Assert.Equal("Sync complete. Removed 0 file(s); resolved 0 filter(s). 8 filter(s) still alive.", result);
     }
 
@@ -487,7 +487,7 @@ public class InspectCodeBaselineSyncCommandTests
                 CommandArgumentConstant.SYNC,
             ];
 
-        string result = await InspectCodeBaselineSyncCommand.RunAsync(args, context);
+        string result = await InspectCodeBaselineSyncCommand.RunAsync(context, args);
 
         string biakContent = await File.ReadAllTextAsync(biakBaselinePath);
         string rootContent = await File.ReadAllTextAsync(rootBaselinePath);
@@ -527,7 +527,7 @@ public class InspectCodeBaselineSyncCommandTests
                 CommandArgumentConstant.SYNC,
             ];
 
-        string result = await InspectCodeBaselineSyncCommand.RunAsync(args, context);
+        string result = await InspectCodeBaselineSyncCommand.RunAsync(context, args);
 
         string rootContent = await File.ReadAllTextAsync(rootBaselinePath);
         Assert.Equal("Sync complete. Removed 0 file(s); resolved 0 filter(s). 1 filter(s) still alive.", result);
@@ -552,7 +552,7 @@ public class InspectCodeBaselineSyncCommandTests
                 CommandArgumentConstant.SYNC,
             ];
 
-        Exception? exception = await Record.ExceptionAsync(() => InspectCodeBaselineSyncCommand.RunAsync(args, context));
+        Exception? exception = await Record.ExceptionAsync(() => InspectCodeBaselineSyncCommand.RunAsync(context, args));
 
         Assert.NotNull(exception);
         Assert.IsType<BiakApplicationException>(exception);
@@ -579,7 +579,7 @@ public class InspectCodeBaselineSyncCommandTests
                 editorconfigPath,
             ];
 
-        Exception? exception = await Record.ExceptionAsync(() => InspectCodeBaselineSyncCommand.RunAsync(args, context));
+        Exception? exception = await Record.ExceptionAsync(() => InspectCodeBaselineSyncCommand.RunAsync(context, args));
 
         Assert.NotNull(exception);
         Assert.IsType<BiakApplicationException>(exception);
@@ -650,7 +650,7 @@ public class Ca1822ViolationService
                 ".biak/.editorconfig-InspectCodeBaseline",
             ];
 
-        string result = await InspectCodeBaselineSyncCommand.RunAsync(args, context);
+        string result = await InspectCodeBaselineSyncCommand.RunAsync(context, args);
         string syncedBaselineContent = await File.ReadAllTextAsync(baselinePath);
 
         Assert.Equal(InspectCodeBaselineSyncCommandConstant.ALL_ISSUES_FIXED, result);
@@ -736,7 +736,7 @@ public class Ca1822ViolationService
                 ".biak/.editorconfig-InspectCodeBaseline",
             ];
 
-        string result = await InspectCodeBaselineSyncCommand.RunAsync(args, context);
+        string result = await InspectCodeBaselineSyncCommand.RunAsync(context, args);
         string syncedBaselineContent = await File.ReadAllTextAsync(baselinePath);
 
         Assert.Equal("Sync complete. Removed 0 file(s); resolved 0 filter(s). 1 filter(s) still alive.", result);
@@ -772,7 +772,7 @@ public class Ca1822ViolationService
                 ".biak/.editorconfig-InspectCodeBaseline",
             ];
 
-        Exception? exception = await Record.ExceptionAsync(() => InspectCodeBaselineSyncCommand.RunAsync(args, context));
+        Exception? exception = await Record.ExceptionAsync(() => InspectCodeBaselineSyncCommand.RunAsync(context, args));
 
         Assert.NotNull(exception);
         Assert.IsType<BiakApplicationException>(exception);
@@ -826,7 +826,7 @@ public class Ca1822ViolationService
                 ".editorconfig-InspectCodeBaseline",
             ];
 
-        Exception? exception = await Record.ExceptionAsync(() => InspectCodeBaselineSyncCommand.RunAsync(args, context));
+        Exception? exception = await Record.ExceptionAsync(() => InspectCodeBaselineSyncCommand.RunAsync(context, args));
 
         Assert.NotNull(exception);
         Assert.IsType<BiakApplicationException>(exception);

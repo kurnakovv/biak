@@ -19,7 +19,7 @@ public static class EditorconfigHelper
     /// <param name="config">Biak config.</param>
     /// <param name="executionContext">Execution context with working-directory settings; when <c>null</c>, the default context is used.</param>
     /// <returns>Enabled .editorconfig content.</returns>
-    public static async Task<string> GetEnabledContentAsync(string content, BiakConfig config, AppExecutionContext? executionContext = null)
+    public static async Task<string> GetEnabledContentAsync(string content, BiakConfig config, AppExecutionContext executionContext)
     {
         if (string.IsNullOrWhiteSpace(content))
         {
@@ -40,7 +40,7 @@ public static class EditorconfigHelper
     /// <param name="config">Biak config.</param>
     /// <param name="executionContext">Execution context with working-directory settings; when <c>null</c>, the default context is used.</param>
     /// <returns>Disabled .editorconfig content.</returns>
-    public static async Task<string> GetDisabledContentAsync(string content, BiakConfig config, AppExecutionContext? executionContext = null)
+    public static async Task<string> GetDisabledContentAsync(string content, BiakConfig config, AppExecutionContext executionContext)
     {
         if (string.IsNullOrWhiteSpace(content))
         {

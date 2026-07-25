@@ -18,7 +18,7 @@ public class StatusCommandTests
         await using StringWriter output = new();
         AppExecutionContext context = new() { WorkingDirectory = testDir.Value, Out = output };
 
-        await StatusCommand.RunAsync([CommandArgumentConstant.STATUS], context);
+        await StatusCommand.RunAsync(context, [CommandArgumentConstant.STATUS]);
 
         string result = output.ToString().Trim();
         Assert.Equal(UIConstant.STATUS_BROKEN, result);
@@ -31,7 +31,7 @@ public class StatusCommandTests
         await using StringWriter output = new();
         AppExecutionContext context = new() { WorkingDirectory = testDir.Value, Out = output };
 
-        await StatusCommand.RunAsync([CommandArgumentConstant.STATUS, CommandArgumentConstant.DEBUG_INFO], context);
+        await StatusCommand.RunAsync(context, [CommandArgumentConstant.STATUS, CommandArgumentConstant.DEBUG_INFO]);
 
         string result = output.ToString().Trim();
         Assert.Equal(
@@ -63,7 +63,7 @@ public class StatusCommandTests
             overwrite: true
         );
 
-        await StatusCommand.RunAsync([CommandArgumentConstant.STATUS], context);
+        await StatusCommand.RunAsync(context, [CommandArgumentConstant.STATUS]);
 
         string result = output.ToString().Trim();
         Assert.Equal(UIConstant.STATUS_BROKEN, result);
@@ -92,7 +92,7 @@ public class StatusCommandTests
             overwrite: true
         );
 
-        await StatusCommand.RunAsync([CommandArgumentConstant.STATUS, CommandArgumentConstant.DEBUG_INFO], context);
+        await StatusCommand.RunAsync(context, [CommandArgumentConstant.STATUS, CommandArgumentConstant.DEBUG_INFO]);
 
         string result = output.ToString().Trim();
         Assert.Equal(
@@ -199,7 +199,7 @@ public class StatusCommandTests
 
         output.GetStringBuilder().Clear();
 
-        await StatusCommand.RunAsync([CommandArgumentConstant.STATUS], context);
+        await StatusCommand.RunAsync(context, [CommandArgumentConstant.STATUS]);
 
         string result = output.ToString().Trim();
         Assert.Equal(expectedStatus, result);
@@ -238,7 +238,7 @@ public class StatusCommandTests
 
         await File.WriteAllTextAsync(Path.Join(biakDir, "config.json"), "{");
 
-        await StatusCommand.RunAsync([CommandArgumentConstant.STATUS, CommandArgumentConstant.DEBUG_INFO], context);
+        await StatusCommand.RunAsync(context, [CommandArgumentConstant.STATUS, CommandArgumentConstant.DEBUG_INFO]);
 
         string result = output.ToString().Trim();
         Assert.Equal(UIConstant.STATUS_BROKEN_WITH_CONFIG_MESSAGE + BiakConfigConstant.INVALID_FORMAT, result);

@@ -546,7 +546,7 @@ public class ImportHelperTests
         await using StringWriter output = new();
         AppExecutionContext context = new() { WorkingDirectory = testDir.Value, Out = output };
 
-        Exception? exception = await Record.ExceptionAsync(async () => await ImportHelper.ReplaceAsync(input, FailureBehaviorType.Error));
+        Exception? exception = await Record.ExceptionAsync(async () => await ImportHelper.ReplaceAsync(input, FailureBehaviorType.Error, context));
         Assert.NotNull(exception);
         Assert.IsType<BiakApplicationException>(exception);
         Assert.StartsWith(expectedMessage, exception.Message, StringComparison.OrdinalIgnoreCase);

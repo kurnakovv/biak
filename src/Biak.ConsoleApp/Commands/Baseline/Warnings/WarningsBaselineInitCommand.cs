@@ -43,25 +43,23 @@ public static class WarningsBaselineInitCommand
     /// <summary>
     /// Run.
     /// </summary>
-    /// <param name="args">User input arguments.</param>
     /// <param name="executionContext">Execution context with working directory for command execution.</param>
+    /// <param name="args">User input arguments.</param>
     /// <returns><placeholder>A <see cref="Task"/> representing the asynchronous operation.</placeholder></returns>
-    public static async Task<string> RunAsync(string[]? args = null, AppExecutionContext? executionContext = null)
+    public static async Task<string> RunAsync(AppExecutionContext executionContext, string[]? args = null)
     {
-        AppExecutionContext context = executionContext ?? AppExecutionContext.CreateDefault();
-
         try
         {
-            await context.Out.WriteLineAsync(WarningsBaselineInitCommandConstant.INIT_STARTED);
+            await executionContext.Out.WriteLineAsync(WarningsBaselineInitCommandConstant.INIT_STARTED);
 
             string? buildTarget = ResolveBuildTarget(args);
-            string baseDirectory = context.WorkingDirectory;
+            string baseDirectory = executionContext.WorkingDirectory;
             string buildBinlogPath = Path.GetFullPath(WarningsBaselineInitCommandConstant.BUILD_BINLOG_PATH, baseDirectory);
 
             SL.Build build = await WarningsBaselineBuildHelper.BuildAndReadBuildAsync(
                 buildBinlogPath,
-                buildTarget,
-                context
+                executionContext,
+                buildTarget
             );
 
             string originalDirectory = baseDirectory;
@@ -80,15 +78,15 @@ public static class WarningsBaselineInitCommand
 
             if (warnings.Count == 0)
             {
-                await context.Out.WriteLineAsync(WarningsBaselineInitCommandConstant.NO_WARNINGS_FOUND);
+                await executionContext.Out.WriteLineAsync(WarningsBaselineInitCommandConstant.NO_WARNINGS_FOUND);
                 return WarningsBaselineInitCommandConstant.NO_WARNINGS_FOUND;
             }
 
-            await context.Out.WriteLineAsync(WarningsBaselineInitCommandConstant.TREAT_WARNINGS_AS_ERRORS_NOTE);
-            await context.Out.WriteLineAsync(WarningsBaselineInitCommandConstant.TREAT_WARNINGS_AS_ERRORS_CONFIGURATION);
-            await context.Out.WriteLineAsync();
+            await executionContext.Out.WriteLineAsync(WarningsBaselineInitCommandConstant.TREAT_WARNINGS_AS_ERRORS_NOTE);
+            await executionContext.Out.WriteLineAsync(WarningsBaselineInitCommandConstant.TREAT_WARNINGS_AS_ERRORS_CONFIGURATION);
+            await executionContext.Out.WriteLineAsync();
 
-            await context.Out.WriteLineAsync(WarningsBaselineInitCommandConstant.INSERT_FILTERS_TO_EDITORCONFIG_NOTE);
+            await executionContext.Out.WriteLineAsync(WarningsBaselineInitCommandConstant.INSERT_FILTERS_TO_EDITORCONFIG_NOTE);
             StringBuilder editorconfigSb = new();
             foreach ((string code, IReadOnlyList<string> files) in warnings)
             {
@@ -97,7 +95,7 @@ public static class WarningsBaselineInitCommand
                 editorconfigSb.AppendLine();
             }
             string result = editorconfigSb.ToString();
-            await context.Out.WriteLineAsync(result);
+            await executionContext.Out.WriteLineAsync(result);
             return result;
         }
         catch (Exception ex) when (ex is not BiakApplicationException)
@@ -106,7 +104,7 @@ public static class WarningsBaselineInitCommand
         }
         finally
         {
-            string buildBinlogPath = Path.GetFullPath(WarningsBaselineInitCommandConstant.BUILD_BINLOG_PATH, context.WorkingDirectory);
+            string buildBinlogPath = Path.GetFullPath(WarningsBaselineInitCommandConstant.BUILD_BINLOG_PATH, executionContext.WorkingDirectory);
 
             if (File.Exists(buildBinlogPath))
             {

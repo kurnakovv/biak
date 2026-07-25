@@ -9,28 +9,28 @@ namespace Biak.ConsoleApp.Helpers.FindConflicts;
 
 internal static class FindConflictsInputHelper
 {
-    internal static async Task<FindConflictsInputModel> RequestAsync(AppExecutionContext context)
+    internal static async Task<FindConflictsInputModel> RequestAsync(AppExecutionContext executionContext)
     {
-        await context.Out.WriteLineAsync(SharedFindCommandConstant.ENTER_CRITERIA);
+        await executionContext.Out.WriteLineAsync(SharedFindCommandConstant.ENTER_CRITERIA);
 
-        await context.Out.WriteAsync(SharedFindCommandConstant.DEFAULT_BRANCH_INPUT);
-        string? defaultBranch = await context.In.ReadLineAsync();
+        await executionContext.Out.WriteAsync(SharedFindCommandConstant.DEFAULT_BRANCH_INPUT);
+        string? defaultBranch = await executionContext.In.ReadLineAsync();
         defaultBranch = string.IsNullOrWhiteSpace(defaultBranch) ? "main" : defaultBranch.Trim();
 
-        await context.Out.WriteLineAsync();
+        await executionContext.Out.WriteLineAsync();
 
         IEnumerable<string> branches;
 
         while (true)
         {
-            await context.Out.WriteAsync(FindConflictsCommandConstant.BRANCHES_INPUT);
-            string branchesInput = await context.In.ReadLineAsync()
+            await executionContext.Out.WriteAsync(FindConflictsCommandConstant.BRANCHES_INPUT);
+            string branchesInput = await executionContext.In.ReadLineAsync()
                 ?? throw new OperationCanceledException("Input stream closed.");
 
             if (string.IsNullOrWhiteSpace(branchesInput))
             {
-                await context.Out.WriteLineAsync();
-                await context.Out.WriteLineAsync(FindConflictsCommandConstant.INVALID_BRANCHES_FORMAT);
+                await executionContext.Out.WriteLineAsync();
+                await executionContext.Out.WriteLineAsync(FindConflictsCommandConstant.INVALID_BRANCHES_FORMAT);
                 continue;
             }
 
@@ -38,7 +38,7 @@ internal static class FindConflictsInputHelper
             break;
         }
 
-        await context.Out.WriteLineAsync();
+        await executionContext.Out.WriteLineAsync();
 
         return new FindConflictsInputModel(
             defaultBranch: defaultBranch,

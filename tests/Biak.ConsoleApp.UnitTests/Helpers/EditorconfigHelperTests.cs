@@ -61,7 +61,7 @@ public class EditorconfigHelperTests
     [InlineData("   ")]
     public async Task GetEnabledContentAsyncWhenContentIsWhiteSpaceReturnsContentUnchangedAsync(string content)
     {
-        string result = await EditorconfigHelper.GetEnabledContentAsync(content, new BiakConfig());
+        string result = await EditorconfigHelper.GetEnabledContentAsync(content, new BiakConfig(), AppExecutionContext.CreateDefault());
 
         Assert.Equal(content, result);
     }
@@ -71,7 +71,7 @@ public class EditorconfigHelperTests
     [InlineData("   ")]
     public async Task GetDisabledContentAsyncWhenContentIsWhiteSpaceReturnsContentUnchangedAsync(string content)
     {
-        string result = await EditorconfigHelper.GetDisabledContentAsync(content, new BiakConfig());
+        string result = await EditorconfigHelper.GetDisabledContentAsync(content, new BiakConfig(), AppExecutionContext.CreateDefault());
 
         Assert.Equal(content, result);
     }

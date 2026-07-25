@@ -42,17 +42,15 @@ public static class ImportHelper
     /// <param name="onImportFailure">What to do on import failure.</param>
     /// <param name="executionContext">Execution context with working-directory settings; when <c>null</c>, the default context is used.</param>
     /// <returns>Replaced content with imports.</returns>
-    public static async Task<string> ReplaceAsync(string content, FailureBehaviorType onImportFailure, AppExecutionContext? executionContext = null)
+    public static async Task<string> ReplaceAsync(string content, FailureBehaviorType onImportFailure, AppExecutionContext executionContext)
     {
-        AppExecutionContext context = executionContext ?? AppExecutionContext.CreateDefault();
-
         MatchCollection matches = s_importRegex.Matches(content);
         if (matches.Count == 0)
         {
             return content;
         }
 
-        string biakDir = Path.Join(context.WorkingDirectory, ".biak");
+        string biakDir = Path.Join(executionContext.WorkingDirectory, ".biak");
         string biakFullPath = Path.GetFullPath(biakDir);
 
         string newline = content.Contains("\r\n", StringComparison.Ordinal)
@@ -69,7 +67,7 @@ public static class ImportHelper
                 ? match.Groups[1].Value
                 : match.Groups[2].Value;
 
-            string? replacement = await ResolveImportAsync(value, biakFullPath, newline, onImportFailure, context);
+            string? replacement = await ResolveImportAsync(value, biakFullPath, newline, onImportFailure, executionContext);
 
             if (replacement != null)
             {

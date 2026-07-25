@@ -16,15 +16,14 @@ public static class SetupHelper
     /// <summary>
     /// Get .editorconfig paths.
     /// </summary>
-    /// <param name="suppressConsoleOutput">When true, does not write missing-file diagnostics to console output.</param>
     /// <param name="executionContext">Execution context with working-directory settings; when <c>null</c>, the default context is used.</param>
+    /// <param name="suppressConsoleOutput">When true, does not write missing-file diagnostics to console output.</param>
     /// <returns>.editorconfig paths.</returns>
-    public static async Task<EditorconfigPaths> GetEditorconfigPathsAsync(bool suppressConsoleOutput = false, AppExecutionContext? executionContext = null)
+    public static async Task<EditorconfigPaths> GetEditorconfigPathsAsync(AppExecutionContext executionContext, bool suppressConsoleOutput = false)
     {
-        AppExecutionContext context = executionContext ?? AppExecutionContext.CreateDefault();
         EditorconfigPaths result = new();
 
-        string currentDirectory = context.WorkingDirectory;
+        string currentDirectory = executionContext.WorkingDirectory;
 
         string editorconfigMainPath = Path.Join(currentDirectory, ".biak", ".editorconfig-main");
 
@@ -32,8 +31,8 @@ public static class SetupHelper
         {
             if (!suppressConsoleOutput)
             {
-                await context.Out.WriteLineAsync(UIConstant.BIAK_NOT_INITIALIZED);
-                await context.Out.WriteLineAsync(UIConstant.RUN_BIAK_SETUP);
+                await executionContext.Out.WriteLineAsync(UIConstant.BIAK_NOT_INITIALIZED);
+                await executionContext.Out.WriteLineAsync(UIConstant.RUN_BIAK_SETUP);
             }
 
             return result;
@@ -46,7 +45,7 @@ public static class SetupHelper
         {
             if (!suppressConsoleOutput)
             {
-                await context.Out.WriteLineAsync(UIConstant.EDITORCONFIG_NOT_FOUND + editorConfigPath);
+                await executionContext.Out.WriteLineAsync(UIConstant.EDITORCONFIG_NOT_FOUND + editorConfigPath);
             }
 
             return result;

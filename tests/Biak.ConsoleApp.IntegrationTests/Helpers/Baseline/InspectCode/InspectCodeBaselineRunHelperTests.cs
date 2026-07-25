@@ -18,6 +18,7 @@ public class InspectCodeBaselineRunHelperTests
         TestDirectory testDir = new(
             $"{nameof(InspectCodeBaselineRunHelperTests)}_{nameof(RunAsyncWhenInspectCodeFailsShouldThrowBiakApplicationExceptionAsync)}"
         );
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
 
         string templatePath = Path.Join(
             AppContext.BaseDirectory,
@@ -32,7 +33,7 @@ public class InspectCodeBaselineRunHelperTests
         await File.WriteAllTextAsync(targetPath, "this is not valid xml");
 
         Exception? exception = await Record.ExceptionAsync(() =>
-            InspectCodeBaselineRunHelper.RunAsync(targetPath));
+            InspectCodeBaselineRunHelper.RunAsync(context, targetPath));
 
         Assert.NotNull(exception);
         Assert.IsType<BiakApplicationException>(exception);
@@ -42,10 +43,15 @@ public class InspectCodeBaselineRunHelperTests
     [Fact]
     public async Task RunAsyncWhenTargetNotFoundShouldThrowBiakApplicationExceptionAsync()
     {
+        TestDirectory testDir = new(
+            $"{nameof(InspectCodeBaselineRunHelperTests)}_{nameof(RunAsyncWhenTargetNotFoundShouldThrowBiakApplicationExceptionAsync)}"
+        );
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
+
         string nonExistentPath = Path.Join(Path.GetTempPath(), "nonexistent-biak-test", "Missing.csproj");
 
         Exception? exception = await Record.ExceptionAsync(() =>
-            InspectCodeBaselineRunHelper.RunAsync(nonExistentPath));
+            InspectCodeBaselineRunHelper.RunAsync(context, nonExistentPath));
 
         Assert.NotNull(exception);
         Assert.IsType<BiakApplicationException>(exception);

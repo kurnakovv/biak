@@ -9,7 +9,7 @@ namespace Biak.ConsoleApp.Helpers.FindActivity;
 
 internal static class FindActivityInputHelper
 {
-    internal static async Task<FindActivityInputModel> RequestAsync(BiakConfig config, AppExecutionContext context)
+    internal static async Task<FindActivityInputModel> RequestAsync(BiakConfig config, AppExecutionContext executionContext)
     {
         FindActivityInputConfigModel? findActivity = config.FindActivity;
         if (findActivity == null ||
@@ -22,19 +22,19 @@ internal static class FindActivityInputHelper
             findActivity.SaveOutput == null
         )
         {
-            await context.Out.WriteLineAsync(SharedFindCommandConstant.ENTER_CRITERIA);
+            await executionContext.Out.WriteLineAsync(SharedFindCommandConstant.ENTER_CRITERIA);
         }
 
         string? defaultBranch = findActivity?.DefaultBranch;
         if (string.IsNullOrWhiteSpace(defaultBranch))
         {
-            await context.Out.WriteAsync(SharedFindCommandConstant.DEFAULT_BRANCH_INPUT);
-            defaultBranch = await context.In.ReadLineAsync();
+            await executionContext.Out.WriteAsync(SharedFindCommandConstant.DEFAULT_BRANCH_INPUT);
+            defaultBranch = await executionContext.In.ReadLineAsync();
             if (string.IsNullOrWhiteSpace(defaultBranch))
             {
                 defaultBranch = "main";
             }
-            await context.Out.WriteLineAsync();
+            await executionContext.Out.WriteLineAsync();
         }
 
         int? expirationPeriod = 30;
@@ -45,8 +45,8 @@ internal static class FindActivityInputHelper
         {
             if (isEmptyConfigExpirationPeriod || isInvalidConfigExpirationPeriod)
             {
-                await context.Out.WriteAsync(FindActivityCommandConstant.EXPIRATION_PERIOD_INPUT);
-                expirationPeriodInput = await context.In.ReadLineAsync();
+                await executionContext.Out.WriteAsync(FindActivityCommandConstant.EXPIRATION_PERIOD_INPUT);
+                expirationPeriodInput = await executionContext.In.ReadLineAsync();
             }
             if (string.IsNullOrWhiteSpace(expirationPeriodInput))
             {
@@ -69,7 +69,7 @@ internal static class FindActivityInputHelper
 
             if (isEmptyConfigExpirationPeriod)
             {
-                await context.Out.WriteLineAsync();
+                await executionContext.Out.WriteLineAsync();
                 invalidFormatMessage = FindActivityCommandConstant.INVALID_EXPIRATION_PERIOD_FORMAT;
             }
             else
@@ -77,21 +77,21 @@ internal static class FindActivityInputHelper
                 invalidFormatMessage = FindActivityCommandConstant.INVALID_EXPIRATION_PERIOD_FORMAT_IN_CONFIG;
             }
 
-            await context.Out.WriteLineAsync(invalidFormatMessage);
+            await executionContext.Out.WriteLineAsync(invalidFormatMessage);
         }
 
         if (isEmptyConfigExpirationPeriod || isInvalidConfigExpirationPeriod)
         {
-            await context.Out.WriteLineAsync();
+            await executionContext.Out.WriteLineAsync();
         }
 
         string? fileTypes = findActivity?.FileTypes;
         if (string.IsNullOrWhiteSpace(fileTypes))
         {
-            await context.Out.WriteLineAsync(FindActivityCommandConstant.ABOUT_FILE_TYPES);
-            await context.Out.WriteAsync(FindActivityCommandConstant.FILE_TYPES_INPUT);
-            fileTypes = await context.In.ReadLineAsync();
-            await context.Out.WriteLineAsync();
+            await executionContext.Out.WriteLineAsync(FindActivityCommandConstant.ABOUT_FILE_TYPES);
+            await executionContext.Out.WriteAsync(FindActivityCommandConstant.FILE_TYPES_INPUT);
+            fileTypes = await executionContext.In.ReadLineAsync();
+            await executionContext.Out.WriteLineAsync();
         }
 
         if (string.IsNullOrWhiteSpace(fileTypes))
@@ -108,9 +108,9 @@ internal static class FindActivityInputHelper
         string? fileExtensionsInput = findActivity?.FileExtensions;
         if (string.IsNullOrWhiteSpace(fileExtensionsInput))
         {
-            await context.Out.WriteAsync(FindActivityCommandConstant.FILE_EXTENSIONS_INPUT);
-            fileExtensionsInput = await context.In.ReadLineAsync();
-            await context.Out.WriteLineAsync();
+            await executionContext.Out.WriteAsync(FindActivityCommandConstant.FILE_EXTENSIONS_INPUT);
+            fileExtensionsInput = await executionContext.In.ReadLineAsync();
+            await executionContext.Out.WriteLineAsync();
         }
 
         if (fileExtensionsInput == "*")
@@ -125,12 +125,12 @@ internal static class FindActivityInputHelper
         string? excludeBranchesInput = findActivity?.ExcludeBranches;
         if (excludeBranchesInput == null)
         {
-            await context.Out.WriteLineAsync(FindActivityCommandConstant.EXCLUDE_BRANCHES_EXAMPLE);
-            await context.Out.WriteLineAsync(FindActivityCommandConstant.EXCLUDE_BRANCHES_FILTER_EXAMPLE);
-            await context.Out.WriteLineAsync(FindActivityCommandConstant.EXCLUDE_BRANCHES_DEFAULT_BEHAVIOUR);
-            await context.Out.WriteAsync(FindActivityCommandConstant.EXCLUDE_BRANCHES_INPUT);
-            excludeBranchesInput = await context.In.ReadLineAsync();
-            await context.Out.WriteLineAsync();
+            await executionContext.Out.WriteLineAsync(FindActivityCommandConstant.EXCLUDE_BRANCHES_EXAMPLE);
+            await executionContext.Out.WriteLineAsync(FindActivityCommandConstant.EXCLUDE_BRANCHES_FILTER_EXAMPLE);
+            await executionContext.Out.WriteLineAsync(FindActivityCommandConstant.EXCLUDE_BRANCHES_DEFAULT_BEHAVIOUR);
+            await executionContext.Out.WriteAsync(FindActivityCommandConstant.EXCLUDE_BRANCHES_INPUT);
+            excludeBranchesInput = await executionContext.In.ReadLineAsync();
+            await executionContext.Out.WriteLineAsync();
         }
         IEnumerable<string>? excludeBranches = null;
         if (!string.IsNullOrWhiteSpace(excludeBranchesInput))
@@ -141,9 +141,9 @@ internal static class FindActivityInputHelper
         string? includedFilePathsInput = findActivity?.IncludedFilePaths;
         if (includedFilePathsInput == null)
         {
-            await context.Out.WriteAsync(FindActivityCommandConstant.INCLUDE_FILE_PATHS_INPUT);
-            includedFilePathsInput = await context.In.ReadLineAsync();
-            await context.Out.WriteLineAsync();
+            await executionContext.Out.WriteAsync(FindActivityCommandConstant.INCLUDE_FILE_PATHS_INPUT);
+            includedFilePathsInput = await executionContext.In.ReadLineAsync();
+            await executionContext.Out.WriteLineAsync();
         }
         IEnumerable<string>? includedFilePaths = null;
         if (!string.IsNullOrWhiteSpace(includedFilePathsInput))
@@ -156,8 +156,8 @@ internal static class FindActivityInputHelper
         {
             while (true)
             {
-                await context.Out.WriteAsync(FindActivityCommandConstant.SAVE_OUTPUT_INPUT);
-                string? saveOutputInput = await context.In.ReadLineAsync();
+                await executionContext.Out.WriteAsync(FindActivityCommandConstant.SAVE_OUTPUT_INPUT);
+                string? saveOutputInput = await executionContext.In.ReadLineAsync();
 
                 if (string.IsNullOrWhiteSpace(saveOutputInput))
                 {
@@ -171,10 +171,10 @@ internal static class FindActivityInputHelper
                     break;
                 }
 
-                await context.Out.WriteLineAsync();
-                await context.Out.WriteLineAsync(FindActivityCommandConstant.INVALID_SAVE_OUTPUT_FORMAT);
+                await executionContext.Out.WriteLineAsync();
+                await executionContext.Out.WriteLineAsync(FindActivityCommandConstant.INVALID_SAVE_OUTPUT_FORMAT);
             }
-            await context.Out.WriteLineAsync();
+            await executionContext.Out.WriteLineAsync();
         }
 
         return new FindActivityInputModel(

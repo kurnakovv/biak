@@ -33,10 +33,8 @@ public static class Program
     /// <param name="args">args.</param>
     /// <param name="executionContext">The execution context.</param>
     /// <returns><placeholder>A <see cref="Task"/> representing the asynchronous operation.</placeholder></returns>
-    public static async Task MainInnerAsync(string[] args, AppExecutionContext? executionContext = null)
+    public static async Task MainInnerAsync(string[] args, AppExecutionContext executionContext)
     {
-        executionContext ??= AppExecutionContext.CreateDefault();
-
         if (args.Length == 0)
         {
             await executionContext.Out.WriteLineAsync(DocsConstant.GREETING);
@@ -59,7 +57,7 @@ public static class Program
         }
         else if (StatusCommand.IsRunnable(args))
         {
-            await StatusCommand.RunAsync(args, executionContext);
+            await StatusCommand.RunAsync(executionContext, args);
         }
         else if (FindActivityCommand.IsRunnable(args))
         {
@@ -71,11 +69,11 @@ public static class Program
         }
         else if (WarningsBaselineInitCommand.IsRunnable(args))
         {
-            await WarningsBaselineInitCommand.RunAsync(args, executionContext);
+            await WarningsBaselineInitCommand.RunAsync(executionContext, args);
         }
         else if (WarningsBaselineSyncCommand.IsRunnable(args))
         {
-            await WarningsBaselineSyncCommand.RunAsync(args, executionContext);
+            await WarningsBaselineSyncCommand.RunAsync(executionContext, args);
         }
         else if (InspectCodeBaselineInitCommand.IsRunnable(args))
         {
@@ -83,7 +81,7 @@ public static class Program
         }
         else if (InspectCodeBaselineSyncCommand.IsRunnable(args))
         {
-            await InspectCodeBaselineSyncCommand.RunAsync(args, executionContext);
+            await InspectCodeBaselineSyncCommand.RunAsync(executionContext, args);
         }
         else
         {

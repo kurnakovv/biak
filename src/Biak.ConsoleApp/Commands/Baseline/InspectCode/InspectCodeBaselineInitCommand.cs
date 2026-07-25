@@ -33,34 +33,34 @@ public static class InspectCodeBaselineInitCommand
     /// </summary>
     /// <param name="executionContext">Execution context with working directory for command execution.</param>
     /// <returns>Generated editorconfig baseline content printed to console.</returns>
-    public static async Task<string> RunAsync(AppExecutionContext? executionContext = null)
+    public static async Task<string> RunAsync(AppExecutionContext executionContext)
     {
-        AppExecutionContext context = executionContext ?? AppExecutionContext.CreateDefault();
         string sarifPath = string.Empty;
 
         try
         {
-            await context.Out.WriteLineAsync(InspectCodeBaselineInitCommandConstant.INIT_STARTED);
+            await executionContext.Out.WriteLineAsync(InspectCodeBaselineInitCommandConstant.INIT_STARTED);
 
-            (string? message, BiakConfig config) = await BiakConfigHelper.GetAsync(executionContext: context);
+            (string? message, BiakConfig config) = await BiakConfigHelper.GetAsync(executionContext: executionContext);
             if (message is not null)
             {
-                await context.Out.WriteLineAsync(message);
-                await context.Out.WriteLineAsync();
+                await executionContext.Out.WriteLineAsync(message);
+                await executionContext.Out.WriteLineAsync();
             }
             InspectCodeBaselineConfig? baselineConfig = config.InspectCodeBaseline;
 
             sarifPath = await InspectCodeBaselineRunHelper.RunAsync(
+                executionContext,
                 baselineConfig?.Target,
-                baselineConfig?.AdditionalArgs,
-                context);
+                baselineConfig?.AdditionalArgs
+            );
 
             string sarifJson = await File.ReadAllTextAsync(sarifPath);
             IReadOnlyList<InspectCodeIssue> issues = InspectCodeBaselineSarifParser.Parse(sarifJson);
 
             if (issues.Count == 0)
             {
-                await context.Out.WriteLineAsync(InspectCodeBaselineInitCommandConstant.NO_ISSUES_FOUND);
+                await executionContext.Out.WriteLineAsync(InspectCodeBaselineInitCommandConstant.NO_ISSUES_FOUND);
                 return InspectCodeBaselineInitCommandConstant.NO_ISSUES_FOUND;
             }
 
@@ -73,22 +73,22 @@ public static class InspectCodeBaselineInitCommand
 
             if (groupResult.UnmappedRuleIds.Count > 0)
             {
-                await context.Out.WriteLineAsync(InspectCodeBaselineInitCommandConstant.RULES_NOT_MAPPED_WARNING_HEADER);
-                await context.Out.WriteLineAsync(string.Join(", ", groupResult.UnmappedRuleIds.OrderBy(x => x, StringComparer.OrdinalIgnoreCase)));
+                await executionContext.Out.WriteLineAsync(InspectCodeBaselineInitCommandConstant.RULES_NOT_MAPPED_WARNING_HEADER);
+                await executionContext.Out.WriteLineAsync(string.Join(", ", groupResult.UnmappedRuleIds.OrderBy(x => x, StringComparer.OrdinalIgnoreCase)));
 
-                await context.Out.WriteLineAsync();
-                await context.Out.WriteLineAsync(InspectCodeBaselineInitCommandConstant.RULE_NOT_MAPPED_OPEN_ISSUE);
-                await context.Out.WriteLineAsync(InspectCodeBaselineInitCommandConstant.RULE_NOT_MAPPED_LOCAL_WORKAROUND);
-                await context.Out.WriteLineAsync();
+                await executionContext.Out.WriteLineAsync();
+                await executionContext.Out.WriteLineAsync(InspectCodeBaselineInitCommandConstant.RULE_NOT_MAPPED_OPEN_ISSUE);
+                await executionContext.Out.WriteLineAsync(InspectCodeBaselineInitCommandConstant.RULE_NOT_MAPPED_LOCAL_WORKAROUND);
+                await executionContext.Out.WriteLineAsync();
             }
 
             if (groupResult.GroupsByKey.Count == 0)
             {
-                await context.Out.WriteLineAsync(InspectCodeBaselineInitCommandConstant.NO_ISSUES_FOUND);
+                await executionContext.Out.WriteLineAsync(InspectCodeBaselineInitCommandConstant.NO_ISSUES_FOUND);
                 return InspectCodeBaselineInitCommandConstant.NO_ISSUES_FOUND;
             }
 
-            await context.Out.WriteLineAsync(InspectCodeBaselineInitCommandConstant.INSERT_FILTERS_NOTE);
+            await executionContext.Out.WriteLineAsync(InspectCodeBaselineInitCommandConstant.INSERT_FILTERS_NOTE);
 
             StringBuilder sb = new();
             foreach ((string key, InspectCodeBaselineIssueGroup group) in groupResult.GroupsByKey.OrderBy(x => x.Key, StringComparer.OrdinalIgnoreCase))
@@ -108,7 +108,7 @@ public static class InspectCodeBaselineInitCommand
             }
 
             string result = sb.ToString();
-            await context.Out.WriteLineAsync(result);
+            await executionContext.Out.WriteLineAsync(result);
             return result;
         }
         catch (Exception ex) when (ex is not BiakApplicationException)

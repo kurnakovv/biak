@@ -99,6 +99,7 @@ public class WarningsBaselineSyncCommandTests
             async () =>
             {
                 await WarningsBaselineSyncCommand.RunAsync(
+                    executionContext: context,
                     isDefaultCommand
                         ? [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC]
                         :
@@ -107,8 +108,7 @@ public class WarningsBaselineSyncCommandTests
                             CommandArgumentConstant.SYNC,
                             CommandArgumentConstant.PATH,
                             editorconfigPath!,
-                        ],
-                    executionContext: context
+                        ]
                 );
             }
         );
@@ -147,11 +147,11 @@ public class WarningsBaselineSyncCommandTests
             async () =>
             {
                 await WarningsBaselineSyncCommand.RunAsync(
+                    executionContext: context,
                     [
                         CommandArgumentConstant.WARNINGS_BASELINE,
                         CommandArgumentConstant.SYNC,
-                    ],
-                    executionContext: context
+                    ]
                 );
             }
         );
@@ -188,11 +188,11 @@ public class WarningsBaselineSyncCommandTests
             async () =>
             {
                 await WarningsBaselineSyncCommand.RunAsync(
+                    executionContext: context,
                     [
                         CommandArgumentConstant.WARNINGS_BASELINE,
                         CommandArgumentConstant.SYNC,
-                    ],
-                    executionContext: context
+                    ]
                 );
             }
         );
@@ -229,13 +229,13 @@ public class WarningsBaselineSyncCommandTests
             async () =>
             {
                 await WarningsBaselineSyncCommand.RunAsync(
+                    executionContext: context,
                     [
                         CommandArgumentConstant.WARNINGS_BASELINE,
                         CommandArgumentConstant.SYNC,
                         CommandArgumentConstant.PATH,
                         ".biak/.editorconfig-specific",
-                    ],
-                    executionContext: context
+                    ]
                 );
             }
         );
@@ -259,8 +259,8 @@ public class WarningsBaselineSyncCommandTests
             async () =>
             {
                 await WarningsBaselineSyncCommand.RunAsync(
-                    [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC],
-                    executionContext: context
+                    executionContext: context,
+                    [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC]
                 );
             }
         );
@@ -291,8 +291,8 @@ public class WarningsBaselineSyncCommandTests
             async () =>
             {
                 await WarningsBaselineSyncCommand.RunAsync(
-                    [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC],
-                    executionContext: context
+                    executionContext: context,
+                    [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC]
                 );
             }
         );
@@ -328,8 +328,8 @@ public class WarningsBaselineSyncCommandTests
         await File.WriteAllTextAsync(editorconfigPath, WarningsBaselineCommandTestConstants.BASELINE_EDITORCONFIG);
 
         string result = await WarningsBaselineSyncCommand.RunAsync(
-            [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC],
-            executionContext: context);
+            executionContext: context,
+            [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC]);
 
         string syncedContent = await File.ReadAllTextAsync(editorconfigPath);
         string consoleOutput = output.ToString();
@@ -375,13 +375,13 @@ public class WarningsBaselineSyncCommandTests
         await File.WriteAllTextAsync(editorconfigPath, legacyBaseline);
 
         _ = await WarningsBaselineSyncCommand.RunAsync(
+            executionContext: context,
             [
                 CommandArgumentConstant.WARNINGS_BASELINE,
                 CommandArgumentConstant.SYNC,
                 CommandArgumentConstant.PATH,
                 ".editorconfig",
-            ],
-            executionContext: context
+            ]
         );
 
         string syncedContent = await File.ReadAllTextAsync(editorconfigPath);
@@ -418,8 +418,8 @@ public class WarningsBaselineSyncCommandTests
         await File.WriteAllTextAsync(editorconfigPath, lfBaseline);
 
         string result = await WarningsBaselineSyncCommand.RunAsync(
-            [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC],
-            executionContext: context);
+            executionContext: context,
+            [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC]);
 
         string syncedContent = await File.ReadAllTextAsync(editorconfigPath);
         string consoleOutput = output.ToString();
@@ -496,8 +496,8 @@ public class WarningsBaselineSyncCommandTests
         );
 
         string result = await WarningsBaselineSyncCommand.RunAsync(
-            [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC],
-            executionContext: context);
+            executionContext: context,
+            [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC]);
 
         string syncedContent = await File.ReadAllTextAsync(editorconfigPath);
         string consoleOutput = output.ToString();
@@ -617,8 +617,8 @@ public class WarningsBaselineSyncCommandTests
         );
 
         string result = await WarningsBaselineSyncCommand.RunAsync(
-            [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC],
-            executionContext: context);
+            executionContext: context,
+            [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC]);
 
         string syncedContent = await File.ReadAllTextAsync(editorconfigPath);
         string consoleOutput = output.ToString();
@@ -707,8 +707,8 @@ public class WarningsBaselineSyncCommandTests
         );
 
         await WarningsBaselineSyncCommand.RunAsync(
-            [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC],
-            executionContext: context
+            executionContext: context,
+            [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC]
         );
 
         string syncedContent = await File.ReadAllTextAsync(editorconfigPath);
@@ -771,8 +771,8 @@ public class WarningsBaselineSyncCommandTests
         );
 
         string result = await WarningsBaselineSyncCommand.RunAsync(
-            [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC],
-            executionContext: context
+            executionContext: context,
+            [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC]
         );
 
         string syncedContent = await File.ReadAllTextAsync(editorconfigPath);
@@ -805,13 +805,13 @@ public class WarningsBaselineSyncCommandTests
         await File.WriteAllTextAsync(editorconfigPath, WarningsBaselineCommandTestConstants.BASELINE_EDITORCONFIG);
 
         string result = await WarningsBaselineSyncCommand.RunAsync(
+            executionContext: context,
             [
                 CommandArgumentConstant.WARNINGS_BASELINE,
                 CommandArgumentConstant.SYNC,
                 CommandArgumentConstant.TARGET,
                 "MySimpleProjectTemplate.csproj",
-            ],
-            executionContext: context
+            ]
         );
 
         Assert.Equal(WarningsBaselineSyncCommandConstant.ALL_WARNINGS_FIXED, result);

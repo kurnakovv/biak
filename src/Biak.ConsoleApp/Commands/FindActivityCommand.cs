@@ -32,23 +32,21 @@ public static class FindActivityCommand
     /// </summary>
     /// <param name="executionContext">Execution context with working directory for command execution.</param>
     /// <returns><placeholder>A <see cref="Task"/> representing the asynchronous operation.</placeholder></returns>
-    public static async Task RunAsync(AppExecutionContext? executionContext = null)
+    public static async Task RunAsync(AppExecutionContext executionContext)
     {
-        AppExecutionContext context = executionContext ?? AppExecutionContext.CreateDefault();
+        await GitHelper.RunAsync("status", executionContext);
 
-        await GitHelper.RunAsync("status", context);
-
-        (string? message, BiakConfig config) = await BiakConfigHelper.GetAsync(executionContext: context);
+        (string? message, BiakConfig config) = await BiakConfigHelper.GetAsync(executionContext: executionContext);
         if (message is not null and not BiakConfigConstant.FILE_NOT_FOUND)
         {
-            await context.Out.WriteLineAsync(message);
+            await executionContext.Out.WriteLineAsync(message);
         }
 
-        FindActivityInputModel input = await FindActivityInputHelper.RequestAsync(config, context);
+        FindActivityInputModel input = await FindActivityInputHelper.RequestAsync(config, executionContext);
 
-        await context.Out.WriteLineAsync(FindActivityCommandConstant.START);
-        string branchOutput = await GitHelper.RunAsync($"branch --no-merged {input.DefaultBranch}", context);
-        string remoteBranchOutput = await GitHelper.RunAsync($"branch -r --no-merged {input.DefaultBranch}", context);
+        await executionContext.Out.WriteLineAsync(FindActivityCommandConstant.START);
+        string branchOutput = await GitHelper.RunAsync($"branch --no-merged {input.DefaultBranch}", executionContext);
+        string remoteBranchOutput = await GitHelper.RunAsync($"branch -r --no-merged {input.DefaultBranch}", executionContext);
 
         IEnumerable<string> branches = branchOutput
             .Split(s_separator, StringSplitOptions.RemoveEmptyEntries)
@@ -89,7 +87,7 @@ public static class FindActivityCommand
 
         foreach (string branch in allBranches)
         {
-            string lastCommitDateOutput = await GitHelper.RunAsync($"log {branch} -1 --format=%cd --date=iso-strict", context);
+            string lastCommitDateOutput = await GitHelper.RunAsync($"log {branch} -1 --format=%cd --date=iso-strict", executionContext);
             DateTimeOffset lastCommitDate = DateTimeOffset.Parse(lastCommitDateOutput, CultureInfo.InvariantCulture);
 
             if (input.ExpirationPeriod != null && lastCommitDate < DateTimeOffset.UtcNow.AddDays(-(double)input.ExpirationPeriod))
@@ -103,7 +101,7 @@ public static class FindActivityCommand
             {
                 diffTypesInput += $" --diff-filter={input.FileTypes}";
             }
-            string diffFilesOutput = await GitHelper.RunAsync(diffTypesInput, context);
+            string diffFilesOutput = await GitHelper.RunAsync(diffTypesInput, executionContext);
             if (string.IsNullOrWhiteSpace(diffFilesOutput))
             {
                 inactiveBranches.Add(branch);
@@ -143,11 +141,11 @@ public static class FindActivityCommand
         }
 
         DateTime currentDate = DateTime.UtcNow;
-        string output = await FindActivityOutputHelper.PrintAsync(activity, inactiveBranches, currentDate, context);
+        string output = await FindActivityOutputHelper.PrintAsync(activity, inactiveBranches, currentDate, executionContext);
 
         if (input.SaveOutput)
         {
-            string currentDirectory = context.WorkingDirectory;
+            string currentDirectory = executionContext.WorkingDirectory;
             string logDir = Path.Join(currentDirectory, ".biak", "logs");
             Directory.CreateDirectory(logDir);
             string logFilePath = Path.Join(logDir, $"find-activity-log-{currentDate:yyyy-MM-dd__HH-mm-ss}.txt");
