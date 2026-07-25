@@ -14,13 +14,15 @@ public class SetupHelperTests
     [Fact]
     public void GetEditorconfigPathsWithoutFiles()
     {
+        TestDirectory testDir = new($"{nameof(SetupHelperTests)}_{nameof(GetEditorconfigPathsWithoutEditorconfigFile)}");
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
         TextWriter originalOut = Console.Out;
         using StringWriter output = new();
         Console.SetOut(output);
 
         try
         {
-            EditorconfigPaths editorconfigPaths = SetupHelper.GetEditorconfigPaths();
+            EditorconfigPaths editorconfigPaths = SetupHelper.GetEditorconfigPaths(executionContext: context);
 
             string result = output.ToString();
             Assert.Contains(UIConstant.BIAK_NOT_INITIALIZED, result, StringComparison.OrdinalIgnoreCase);
@@ -62,7 +64,7 @@ public class SetupHelperTests
 
         try
         {
-            EditorconfigPaths editorconfigPaths = SetupHelper.GetEditorconfigPaths();
+            EditorconfigPaths editorconfigPaths = SetupHelper.GetEditorconfigPaths(executionContext: context);
 
             string result = output.ToString();
             Assert.Contains(UIConstant.EDITORCONFIG_NOT_FOUND, result, StringComparison.OrdinalIgnoreCase);
@@ -105,7 +107,7 @@ public class SetupHelperTests
             overwrite: true
         );
 
-        EditorconfigPaths editorconfigPaths = SetupHelper.GetEditorconfigPaths();
+        EditorconfigPaths editorconfigPaths = SetupHelper.GetEditorconfigPaths(executionContext: context);
 
         Assert.NotNull(editorconfigPaths.Value);
         Assert.NotNull(editorconfigPaths.MainValue);

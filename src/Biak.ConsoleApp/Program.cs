@@ -22,7 +22,20 @@ public static class Program
     /// <returns><placeholder>A <see cref="Task"/> representing the asynchronous operation.</placeholder></returns>
     public static async Task Main(string[] args)
     {
-        AppExecutionContext context = AppExecutionContext.CreateDefault();
+        AppExecutionContext executionContext = AppExecutionContext.CreateDefault();
+
+        await MainInnerAsync(args, executionContext);
+    }
+
+    /// <summary>
+    /// Main inner for tests.
+    /// </summary>
+    /// <param name="args">args.</param>
+    /// <param name="executionContext">The execution context.</param>
+    /// <returns><placeholder>A <see cref="Task"/> representing the asynchronous operation.</placeholder></returns>
+    public static async Task MainInnerAsync(string[] args, AppExecutionContext? executionContext = null)
+    {
+        executionContext ??= AppExecutionContext.CreateDefault();
 
         if (args.Length == 0)
         {
@@ -34,43 +47,43 @@ public static class Program
         }
         else if (SetupCommand.IsRunnable(args))
         {
-            await SetupCommand.RunAsync(context);
+            await SetupCommand.RunAsync(executionContext);
         }
         else if (DisableCommand.IsRunnable(args))
         {
-            await DisableCommand.RunAsync(context);
+            await DisableCommand.RunAsync(executionContext);
         }
         else if (EnableCommand.IsRunnable(args))
         {
-            await EnableCommand.RunAsync(context);
+            await EnableCommand.RunAsync(executionContext);
         }
         else if (StatusCommand.IsRunnable(args))
         {
-            await StatusCommand.RunAsync(args, context);
+            await StatusCommand.RunAsync(args, executionContext);
         }
         else if (FindActivityCommand.IsRunnable(args))
         {
-            await FindActivityCommand.RunAsync(context);
+            await FindActivityCommand.RunAsync(executionContext);
         }
         else if (FindConflictsCommand.IsRunnable(args))
         {
-            await FindConflictsCommand.RunAsync(context);
+            await FindConflictsCommand.RunAsync(executionContext);
         }
         else if (WarningsBaselineInitCommand.IsRunnable(args))
         {
-            await WarningsBaselineInitCommand.RunAsync(args, context);
+            await WarningsBaselineInitCommand.RunAsync(args, executionContext);
         }
         else if (WarningsBaselineSyncCommand.IsRunnable(args))
         {
-            await WarningsBaselineSyncCommand.RunAsync(args, context);
+            await WarningsBaselineSyncCommand.RunAsync(args, executionContext);
         }
         else if (InspectCodeBaselineInitCommand.IsRunnable(args))
         {
-            await InspectCodeBaselineInitCommand.RunAsync(context);
+            await InspectCodeBaselineInitCommand.RunAsync(executionContext);
         }
         else if (InspectCodeBaselineSyncCommand.IsRunnable(args))
         {
-            await InspectCodeBaselineSyncCommand.RunAsync(args, context);
+            await InspectCodeBaselineSyncCommand.RunAsync(args, executionContext);
         }
         else
         {

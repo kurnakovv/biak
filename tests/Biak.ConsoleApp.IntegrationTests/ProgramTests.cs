@@ -7,6 +7,7 @@ using Biak.ConsoleApp.Exceptions;
 using Biak.ConsoleApp.Helpers;
 using Biak.ConsoleApp.IntegrationTests.Commands.Baseline.Warnings;
 using Biak.ConsoleApp.IntegrationTests.Mock;
+using Biak.ConsoleApp.Models;
 
 namespace Biak.ConsoleApp.IntegrationTests;
 
@@ -21,7 +22,7 @@ public class ProgramTests
 
         try
         {
-            await Program.Main([]);
+            await Program.MainInnerAsync([]);
 
             string result = output.ToString().Trim();
             Assert.Equal(DocsConstant.GREETING.Trim(), result);
@@ -41,7 +42,7 @@ public class ProgramTests
 
         try
         {
-            await Program.Main([CommandArgumentConstant.HELP]);
+            await Program.MainInnerAsync([CommandArgumentConstant.HELP]);
 
             string result = output.ToString().Trim();
             Assert.Equal(DocsConstant.HELP.Trim(), result);
@@ -61,7 +62,7 @@ public class ProgramTests
 
         try
         {
-            await Program.Main([CommandArgumentConstant.SETUP]);
+            await Program.MainInnerAsync([CommandArgumentConstant.SETUP]);
 
             string result = output.ToString().Trim();
             Assert.Contains(UIConstant.EDITORCONFIG_NOT_FOUND, result, StringComparison.OrdinalIgnoreCase);
@@ -81,7 +82,7 @@ public class ProgramTests
 
         try
         {
-            await Program.Main([CommandArgumentConstant.DISABLE]);
+            await Program.MainInnerAsync([CommandArgumentConstant.DISABLE]);
 
             string result = output.ToString().Trim();
             Assert.Contains(UIConstant.BIAK_NOT_INITIALIZED, result, StringComparison.OrdinalIgnoreCase);
@@ -102,7 +103,7 @@ public class ProgramTests
 
         try
         {
-            await Program.Main([CommandArgumentConstant.ENABLE]);
+            await Program.MainInnerAsync([CommandArgumentConstant.ENABLE]);
 
             string result = output.ToString().Trim();
             Assert.Contains(UIConstant.BIAK_NOT_INITIALIZED, result, StringComparison.OrdinalIgnoreCase);
@@ -123,7 +124,7 @@ public class ProgramTests
 
         try
         {
-            await Program.Main([CommandArgumentConstant.STATUS]);
+            await Program.MainInnerAsync([CommandArgumentConstant.STATUS]);
 
             string result = output.ToString().Trim();
             Assert.Equal(UIConstant.STATUS_BROKEN, result);
@@ -137,8 +138,8 @@ public class ProgramTests
     [Fact]
     public async Task FindActivityCommandForCurrentRepoAsync()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new($"{nameof(ProgramTests)}_{nameof(FindActivityCommandForCurrentRepoAsync)}");
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
 
         TextWriter originalOut = Console.Out;
         await using StringWriter output = new();
@@ -150,8 +151,6 @@ public class ProgramTests
 
         try
         {
-            Directory.SetCurrentDirectory(testDir.Value);
-
             string templateSimpleProject = Path.Join(
                 AppContext.BaseDirectory,
                 "Templates",
@@ -168,7 +167,7 @@ public class ProgramTests
             await GitHelper.RunAsync("add .");
             await GitHelper.RunAsync("commit -m \"Initial commit\"");
 
-            await Program.Main([CommandArgumentConstant.FIND_ACTIVITY]);
+            await Program.MainInnerAsync([CommandArgumentConstant.FIND_ACTIVITY], context);
 
             string result = output.ToString().Trim();
             Assert.Contains(FindActivityCommandConstant.START, result, StringComparison.OrdinalIgnoreCase);
@@ -181,15 +180,14 @@ public class ProgramTests
         {
             Console.SetOut(originalOut);
             Console.SetIn(originalIn);
-            Directory.SetCurrentDirectory(originalDirectory);
         }
     }
 
     [Fact]
     public async Task FindConflictCommandForCurrentRepoAsync()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new($"{nameof(ProgramTests)}_{nameof(FindConflictCommandForCurrentRepoAsync)}");
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
 
         TextWriter originalOut = Console.Out;
         await using StringWriter output = new();
@@ -201,8 +199,6 @@ public class ProgramTests
 
         try
         {
-            Directory.SetCurrentDirectory(testDir.Value);
-
             string templateSimpleProject = Path.Join(
                 AppContext.BaseDirectory,
                 "Templates",
@@ -219,7 +215,7 @@ public class ProgramTests
             await GitHelper.RunAsync("add .");
             await GitHelper.RunAsync("commit -m \"Initial commit\"");
 
-            await Program.Main([CommandArgumentConstant.FIND_CONFLICTS]);
+            await Program.MainInnerAsync([CommandArgumentConstant.FIND_CONFLICTS], context);
 
             string result = output.ToString().Trim();
             Assert.Contains(FindConflictsCommandConstant.START, result, StringComparison.OrdinalIgnoreCase);
@@ -231,15 +227,14 @@ public class ProgramTests
         {
             Console.SetOut(originalOut);
             Console.SetIn(originalIn);
-            Directory.SetCurrentDirectory(originalDirectory);
         }
     }
 
     [Fact]
     public async Task FindConflictCommandWithExceptionAsync()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new($"{nameof(ProgramTests)}_{nameof(FindConflictCommandWithExceptionAsync)}");
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
 
         TextWriter originalOut = Console.Out;
         await using StringWriter output = new();
@@ -251,8 +246,6 @@ public class ProgramTests
 
         try
         {
-            Directory.SetCurrentDirectory(testDir.Value);
-
             string templateSimpleProject = Path.Join(
                 AppContext.BaseDirectory,
                 "Templates",
@@ -266,7 +259,7 @@ public class ProgramTests
             await GitHelper.RunAsync("branch -m master main");
             await GitHelper.RunAsync("config --local user.email \"test@example.com\"");
 
-            Exception? exception = await Record.ExceptionAsync(async () => await Program.Main([CommandArgumentConstant.FIND_CONFLICTS]));
+            Exception? exception = await Record.ExceptionAsync(async () => await Program.MainInnerAsync([CommandArgumentConstant.FIND_CONFLICTS], context));
             Assert.NotNull(exception);
             Assert.IsType<BiakApplicationException>(exception);
             Assert.Equal(FindConflictsCommandConstant.LOCAL_CHANGES_DETECTED, exception.Message.Trim());
@@ -275,15 +268,14 @@ public class ProgramTests
         {
             Console.SetOut(originalOut);
             Console.SetIn(originalIn);
-            Directory.SetCurrentDirectory(originalDirectory);
         }
     }
 
     [Fact]
     public async Task WarningsBaselineInitCommandAsync()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new($"{nameof(ProgramTests)}_{nameof(WarningsBaselineInitCommandAsync)}");
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
 
         TextWriter originalOut = Console.Out;
         await using StringWriter output = new();
@@ -295,8 +287,6 @@ public class ProgramTests
 
         try
         {
-            Directory.SetCurrentDirectory(testDir.Value);
-
             string templateSimpleProject = Path.Join(
                 AppContext.BaseDirectory,
                 "Templates",
@@ -306,7 +296,7 @@ public class ProgramTests
 
             testDir.CopyDirectory(templateSimpleProject);
 
-            await Program.Main([CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.INIT]);
+            await Program.MainInnerAsync([CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.INIT], context);
 
             string result = output.ToString().Trim();
             Assert.Contains(WarningsBaselineInitCommandConstant.TREAT_WARNINGS_AS_ERRORS_NOTE, result, StringComparison.Ordinal);
@@ -318,7 +308,6 @@ public class ProgramTests
         {
             Console.SetOut(originalOut);
             Console.SetIn(originalIn);
-            Directory.SetCurrentDirectory(originalDirectory);
         }
     }
 
@@ -327,6 +316,7 @@ public class ProgramTests
     {
         string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new($"{nameof(ProgramTests)}_{nameof(WarningsBaselineSyncCommandAsync)}");
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
 
         TextWriter originalOut = Console.Out;
         await using StringWriter output = new();
@@ -334,8 +324,6 @@ public class ProgramTests
 
         try
         {
-            Directory.SetCurrentDirectory(testDir.Value);
-
             string templateSimpleProject = Path.Join(
                 AppContext.BaseDirectory,
                 "Templates",
@@ -348,7 +336,7 @@ public class ProgramTests
             string editorconfigPath = Path.Join(testDir.Value, ".editorconfig");
             await File.WriteAllTextAsync(editorconfigPath, WarningsBaselineCommandTestConstants.BASELINE_EDITORCONFIG);
 
-            await Program.Main([CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC]);
+            await Program.MainInnerAsync([CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC], context);
 
             string result = output.ToString().Trim();
             Assert.Contains(WarningsBaselineSyncCommandConstant.SYNC_STARTED, result, StringComparison.OrdinalIgnoreCase);
@@ -356,15 +344,14 @@ public class ProgramTests
         finally
         {
             Console.SetOut(originalOut);
-            Directory.SetCurrentDirectory(originalDirectory);
         }
     }
 
     [Fact]
     public async Task InspectCodeBaselineInitCommandAsync()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new($"{nameof(ProgramTests)}_{nameof(InspectCodeBaselineInitCommandAsync)}");
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
 
         TextWriter originalOut = Console.Out;
         await using StringWriter output = new();
@@ -372,8 +359,6 @@ public class ProgramTests
 
         try
         {
-            Directory.SetCurrentDirectory(testDir.Value);
-
             string templatePath = Path.Join(
                 AppContext.BaseDirectory,
                 "Templates",
@@ -383,7 +368,7 @@ public class ProgramTests
 
             testDir.CopyDirectory(templatePath);
 
-            await Program.Main([CommandArgumentConstant.INSPECTCODE_BASELINE, CommandArgumentConstant.INIT]);
+            await Program.MainInnerAsync([CommandArgumentConstant.INSPECTCODE_BASELINE, CommandArgumentConstant.INIT], context);
 
             string result = output.ToString().Trim();
             Assert.Contains(InspectCodeBaselineInitCommandConstant.INIT_STARTED, result, StringComparison.Ordinal);
@@ -392,7 +377,6 @@ public class ProgramTests
         finally
         {
             Console.SetOut(originalOut);
-            Directory.SetCurrentDirectory(originalDirectory);
         }
     }
 
