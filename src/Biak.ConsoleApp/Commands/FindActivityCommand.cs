@@ -41,12 +41,12 @@ public static class FindActivityCommand
         (string? message, BiakConfig config) = await BiakConfigHelper.GetAsync(executionContext: context);
         if (message is not null and not BiakConfigConstant.FILE_NOT_FOUND)
         {
-            Console.WriteLine(message);
+            await context.Out.WriteLineAsync(message);
         }
 
-        FindActivityInputModel input = FindActivityInputHelper.Request(config);
+        FindActivityInputModel input = await FindActivityInputHelper.RequestAsync(config, context);
 
-        Console.WriteLine(FindActivityCommandConstant.START);
+        await context.Out.WriteLineAsync(FindActivityCommandConstant.START);
         string branchOutput = await GitHelper.RunAsync($"branch --no-merged {input.DefaultBranch}", context);
         string remoteBranchOutput = await GitHelper.RunAsync($"branch -r --no-merged {input.DefaultBranch}", context);
 
@@ -143,7 +143,7 @@ public static class FindActivityCommand
         }
 
         DateTime currentDate = DateTime.UtcNow;
-        string output = FindActivityOutputHelper.Print(activity, inactiveBranches, currentDate);
+        string output = await FindActivityOutputHelper.PrintAsync(activity, inactiveBranches, currentDate, context);
 
         if (input.SaveOutput)
         {

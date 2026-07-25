@@ -4,15 +4,17 @@
 
 using System.Text;
 using Biak.ConsoleApp.Constants;
+using Biak.ConsoleApp.Models;
 
 namespace Biak.ConsoleApp.Helpers.FindActivity;
 
 internal static class FindActivityOutputHelper
 {
-    internal static string Print(
+    internal static async Task<string> PrintAsync(
         Dictionary<string, List<string>> activity,
         IEnumerable<string> inactiveBranches,
-        DateTime currentDate
+        DateTime currentDate,
+        AppExecutionContext executionContext
     )
     {
         StringBuilder sb = new();
@@ -91,7 +93,7 @@ internal static class FindActivityOutputHelper
 
         string output = sb.ToString();
 
-        Console.WriteLine(output);
+        await executionContext.Out.WriteLineAsync(output);
 
         return output;
     }

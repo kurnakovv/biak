@@ -71,8 +71,8 @@ public static class WarningsBaselineSyncCommand
 
         try
         {
-            Console.WriteLine(WarningsBaselineSyncCommandConstant.SYNC_STARTED);
-            Console.WriteLine();
+            await context.Out.WriteLineAsync(WarningsBaselineSyncCommandConstant.SYNC_STARTED);
+            await context.Out.WriteLineAsync();
 
             string editorConfigPath = ResolveEditorConfigPath(args, baseDirectory);
             string? buildTarget = ResolveBuildTarget(args);
@@ -169,23 +169,23 @@ public static class WarningsBaselineSyncCommand
                 foreach (KeyValuePair<string, IReadOnlySet<string>> synchronizedFile in synchronizedFiles.OrderBy(x => x.Key, StringComparer.OrdinalIgnoreCase))
                 {
                     string codes = string.Join(", ", synchronizedFile.Value.OrderBy(x => x, StringComparer.OrdinalIgnoreCase));
-                    Console.WriteLine($"{synchronizedFile.Key} ({codes})");
+                    await context.Out.WriteLineAsync($"{synchronizedFile.Key} ({codes})");
                 }
 
                 if (synchronizedFiles.Count > 0)
                 {
-                    Console.WriteLine();
+                    await context.Out.WriteLineAsync();
                 }
             }
 
             if (hasLegacyMarker)
             {
-                Console.WriteLine(WarningsBaselineSyncCommandConstant.LEGACY_MARKER_MIGRATED_WARNING);
-                Console.WriteLine();
+                await context.Out.WriteLineAsync(WarningsBaselineSyncCommandConstant.LEGACY_MARKER_MIGRATED_WARNING);
+                await context.Out.WriteLineAsync();
             }
 
-            Console.WriteLine(result);
-            Console.WriteLine();
+            await context.Out.WriteLineAsync(result);
+            await context.Out.WriteLineAsync();
 
             return result;
         }

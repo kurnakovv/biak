@@ -40,13 +40,13 @@ public static class InspectCodeBaselineInitCommand
 
         try
         {
-            Console.WriteLine(InspectCodeBaselineInitCommandConstant.INIT_STARTED);
+            await context.Out.WriteLineAsync(InspectCodeBaselineInitCommandConstant.INIT_STARTED);
 
             (string? message, BiakConfig config) = await BiakConfigHelper.GetAsync(executionContext: context);
             if (message is not null)
             {
-                Console.WriteLine(message);
-                Console.WriteLine();
+                await context.Out.WriteLineAsync(message);
+                await context.Out.WriteLineAsync();
             }
             InspectCodeBaselineConfig? baselineConfig = config.InspectCodeBaseline;
 
@@ -60,7 +60,7 @@ public static class InspectCodeBaselineInitCommand
 
             if (issues.Count == 0)
             {
-                Console.WriteLine(InspectCodeBaselineInitCommandConstant.NO_ISSUES_FOUND);
+                await context.Out.WriteLineAsync(InspectCodeBaselineInitCommandConstant.NO_ISSUES_FOUND);
                 return InspectCodeBaselineInitCommandConstant.NO_ISSUES_FOUND;
             }
 
@@ -73,22 +73,22 @@ public static class InspectCodeBaselineInitCommand
 
             if (groupResult.UnmappedRuleIds.Count > 0)
             {
-                Console.WriteLine(InspectCodeBaselineInitCommandConstant.RULES_NOT_MAPPED_WARNING_HEADER);
-                Console.WriteLine(string.Join(", ", groupResult.UnmappedRuleIds.OrderBy(x => x, StringComparer.OrdinalIgnoreCase)));
+                await context.Out.WriteLineAsync(InspectCodeBaselineInitCommandConstant.RULES_NOT_MAPPED_WARNING_HEADER);
+                await context.Out.WriteLineAsync(string.Join(", ", groupResult.UnmappedRuleIds.OrderBy(x => x, StringComparer.OrdinalIgnoreCase)));
 
-                Console.WriteLine();
-                Console.WriteLine(InspectCodeBaselineInitCommandConstant.RULE_NOT_MAPPED_OPEN_ISSUE);
-                Console.WriteLine(InspectCodeBaselineInitCommandConstant.RULE_NOT_MAPPED_LOCAL_WORKAROUND);
-                Console.WriteLine();
+                await context.Out.WriteLineAsync();
+                await context.Out.WriteLineAsync(InspectCodeBaselineInitCommandConstant.RULE_NOT_MAPPED_OPEN_ISSUE);
+                await context.Out.WriteLineAsync(InspectCodeBaselineInitCommandConstant.RULE_NOT_MAPPED_LOCAL_WORKAROUND);
+                await context.Out.WriteLineAsync();
             }
 
             if (groupResult.GroupsByKey.Count == 0)
             {
-                Console.WriteLine(InspectCodeBaselineInitCommandConstant.NO_ISSUES_FOUND);
+                await context.Out.WriteLineAsync(InspectCodeBaselineInitCommandConstant.NO_ISSUES_FOUND);
                 return InspectCodeBaselineInitCommandConstant.NO_ISSUES_FOUND;
             }
 
-            Console.WriteLine(InspectCodeBaselineInitCommandConstant.INSERT_FILTERS_NOTE);
+            await context.Out.WriteLineAsync(InspectCodeBaselineInitCommandConstant.INSERT_FILTERS_NOTE);
 
             StringBuilder sb = new();
             foreach ((string key, InspectCodeBaselineIssueGroup group) in groupResult.GroupsByKey.OrderBy(x => x.Key, StringComparer.OrdinalIgnoreCase))
@@ -108,7 +108,7 @@ public static class InspectCodeBaselineInitCommand
             }
 
             string result = sb.ToString();
-            Console.WriteLine(result);
+            await context.Out.WriteLineAsync(result);
             return result;
         }
         catch (Exception ex) when (ex is not BiakApplicationException)

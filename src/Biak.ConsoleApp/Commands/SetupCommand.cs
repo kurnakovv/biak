@@ -37,7 +37,7 @@ public static class SetupCommand
 
         if (!File.Exists(editorConfigPath))
         {
-            Console.WriteLine(UIConstant.EDITORCONFIG_NOT_FOUND + editorConfigPath);
+            await context.Out.WriteLineAsync(UIConstant.EDITORCONFIG_NOT_FOUND + editorConfigPath);
             return;
         }
 
@@ -45,9 +45,9 @@ public static class SetupCommand
 
         if (Directory.Exists(targetDir))
         {
-            Console.WriteLine(UIConstant.BIAK_FOLDER_ALREADY_EXISTS);
+            await context.Out.WriteLineAsync(UIConstant.BIAK_FOLDER_ALREADY_EXISTS);
 
-            string? userInput = Console.ReadLine();
+            string? userInput = await context.In.ReadLineAsync();
             bool recreateFolder = string.Equals(userInput, UIConstant.CONFIRM, StringComparison.OrdinalIgnoreCase);
 
             if (!recreateFolder)
@@ -58,7 +58,7 @@ public static class SetupCommand
             Directory.Delete(targetDir, recursive: true);
         }
 
-        Console.WriteLine(UIConstant.START_SETUP);
+        await context.Out.WriteLineAsync(UIConstant.START_SETUP);
 
         Directory.CreateDirectory(targetDir);
 
@@ -101,6 +101,6 @@ public static class SetupCommand
             ) + Environment.NewLine
         );
 
-        Console.WriteLine(UIConstant.END_SETUP);
+        await context.Out.WriteLineAsync(UIConstant.END_SETUP);
     }
 }

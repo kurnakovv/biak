@@ -39,11 +39,11 @@ public static class Program
 
         if (args.Length == 0)
         {
-            Console.WriteLine(DocsConstant.GREETING);
+            await executionContext.Out.WriteLineAsync(DocsConstant.GREETING);
         }
         else if (args.Length == 1 && args[0] == CommandArgumentConstant.HELP)
         {
-            Console.WriteLine(DocsConstant.HELP);
+            await executionContext.Out.WriteLineAsync(DocsConstant.HELP);
         }
         else if (SetupCommand.IsRunnable(args))
         {
@@ -87,7 +87,7 @@ public static class Program
         }
         else
         {
-            Console.WriteLine(UIConstant.NO_COMMAND);
+            await executionContext.Out.WriteLineAsync(UIConstant.NO_COMMAND);
         }
     }
 }

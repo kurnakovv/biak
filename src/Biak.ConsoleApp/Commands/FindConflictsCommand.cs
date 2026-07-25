@@ -43,8 +43,8 @@ public static class FindConflictsCommand
             throw new BiakApplicationException(FindConflictsCommandConstant.LOCAL_CHANGES_DETECTED);
         }
 
-        FindConflictsInputModel input = FindConflictsInputHelper.Request();
-        Console.WriteLine(FindConflictsCommandConstant.START);
+        FindConflictsInputModel input = await FindConflictsInputHelper.RequestAsync(context);
+        await context.Out.WriteLineAsync(FindConflictsCommandConstant.START);
 
         string originalBranch = (await GitHelper.RunAsync("branch --show-current", context)).Trim();
 
@@ -97,7 +97,7 @@ public static class FindConflictsCommand
                 }
             }
 
-            _ = FindConflictsOutputHelper.Print(allConflictFiles, notFoundBranches);
+            _ = await FindConflictsOutputHelper.PrintAsync(allConflictFiles, notFoundBranches, context);
         }
         finally
         {

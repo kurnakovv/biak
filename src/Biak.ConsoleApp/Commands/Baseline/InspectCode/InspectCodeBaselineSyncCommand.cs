@@ -71,8 +71,8 @@ public static class InspectCodeBaselineSyncCommand
 
         try
         {
-            Console.WriteLine(InspectCodeBaselineSyncCommandConstant.SYNC_STARTED);
-            Console.WriteLine();
+            await context.Out.WriteLineAsync(InspectCodeBaselineSyncCommandConstant.SYNC_STARTED);
+            await context.Out.WriteLineAsync();
 
             string[] effectiveArgs = args
                 ?? new[]
@@ -84,8 +84,8 @@ public static class InspectCodeBaselineSyncCommand
             (string? message, BiakConfig config) = await BiakConfigHelper.GetAsync(executionContext: context);
             if (message is not null)
             {
-                Console.WriteLine(message);
-                Console.WriteLine();
+                await context.Out.WriteLineAsync(message);
+                await context.Out.WriteLineAsync();
             }
 
             InspectCodeBaselineConfig? baselineConfig = config.InspectCodeBaseline;
@@ -197,7 +197,7 @@ public static class InspectCodeBaselineSyncCommand
 
             if (shouldResyncRootEditorconfig && biakStatusType.HasValue)
             {
-                EditorconfigPaths editorconfigPaths = SetupHelper.GetEditorconfigPaths(executionContext: context);
+                EditorconfigPaths editorconfigPaths = await SetupHelper.GetEditorconfigPathsAsync(executionContext: context);
 
                 if (editorconfigPaths.MainValue != null && editorconfigPaths.Value != null)
                 {
@@ -227,17 +227,17 @@ public static class InspectCodeBaselineSyncCommand
                 foreach (KeyValuePair<string, IReadOnlySet<string>> synchronizedFile in synchronizedFiles.OrderBy(x => x.Key, StringComparer.OrdinalIgnoreCase))
                 {
                     string keys = string.Join(", ", synchronizedFile.Value.OrderBy(x => x, StringComparer.OrdinalIgnoreCase));
-                    Console.WriteLine($"{synchronizedFile.Key} ({keys})");
+                    await context.Out.WriteLineAsync($"{synchronizedFile.Key} ({keys})");
                 }
 
                 if (synchronizedFiles.Count > 0)
                 {
-                    Console.WriteLine();
+                    await context.Out.WriteLineAsync();
                 }
             }
 
-            Console.WriteLine(result);
-            Console.WriteLine();
+            await context.Out.WriteLineAsync(result);
+            await context.Out.WriteLineAsync();
 
             return result;
         }

@@ -12,35 +12,27 @@ namespace Biak.ConsoleApp.IntegrationTests.Helpers;
 public class SetupHelperTests
 {
     [Fact]
-    public void GetEditorconfigPathsWithoutFiles()
+    public async Task GetEditorconfigPathsWithoutFilesAsync()
     {
-        TestDirectory testDir = new($"{nameof(SetupHelperTests)}_{nameof(GetEditorconfigPathsWithoutEditorconfigFile)}");
-        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
-        TextWriter originalOut = Console.Out;
-        using StringWriter output = new();
-        Console.SetOut(output);
+        TestDirectory testDir = new($"{nameof(SetupHelperTests)}_{nameof(GetEditorconfigPathsWithoutFilesAsync)}");
+        await using StringWriter output = new();
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value, Out = output };
 
-        try
-        {
-            EditorconfigPaths editorconfigPaths = SetupHelper.GetEditorconfigPaths(executionContext: context);
+        EditorconfigPaths editorconfigPaths = await SetupHelper.GetEditorconfigPathsAsync(executionContext: context);
 
-            string result = output.ToString();
-            Assert.Contains(UIConstant.BIAK_NOT_INITIALIZED, result, StringComparison.OrdinalIgnoreCase);
-            Assert.Contains(UIConstant.RUN_BIAK_SETUP, result, StringComparison.OrdinalIgnoreCase);
-            Assert.Null(editorconfigPaths.Value);
-            Assert.Null(editorconfigPaths.MainValue);
-        }
-        finally
-        {
-            Console.SetOut(originalOut);
-        }
+        string result = output.ToString();
+        Assert.Contains(UIConstant.BIAK_NOT_INITIALIZED, result, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains(UIConstant.RUN_BIAK_SETUP, result, StringComparison.OrdinalIgnoreCase);
+        Assert.Null(editorconfigPaths.Value);
+        Assert.Null(editorconfigPaths.MainValue);
     }
 
     [Fact]
-    public void GetEditorconfigPathsWithoutEditorconfigFile()
+    public async Task GetEditorconfigPathsWithoutEditorconfigFileAsync()
     {
-        TestDirectory testDir = new($"{nameof(SetupHelperTests)}_{nameof(GetEditorconfigPathsWithoutEditorconfigFile)}");
-        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
+        TestDirectory testDir = new($"{nameof(SetupHelperTests)}_{nameof(GetEditorconfigPathsWithoutEditorconfigFileAsync)}");
+        await using StringWriter output = new();
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value, Out = output };
 
         string biakDir = Path.Join(testDir.Value, ".biak");
         Directory.CreateDirectory(biakDir);
@@ -58,29 +50,18 @@ public class SetupHelperTests
             overwrite: true
         );
 
-        TextWriter originalOut = Console.Out;
-        using StringWriter output = new();
-        Console.SetOut(output);
+        EditorconfigPaths editorconfigPaths = await SetupHelper.GetEditorconfigPathsAsync(executionContext: context);
 
-        try
-        {
-            EditorconfigPaths editorconfigPaths = SetupHelper.GetEditorconfigPaths(executionContext: context);
-
-            string result = output.ToString();
-            Assert.Contains(UIConstant.EDITORCONFIG_NOT_FOUND, result, StringComparison.OrdinalIgnoreCase);
-            Assert.NotNull(editorconfigPaths.MainValue);
-            Assert.Null(editorconfigPaths.Value);
-        }
-        finally
-        {
-            Console.SetOut(originalOut);
-        }
+        string result = output.ToString();
+        Assert.Contains(UIConstant.EDITORCONFIG_NOT_FOUND, result, StringComparison.OrdinalIgnoreCase);
+        Assert.NotNull(editorconfigPaths.MainValue);
+        Assert.Null(editorconfigPaths.Value);
     }
 
     [Fact]
-    public void GetEditorconfigPathsWithAllFiles()
+    public async Task GetEditorconfigPathsWithAllFilesAsync()
     {
-        TestDirectory testDir = new($"{nameof(SetupHelperTests)}_{nameof(GetEditorconfigPathsWithAllFiles)}");
+        TestDirectory testDir = new($"{nameof(SetupHelperTests)}_{nameof(GetEditorconfigPathsWithAllFilesAsync)}");
         AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
 
         string biakDir = Path.Join(testDir.Value, ".biak");
@@ -107,7 +88,7 @@ public class SetupHelperTests
             overwrite: true
         );
 
-        EditorconfigPaths editorconfigPaths = SetupHelper.GetEditorconfigPaths(executionContext: context);
+        EditorconfigPaths editorconfigPaths = await SetupHelper.GetEditorconfigPathsAsync(executionContext: context);
 
         Assert.NotNull(editorconfigPaths.Value);
         Assert.NotNull(editorconfigPaths.MainValue);

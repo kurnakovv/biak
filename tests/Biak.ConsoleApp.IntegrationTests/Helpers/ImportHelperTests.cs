@@ -456,7 +456,8 @@ public class ImportHelperTests
     )
     {
         TestDirectory testDir = new($"{nameof(ImportHelperTests)}_{nameof(ReplaceTestAsync)}");
-        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
+        await using StringWriter output = new();
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value, Out = output };
 
         string biakCategoriesDir = Path.Join(testDir.Value, ".biak", "Categories");
         Directory.CreateDirectory(biakCategoriesDir);
@@ -491,25 +492,14 @@ public class ImportHelperTests
             overwrite: true
         );
 
-        TextWriter originalOut = Console.Out;
-        await using StringWriter output = new();
-        Console.SetOut(output);
+        string result = await ImportHelper.ReplaceAsync(inputContent, FailureBehaviorType.Warning, context);
 
-        try
+        Assert.Equal(outputContent, result);
+
+        if (outputMessage != null)
         {
-            string result = await ImportHelper.ReplaceAsync(inputContent, FailureBehaviorType.Warning, context);
-
-            Assert.Equal(outputContent, result);
-
-            if (outputMessage != null)
-            {
-                string outputResult = output.ToString();
-                Assert.Contains(outputMessage, outputResult, StringComparison.OrdinalIgnoreCase);
-            }
-        }
-        finally
-        {
-            Console.SetOut(originalOut);
+            string outputResult = output.ToString();
+            Assert.Contains(outputMessage, outputResult, StringComparison.OrdinalIgnoreCase);
         }
     }
 
@@ -532,23 +522,16 @@ public class ImportHelperTests
     [InlineData("^biak^ import https://example.invalid/file.txt")]
     public async Task ReplaceTestInvalidUrlAsync(string input)
     {
-        TextWriter originalOut = Console.Out;
+        TestDirectory testDir = new($"{nameof(ImportHelperTests)}_{nameof(ReplaceTestInvalidUrlAsync)}");
         await using StringWriter output = new();
-        Console.SetOut(output);
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value, Out = output };
 
-        try
-        {
-            string result = await ImportHelper.ReplaceAsync(input, FailureBehaviorType.Warning);
+        string result = await ImportHelper.ReplaceAsync(input, FailureBehaviorType.Warning, context);
 
-            Assert.Equal(input, result);
+        Assert.Equal(input, result);
 
-            string outputResult = output.ToString();
-            Assert.Contains(ImportConstant.URL_NOT_ALLOWED, outputResult, StringComparison.OrdinalIgnoreCase);
-        }
-        finally
-        {
-            Console.SetOut(originalOut);
-        }
+        string outputResult = output.ToString();
+        Assert.Contains(ImportConstant.URL_NOT_ALLOWED, outputResult, StringComparison.OrdinalIgnoreCase);
     }
 
     [Theory]
@@ -559,20 +542,13 @@ public class ImportHelperTests
     )]
     public async Task ReplaceTestInvalidUrlWithErrorAsync(string input, string expectedMessage)
     {
-        TextWriter originalOut = Console.Out;
+        TestDirectory testDir = new($"{nameof(ImportHelperTests)}_{nameof(ReplaceTestInvalidUrlWithErrorAsync)}");
         await using StringWriter output = new();
-        Console.SetOut(output);
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value, Out = output };
 
-        try
-        {
-            Exception? exception = await Record.ExceptionAsync(async () => await ImportHelper.ReplaceAsync(input, FailureBehaviorType.Error));
-            Assert.NotNull(exception);
-            Assert.IsType<BiakApplicationException>(exception);
-            Assert.StartsWith(expectedMessage, exception.Message, StringComparison.OrdinalIgnoreCase);
-        }
-        finally
-        {
-            Console.SetOut(originalOut);
-        }
+        Exception? exception = await Record.ExceptionAsync(async () => await ImportHelper.ReplaceAsync(input, FailureBehaviorType.Error));
+        Assert.NotNull(exception);
+        Assert.IsType<BiakApplicationException>(exception);
+        Assert.StartsWith(expectedMessage, exception.Message, StringComparison.OrdinalIgnoreCase);
     }
 }

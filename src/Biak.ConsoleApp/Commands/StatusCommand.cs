@@ -45,6 +45,6 @@ public static class StatusCommand
             && args[1] == CommandArgumentConstant.DEBUG_INFO;
 
         BiakStatusResult result = await BiakStatusHelper.GetAsync(isDebugInfoEnabled, context);
-        Console.WriteLine(result.Message);
+        await context.Out.WriteLineAsync(result.Message);
     }
 }

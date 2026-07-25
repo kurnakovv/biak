@@ -19,7 +19,7 @@ public static class SetupHelper
     /// <param name="suppressConsoleOutput">When true, does not write missing-file diagnostics to console output.</param>
     /// <param name="executionContext">Execution context with working-directory settings; when <c>null</c>, the default context is used.</param>
     /// <returns>.editorconfig paths.</returns>
-    public static EditorconfigPaths GetEditorconfigPaths(bool suppressConsoleOutput = false, AppExecutionContext? executionContext = null)
+    public static async Task<EditorconfigPaths> GetEditorconfigPathsAsync(bool suppressConsoleOutput = false, AppExecutionContext? executionContext = null)
     {
         AppExecutionContext context = executionContext ?? AppExecutionContext.CreateDefault();
         EditorconfigPaths result = new();
@@ -32,8 +32,8 @@ public static class SetupHelper
         {
             if (!suppressConsoleOutput)
             {
-                Console.WriteLine(UIConstant.BIAK_NOT_INITIALIZED);
-                Console.WriteLine(UIConstant.RUN_BIAK_SETUP);
+                await context.Out.WriteLineAsync(UIConstant.BIAK_NOT_INITIALIZED);
+                await context.Out.WriteLineAsync(UIConstant.RUN_BIAK_SETUP);
             }
 
             return result;
@@ -46,7 +46,7 @@ public static class SetupHelper
         {
             if (!suppressConsoleOutput)
             {
-                Console.WriteLine(UIConstant.EDITORCONFIG_NOT_FOUND + editorConfigPath);
+                await context.Out.WriteLineAsync(UIConstant.EDITORCONFIG_NOT_FOUND + editorConfigPath);
             }
 
             return result;

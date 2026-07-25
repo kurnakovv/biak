@@ -52,7 +52,7 @@ public static class WarningsBaselineInitCommand
 
         try
         {
-            Console.WriteLine(WarningsBaselineInitCommandConstant.INIT_STARTED);
+            await context.Out.WriteLineAsync(WarningsBaselineInitCommandConstant.INIT_STARTED);
 
             string? buildTarget = ResolveBuildTarget(args);
             string baseDirectory = context.WorkingDirectory;
@@ -80,15 +80,15 @@ public static class WarningsBaselineInitCommand
 
             if (warnings.Count == 0)
             {
-                Console.WriteLine(WarningsBaselineInitCommandConstant.NO_WARNINGS_FOUND);
+                await context.Out.WriteLineAsync(WarningsBaselineInitCommandConstant.NO_WARNINGS_FOUND);
                 return WarningsBaselineInitCommandConstant.NO_WARNINGS_FOUND;
             }
 
-            Console.WriteLine(WarningsBaselineInitCommandConstant.TREAT_WARNINGS_AS_ERRORS_NOTE);
-            Console.WriteLine(WarningsBaselineInitCommandConstant.TREAT_WARNINGS_AS_ERRORS_CONFIGURATION);
-            Console.WriteLine();
+            await context.Out.WriteLineAsync(WarningsBaselineInitCommandConstant.TREAT_WARNINGS_AS_ERRORS_NOTE);
+            await context.Out.WriteLineAsync(WarningsBaselineInitCommandConstant.TREAT_WARNINGS_AS_ERRORS_CONFIGURATION);
+            await context.Out.WriteLineAsync();
 
-            Console.WriteLine(WarningsBaselineInitCommandConstant.INSERT_FILTERS_TO_EDITORCONFIG_NOTE);
+            await context.Out.WriteLineAsync(WarningsBaselineInitCommandConstant.INSERT_FILTERS_TO_EDITORCONFIG_NOTE);
             StringBuilder editorconfigSb = new();
             foreach ((string code, IReadOnlyList<string> files) in warnings)
             {
@@ -97,7 +97,7 @@ public static class WarningsBaselineInitCommand
                 editorconfigSb.AppendLine();
             }
             string result = editorconfigSb.ToString();
-            Console.WriteLine(result);
+            await context.Out.WriteLineAsync(result);
             return result;
         }
         catch (Exception ex) when (ex is not BiakApplicationException)

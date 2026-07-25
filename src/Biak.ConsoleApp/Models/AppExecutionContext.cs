@@ -15,6 +15,16 @@ public class AppExecutionContext
     public string WorkingDirectory { get; init; } = Directory.GetCurrentDirectory();
 
     /// <summary>
+    /// Writer used for console output. Defaults to <see cref="Console.Out"/>.
+    /// </summary>
+    public TextWriter Out { get; init; } = Console.Out;
+
+    /// <summary>
+    /// Reader used for console input. Defaults to <see cref="Console.In"/>.
+    /// </summary>
+    public TextReader In { get; init; } = Console.In;
+
+    /// <summary>
     /// Creates the default context for the current process.
     /// </summary>
     /// <returns>Default execution context.</returns>

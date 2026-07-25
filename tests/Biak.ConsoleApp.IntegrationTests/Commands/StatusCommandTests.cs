@@ -15,52 +15,37 @@ public class StatusCommandTests
     public async Task RunWithoutBiakFolderAsync()
     {
         TestDirectory testDir = new($"{nameof(StatusCommandTests)}_{nameof(RunWithoutBiakFolderAsync)}");
-        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
-        TextWriter originalOut = Console.Out;
         await using StringWriter output = new();
-        Console.SetOut(output);
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value, Out = output };
 
-        try
-        {
-            await StatusCommand.RunAsync([CommandArgumentConstant.STATUS], context);
+        await StatusCommand.RunAsync([CommandArgumentConstant.STATUS], context);
 
-            string result = output.ToString().Trim();
-            Assert.Equal(UIConstant.STATUS_BROKEN, result);
-        }
-        finally
-        {
-            Console.SetOut(originalOut);
-        }
+        string result = output.ToString().Trim();
+        Assert.Equal(UIConstant.STATUS_BROKEN, result);
     }
 
     [Fact]
     public async Task RunWithoutBiakFolderAndDebugInfoAsync()
     {
-        TextWriter originalOut = Console.Out;
+        TestDirectory testDir = new($"{nameof(StatusCommandTests)}_{nameof(RunWithoutBiakFolderAndDebugInfoAsync)}");
         await using StringWriter output = new();
-        Console.SetOut(output);
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value, Out = output };
 
-        try
-        {
-            await StatusCommand.RunAsync([CommandArgumentConstant.STATUS, CommandArgumentConstant.DEBUG_INFO]);
+        await StatusCommand.RunAsync([CommandArgumentConstant.STATUS, CommandArgumentConstant.DEBUG_INFO], context);
 
-            string result = output.ToString().Trim();
-            Assert.Equal(
-                UIConstant.STATUS_BROKEN_WITH_CONFIG_MESSAGE + UIConstant.BIAK_NOT_INITIALIZED + " " + UIConstant.RUN_BIAK_SETUP,
-                result
-            );
-        }
-        finally
-        {
-            Console.SetOut(originalOut);
-        }
+        string result = output.ToString().Trim();
+        Assert.Equal(
+            UIConstant.STATUS_BROKEN_WITH_CONFIG_MESSAGE + UIConstant.BIAK_NOT_INITIALIZED + " " + UIConstant.RUN_BIAK_SETUP,
+            result
+        );
     }
 
     [Fact]
     public async Task RunWithoutEditorconfigFileAsync()
     {
         TestDirectory testDir = new($"{nameof(StatusCommandTests)}_{nameof(RunWithoutEditorconfigFileAsync)}");
-        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
+        await using StringWriter output = new();
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value, Out = output };
 
         string biakDir = Path.Join(testDir.Value, ".biak");
         Directory.CreateDirectory(biakDir);
@@ -78,28 +63,18 @@ public class StatusCommandTests
             overwrite: true
         );
 
-        TextWriter originalOut = Console.Out;
-        await using StringWriter output = new();
-        Console.SetOut(output);
+        await StatusCommand.RunAsync([CommandArgumentConstant.STATUS], context);
 
-        try
-        {
-            await StatusCommand.RunAsync([CommandArgumentConstant.STATUS], context);
-
-            string result = output.ToString().Trim();
-            Assert.Equal(UIConstant.STATUS_BROKEN, result);
-        }
-        finally
-        {
-            Console.SetOut(originalOut);
-        }
+        string result = output.ToString().Trim();
+        Assert.Equal(UIConstant.STATUS_BROKEN, result);
     }
 
     [Fact]
     public async Task RunWithoutEditorconfigFileAndDebugInfoAsync()
     {
         TestDirectory testDir = new($"{nameof(StatusCommandTests)}_{nameof(RunWithoutEditorconfigFileAndDebugInfoAsync)}");
-        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
+        await using StringWriter output = new();
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value, Out = output };
 
         string biakDir = Path.Join(testDir.Value, ".biak");
         Directory.CreateDirectory(biakDir);
@@ -117,24 +92,13 @@ public class StatusCommandTests
             overwrite: true
         );
 
-        TextWriter originalOut = Console.Out;
-        await using StringWriter output = new();
-        Console.SetOut(output);
+        await StatusCommand.RunAsync([CommandArgumentConstant.STATUS, CommandArgumentConstant.DEBUG_INFO], context);
 
-        try
-        {
-            await StatusCommand.RunAsync([CommandArgumentConstant.STATUS, CommandArgumentConstant.DEBUG_INFO], context);
-
-            string result = output.ToString().Trim();
-            Assert.Equal(
-                UIConstant.STATUS_BROKEN_WITH_CONFIG_MESSAGE + UIConstant.EDITORCONFIG_NOT_FOUND + Path.Join(testDir.Value, ".editorconfig"),
-                result
-            );
-        }
-        finally
-        {
-            Console.SetOut(originalOut);
-        }
+        string result = output.ToString().Trim();
+        Assert.Equal(
+            UIConstant.STATUS_BROKEN_WITH_CONFIG_MESSAGE + UIConstant.EDITORCONFIG_NOT_FOUND + Path.Join(testDir.Value, ".editorconfig"),
+            result
+        );
     }
 
     [Theory]
@@ -144,7 +108,8 @@ public class StatusCommandTests
     public async Task RunWithEditorconfigAsync(string expectedStatus)
     {
         TestDirectory testDir = new($"{nameof(StatusCommandTests)}_{nameof(RunWithEditorconfigAsync)}_{expectedStatus}");
-        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
+        await using StringWriter output = new();
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value, Out = output };
 
         string biakDir = Path.Join(testDir.Value, ".biak");
         Directory.CreateDirectory(biakDir);
@@ -215,47 +180,37 @@ public class StatusCommandTests
             overwrite: true
         );
 
-        TextWriter originalOut = Console.Out;
-        await using StringWriter output = new();
-        Console.SetOut(output);
-
-        try
+        if (expectedStatus == UIConstant.STATUS_ENABLED)
         {
-            if (expectedStatus == UIConstant.STATUS_ENABLED)
-            {
-                await EnableCommand.RunAsync(context);
-            }
-            else if (expectedStatus == UIConstant.STATUS_DISABLED)
-            {
-                await DisableCommand.RunAsync(context);
-            }
-            else if (expectedStatus == UIConstant.STATUS_UNSYNCHRONISED)
-            {
-                await File.WriteAllTextAsync(Path.Join(testDir.Value, ".editorconfig"), "root = true\n");
-            }
-            else
-            {
-                throw new NotImplementedException("Not implemented expected status: " + expectedStatus);
-            }
-
-            output.GetStringBuilder().Clear();
-
-            await StatusCommand.RunAsync([CommandArgumentConstant.STATUS], context);
-
-            string result = output.ToString().Trim();
-            Assert.Equal(expectedStatus, result);
+            await EnableCommand.RunAsync(context);
         }
-        finally
+        else if (expectedStatus == UIConstant.STATUS_DISABLED)
         {
-            Console.SetOut(originalOut);
+            await DisableCommand.RunAsync(context);
         }
+        else if (expectedStatus == UIConstant.STATUS_UNSYNCHRONISED)
+        {
+            await File.WriteAllTextAsync(Path.Join(testDir.Value, ".editorconfig"), "root = true\n");
+        }
+        else
+        {
+            throw new NotImplementedException("Not implemented expected status: " + expectedStatus);
+        }
+
+        output.GetStringBuilder().Clear();
+
+        await StatusCommand.RunAsync([CommandArgumentConstant.STATUS], context);
+
+        string result = output.ToString().Trim();
+        Assert.Equal(expectedStatus, result);
     }
 
     [Fact]
     public async Task RunWithDebugInfoAndInvalidConfigAsync()
     {
         TestDirectory testDir = new($"{nameof(StatusCommandTests)}_{nameof(RunWithDebugInfoAndInvalidConfigAsync)}");
-        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
+        await using StringWriter output = new();
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value, Out = output };
 
         string biakDir = Path.Join(testDir.Value, ".biak");
         Directory.CreateDirectory(biakDir);
@@ -283,20 +238,9 @@ public class StatusCommandTests
 
         await File.WriteAllTextAsync(Path.Join(biakDir, "config.json"), "{");
 
-        TextWriter originalOut = Console.Out;
-        await using StringWriter output = new();
-        Console.SetOut(output);
+        await StatusCommand.RunAsync([CommandArgumentConstant.STATUS, CommandArgumentConstant.DEBUG_INFO], context);
 
-        try
-        {
-            await StatusCommand.RunAsync([CommandArgumentConstant.STATUS, CommandArgumentConstant.DEBUG_INFO], context);
-
-            string result = output.ToString().Trim();
-            Assert.Equal(UIConstant.STATUS_BROKEN_WITH_CONFIG_MESSAGE + BiakConfigConstant.INVALID_FORMAT, result);
-        }
-        finally
-        {
-            Console.SetOut(originalOut);
-        }
+        string result = output.ToString().Trim();
+        Assert.Equal(UIConstant.STATUS_BROKEN_WITH_CONFIG_MESSAGE + BiakConfigConstant.INVALID_FORMAT, result);
     }
 }

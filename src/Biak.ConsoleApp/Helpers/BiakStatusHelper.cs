@@ -22,7 +22,7 @@ public static class BiakStatusHelper
     public static async Task<BiakStatusResult> GetAsync(bool includeDebugDetails = false, AppExecutionContext? executionContext = null)
     {
         AppExecutionContext context = executionContext ?? AppExecutionContext.CreateDefault();
-        EditorconfigPaths editorconfigPaths = SetupHelper.GetEditorconfigPaths(suppressConsoleOutput: true, executionContext: context);
+        EditorconfigPaths editorconfigPaths = await SetupHelper.GetEditorconfigPathsAsync(suppressConsoleOutput: true, executionContext: context);
 
         if (editorconfigPaths.MainValue == null)
         {

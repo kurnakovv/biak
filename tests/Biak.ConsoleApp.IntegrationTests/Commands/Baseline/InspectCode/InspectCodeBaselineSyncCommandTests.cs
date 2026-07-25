@@ -17,7 +17,8 @@ public class InspectCodeBaselineSyncCommandTests
     public async Task RunShouldSynchronizePreparedBaselineFileAsync()
     {
         TestDirectory testDir = new($"{nameof(InspectCodeBaselineSyncCommandTests)}_{nameof(RunShouldSynchronizePreparedBaselineFileAsync)}");
-        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
+        await using StringWriter output = new();
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value, Out = output };
         CopyInspectCodeTemplate(testDir.Value);
         await EnsureBiakStatusConfiguredAsync(context);
 
@@ -54,7 +55,8 @@ public class InspectCodeBaselineSyncCommandTests
     public async Task RunShouldNormalizeAliveFiltersToUpdatedSnapshotSeverityAsync()
     {
         TestDirectory testDir = new($"{nameof(InspectCodeBaselineSyncCommandTests)}_{nameof(RunShouldNormalizeAliveFiltersToUpdatedSnapshotSeverityAsync)}");
-        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
+        await using StringWriter output = new();
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value, Out = output };
         CopyInspectCodeTemplate(testDir.Value);
         await EnsureBiakStatusConfiguredAsync(context);
 
@@ -103,7 +105,8 @@ public class InspectCodeBaselineSyncCommandTests
         TestDirectory testDir = new(
             $"{nameof(InspectCodeBaselineSyncCommandTests)}_{nameof(RunShouldCountAliveRulesWhenBadFormattingAsync)}"
         );
-        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
+        await using StringWriter output = new();
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value, Out = output };
         CopyInspectCodeTemplate(testDir.Value);
         await EnsureBiakStatusConfiguredAsync(context);
 
@@ -162,7 +165,8 @@ public class InspectCodeBaselineSyncCommandTests
     public async Task RunShouldTrimFilesInsideKeptRuleBlockAsync()
     {
         TestDirectory testDir = new($"{nameof(InspectCodeBaselineSyncCommandTests)}_{nameof(RunShouldTrimFilesInsideKeptRuleBlockAsync)}");
-        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
+        await using StringWriter output = new();
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value, Out = output };
         CopyInspectCodeTemplate(testDir.Value);
         await EnsureBiakStatusConfiguredAsync(context);
 
@@ -217,7 +221,8 @@ public class InspectCodeBaselineSyncCommandTests
     public async Task RunShouldKeepActiveNoneFiltersAndRemoveResolvedOnesAsync()
     {
         TestDirectory testDir = new($"{nameof(InspectCodeBaselineSyncCommandTests)}_{nameof(RunShouldKeepActiveNoneFiltersAndRemoveResolvedOnesAsync)}");
-        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
+        await using StringWriter output = new();
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value, Out = output };
         CopyInspectCodeTemplate(testDir.Value);
         await EnsureBiakStatusConfiguredAsync(context);
 
@@ -290,7 +295,8 @@ public class InspectCodeBaselineSyncCommandTests
     public async Task RunShouldThrowWhenRootEditorconfigIsMissingAsync()
     {
         TestDirectory testDir = new($"{nameof(InspectCodeBaselineSyncCommandTests)}_{nameof(RunShouldThrowWhenRootEditorconfigIsMissingAsync)}");
-        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
+        await using StringWriter output = new();
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value, Out = output };
         CopyInspectCodeTemplate(testDir.Value);
         await EnsureBiakStatusConfiguredAsync(context);
 
@@ -324,7 +330,8 @@ public class InspectCodeBaselineSyncCommandTests
     public async Task RunShouldThrowWhenBiakStatusIsUnsynchronisedAsync()
     {
         TestDirectory testDir = new($"{nameof(InspectCodeBaselineSyncCommandTests)}_{nameof(RunShouldThrowWhenBiakStatusIsUnsynchronisedAsync)}");
-        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
+        await using StringWriter output = new();
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value, Out = output };
         CopyInspectCodeTemplate(testDir.Value);
         await EnsureBiakStatusConfiguredAsync(context);
 
@@ -355,7 +362,8 @@ public class InspectCodeBaselineSyncCommandTests
     public async Task RunShouldPreferCliPathOverConfigPathAndDiscoveryAsync()
     {
         TestDirectory testDir = new($"{nameof(InspectCodeBaselineSyncCommandTests)}_{nameof(RunShouldPreferCliPathOverConfigPathAndDiscoveryAsync)}");
-        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
+        await using StringWriter output = new();
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value, Out = output };
         CopyInspectCodeTemplate(testDir.Value);
         await EnsureBiakStatusConfiguredAsync(context);
 
@@ -394,7 +402,8 @@ public class InspectCodeBaselineSyncCommandTests
     public async Task RunShouldPreferConfigPathOverDiscoveryWhenCliPathIsNotProvidedAsync()
     {
         TestDirectory testDir = new($"{nameof(InspectCodeBaselineSyncCommandTests)}_{nameof(RunShouldPreferConfigPathOverDiscoveryWhenCliPathIsNotProvidedAsync)}");
-        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
+        await using StringWriter output = new();
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value, Out = output };
         CopyInspectCodeTemplate(testDir.Value);
         await EnsureBiakStatusConfiguredAsync(context);
 
@@ -430,7 +439,8 @@ public class InspectCodeBaselineSyncCommandTests
     public async Task RunShouldUseDiscoveryFromNestedBiakDirectoryWhenCliAndConfigPathsAreNotProvidedAsync()
     {
         TestDirectory testDir = new($"{nameof(InspectCodeBaselineSyncCommandTests)}_{nameof(RunShouldUseDiscoveryFromNestedBiakDirectoryWhenCliAndConfigPathsAreNotProvidedAsync)}");
-        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
+        await using StringWriter output = new();
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value, Out = output };
         CopyInspectCodeTemplate(testDir.Value);
         await EnsureBiakStatusConfiguredAsync(context);
 
@@ -452,7 +462,8 @@ public class InspectCodeBaselineSyncCommandTests
     public async Task RunShouldPreferBiakDiscoveryFileWhenMarkerExistsInBothBiakAndRootAsync()
     {
         TestDirectory testDir = new($"{nameof(InspectCodeBaselineSyncCommandTests)}_{nameof(RunShouldPreferBiakDiscoveryFileWhenMarkerExistsInBothBiakAndRootAsync)}");
-        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
+        await using StringWriter output = new();
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value, Out = output };
         CopyInspectCodeTemplate(testDir.Value);
         await EnsureBiakStatusConfiguredAsync(context);
 
@@ -490,7 +501,8 @@ public class InspectCodeBaselineSyncCommandTests
     public async Task RunShouldFallbackToRootEditorconfigWhenNoBiakDirectoryExistsAsync()
     {
         TestDirectory testDir = new($"{nameof(InspectCodeBaselineSyncCommandTests)}_{nameof(RunShouldFallbackToRootEditorconfigWhenNoBiakDirectoryExistsAsync)}");
-        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
+        await using StringWriter output = new();
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value, Out = output };
         CopyInspectCodeTemplate(testDir.Value);
 
         string biakDir = Path.Join(testDir.Value, ".biak");
@@ -527,7 +539,8 @@ public class InspectCodeBaselineSyncCommandTests
     public async Task RunShouldAskToRunInitWhenNoBaselineMarkerExistsInBiakAndRootAsync()
     {
         TestDirectory testDir = new($"{nameof(InspectCodeBaselineSyncCommandTests)}_{nameof(RunShouldAskToRunInitWhenNoBaselineMarkerExistsInBiakAndRootAsync)}");
-        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
+        await using StringWriter output = new();
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value, Out = output };
         CopyInspectCodeTemplate(testDir.Value);
         await EnsureBiakStatusConfiguredAsync(context);
 
@@ -553,7 +566,8 @@ public class InspectCodeBaselineSyncCommandTests
     public async Task RunShouldThrowForInvalidPathScenariosAsync(string testCaseName, string editorconfigPath, string expectedMessage)
     {
         TestDirectory testDir = new($"{nameof(InspectCodeBaselineSyncCommandTests)}_{nameof(RunShouldThrowForInvalidPathScenariosAsync)}_{testCaseName}");
-        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
+        await using StringWriter output = new();
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value, Out = output };
         await File.WriteAllTextAsync(Path.Join(testDir.Value, ".editorconfig"), "root = true\n");
         await EnsureBiakStatusConfiguredAsync(context);
 
@@ -578,7 +592,8 @@ public class InspectCodeBaselineSyncCommandTests
         TestDirectory testDir = new(
             $"{nameof(InspectCodeBaselineSyncCommandTests)}_{nameof(RunAsyncWhenMappedEditorconfigKeyIsNullShouldSkipRuleAndRemoveStaleFilterAsync)}"
         );
-        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
+        await using StringWriter output = new();
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value, Out = output };
         CopyInspectCodeTemplate(testDir.Value);
         await EnsureBiakStatusConfiguredAsync(context);
 
@@ -649,7 +664,8 @@ public class Ca1822ViolationService
         TestDirectory testDir = new(
             $"{nameof(InspectCodeBaselineSyncCommandTests)}_{nameof(RunAsyncWhenRuleIdOverrideMapsCa1822ShouldKeepBaselineFilterAsync)}"
         );
-        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
+        await using StringWriter output = new();
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value, Out = output };
         CopyInspectCodeTemplate(testDir.Value);
         await EnsureBiakStatusConfiguredAsync(context);
 
@@ -734,7 +750,8 @@ public class Ca1822ViolationService
         TestDirectory testDir = new(
             $"{nameof(InspectCodeBaselineSyncCommandTests)}_{nameof(RunShouldRestoreBaselineFileWhenSyncFailsAfterOriginalContentCapturedAsync)}"
         );
-        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
+        await using StringWriter output = new();
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value, Out = output };
         CopyInspectCodeTemplate(testDir.Value);
         await EnsureBiakStatusConfiguredAsync(context);
 

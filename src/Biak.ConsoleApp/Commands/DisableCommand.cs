@@ -31,25 +31,25 @@ public static class DisableCommand
     public static async Task RunAsync(AppExecutionContext? executionContext = null)
     {
         AppExecutionContext context = executionContext ?? AppExecutionContext.CreateDefault();
-        EditorconfigPaths editorconfigPaths = SetupHelper.GetEditorconfigPaths(executionContext: context);
+        EditorconfigPaths editorconfigPaths = await SetupHelper.GetEditorconfigPathsAsync(executionContext: context);
 
         if (editorconfigPaths.MainValue == null || editorconfigPaths.Value == null)
         {
             return;
         }
 
-        Console.WriteLine(UIConstant.START_DISABLE);
+        await context.Out.WriteLineAsync(UIConstant.START_DISABLE);
 
         (string? message, BiakConfig config) = await BiakConfigHelper.GetAsync(executionContext: context);
         if (message != null)
         {
-            Console.WriteLine(message);
+            await context.Out.WriteLineAsync(message);
         }
 
         string editorconfigMainContent = await File.ReadAllTextAsync(editorconfigPaths.MainValue);
         string content = await EditorconfigHelper.GetDisabledContentAsync(editorconfigMainContent, config, context);
         await File.WriteAllTextAsync(editorconfigPaths.Value, content);
 
-        Console.WriteLine(UIConstant.END_DISABLE);
+        await context.Out.WriteLineAsync(UIConstant.END_DISABLE);
     }
 }

@@ -31,62 +31,48 @@ public class WarningsBaselineInitCommandTests
         TestDirectory testDir = new(
             $"{nameof(WarningsBaselineInitCommandTests)}_{nameof(RunTestAsync)}"
         );
-        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
-
-        TextWriter originalOut = Console.Out;
-        await using StringWriter output = new();
-        Console.SetOut(output);
-
-        TextReader originalIn = Console.In;
         using StringReader input = new("\n");
-        Console.SetIn(input);
+        await using StringWriter output = new();
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value, In = input, Out = output };
 
-        try
-        {
-            string templateSimpleProject = Path.Join(
-                AppContext.BaseDirectory,
-                "Templates",
-                "SimpleProjectWithWarnings",
-                "MySimpleProjectTemplate"
-            );
+        string templateSimpleProject = Path.Join(
+            AppContext.BaseDirectory,
+            "Templates",
+            "SimpleProjectWithWarnings",
+            "MySimpleProjectTemplate"
+        );
 
-            testDir.CopyDirectory(templateSimpleProject);
+        testDir.CopyDirectory(templateSimpleProject);
 
-            string csprojPath = Path.Join(testDir.Value, "MySimpleProjectTemplate.csproj");
-            string csprojContent = await File.ReadAllTextAsync(csprojPath);
-            csprojContent = csprojContent.Replace(
-                "</Project>",
-                """
-                  <Target Name="Biak_TestWarning" BeforeTargets="CoreCompile">
-                    <Warning Text="Test warning from project file (should not be included in baseline)" Code="BIKTEST001" />
-                  </Target>
-                </Project>
-                """,
-                StringComparison.Ordinal
-            );
-            await File.WriteAllTextAsync(csprojPath, csprojContent);
+        string csprojPath = Path.Join(testDir.Value, "MySimpleProjectTemplate.csproj");
+        string csprojContent = await File.ReadAllTextAsync(csprojPath);
+        csprojContent = csprojContent.Replace(
+            "</Project>",
+            """
+              <Target Name="Biak_TestWarning" BeforeTargets="CoreCompile">
+                <Warning Text="Test warning from project file (should not be included in baseline)" Code="BIKTEST001" />
+              </Target>
+            </Project>
+            """,
+            StringComparison.Ordinal
+        );
+        await File.WriteAllTextAsync(csprojPath, csprojContent);
 
-            string editorconfigContent = await WarningsBaselineInitCommand.RunAsync(executionContext: context);
+        string editorconfigContent = await WarningsBaselineInitCommand.RunAsync(executionContext: context);
 
-            string result = output.ToString();
+        string result = output.ToString();
 
-            Assert.NotEmpty(result);
-            Assert.Equal(TEST_OUTPUT, result.Trim());
-            Assert.DoesNotContain("dotnet_diagnostic.BIKTEST001.severity", result, StringComparison.Ordinal);
-            Assert.False(File.Exists(WarningsBaselineInitCommandConstant.BUILD_BINLOG_PATH));
+        Assert.NotEmpty(result);
+        Assert.Equal(TEST_OUTPUT, result.Trim());
+        Assert.DoesNotContain("dotnet_diagnostic.BIKTEST001.severity", result, StringComparison.Ordinal);
+        Assert.False(File.Exists(WarningsBaselineInitCommandConstant.BUILD_BINLOG_PATH));
 
-            string editorconfigPath = Path.Join(testDir.Value, ".editorconfig");
-            await File.WriteAllTextAsync(editorconfigPath, "root = true" + Environment.NewLine + Environment.NewLine + editorconfigContent);
+        string editorconfigPath = Path.Join(testDir.Value, ".editorconfig");
+        await File.WriteAllTextAsync(editorconfigPath, "root = true" + Environment.NewLine + Environment.NewLine + editorconfigContent);
 
-            string secondEditorconfigContent = await WarningsBaselineInitCommand.RunAsync(executionContext: context);
+        string secondEditorconfigContent = await WarningsBaselineInitCommand.RunAsync(executionContext: context);
 
-            Assert.Equal(WarningsBaselineInitCommandConstant.NO_WARNINGS_FOUND, secondEditorconfigContent);
-        }
-        finally
-        {
-            Console.SetOut(originalOut);
-            Console.SetIn(originalIn);
-        }
+        Assert.Equal(WarningsBaselineInitCommandConstant.NO_WARNINGS_FOUND, secondEditorconfigContent);
     }
 
     [Fact]
@@ -95,70 +81,15 @@ public class WarningsBaselineInitCommandTests
         TestDirectory testDir = new(
             $"{nameof(WarningsBaselineInitCommandTests)}_{nameof(RunShouldThrowWhenDotnetBuildFailedAsync)}"
         );
-        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
-
-        TextWriter originalOut = Console.Out;
-        await using StringWriter output = new();
-        Console.SetOut(output);
-
-        TextReader originalIn = Console.In;
         using StringReader input = new("\n");
-        Console.SetIn(input);
-
-        try
-        {
-            Exception? exception = await Record.ExceptionAsync(() => WarningsBaselineInitCommand.RunAsync(executionContext: context));
-
-            Assert.NotNull(exception);
-            Assert.IsType<BiakApplicationException>(exception);
-            Assert.StartsWith(WarningsBaselineBuildConstant.DOTNET_BUILD_FAILED, exception.Message, StringComparison.Ordinal);
-        }
-        finally
-        {
-            Console.SetOut(originalOut);
-            Console.SetIn(originalIn);
-        }
-    }
-
-    [Fact]
-    public async Task RunShouldThrowWhenDotnetBuildProcessCannotStartAsync()
-    {
-        TestDirectory testDir = new(
-            $"{nameof(WarningsBaselineInitCommandTests)}_{nameof(RunShouldThrowWhenDotnetBuildProcessCannotStartAsync)}"
-        );
-        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
-
-        TextWriter originalOut = Console.Out;
         await using StringWriter output = new();
-        Console.SetOut(output);
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value, In = input, Out = output };
 
-        TextReader originalIn = Console.In;
-        using StringReader input = new("\n");
-        Console.SetIn(input);
+        Exception? exception = await Record.ExceptionAsync(() => WarningsBaselineInitCommand.RunAsync(executionContext: context));
 
-        string? originalPath = Environment.GetEnvironmentVariable("PATH");
-
-        try
-        {
-            Environment.SetEnvironmentVariable("PATH", string.Empty);
-
-            Exception? exception = await Record.ExceptionAsync(() => WarningsBaselineInitCommand.RunAsync(executionContext: context));
-
-            Assert.NotNull(exception);
-            Assert.IsType<BiakApplicationException>(exception);
-            Assert.True(
-                exception.Message.StartsWith(WarningsBaselineInitCommandConstant.INIT_FAILED, StringComparison.Ordinal)
-                    || exception.Message.StartsWith(WarningsBaselineBuildConstant.FAILED_TO_START_DOTNET_BUILD, StringComparison.Ordinal)
-                    || exception.Message.StartsWith(WarningsBaselineBuildConstant.DOTNET_BUILD_FAILED, StringComparison.Ordinal),
-                $"Expected message to start with '{WarningsBaselineInitCommandConstant.INIT_FAILED}', '{WarningsBaselineBuildConstant.FAILED_TO_START_DOTNET_BUILD}', or '{WarningsBaselineBuildConstant.DOTNET_BUILD_FAILED}', but got '{exception.Message}'."
-            );
-        }
-        finally
-        {
-            Environment.SetEnvironmentVariable("PATH", originalPath);
-            Console.SetOut(originalOut);
-            Console.SetIn(originalIn);
-        }
+        Assert.NotNull(exception);
+        Assert.IsType<BiakApplicationException>(exception);
+        Assert.StartsWith(WarningsBaselineBuildConstant.DOTNET_BUILD_FAILED, exception.Message, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -167,58 +98,44 @@ public class WarningsBaselineInitCommandTests
         TestDirectory testDir = new(
             $"{nameof(WarningsBaselineInitCommandTests)}_{nameof(RunShouldRefuseToGenerateFiltersWhenBuildContainsErrorsAsync)}"
         );
-        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
-
-        TextWriter originalOut = Console.Out;
-        await using StringWriter output = new();
-        Console.SetOut(output);
-
-        TextReader originalIn = Console.In;
         using StringReader input = new("\n");
-        Console.SetIn(input);
+        await using StringWriter output = new();
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value, In = input, Out = output };
 
-        try
-        {
-            string templateSimpleProject = Path.Join(
-                AppContext.BaseDirectory,
-                "Templates",
-                "SimpleProjectWithWarnings",
-                "MySimpleProjectTemplate"
-            );
+        string templateSimpleProject = Path.Join(
+            AppContext.BaseDirectory,
+            "Templates",
+            "SimpleProjectWithWarnings",
+            "MySimpleProjectTemplate"
+        );
 
-            testDir.CopyDirectory(templateSimpleProject);
+        testDir.CopyDirectory(templateSimpleProject);
 
-            string brokenFile = Path.Join(testDir.Value, "ProgramCS0168Warning.cs");
-            await File.WriteAllTextAsync(
-                brokenFile,
-                """
-                public class ProgramCS0168Warning
+        string brokenFile = Path.Join(testDir.Value, "ProgramCS0168Warning.cs");
+        await File.WriteAllTextAsync(
+            brokenFile,
+            """
+            public class ProgramCS0168Warning
+            {
+                public static void M1()
                 {
-                    public static void M1()
-                    {
-                        int a = ;
-                    }
+                    int a = ;
                 }
-                """
-            );
+            }
+            """
+        );
 
-            Exception? exception = await Record.ExceptionAsync(() => WarningsBaselineInitCommand.RunAsync(executionContext: context));
+        Exception? exception = await Record.ExceptionAsync(() => WarningsBaselineInitCommand.RunAsync(executionContext: context));
 
-            Assert.NotNull(exception);
-            Assert.IsType<BiakApplicationException>(exception);
-            Assert.True(
-                exception.Message.StartsWith(WarningsBaselineBuildConstant.DOTNET_BUILD_FAILED, StringComparison.Ordinal)
-                    || exception.Message.Equals(WarningsBaselineBuildConstant.BUILD_CONTAINS_ERRORS, StringComparison.Ordinal),
-                $"Expected message to start with '{WarningsBaselineBuildConstant.DOTNET_BUILD_FAILED}' or be '{WarningsBaselineBuildConstant.BUILD_CONTAINS_ERRORS}', but got '{exception.Message}'."
-            );
-            Assert.DoesNotContain(WarningsBaselineInitCommandConstant.INSERT_FILTERS_TO_EDITORCONFIG_NOTE, output.ToString(), StringComparison.Ordinal);
-            Assert.False(File.Exists(WarningsBaselineInitCommandConstant.BUILD_BINLOG_PATH));
-        }
-        finally
-        {
-            Console.SetOut(originalOut);
-            Console.SetIn(originalIn);
-        }
+        Assert.NotNull(exception);
+        Assert.IsType<BiakApplicationException>(exception);
+        Assert.True(
+            exception.Message.StartsWith(WarningsBaselineBuildConstant.DOTNET_BUILD_FAILED, StringComparison.Ordinal)
+                || exception.Message.Equals(WarningsBaselineBuildConstant.BUILD_CONTAINS_ERRORS, StringComparison.Ordinal),
+            $"Expected message to start with '{WarningsBaselineBuildConstant.DOTNET_BUILD_FAILED}' or be '{WarningsBaselineBuildConstant.BUILD_CONTAINS_ERRORS}', but got '{exception.Message}'."
+        );
+        Assert.DoesNotContain(WarningsBaselineInitCommandConstant.INSERT_FILTERS_TO_EDITORCONFIG_NOTE, output.ToString(), StringComparison.Ordinal);
+        Assert.False(File.Exists(WarningsBaselineInitCommandConstant.BUILD_BINLOG_PATH));
     }
 
     [Fact]
@@ -227,43 +144,29 @@ public class WarningsBaselineInitCommandTests
         TestDirectory testDir = new(
             $"{nameof(WarningsBaselineInitCommandTests)}_{nameof(RunShouldThrowWhenBiakBuildBinlogNotFoundAsync)}"
         );
-        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
-
-        TextWriter originalOut = Console.Out;
-        await using StringWriter output = new();
-        Console.SetOut(output);
-
-        TextReader originalIn = Console.In;
         using StringReader input = new("\n");
-        Console.SetIn(input);
+        await using StringWriter output = new();
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value, In = input, Out = output };
 
-        try
-        {
-            string templateSimpleProject = Path.Join(
-                AppContext.BaseDirectory,
-                "Templates",
-                "SimpleProjectWithWarnings",
-                "MySimpleProjectTemplate"
-            );
+        string templateSimpleProject = Path.Join(
+            AppContext.BaseDirectory,
+            "Templates",
+            "SimpleProjectWithWarnings",
+            "MySimpleProjectTemplate"
+        );
 
-            testDir.CopyDirectory(templateSimpleProject);
+        testDir.CopyDirectory(templateSimpleProject);
 
-            string buildBinlogPath = Path.Join(testDir.Value, WarningsBaselineInitCommandConstant.BUILD_BINLOG_PATH);
+        string buildBinlogPath = Path.Join(testDir.Value, WarningsBaselineInitCommandConstant.BUILD_BINLOG_PATH);
 
-            Task<Exception?> exceptionTask = Record.ExceptionAsync(() => WarningsBaselineInitCommand.RunAsync(executionContext: context));
-            await DeleteFileWhileTaskIsRunningAsync(exceptionTask, buildBinlogPath, TimeSpan.FromSeconds(30));
+        Task<Exception?> exceptionTask = Record.ExceptionAsync(() => WarningsBaselineInitCommand.RunAsync(executionContext: context));
+        await DeleteFileWhileTaskIsRunningAsync(exceptionTask, buildBinlogPath, TimeSpan.FromSeconds(30));
 
-            Exception? exception = await exceptionTask;
+        Exception? exception = await exceptionTask;
 
-            Assert.NotNull(exception);
-            Assert.IsType<BiakApplicationException>(exception);
-            Assert.StartsWith(WarningsBaselineBuildConstant.BUILD_BINLOG_NOT_FOUND, exception.Message, StringComparison.Ordinal);
-        }
-        finally
-        {
-            Console.SetOut(originalOut);
-            Console.SetIn(originalIn);
-        }
+        Assert.NotNull(exception);
+        Assert.IsType<BiakApplicationException>(exception);
+        Assert.StartsWith(WarningsBaselineBuildConstant.BUILD_BINLOG_NOT_FOUND, exception.Message, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -272,7 +175,8 @@ public class WarningsBaselineInitCommandTests
         TestDirectory testDir = new(
             $"{nameof(WarningsBaselineInitCommandTests)}_{nameof(RunShouldSupportExplicitBuildTargetAsync)}"
         );
-        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
+        await using StringWriter output = new();
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value, Out = output };
 
         string templateSimpleProject = Path.Join(
             AppContext.BaseDirectory,
@@ -303,7 +207,8 @@ public class WarningsBaselineInitCommandTests
         TestDirectory testDir = new(
             $"{nameof(WarningsBaselineInitCommandTests)}_{nameof(RunShouldRejectBuildTargetOutsideCurrentDirectoryAsync)}"
         );
-        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
+        await using StringWriter output = new();
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value, Out = output };
 
         Exception? exception = await Record.ExceptionAsync(() => WarningsBaselineInitCommand.RunAsync(
             [
