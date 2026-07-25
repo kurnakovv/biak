@@ -15,13 +15,15 @@ public class EnableCommandTests
     [Fact]
     public async Task RunWithoutBiakFolderAsync()
     {
+        TestDirectory testDir = new($"{nameof(EnableCommandTests)}_{nameof(RunWithoutBiakFolderAsync)}");
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
         TextWriter originalOut = Console.Out;
         await using StringWriter output = new();
         Console.SetOut(output);
 
         try
         {
-            await EnableCommand.RunAsync();
+            await EnableCommand.RunAsync(context);
 
             string result = output.ToString();
             Assert.Contains(UIConstant.BIAK_NOT_INITIALIZED, result, StringComparison.OrdinalIgnoreCase);

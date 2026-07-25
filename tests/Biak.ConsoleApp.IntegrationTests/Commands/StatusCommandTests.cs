@@ -14,13 +14,15 @@ public class StatusCommandTests
     [Fact]
     public async Task RunWithoutBiakFolderAsync()
     {
+        TestDirectory testDir = new($"{nameof(StatusCommandTests)}_{nameof(RunWithoutBiakFolderAsync)}");
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
         TextWriter originalOut = Console.Out;
         await using StringWriter output = new();
         Console.SetOut(output);
 
         try
         {
-            await StatusCommand.RunAsync([CommandArgumentConstant.STATUS]);
+            await StatusCommand.RunAsync([CommandArgumentConstant.STATUS], context);
 
             string result = output.ToString().Trim();
             Assert.Equal(UIConstant.STATUS_BROKEN, result);
