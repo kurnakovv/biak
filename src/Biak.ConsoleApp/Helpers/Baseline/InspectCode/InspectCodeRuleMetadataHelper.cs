@@ -801,8 +801,9 @@ public static class InspectCodeRuleMetadataHelper
             { "CSharpMissingPluginDependency", new("resharper_c_sharp_missing_plugin_dependency_highlighting", "Dependency for the plugin is missing in the project file", "https://www.jetbrains.com/help/resharper/CSharpMissingPluginDependency.html") },
             { "CSharpBuildCSInvalidModuleName", new("resharper_c_sharp_build_cs_invalid_module_name_highlighting", "Module with this name does not exist", "https://www.jetbrains.com/help/resharper/CSharpBuildCSInvalidModuleName.html") },
             { "Xunit.XunitTestWithConsoleOutput", new("resharper_xunit_xunit_test_with_console_output_highlighting", "Console output in Xunit tests", "https://www.jetbrains.com/help/resharper/Xunit.XunitTestWithConsoleOutput.html") },
-            { "CSharp14OverloadResolutionWithSpanBreakingChange", new("resharper_c_sharp14_overload_resolution_with_span_breaking_change_highlighting", "Code inspection: C# 14 breaking change in overload resolution with span parameters", "https://www.jetbrains.com/help/resharper/CSharp14OverloadResolutionWithSpanBreakingChange.html") },
-            { "ShortLivedHttpClient", new("resharper_short_lived_http_client_highlighting", "Code inspection: Short-lived 'HttpClient'", "https://www.jetbrains.com/help/resharper/ShortLivedHttpClient.html") },
+            { "CSharp14OverloadResolutionWithSpanBreakingChange", new("resharper_c_sharp14_overload_resolution_with_span_breaking_change_highlighting", "C# 14 breaking change in overload resolution with span parameters", "https://www.jetbrains.com/help/resharper/CSharp14OverloadResolutionWithSpanBreakingChange.html") },
+            { "ShortLivedHttpClient", new("resharper_short_lived_http_client_highlighting", "Short-lived 'HttpClient'", "https://www.jetbrains.com/help/resharper/ShortLivedHttpClient.html") },
+            { "SuggestBaseTypeForParameter", new("resharper_suggest_base_type_for_parameter_highlighting", "Parameter can be declared with the base type﻿", "https://www.jetbrains.com/help/resharper/SuggestBaseTypeForParameter.html") },
 #pragma warning restore RCS0056 // A line is too long
         };
 

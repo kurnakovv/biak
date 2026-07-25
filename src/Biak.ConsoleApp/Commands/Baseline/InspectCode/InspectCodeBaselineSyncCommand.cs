@@ -177,7 +177,8 @@ public static class InspectCodeBaselineSyncCommand
             string syncedContent = InspectCodeBaselineSyncHelper.RemoveFilters(
                 originalContent,
                 keysToKeep,
-                activeFilesByRuleKey);
+                activeFilesByRuleKey,
+                ruleIdOverrides);
 
             string snapshotSeverity = baselineConfig?.SnapshotSeverity
                 ?? InspectCodeBaselineConfig.DEFAULT_SNAPSHOT_SEVERITY;
