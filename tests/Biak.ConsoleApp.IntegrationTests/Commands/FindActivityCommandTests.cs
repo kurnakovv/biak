@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using Biak.ConsoleApp.Commands;
 using Biak.ConsoleApp.Constants;
 using Biak.ConsoleApp.IntegrationTests.Mock;
+using Biak.ConsoleApp.Models;
 
 namespace Biak.ConsoleApp.IntegrationTests.Commands;
 
@@ -277,8 +278,8 @@ public class FindActivityCommandTests
     )]
     public async Task RunTestAsync(string name, string inputText, string expectedOutputText, string? configFilePath, bool saveOutput)
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new($"{nameof(FindActivityCommandTests)}_{nameof(RunTestAsync)}_{name}");
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
 
         TextWriter originalOut = Console.Out;
         await using StringWriter output = new();
@@ -290,8 +291,6 @@ public class FindActivityCommandTests
 
         try
         {
-            Directory.SetCurrentDirectory(testDir.Value);
-
             string templateSimpleProject = Path.Join(
                 AppContext.BaseDirectory,
                 "Templates",
@@ -318,9 +317,9 @@ public class FindActivityCommandTests
                 );
             }
 
-            await GitRepository.MockAsync();
+            await GitRepository.MockAsync(context);
 
-            await FindActivityCommand.RunAsync();
+            await FindActivityCommand.RunAsync(context);
 
             string result = output.ToString();
             result = Regex.Replace(result, $@"({FindActivityCommandConstant.ACTIVITY})\s*\[.*?\]", "$1");
@@ -328,7 +327,7 @@ public class FindActivityCommandTests
             Assert.NotEmpty(result);
             Assert.Equal(expectedOutputText, result);
 
-            string logsDir = Path.Join(Directory.GetCurrentDirectory(), ".biak", "logs");
+            string logsDir = Path.Join(testDir.Value, ".biak", "logs");
             if (saveOutput)
             {
                 Assert.True(Directory.Exists(logsDir));
@@ -347,7 +346,6 @@ public class FindActivityCommandTests
         {
             Console.SetOut(originalOut);
             Console.SetIn(originalIn);
-            Directory.SetCurrentDirectory(originalDirectory);
         }
     }
 }

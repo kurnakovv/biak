@@ -6,6 +6,7 @@ using Biak.ConsoleApp.Commands.Baseline.Warnings;
 using Biak.ConsoleApp.Constants;
 using Biak.ConsoleApp.Exceptions;
 using Biak.ConsoleApp.IntegrationTests.Mock;
+using Biak.ConsoleApp.Models;
 
 namespace Biak.ConsoleApp.IntegrationTests.Commands.Baseline.Warnings;
 
@@ -89,269 +90,225 @@ public class WarningsBaselineSyncCommandTests
         string expected,
         bool useStartsWith)
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new(
             $"{nameof(WarningsBaselineSyncCommandTests)}_{nameof(RunShouldThrowBiakApplicationExceptionAsync)}_{testCaseName}"
         );
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
+        Exception? exception = await Record.ExceptionAsync(
+            async () =>
+            {
+                await WarningsBaselineSyncCommand.RunAsync(
+                    isDefaultCommand
+                        ? [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC]
+                        :
+                        [
+                            CommandArgumentConstant.WARNINGS_BASELINE,
+                            CommandArgumentConstant.SYNC,
+                            CommandArgumentConstant.PATH,
+                            editorconfigPath!,
+                        ],
+                    executionContext: context
+                );
+            }
+        );
 
-        try
+        Assert.NotNull(exception);
+        Assert.IsType<BiakApplicationException>(exception);
+
+        if (useStartsWith)
         {
-            Directory.SetCurrentDirectory(testDir.Value);
-
-            Exception? exception = await Record.ExceptionAsync(
-                async () =>
-                {
-                    await WarningsBaselineSyncCommand.RunAsync(
-                        isDefaultCommand
-                            ? [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC]
-                            : [
-                                CommandArgumentConstant.WARNINGS_BASELINE,
-                                CommandArgumentConstant.SYNC,
-                                CommandArgumentConstant.PATH,
-                                editorconfigPath!,
-                            ]
-                    );
-                }
-            );
-
-            Assert.NotNull(exception);
-            Assert.IsType<BiakApplicationException>(exception);
-
-            if (useStartsWith)
-            {
-                Assert.StartsWith(expected, exception.Message, StringComparison.Ordinal);
-            }
-            else
-            {
-                Assert.Equal(expected, exception.Message);
-            }
+            Assert.StartsWith(expected, exception.Message, StringComparison.Ordinal);
         }
-        finally
+        else
         {
-            Directory.SetCurrentDirectory(originalDirectory);
+            Assert.Equal(expected, exception.Message);
         }
     }
 
     [Fact]
     public async Task RunShouldThrowBiakApplicationExceptionWhenEditorConfigHasNoBaselineMarkerAsync()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new(
             $"{nameof(WarningsBaselineSyncCommandTests)}_{nameof(RunShouldThrowBiakApplicationExceptionWhenEditorConfigHasNoBaselineMarkerAsync)}"
         );
-
-        try
-        {
-            Directory.SetCurrentDirectory(testDir.Value);
-
-            await File.WriteAllTextAsync(
-                Path.Join(testDir.Value, ".editorconfig"),
-                """
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
+        await File.WriteAllTextAsync(
+            Path.Join(testDir.Value, ".editorconfig"),
+            """
                 [*.cs]
                 indent_style = space
                 indent_size = 4
                 """
-            );
+        );
 
-            Exception? exception = await Record.ExceptionAsync(
-                async () =>
-                {
-                    await WarningsBaselineSyncCommand.RunAsync(
-                        [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC]
-                    );
-                }
-            );
+        Exception? exception = await Record.ExceptionAsync(
+            async () =>
+            {
+                await WarningsBaselineSyncCommand.RunAsync(
+                    [
+                        CommandArgumentConstant.WARNINGS_BASELINE,
+                        CommandArgumentConstant.SYNC,
+                    ],
+                    executionContext: context
+                );
+            }
+        );
 
-            Assert.NotNull(exception);
-            Assert.IsType<BiakApplicationException>(exception);
-            Assert.Equal(WarningsBaselineSyncCommandConstant.NO_BASELINE_MARKER, exception.Message);
-        }
-        finally
-        {
-            Directory.SetCurrentDirectory(originalDirectory);
-        }
+        Assert.NotNull(exception);
+        Assert.IsType<BiakApplicationException>(exception);
+        Assert.Equal(WarningsBaselineSyncCommandConstant.NO_BASELINE_MARKER, exception.Message);
     }
 
     [Fact]
     public async Task RunShouldPreferBiakEditorconfigMainByDefaultAsync()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new(
             $"{nameof(WarningsBaselineSyncCommandTests)}_{nameof(RunShouldPreferBiakEditorconfigMainByDefaultAsync)}"
         );
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
+        Directory.CreateDirectory(Path.Join(testDir.Value, ".biak"));
 
-        try
-        {
-            Directory.SetCurrentDirectory(testDir.Value);
+        await File.WriteAllTextAsync(
+            Path.Join(testDir.Value, ".biak", ".editorconfig-main"),
+            "root = true"
+        );
 
-            Directory.CreateDirectory(Path.Join(testDir.Value, ".biak"));
-
-            await File.WriteAllTextAsync(
-                Path.Join(testDir.Value, ".biak", ".editorconfig-main"),
-                "root = true"
-            );
-
-            await File.WriteAllTextAsync(
-                Path.Join(testDir.Value, ".editorconfig"),
-                $$"""
+        await File.WriteAllTextAsync(
+            Path.Join(testDir.Value, ".editorconfig"),
+            $$"""
                 [{Program.cs}]
                 dotnet_diagnostic.CS0168.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
                 """
-            );
+        );
 
-            Exception? exception = await Record.ExceptionAsync(
-                async () =>
-                {
-                    await WarningsBaselineSyncCommand.RunAsync(
-                        [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC]
-                    );
-                }
-            );
+        Exception? exception = await Record.ExceptionAsync(
+            async () =>
+            {
+                await WarningsBaselineSyncCommand.RunAsync(
+                    [
+                        CommandArgumentConstant.WARNINGS_BASELINE,
+                        CommandArgumentConstant.SYNC,
+                    ],
+                    executionContext: context
+                );
+            }
+        );
 
-            Assert.NotNull(exception);
-            Assert.IsType<BiakApplicationException>(exception);
-            Assert.Equal(WarningsBaselineSyncCommandConstant.NO_BASELINE_MARKER, exception.Message);
-        }
-        finally
-        {
-            Directory.SetCurrentDirectory(originalDirectory);
-        }
+        Assert.NotNull(exception);
+        Assert.IsType<BiakApplicationException>(exception);
+        Assert.Equal(WarningsBaselineSyncCommandConstant.NO_BASELINE_MARKER, exception.Message);
     }
 
     [Fact]
     public async Task RunShouldUsePathOptionForUserSpecifiedConfigAsync()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new(
             $"{nameof(WarningsBaselineSyncCommandTests)}_{nameof(RunShouldUsePathOptionForUserSpecifiedConfigAsync)}"
         );
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
+        Directory.CreateDirectory(Path.Join(testDir.Value, ".biak"));
 
-        try
-        {
-            Directory.SetCurrentDirectory(testDir.Value);
-
-            Directory.CreateDirectory(Path.Join(testDir.Value, ".biak"));
-
-            await File.WriteAllTextAsync(
-                Path.Join(testDir.Value, ".biak", ".editorconfig-main"),
-                $$"""
+        await File.WriteAllTextAsync(
+            Path.Join(testDir.Value, ".biak", ".editorconfig-main"),
+            $$"""
                 [{Program.cs}]
                 dotnet_diagnostic.CS0168.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
                 """
-            );
+        );
 
-            await File.WriteAllTextAsync(
-                Path.Join(testDir.Value, ".biak", ".editorconfig-specific"),
-                "root = true"
-            );
+        await File.WriteAllTextAsync(
+            Path.Join(testDir.Value, ".biak", ".editorconfig-specific"),
+            "root = true"
+        );
 
-            Exception? exception = await Record.ExceptionAsync(
-                async () =>
-                {
-                    await WarningsBaselineSyncCommand.RunAsync([
+        Exception? exception = await Record.ExceptionAsync(
+            async () =>
+            {
+                await WarningsBaselineSyncCommand.RunAsync(
+                    [
                         CommandArgumentConstant.WARNINGS_BASELINE,
                         CommandArgumentConstant.SYNC,
                         CommandArgumentConstant.PATH,
                         ".biak/.editorconfig-specific",
-                    ]);
-                }
-            );
+                    ],
+                    executionContext: context
+                );
+            }
+        );
 
-            Assert.NotNull(exception);
-            Assert.IsType<BiakApplicationException>(exception);
-            Assert.Equal(WarningsBaselineSyncCommandConstant.NO_BASELINE_MARKER, exception.Message);
-        }
-        finally
-        {
-            Directory.SetCurrentDirectory(originalDirectory);
-        }
+        Assert.NotNull(exception);
+        Assert.IsType<BiakApplicationException>(exception);
+        Assert.Equal(WarningsBaselineSyncCommandConstant.NO_BASELINE_MARKER, exception.Message);
     }
 
     [Fact]
     public async Task RunShouldRestoreEditorConfigWhenBuildFailsAsync()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new(
             $"{nameof(WarningsBaselineSyncCommandTests)}_{nameof(RunShouldRestoreEditorConfigWhenBuildFailsAsync)}"
         );
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
+        string editorconfigPath = Path.Join(testDir.Value, ".editorconfig");
+        await File.WriteAllTextAsync(editorconfigPath, WarningsBaselineCommandTestConstants.BASELINE_EDITORCONFIG);
 
-        try
-        {
-            Directory.SetCurrentDirectory(testDir.Value);
+        Exception? exception = await Record.ExceptionAsync(
+            async () =>
+            {
+                await WarningsBaselineSyncCommand.RunAsync(
+                    [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC],
+                    executionContext: context
+                );
+            }
+        );
 
-            string editorconfigPath = Path.Join(testDir.Value, ".editorconfig");
-            await File.WriteAllTextAsync(editorconfigPath, WarningsBaselineCommandTestConstants.BASELINE_EDITORCONFIG);
+        string restoredContent = await File.ReadAllTextAsync(editorconfigPath);
 
-            Exception? exception = await Record.ExceptionAsync(
-                async () =>
-                {
-                    await WarningsBaselineSyncCommand.RunAsync(
-                        [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC]
-                    );
-                }
-            );
-
-            string restoredContent = await File.ReadAllTextAsync(editorconfigPath);
-
-            Assert.NotNull(exception);
-            Assert.IsType<BiakApplicationException>(exception);
-            Assert.Equal(WarningsBaselineCommandTestConstants.BASELINE_EDITORCONFIG, restoredContent);
-            Assert.DoesNotContain($"= warning {WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}", restoredContent, StringComparison.Ordinal);
-            Assert.False(File.Exists(WarningsBaselineSyncCommandConstant.BUILD_BINLOG_PATH));
-        }
-        finally
-        {
-            Directory.SetCurrentDirectory(originalDirectory);
-        }
+        Assert.NotNull(exception);
+        Assert.IsType<BiakApplicationException>(exception);
+        Assert.Equal(WarningsBaselineCommandTestConstants.BASELINE_EDITORCONFIG, restoredContent);
+        Assert.DoesNotContain($"= warning {WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}", restoredContent, StringComparison.Ordinal);
+        Assert.False(File.Exists(WarningsBaselineSyncCommandConstant.BUILD_BINLOG_PATH));
     }
 
     [Fact]
     public async Task RunShouldWrapUnexpectedExceptionInBiakApplicationExceptionAsync()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new(
             $"{nameof(WarningsBaselineSyncCommandTests)}_{nameof(RunShouldWrapUnexpectedExceptionInBiakApplicationExceptionAsync)}"
         );
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
 
-        try
-        {
-            Directory.SetCurrentDirectory(testDir.Value);
+        string editorconfigPath = Path.Join(testDir.Value, ".editorconfig");
+        await File.WriteAllTextAsync(editorconfigPath, WarningsBaselineCommandTestConstants.BASELINE_EDITORCONFIG);
 
-            string editorconfigPath = Path.Join(testDir.Value, ".editorconfig");
-            await File.WriteAllTextAsync(editorconfigPath, WarningsBaselineCommandTestConstants.BASELINE_EDITORCONFIG);
+        await using FileStream lockStream = new(editorconfigPath, FileMode.Open, FileAccess.Read, FileShare.None);
 
-            await using FileStream lockStream = new(editorconfigPath, FileMode.Open, FileAccess.Read, FileShare.None);
+        Exception? exception = await Record.ExceptionAsync(
+            async () =>
+            {
+                await WarningsBaselineSyncCommand.RunAsync(
+                    [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC],
+                    executionContext: context
+                );
+            }
+        );
 
-            Exception? exception = await Record.ExceptionAsync(
-                async () =>
-                {
-                    await WarningsBaselineSyncCommand.RunAsync(
-                        [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC]
-                    );
-                }
-            );
-
-            Assert.NotNull(exception);
-            Assert.IsType<BiakApplicationException>(exception);
-            Assert.StartsWith(
-                WarningsBaselineSyncCommandConstant.SYNC_FAILED + " ",
-                exception.Message,
-                StringComparison.Ordinal
-            );
-        }
-        finally
-        {
-            Directory.SetCurrentDirectory(originalDirectory);
-        }
+        Assert.NotNull(exception);
+        Assert.IsType<BiakApplicationException>(exception);
+        Assert.StartsWith(
+            WarningsBaselineSyncCommandConstant.SYNC_FAILED + " ",
+            exception.Message,
+            StringComparison.Ordinal
+        );
     }
 
     [Fact]
     public async Task RunShouldReturnAllWarningsFixedWhenNoBaselineCodesAreActiveAsync()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new(
             $"{nameof(WarningsBaselineSyncCommandTests)}_{nameof(RunShouldReturnAllWarningsFixedWhenNoBaselineCodesAreActiveAsync)}"
         );
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
 
         TextWriter originalOut = Console.Out;
         await using StringWriter output = new();
@@ -359,8 +316,6 @@ public class WarningsBaselineSyncCommandTests
 
         try
         {
-            Directory.SetCurrentDirectory(testDir.Value);
-
             string templateSimpleProject = Path.Join(
                 AppContext.BaseDirectory,
                 "Templates",
@@ -374,8 +329,8 @@ public class WarningsBaselineSyncCommandTests
             await File.WriteAllTextAsync(editorconfigPath, WarningsBaselineCommandTestConstants.BASELINE_EDITORCONFIG);
 
             string result = await WarningsBaselineSyncCommand.RunAsync(
-                [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC]
-            );
+                [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC],
+                executionContext: context);
 
             string syncedContent = await File.ReadAllTextAsync(editorconfigPath);
             string consoleOutput = output.ToString();
@@ -395,17 +350,16 @@ public class WarningsBaselineSyncCommandTests
         finally
         {
             Console.SetOut(originalOut);
-            Directory.SetCurrentDirectory(originalDirectory);
         }
     }
 
     [Fact]
     public async Task RunShouldMigrateLegacyMarkerAndPrintWarningAsync()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new(
             $"{nameof(WarningsBaselineSyncCommandTests)}_{nameof(RunShouldMigrateLegacyMarkerAndPrintWarningAsync)}"
         );
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
 
         TextWriter originalOut = Console.Out;
         await using StringWriter output = new();
@@ -413,8 +367,6 @@ public class WarningsBaselineSyncCommandTests
 
         try
         {
-            Directory.SetCurrentDirectory(testDir.Value);
-
             string templateSimpleProject = Path.Join(
                 AppContext.BaseDirectory,
                 "Templates",
@@ -434,12 +386,14 @@ public class WarningsBaselineSyncCommandTests
             await File.WriteAllTextAsync(editorconfigPath, legacyBaseline);
 
             _ = await WarningsBaselineSyncCommand.RunAsync(
-            [
-                CommandArgumentConstant.WARNINGS_BASELINE,
-                CommandArgumentConstant.SYNC,
-                CommandArgumentConstant.PATH,
-                ".editorconfig",
-            ]);
+                [
+                    CommandArgumentConstant.WARNINGS_BASELINE,
+                    CommandArgumentConstant.SYNC,
+                    CommandArgumentConstant.PATH,
+                    ".editorconfig",
+                ],
+                executionContext: context
+            );
 
             string syncedContent = await File.ReadAllTextAsync(editorconfigPath);
             string consoleOutput = output.ToString();
@@ -454,17 +408,16 @@ public class WarningsBaselineSyncCommandTests
         finally
         {
             Console.SetOut(originalOut);
-            Directory.SetCurrentDirectory(originalDirectory);
         }
     }
 
     [Fact]
     public async Task RunShouldHandleLfEditorConfigLineEndingsAsync()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new(
             $"{nameof(WarningsBaselineSyncCommandTests)}_{nameof(RunShouldHandleLfEditorConfigLineEndingsAsync)}"
         );
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
 
         TextWriter originalOut = Console.Out;
         await using StringWriter output = new();
@@ -472,8 +425,6 @@ public class WarningsBaselineSyncCommandTests
 
         try
         {
-            Directory.SetCurrentDirectory(testDir.Value);
-
             string templateSimpleProject = Path.Join(
                 AppContext.BaseDirectory,
                 "Templates",
@@ -488,8 +439,8 @@ public class WarningsBaselineSyncCommandTests
             await File.WriteAllTextAsync(editorconfigPath, lfBaseline);
 
             string result = await WarningsBaselineSyncCommand.RunAsync(
-                [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC]
-            );
+                [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC],
+                executionContext: context);
 
             string syncedContent = await File.ReadAllTextAsync(editorconfigPath);
             string consoleOutput = output.ToString();
@@ -510,17 +461,16 @@ public class WarningsBaselineSyncCommandTests
         finally
         {
             Console.SetOut(originalOut);
-            Directory.SetCurrentDirectory(originalDirectory);
         }
     }
 
     [Fact]
     public async Task RunShouldRemoveFilterWhenCodeIsActiveButNoFilesRemainInSectionAsync()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new(
             $"{nameof(WarningsBaselineSyncCommandTests)}_{nameof(RunShouldRemoveFilterWhenCodeIsActiveButNoFilesRemainInSectionAsync)}"
         );
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
 
         TextWriter originalOut = Console.Out;
         await using StringWriter output = new();
@@ -528,8 +478,6 @@ public class WarningsBaselineSyncCommandTests
 
         try
         {
-            Directory.SetCurrentDirectory(testDir.Value);
-
             string templateSimpleProject = Path.Join(
                 AppContext.BaseDirectory,
                 "Templates",
@@ -579,8 +527,8 @@ public class WarningsBaselineSyncCommandTests
             );
 
             string result = await WarningsBaselineSyncCommand.RunAsync(
-                [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC]
-            );
+                [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC],
+                executionContext: context);
 
             string syncedContent = await File.ReadAllTextAsync(editorconfigPath);
             string consoleOutput = output.ToString();
@@ -601,17 +549,16 @@ public class WarningsBaselineSyncCommandTests
         finally
         {
             Console.SetOut(originalOut);
-            Directory.SetCurrentDirectory(originalDirectory);
         }
     }
 
     [Fact]
     public async Task RunShouldRemoveResolvedFiltersAndPrunePartiallyFixedGroupsAsync()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new(
             $"{nameof(WarningsBaselineSyncCommandTests)}_{nameof(RunShouldRemoveResolvedFiltersAndPrunePartiallyFixedGroupsAsync)}"
         );
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
 
         TextWriter originalOut = Console.Out;
         await using StringWriter output = new();
@@ -619,8 +566,6 @@ public class WarningsBaselineSyncCommandTests
 
         try
         {
-            Directory.SetCurrentDirectory(testDir.Value);
-
             string templateSimpleProject = Path.Join(
                 AppContext.BaseDirectory,
                 "Templates",
@@ -713,8 +658,8 @@ public class WarningsBaselineSyncCommandTests
             );
 
             string result = await WarningsBaselineSyncCommand.RunAsync(
-                [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC]
-            );
+                [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC],
+                executionContext: context);
 
             string syncedContent = await File.ReadAllTextAsync(editorconfigPath);
             string consoleOutput = output.ToString();
@@ -756,186 +701,163 @@ public class WarningsBaselineSyncCommandTests
         finally
         {
             Console.SetOut(originalOut);
-            Directory.SetCurrentDirectory(originalDirectory);
         }
     }
 
     [Fact]
     public async Task RunShouldNotRemoveSectionWhenAdditionalPropertyFollowsDiagnosticAsync()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new(
             $"{nameof(WarningsBaselineSyncCommandTests)}_{nameof(RunShouldNotRemoveSectionWhenAdditionalPropertyFollowsDiagnosticAsync)}"
         );
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
 
-        try
-        {
-            Directory.SetCurrentDirectory(testDir.Value);
+        string templateSimpleProject = Path.Join(
+            AppContext.BaseDirectory,
+            "Templates",
+            "SimpleProject",
+            "MySimpleProjectTemplate"
+        );
 
-            string templateSimpleProject = Path.Join(
-                AppContext.BaseDirectory,
-                "Templates",
-                "SimpleProject",
-                "MySimpleProjectTemplate"
-            );
+        testDir.CopyDirectory(templateSimpleProject);
 
-            testDir.CopyDirectory(templateSimpleProject);
+        await File.WriteAllTextAsync(
+            Path.Join(testDir.Value, "Program.cs"),
+            """
+            // Copyright (c) 2026 kurnakovv
+            // This file is licensed under the MIT License.
+            // See the LICENSE file in the project root for full license information.
 
-            await File.WriteAllTextAsync(
-                Path.Join(testDir.Value, "Program.cs"),
-                """
-                // Copyright (c) 2026 kurnakovv
-                // This file is licensed under the MIT License.
-                // See the LICENSE file in the project root for full license information.
+            namespace Biak.ConsoleApp.IntegrationTests.Templates.SimpleProject.MySimpleProjectTemplate;
 
-                namespace Biak.ConsoleApp.IntegrationTests.Templates.SimpleProject.MySimpleProjectTemplate;
+            internal class Program
+            {
+                static void Main() { }
+            }
+            """
+        );
 
-                internal class Program
-                {
-                    static void Main() { }
-                }
-                """
-            );
+        const string ADDITIONAL_CONTENT = "dotnet_diagnostic.CS0219.api_surface = all";
+        string editorconfigPath = Path.Join(testDir.Value, ".editorconfig");
+        await File.WriteAllTextAsync(
+            editorconfigPath,
+            $$"""
+            root = true
 
-            const string ADDITIONAL_CONTENT = "dotnet_diagnostic.CS0219.api_surface = all";
-            string editorconfigPath = Path.Join(testDir.Value, ".editorconfig");
-            await File.WriteAllTextAsync(
-                editorconfigPath,
-                $$"""
-                root = true
+            [{ResolvedFile.cs}]
+            dotnet_diagnostic.CS0219.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+            {{ADDITIONAL_CONTENT}}
 
-                [{ResolvedFile.cs}]
-                dotnet_diagnostic.CS0219.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
-                {{ADDITIONAL_CONTENT}}
+            """
+        );
 
-                """
-            );
+        await WarningsBaselineSyncCommand.RunAsync(
+            [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC],
+            executionContext: context
+        );
 
-            await WarningsBaselineSyncCommand.RunAsync(
-                [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC]
-            );
+        string syncedContent = await File.ReadAllTextAsync(editorconfigPath);
 
-            string syncedContent = await File.ReadAllTextAsync(editorconfigPath);
-
-            Assert.Contains("[{ResolvedFile.cs}]", syncedContent, StringComparison.Ordinal);
-            Assert.Contains(
-                $"dotnet_diagnostic.CS0219.severity = suggestion {WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}",
-                syncedContent,
-                StringComparison.Ordinal
-            );
-            Assert.Contains(ADDITIONAL_CONTENT, syncedContent, StringComparison.Ordinal);
-        }
-        finally
-        {
-            Directory.SetCurrentDirectory(originalDirectory);
-        }
+        Assert.Contains("[{ResolvedFile.cs}]", syncedContent, StringComparison.Ordinal);
+        Assert.Contains(
+            $"dotnet_diagnostic.CS0219.severity = suggestion {WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}",
+            syncedContent,
+            StringComparison.Ordinal
+        );
+        Assert.Contains(ADDITIONAL_CONTENT, syncedContent, StringComparison.Ordinal);
     }
 
     [Fact]
     public async Task RunShouldRemoveSectionWhenOnlyCommentFollowsDiagnosticAsync()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new(
             $"{nameof(WarningsBaselineSyncCommandTests)}_{nameof(RunShouldRemoveSectionWhenOnlyCommentFollowsDiagnosticAsync)}"
         );
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
 
-        try
-        {
-            Directory.SetCurrentDirectory(testDir.Value);
+        string templateSimpleProject = Path.Join(
+            AppContext.BaseDirectory,
+            "Templates",
+            "SimpleProject",
+            "MySimpleProjectTemplate"
+        );
 
-            string templateSimpleProject = Path.Join(
-                AppContext.BaseDirectory,
-                "Templates",
-                "SimpleProject",
-                "MySimpleProjectTemplate"
-            );
+        testDir.CopyDirectory(templateSimpleProject);
 
-            testDir.CopyDirectory(templateSimpleProject);
+        await File.WriteAllTextAsync(
+            Path.Join(testDir.Value, "Program.cs"),
+            """
+            // Copyright (c) 2026 kurnakovv
+            // This file is licensed under the MIT License.
+            // See the LICENSE file in the project root for full license information.
 
-            await File.WriteAllTextAsync(
-                Path.Join(testDir.Value, "Program.cs"),
-                """
-                // Copyright (c) 2026 kurnakovv
-                // This file is licensed under the MIT License.
-                // See the LICENSE file in the project root for full license information.
+            namespace Biak.ConsoleApp.IntegrationTests.Templates.SimpleProject.MySimpleProjectTemplate;
 
-                namespace Biak.ConsoleApp.IntegrationTests.Templates.SimpleProject.MySimpleProjectTemplate;
+            internal class Program
+            {
+                static void Main() { }
+            }
+            """
+        );
 
-                internal class Program
-                {
-                    static void Main() { }
-                }
-                """
-            );
+        const string ADDITIONAL_CONTENT = "# user note";
+        string editorconfigPath = Path.Join(testDir.Value, ".editorconfig");
+        await File.WriteAllTextAsync(
+            editorconfigPath,
+            $$"""
+            root = true
 
-            const string ADDITIONAL_CONTENT = "# user note";
-            string editorconfigPath = Path.Join(testDir.Value, ".editorconfig");
-            await File.WriteAllTextAsync(
-                editorconfigPath,
-                $$"""
-                root = true
+            [{ResolvedFile.cs}]
+            dotnet_diagnostic.CS0219.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
+            {{ADDITIONAL_CONTENT}}
 
-                [{ResolvedFile.cs}]
-                dotnet_diagnostic.CS0219.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
-                {{ADDITIONAL_CONTENT}}
+            """
+        );
 
-                """
-            );
+        string result = await WarningsBaselineSyncCommand.RunAsync(
+            [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC],
+            executionContext: context
+        );
 
-            string result = await WarningsBaselineSyncCommand.RunAsync(
-                [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC]
-            );
+        string syncedContent = await File.ReadAllTextAsync(editorconfigPath);
 
-            string syncedContent = await File.ReadAllTextAsync(editorconfigPath);
-
-            Assert.Equal(WarningsBaselineSyncCommandConstant.ALL_WARNINGS_FIXED, result);
-            Assert.DoesNotContain("[{ResolvedFile.cs}]", syncedContent, StringComparison.Ordinal);
-            Assert.DoesNotContain("dotnet_diagnostic.CS0219.severity", syncedContent, StringComparison.Ordinal);
-            Assert.Contains(ADDITIONAL_CONTENT, syncedContent, StringComparison.Ordinal);
-        }
-        finally
-        {
-            Directory.SetCurrentDirectory(originalDirectory);
-        }
+        Assert.Equal(WarningsBaselineSyncCommandConstant.ALL_WARNINGS_FIXED, result);
+        Assert.DoesNotContain("[{ResolvedFile.cs}]", syncedContent, StringComparison.Ordinal);
+        Assert.DoesNotContain("dotnet_diagnostic.CS0219.severity", syncedContent, StringComparison.Ordinal);
+        Assert.Contains(ADDITIONAL_CONTENT, syncedContent, StringComparison.Ordinal);
     }
 
     [Fact]
     public async Task RunShouldSupportExplicitBuildTargetAsync()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new(
             $"{nameof(WarningsBaselineSyncCommandTests)}_{nameof(RunShouldSupportExplicitBuildTargetAsync)}"
         );
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
 
-        try
-        {
-            Directory.SetCurrentDirectory(testDir.Value);
+        string templateSimpleProject = Path.Join(
+            AppContext.BaseDirectory,
+            "Templates",
+            "SimpleProject",
+            "MySimpleProjectTemplate"
+        );
 
-            string templateSimpleProject = Path.Join(
-                AppContext.BaseDirectory,
-                "Templates",
-                "SimpleProject",
-                "MySimpleProjectTemplate"
-            );
+        testDir.CopyDirectory(templateSimpleProject);
 
-            testDir.CopyDirectory(templateSimpleProject);
+        string editorconfigPath = Path.Join(testDir.Value, ".editorconfig");
+        await File.WriteAllTextAsync(editorconfigPath, WarningsBaselineCommandTestConstants.BASELINE_EDITORCONFIG);
 
-            string editorconfigPath = Path.Join(testDir.Value, ".editorconfig");
-            await File.WriteAllTextAsync(editorconfigPath, WarningsBaselineCommandTestConstants.BASELINE_EDITORCONFIG);
-
-            string result = await WarningsBaselineSyncCommand.RunAsync([
+        string result = await WarningsBaselineSyncCommand.RunAsync(
+            [
                 CommandArgumentConstant.WARNINGS_BASELINE,
                 CommandArgumentConstant.SYNC,
                 CommandArgumentConstant.TARGET,
                 "MySimpleProjectTemplate.csproj",
-            ]);
+            ],
+            executionContext: context
+        );
 
-            Assert.Equal(WarningsBaselineSyncCommandConstant.ALL_WARNINGS_FIXED, result);
-            Assert.False(File.Exists(WarningsBaselineSyncCommandConstant.BUILD_BINLOG_PATH));
-        }
-        finally
-        {
-            Directory.SetCurrentDirectory(originalDirectory);
-        }
+        Assert.Equal(WarningsBaselineSyncCommandConstant.ALL_WARNINGS_FIXED, result);
+        Assert.False(File.Exists(WarningsBaselineSyncCommandConstant.BUILD_BINLOG_PATH));
     }
 }

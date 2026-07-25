@@ -7,6 +7,7 @@ using Biak.ConsoleApp.Enums;
 using Biak.ConsoleApp.Exceptions;
 using Biak.ConsoleApp.Helpers;
 using Biak.ConsoleApp.IntegrationTests.Mock;
+using Biak.ConsoleApp.Models;
 
 namespace Biak.ConsoleApp.IntegrationTests.Helpers;
 
@@ -454,9 +455,8 @@ public class ImportHelperTests
         string? outputMessage
     )
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
-
         TestDirectory testDir = new($"{nameof(ImportHelperTests)}_{nameof(ReplaceTestAsync)}");
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
 
         string biakCategoriesDir = Path.Join(testDir.Value, ".biak", "Categories");
         Directory.CreateDirectory(biakCategoriesDir);
@@ -497,9 +497,7 @@ public class ImportHelperTests
 
         try
         {
-            Directory.SetCurrentDirectory(testDir.Value);
-
-            string result = await ImportHelper.ReplaceAsync(inputContent, FailureBehaviorType.Warning);
+            string result = await ImportHelper.ReplaceAsync(inputContent, FailureBehaviorType.Warning, context);
 
             Assert.Equal(outputContent, result);
 
@@ -511,7 +509,6 @@ public class ImportHelperTests
         }
         finally
         {
-            Directory.SetCurrentDirectory(originalDirectory);
             Console.SetOut(originalOut);
         }
     }

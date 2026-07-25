@@ -37,8 +37,8 @@ public class SetupHelperTests
     [Fact]
     public void GetEditorconfigPathsWithoutEditorconfigFile()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new($"{nameof(SetupHelperTests)}_{nameof(GetEditorconfigPathsWithoutEditorconfigFile)}");
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
 
         string biakDir = Path.Join(testDir.Value, ".biak");
         Directory.CreateDirectory(biakDir);
@@ -56,39 +56,30 @@ public class SetupHelperTests
             overwrite: true
         );
 
+        TextWriter originalOut = Console.Out;
+        using StringWriter output = new();
+        Console.SetOut(output);
+
         try
         {
-            Directory.SetCurrentDirectory(testDir.Value);
+            EditorconfigPaths editorconfigPaths = SetupHelper.GetEditorconfigPaths();
 
-            TextWriter originalOut = Console.Out;
-            using StringWriter output = new();
-            Console.SetOut(output);
-
-            try
-            {
-                EditorconfigPaths editorconfigPaths = SetupHelper.GetEditorconfigPaths();
-
-                string result = output.ToString();
-                Assert.Contains(UIConstant.EDITORCONFIG_NOT_FOUND, result, StringComparison.OrdinalIgnoreCase);
-                Assert.NotNull(editorconfigPaths.MainValue);
-                Assert.Null(editorconfigPaths.Value);
-            }
-            finally
-            {
-                Console.SetOut(originalOut);
-            }
+            string result = output.ToString();
+            Assert.Contains(UIConstant.EDITORCONFIG_NOT_FOUND, result, StringComparison.OrdinalIgnoreCase);
+            Assert.NotNull(editorconfigPaths.MainValue);
+            Assert.Null(editorconfigPaths.Value);
         }
         finally
         {
-            Directory.SetCurrentDirectory(originalDirectory);
+            Console.SetOut(originalOut);
         }
     }
 
     [Fact]
     public void GetEditorconfigPathsWithAllFiles()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new($"{nameof(SetupHelperTests)}_{nameof(GetEditorconfigPathsWithAllFiles)}");
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
 
         string biakDir = Path.Join(testDir.Value, ".biak");
         Directory.CreateDirectory(biakDir);
@@ -114,17 +105,9 @@ public class SetupHelperTests
             overwrite: true
         );
 
-        try
-        {
-            Directory.SetCurrentDirectory(testDir.Value);
-            EditorconfigPaths editorconfigPaths = SetupHelper.GetEditorconfigPaths();
+        EditorconfigPaths editorconfigPaths = SetupHelper.GetEditorconfigPaths();
 
-            Assert.NotNull(editorconfigPaths.Value);
-            Assert.NotNull(editorconfigPaths.MainValue);
-        }
-        finally
-        {
-            Directory.SetCurrentDirectory(originalDirectory);
-        }
+        Assert.NotNull(editorconfigPaths.Value);
+        Assert.NotNull(editorconfigPaths.MainValue);
     }
 }

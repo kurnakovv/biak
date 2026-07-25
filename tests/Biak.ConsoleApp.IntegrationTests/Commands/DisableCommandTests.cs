@@ -5,6 +5,7 @@
 using Biak.ConsoleApp.Commands;
 using Biak.ConsoleApp.Constants;
 using Biak.ConsoleApp.IntegrationTests.Mock;
+using Biak.ConsoleApp.Models;
 
 namespace Biak.ConsoleApp.IntegrationTests.Commands;
 
@@ -13,13 +14,15 @@ public class DisableCommandTests
     [Fact]
     public async Task RunWithoutBiakFolderAsync()
     {
+        TestDirectory testDir = new($"{nameof(DisableCommandTests)}_{nameof(RunWithoutBiakFolderAsync)}");
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
         TextWriter originalOut = Console.Out;
         await using StringWriter output = new();
         Console.SetOut(output);
 
         try
         {
-            await DisableCommand.RunAsync();
+            await DisableCommand.RunAsync(context);
 
             string result = output.ToString();
             Assert.Contains(UIConstant.BIAK_NOT_INITIALIZED, result, StringComparison.OrdinalIgnoreCase);
@@ -34,8 +37,8 @@ public class DisableCommandTests
     [Fact]
     public async Task RunWithoutEditorconfigFileAsync()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new($"{nameof(DisableCommandTests)}_{nameof(RunWithoutEditorconfigFileAsync)}");
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
 
         string biakDir = Path.Join(testDir.Value, ".biak");
         Directory.CreateDirectory(biakDir);
@@ -53,29 +56,20 @@ public class DisableCommandTests
             overwrite: true
         );
 
+        TextWriter originalOut = Console.Out;
+        await using StringWriter output = new();
+        Console.SetOut(output);
+
         try
         {
-            Directory.SetCurrentDirectory(testDir.Value);
+            await DisableCommand.RunAsync(context);
 
-            TextWriter originalOut = Console.Out;
-            await using StringWriter output = new();
-            Console.SetOut(output);
-
-            try
-            {
-                await DisableCommand.RunAsync();
-
-                string result = output.ToString();
-                Assert.Contains(UIConstant.EDITORCONFIG_NOT_FOUND, result, StringComparison.OrdinalIgnoreCase);
-            }
-            finally
-            {
-                Console.SetOut(originalOut);
-            }
+            string result = output.ToString();
+            Assert.Contains(UIConstant.EDITORCONFIG_NOT_FOUND, result, StringComparison.OrdinalIgnoreCase);
         }
         finally
         {
-            Directory.SetCurrentDirectory(originalDirectory);
+            Console.SetOut(originalOut);
         }
     }
 
@@ -84,8 +78,8 @@ public class DisableCommandTests
     [InlineData(true)]
     public async Task RunWithEditorconfigAsync(bool withConfig)
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new($"{nameof(DisableCommandTests)}_{nameof(RunWithEditorconfigAsync)}");
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
 
         string biakDir = Path.Join(testDir.Value, ".biak");
         Directory.CreateDirectory(biakDir);
@@ -159,62 +153,55 @@ public class DisableCommandTests
             );
         }
 
+        Directory.SetCurrentDirectory(testDir.Value);
+
+        TextWriter originalOut = Console.Out;
+        await using StringWriter output = new();
+        Console.SetOut(output);
+
         try
         {
-            Directory.SetCurrentDirectory(testDir.Value);
+            await DisableCommand.RunAsync(context);
 
-            TextWriter originalOut = Console.Out;
-            await using StringWriter output = new();
-            Console.SetOut(output);
-
-            try
+            string result = output.ToString();
+            Assert.Contains(UIConstant.START_DISABLE, result, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains(UIConstant.END_DISABLE, result, StringComparison.OrdinalIgnoreCase);
+            if (withConfig)
             {
-                await DisableCommand.RunAsync();
-
-                string result = output.ToString();
-                Assert.Contains(UIConstant.START_DISABLE, result, StringComparison.OrdinalIgnoreCase);
-                Assert.Contains(UIConstant.END_DISABLE, result, StringComparison.OrdinalIgnoreCase);
-                if (withConfig)
-                {
-                    Assert.DoesNotContain(BiakConfigConstant.FILE_NOT_FOUND, result, StringComparison.OrdinalIgnoreCase);
-                }
-                else
-                {
-                    Assert.Contains(BiakConfigConstant.FILE_NOT_FOUND, result, StringComparison.OrdinalIgnoreCase);
-                }
-                Assert.DoesNotContain(BiakConfigConstant.SEVERITIES_TO_DISABLE_NULL_OR_EMPTY, result, StringComparison.OrdinalIgnoreCase);
-                Assert.DoesNotContain(BiakConfigConstant.SEVERITIES_TO_DISABLE_DUPLICATES, result, StringComparison.OrdinalIgnoreCase);
+                Assert.DoesNotContain(BiakConfigConstant.FILE_NOT_FOUND, result, StringComparison.OrdinalIgnoreCase);
             }
-            finally
+            else
             {
-                Console.SetOut(originalOut);
+                Assert.Contains(BiakConfigConstant.FILE_NOT_FOUND, result, StringComparison.OrdinalIgnoreCase);
             }
-
-            string editorconfigFile = Path.Join(testDir.Value, ".editorconfig");
-            Assert.True(File.Exists(editorconfigFile));
-
-            string contentAfterDisable = await File.ReadAllTextAsync(editorconfigFile);
-            string templateDisabledEditorconfig = Path.Join(
-                AppContext.BaseDirectory,
-                "Templates",
-                "Disabled",
-                withConfig ? ".editorconfig-with-suggestion" : ".editorconfig"
-            );
-            string expectedContent = await File.ReadAllTextAsync(templateDisabledEditorconfig);
-
-            Assert.Equal(expectedContent, contentAfterDisable);
+            Assert.DoesNotContain(BiakConfigConstant.SEVERITIES_TO_DISABLE_NULL_OR_EMPTY, result, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain(BiakConfigConstant.SEVERITIES_TO_DISABLE_DUPLICATES, result, StringComparison.OrdinalIgnoreCase);
         }
         finally
         {
-            Directory.SetCurrentDirectory(originalDirectory);
+            Console.SetOut(originalOut);
         }
+
+        string editorconfigFile = Path.Join(testDir.Value, ".editorconfig");
+        Assert.True(File.Exists(editorconfigFile));
+
+        string contentAfterDisable = await File.ReadAllTextAsync(editorconfigFile);
+        string templateDisabledEditorconfig = Path.Join(
+            AppContext.BaseDirectory,
+            "Templates",
+            "Disabled",
+            withConfig ? ".editorconfig-with-suggestion" : ".editorconfig"
+        );
+        string expectedContent = await File.ReadAllTextAsync(templateDisabledEditorconfig);
+
+        Assert.Equal(expectedContent, contentAfterDisable);
     }
 
     [Fact]
     public async Task RunWithIncludeExcludeFiltersAsync()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new($"{nameof(DisableCommandTests)}_{nameof(RunWithIncludeExcludeFiltersAsync)}");
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
 
         string biakDir = Path.Join(testDir.Value, ".biak");
         Directory.CreateDirectory(biakDir);
@@ -242,55 +229,48 @@ public class DisableCommandTests
             overwrite: true
         );
 
+        Directory.SetCurrentDirectory(testDir.Value);
+
+        TextWriter originalOut = Console.Out;
+        await using StringWriter output = new();
+        Console.SetOut(output);
+
         try
         {
-            Directory.SetCurrentDirectory(testDir.Value);
+            await DisableCommand.RunAsync(context);
 
-            TextWriter originalOut = Console.Out;
-            await using StringWriter output = new();
-            Console.SetOut(output);
-
-            try
-            {
-                await DisableCommand.RunAsync();
-
-                string result = output.ToString();
-                Assert.Contains(UIConstant.START_DISABLE, result, StringComparison.OrdinalIgnoreCase);
-                Assert.Contains(UIConstant.END_DISABLE, result, StringComparison.OrdinalIgnoreCase);
-                Assert.DoesNotContain(BiakConfigConstant.SEVERITIES_TO_DISABLE_NULL_OR_EMPTY, result, StringComparison.OrdinalIgnoreCase);
-                Assert.DoesNotContain(BiakConfigConstant.SEVERITIES_TO_DISABLE_DUPLICATES, result, StringComparison.OrdinalIgnoreCase);
-            }
-            finally
-            {
-                Console.SetOut(originalOut);
-            }
-
-            string editorconfigFile = Path.Join(testDir.Value, ".editorconfig");
-            Assert.True(File.Exists(editorconfigFile));
-
-            string contentAfterDisable = await File.ReadAllTextAsync(editorconfigFile);
-            string templateDisabledEditorconfig = Path.Join(
-                AppContext.BaseDirectory,
-                "Templates",
-                "LegacyExample",
-                "Disabled",
-                ".editorconfig"
-            );
-            string expectedContent = await File.ReadAllTextAsync(templateDisabledEditorconfig);
-
-            Assert.Equal(expectedContent, contentAfterDisable);
+            string result = output.ToString();
+            Assert.Contains(UIConstant.START_DISABLE, result, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains(UIConstant.END_DISABLE, result, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain(BiakConfigConstant.SEVERITIES_TO_DISABLE_NULL_OR_EMPTY, result, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain(BiakConfigConstant.SEVERITIES_TO_DISABLE_DUPLICATES, result, StringComparison.OrdinalIgnoreCase);
         }
         finally
         {
-            Directory.SetCurrentDirectory(originalDirectory);
+            Console.SetOut(originalOut);
         }
+
+        string editorconfigFile = Path.Join(testDir.Value, ".editorconfig");
+        Assert.True(File.Exists(editorconfigFile));
+
+        string contentAfterDisable = await File.ReadAllTextAsync(editorconfigFile);
+        string templateDisabledEditorconfig = Path.Join(
+            AppContext.BaseDirectory,
+            "Templates",
+            "LegacyExample",
+            "Disabled",
+            ".editorconfig"
+        );
+        string expectedContent = await File.ReadAllTextAsync(templateDisabledEditorconfig);
+
+        Assert.Equal(expectedContent, contentAfterDisable);
     }
 
     [Fact]
     public async Task RunWithEmptyEditorconfigMainAsync()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new($"{nameof(DisableCommandTests)}_{nameof(RunWithEmptyEditorconfigMainAsync)}");
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
 
         string biakDir = Path.Join(testDir.Value, ".biak");
         Directory.CreateDirectory(biakDir);
@@ -298,20 +278,11 @@ public class DisableCommandTests
         await File.WriteAllTextAsync(Path.Join(biakDir, ".editorconfig-main"), string.Empty);
         await File.WriteAllTextAsync(Path.Join(testDir.Value, ".editorconfig"), string.Empty);
 
-        try
-        {
-            Directory.SetCurrentDirectory(testDir.Value);
+        await DisableCommand.RunAsync(context);
 
-            await DisableCommand.RunAsync();
+        string editorconfigFile = Path.Join(testDir.Value, ".editorconfig");
+        string contentAfterDisable = await File.ReadAllTextAsync(editorconfigFile);
 
-            string editorconfigFile = Path.Join(testDir.Value, ".editorconfig");
-            string contentAfterDisable = await File.ReadAllTextAsync(editorconfigFile);
-
-            Assert.Equal(string.Empty, contentAfterDisable);
-        }
-        finally
-        {
-            Directory.SetCurrentDirectory(originalDirectory);
-        }
+        Assert.Equal(string.Empty, contentAfterDisable);
     }
 }
