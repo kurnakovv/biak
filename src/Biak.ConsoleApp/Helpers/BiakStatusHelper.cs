@@ -17,10 +17,12 @@ public static class BiakStatusHelper
     /// Resolves current biak status and a human-readable message.
     /// </summary>
     /// <param name="includeDebugDetails">Whether to include detailed broken-status reason.</param>
+    /// <param name="executionContext">Execution context with working-directory settings; when <c>null</c>, the default context is used.</param>
     /// <returns>Status type with rendered status message.</returns>
-    public static async Task<BiakStatusResult> GetAsync(bool includeDebugDetails = false)
+    public static async Task<BiakStatusResult> GetAsync(bool includeDebugDetails = false, AppExecutionContext? executionContext = null)
     {
-        EditorconfigPaths editorconfigPaths = SetupHelper.GetEditorconfigPaths(suppressConsoleOutput: true);
+        AppExecutionContext context = executionContext ?? AppExecutionContext.CreateDefault();
+        EditorconfigPaths editorconfigPaths = SetupHelper.GetEditorconfigPaths(suppressConsoleOutput: true, executionContext: context);
 
         if (editorconfigPaths.MainValue == null)
         {
@@ -37,12 +39,12 @@ public static class BiakStatusHelper
             return new BiakStatusResult(
                 BiakStatusType.Broken,
                 includeDebugDetails
-                    ? UIConstant.STATUS_BROKEN_WITH_CONFIG_MESSAGE + UIConstant.EDITORCONFIG_NOT_FOUND + Path.Join(Directory.GetCurrentDirectory(), ".editorconfig")
+                    ? UIConstant.STATUS_BROKEN_WITH_CONFIG_MESSAGE + UIConstant.EDITORCONFIG_NOT_FOUND + Path.Join(context.WorkingDirectory, ".editorconfig")
                     : UIConstant.STATUS_BROKEN
             );
         }
 
-        (string? message, BiakConfig config) = await BiakConfigHelper.GetAsync();
+        (string? message, BiakConfig config) = await BiakConfigHelper.GetAsync(executionContext: context);
         if (message != null)
         {
             return new BiakStatusResult(
@@ -56,7 +58,7 @@ public static class BiakStatusHelper
         string editorconfigMainContent = await File.ReadAllTextAsync(editorconfigPaths.MainValue);
         string currentContent = NormalizeLineEndings(await File.ReadAllTextAsync(editorconfigPaths.Value));
         string disabledContent = NormalizeLineEndings(
-            await EditorconfigHelper.GetDisabledContentAsync(editorconfigMainContent, config)
+            await EditorconfigHelper.GetDisabledContentAsync(editorconfigMainContent, config, context)
         );
 
         if (string.Equals(currentContent, disabledContent, StringComparison.Ordinal))
@@ -65,7 +67,7 @@ public static class BiakStatusHelper
         }
 
         string enabledContent = NormalizeLineEndings(
-            await EditorconfigHelper.GetEnabledContentAsync(editorconfigMainContent, config)
+            await EditorconfigHelper.GetEnabledContentAsync(editorconfigMainContent, config, context)
         );
 
         return string.Equals(currentContent, enabledContent, StringComparison.Ordinal)

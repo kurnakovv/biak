@@ -7,6 +7,7 @@ using Biak.ConsoleApp.Commands.Baseline.InspectCode;
 using Biak.ConsoleApp.Constants;
 using Biak.ConsoleApp.Exceptions;
 using Biak.ConsoleApp.IntegrationTests.Mock;
+using Biak.ConsoleApp.Models;
 
 namespace Biak.ConsoleApp.IntegrationTests.Commands.Baseline.InspectCode;
 
@@ -15,14 +16,13 @@ public class InspectCodeBaselineSyncCommandTests
     [Fact]
     public async Task RunShouldSynchronizePreparedBaselineFileAsync()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new($"{nameof(InspectCodeBaselineSyncCommandTests)}_{nameof(RunShouldSynchronizePreparedBaselineFileAsync)}");
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
 
         try
         {
-            Directory.SetCurrentDirectory(testDir.Value);
             CopyInspectCodeTemplate(testDir.Value);
-            await EnsureBiakStatusConfiguredAsync(testDir.Value);
+            await EnsureBiakStatusConfiguredAsync(context);
 
             Directory.CreateDirectory(Path.Join(testDir.Value, ".biak"));
             string baselinePath = Path.Join(testDir.Value, ".biak", ".editorconfig-InspectCodeBaseline");
@@ -45,7 +45,7 @@ public class InspectCodeBaselineSyncCommandTests
                 ".biak/.editorconfig-InspectCodeBaseline",
             ];
 
-            string result = await InspectCodeBaselineSyncCommand.RunAsync(args);
+            string result = await InspectCodeBaselineSyncCommand.RunAsync(args, context);
             string syncedBaselineContent = await File.ReadAllTextAsync(baselinePath);
 
             Assert.Equal("Sync complete. Removed 1 file(s); resolved 1 filter(s). 7 filter(s) still alive.", result);
@@ -54,21 +54,19 @@ public class InspectCodeBaselineSyncCommandTests
         }
         finally
         {
-            Directory.SetCurrentDirectory(originalDirectory);
         }
     }
 
     [Fact]
     public async Task RunShouldNormalizeAliveFiltersToUpdatedSnapshotSeverityAsync()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new($"{nameof(InspectCodeBaselineSyncCommandTests)}_{nameof(RunShouldNormalizeAliveFiltersToUpdatedSnapshotSeverityAsync)}");
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
 
         try
         {
-            Directory.SetCurrentDirectory(testDir.Value);
             CopyInspectCodeTemplate(testDir.Value);
-            await EnsureBiakStatusConfiguredAsync(testDir.Value);
+            await EnsureBiakStatusConfiguredAsync(context);
 
             await File.WriteAllTextAsync(
                 Path.Join(testDir.Value, ".biak", "config.json"),
@@ -93,7 +91,7 @@ public class InspectCodeBaselineSyncCommandTests
                 ".biak/.editorconfig-InspectCodeBaseline",
             ];
 
-            string result = await InspectCodeBaselineSyncCommand.RunAsync(args);
+            string result = await InspectCodeBaselineSyncCommand.RunAsync(args, context);
             string syncedBaselineContent = await File.ReadAllTextAsync(baselinePath);
 
             Assert.Equal("Sync complete. Removed 0 file(s); resolved 0 filter(s). 8 filter(s) still alive.", result);
@@ -110,23 +108,21 @@ public class InspectCodeBaselineSyncCommandTests
         }
         finally
         {
-            Directory.SetCurrentDirectory(originalDirectory);
         }
     }
 
     [Fact]
     public async Task RunShouldCountAliveRulesWhenBadFormattingAsync()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new(
             $"{nameof(InspectCodeBaselineSyncCommandTests)}_{nameof(RunShouldCountAliveRulesWhenBadFormattingAsync)}"
         );
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
 
         try
         {
-            Directory.SetCurrentDirectory(testDir.Value);
             CopyInspectCodeTemplate(testDir.Value);
-            await EnsureBiakStatusConfiguredAsync(testDir.Value);
+            await EnsureBiakStatusConfiguredAsync(context);
 
             string baselinePath = Path.Join(testDir.Value, ".biak", ".editorconfig-InspectCodeBaseline");
             await File.WriteAllTextAsync(
@@ -174,27 +170,25 @@ public class InspectCodeBaselineSyncCommandTests
                 ".biak/.editorconfig-InspectCodeBaseline",
             ];
 
-            string result = await InspectCodeBaselineSyncCommand.RunAsync(args);
+            string result = await InspectCodeBaselineSyncCommand.RunAsync(args, context);
 
             Assert.Equal("Sync complete. Removed 0 file(s); resolved 0 filter(s). 7 filter(s) still alive.", result);
         }
         finally
         {
-            Directory.SetCurrentDirectory(originalDirectory);
         }
     }
 
     [Fact]
     public async Task RunShouldTrimFilesInsideKeptRuleBlockAsync()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new($"{nameof(InspectCodeBaselineSyncCommandTests)}_{nameof(RunShouldTrimFilesInsideKeptRuleBlockAsync)}");
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
 
         try
         {
-            Directory.SetCurrentDirectory(testDir.Value);
             CopyInspectCodeTemplate(testDir.Value);
-            await EnsureBiakStatusConfiguredAsync(testDir.Value);
+            await EnsureBiakStatusConfiguredAsync(context);
 
             Directory.CreateDirectory(Path.Join(testDir.Value, ".biak"));
             string baselinePath = Path.Join(testDir.Value, ".biak", ".editorconfig-InspectCodeBaseline");
@@ -229,7 +223,7 @@ public class InspectCodeBaselineSyncCommandTests
                 ".biak/.editorconfig-InspectCodeBaseline",
             ];
 
-            string result = await InspectCodeBaselineSyncCommand.RunAsync(args);
+            string result = await InspectCodeBaselineSyncCommand.RunAsync(args, context);
             string syncedBaselineContent = await File.ReadAllTextAsync(baselinePath);
 
             Assert.Equal("Sync complete. Removed 1 file(s); resolved 0 filter(s). 1 filter(s) still alive.", result);
@@ -244,21 +238,19 @@ public class InspectCodeBaselineSyncCommandTests
         }
         finally
         {
-            Directory.SetCurrentDirectory(originalDirectory);
         }
     }
 
     [Fact]
     public async Task RunShouldKeepActiveNoneFiltersAndRemoveResolvedOnesAsync()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new($"{nameof(InspectCodeBaselineSyncCommandTests)}_{nameof(RunShouldKeepActiveNoneFiltersAndRemoveResolvedOnesAsync)}");
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
 
         try
         {
-            Directory.SetCurrentDirectory(testDir.Value);
             CopyInspectCodeTemplate(testDir.Value);
-            await EnsureBiakStatusConfiguredAsync(testDir.Value);
+            await EnsureBiakStatusConfiguredAsync(context);
 
             await File.WriteAllTextAsync(
                 Path.Join(testDir.Value, ".biak", "config.json"),
@@ -288,7 +280,7 @@ public class InspectCodeBaselineSyncCommandTests
                 resharper_replace_with_string_is_null_or_empty_highlighting = warning {{InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}}
                 """
             );
-            await EnableCommand.RunAsync();
+            await EnableCommand.RunAsync(context);
 
             string serviceDPath = Path.Join(testDir.Value, "ServiceD.cs");
             string serviceDContent = await File.ReadAllTextAsync(serviceDPath);
@@ -307,7 +299,7 @@ public class InspectCodeBaselineSyncCommandTests
                 ".biak/.editorconfig-main",
             ];
 
-            string result = await InspectCodeBaselineSyncCommand.RunAsync(args);
+            string result = await InspectCodeBaselineSyncCommand.RunAsync(args, context);
             string syncedBaselineContent = await File.ReadAllTextAsync(baselinePath);
             string rootEditorconfigContent = await File.ReadAllTextAsync(Path.Join(testDir.Value, ".editorconfig"));
 
@@ -326,21 +318,19 @@ public class InspectCodeBaselineSyncCommandTests
         }
         finally
         {
-            Directory.SetCurrentDirectory(originalDirectory);
         }
     }
 
     [Fact]
     public async Task RunShouldThrowWhenRootEditorconfigIsMissingAsync()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new($"{nameof(InspectCodeBaselineSyncCommandTests)}_{nameof(RunShouldThrowWhenRootEditorconfigIsMissingAsync)}");
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
 
         try
         {
-            Directory.SetCurrentDirectory(testDir.Value);
             CopyInspectCodeTemplate(testDir.Value);
-            await EnsureBiakStatusConfiguredAsync(testDir.Value);
+            await EnsureBiakStatusConfiguredAsync(context);
 
             string rootEditorconfigPath = Path.Join(testDir.Value, ".editorconfig");
             if (File.Exists(rootEditorconfigPath))
@@ -360,7 +350,7 @@ public class InspectCodeBaselineSyncCommandTests
                 ".biak/.editorconfig-InspectCodeBaseline",
             ];
 
-            Exception? exception = await Record.ExceptionAsync(() => InspectCodeBaselineSyncCommand.RunAsync(args));
+            Exception? exception = await Record.ExceptionAsync(() => InspectCodeBaselineSyncCommand.RunAsync(args, context));
 
             Assert.NotNull(exception);
             Assert.IsType<BiakApplicationException>(exception);
@@ -369,21 +359,19 @@ public class InspectCodeBaselineSyncCommandTests
         }
         finally
         {
-            Directory.SetCurrentDirectory(originalDirectory);
         }
     }
 
     [Fact]
     public async Task RunShouldThrowWhenBiakStatusIsUnsynchronisedAsync()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new($"{nameof(InspectCodeBaselineSyncCommandTests)}_{nameof(RunShouldThrowWhenBiakStatusIsUnsynchronisedAsync)}");
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
 
         try
         {
-            Directory.SetCurrentDirectory(testDir.Value);
             CopyInspectCodeTemplate(testDir.Value);
-            await EnsureBiakStatusConfiguredAsync(testDir.Value);
+            await EnsureBiakStatusConfiguredAsync(context);
 
             await File.WriteAllTextAsync(Path.Join(testDir.Value, ".editorconfig"), "root = true\n");
 
@@ -401,7 +389,7 @@ public class InspectCodeBaselineSyncCommandTests
                 ".biak/.editorconfig-InspectCodeBaseline",
             ];
 
-            Exception? exception = await Record.ExceptionAsync(() => InspectCodeBaselineSyncCommand.RunAsync(args));
+            Exception? exception = await Record.ExceptionAsync(() => InspectCodeBaselineSyncCommand.RunAsync(args, context));
 
             Assert.NotNull(exception);
             Assert.IsType<BiakApplicationException>(exception);
@@ -409,21 +397,19 @@ public class InspectCodeBaselineSyncCommandTests
         }
         finally
         {
-            Directory.SetCurrentDirectory(originalDirectory);
         }
     }
 
     [Fact]
     public async Task RunShouldPreferCliPathOverConfigPathAndDiscoveryAsync()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new($"{nameof(InspectCodeBaselineSyncCommandTests)}_{nameof(RunShouldPreferCliPathOverConfigPathAndDiscoveryAsync)}");
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
 
         try
         {
-            Directory.SetCurrentDirectory(testDir.Value);
             CopyInspectCodeTemplate(testDir.Value);
-            await EnsureBiakStatusConfiguredAsync(testDir.Value);
+            await EnsureBiakStatusConfiguredAsync(context);
 
             await File.WriteAllTextAsync(Path.Join(testDir.Value, ".biak", ".editorconfig-cli"), "root = true");
             await File.WriteAllTextAsync(Path.Join(testDir.Value, ".biak", ".editorconfig-config"), InspectCodeBaselineCommandTestConstants.BASELINE_FILTERS);
@@ -449,7 +435,7 @@ public class InspectCodeBaselineSyncCommandTests
                 ".biak/.editorconfig-cli",
             ];
 
-            Exception? exception = await Record.ExceptionAsync(() => InspectCodeBaselineSyncCommand.RunAsync(args));
+            Exception? exception = await Record.ExceptionAsync(() => InspectCodeBaselineSyncCommand.RunAsync(args, context));
 
             Assert.NotNull(exception);
             Assert.IsType<BiakApplicationException>(exception);
@@ -457,21 +443,19 @@ public class InspectCodeBaselineSyncCommandTests
         }
         finally
         {
-            Directory.SetCurrentDirectory(originalDirectory);
         }
     }
 
     [Fact]
     public async Task RunShouldPreferConfigPathOverDiscoveryWhenCliPathIsNotProvidedAsync()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new($"{nameof(InspectCodeBaselineSyncCommandTests)}_{nameof(RunShouldPreferConfigPathOverDiscoveryWhenCliPathIsNotProvidedAsync)}");
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
 
         try
         {
-            Directory.SetCurrentDirectory(testDir.Value);
             CopyInspectCodeTemplate(testDir.Value);
-            await EnsureBiakStatusConfiguredAsync(testDir.Value);
+            await EnsureBiakStatusConfiguredAsync(context);
 
             await File.WriteAllTextAsync(Path.Join(testDir.Value, ".biak", ".editorconfig-config"), "root = true");
             await File.WriteAllTextAsync(Path.Join(testDir.Value, ".biak", ".editorconfig-discovery"), InspectCodeBaselineCommandTestConstants.BASELINE_FILTERS);
@@ -494,7 +478,7 @@ public class InspectCodeBaselineSyncCommandTests
                 CommandArgumentConstant.SYNC,
             ];
 
-            Exception? exception = await Record.ExceptionAsync(() => InspectCodeBaselineSyncCommand.RunAsync(args));
+            Exception? exception = await Record.ExceptionAsync(() => InspectCodeBaselineSyncCommand.RunAsync(args, context));
 
             Assert.NotNull(exception);
             Assert.IsType<BiakApplicationException>(exception);
@@ -502,21 +486,19 @@ public class InspectCodeBaselineSyncCommandTests
         }
         finally
         {
-            Directory.SetCurrentDirectory(originalDirectory);
         }
     }
 
     [Fact]
     public async Task RunShouldUseDiscoveryFromNestedBiakDirectoryWhenCliAndConfigPathsAreNotProvidedAsync()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new($"{nameof(InspectCodeBaselineSyncCommandTests)}_{nameof(RunShouldUseDiscoveryFromNestedBiakDirectoryWhenCliAndConfigPathsAreNotProvidedAsync)}");
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
 
         try
         {
-            Directory.SetCurrentDirectory(testDir.Value);
             CopyInspectCodeTemplate(testDir.Value);
-            await EnsureBiakStatusConfiguredAsync(testDir.Value);
+            await EnsureBiakStatusConfiguredAsync(context);
 
             string nestedDirectory = Path.Join(testDir.Value, ".biak", "Categories");
             Directory.CreateDirectory(nestedDirectory);
@@ -528,26 +510,24 @@ public class InspectCodeBaselineSyncCommandTests
                 CommandArgumentConstant.SYNC,
             ];
 
-            string result = await InspectCodeBaselineSyncCommand.RunAsync(args);
+            string result = await InspectCodeBaselineSyncCommand.RunAsync(args, context);
             Assert.Equal("Sync complete. Removed 0 file(s); resolved 0 filter(s). 8 filter(s) still alive.", result);
         }
         finally
         {
-            Directory.SetCurrentDirectory(originalDirectory);
         }
     }
 
     [Fact]
     public async Task RunShouldPreferBiakDiscoveryFileWhenMarkerExistsInBothBiakAndRootAsync()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new($"{nameof(InspectCodeBaselineSyncCommandTests)}_{nameof(RunShouldPreferBiakDiscoveryFileWhenMarkerExistsInBothBiakAndRootAsync)}");
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
 
         try
         {
-            Directory.SetCurrentDirectory(testDir.Value);
             CopyInspectCodeTemplate(testDir.Value);
-            await EnsureBiakStatusConfiguredAsync(testDir.Value);
+            await EnsureBiakStatusConfiguredAsync(context);
 
             const string BASELINE = $$"""
                 # Field can be made readonly (private accessibility) [FieldCanBeMadeReadOnly.Local] | https://www.jetbrains.com/help/resharper/FieldCanBeMadeReadOnly.Local.html
@@ -561,7 +541,7 @@ public class InspectCodeBaselineSyncCommandTests
 
             await File.WriteAllTextAsync(biakBaselinePath, BASELINE);
             await File.WriteAllTextAsync(editorconfigMainPath, BASELINE);
-            await EnableCommand.RunAsync();
+            await EnableCommand.RunAsync(context);
 
             string[] args =
             [
@@ -569,7 +549,7 @@ public class InspectCodeBaselineSyncCommandTests
                 CommandArgumentConstant.SYNC,
             ];
 
-            string result = await InspectCodeBaselineSyncCommand.RunAsync(args);
+            string result = await InspectCodeBaselineSyncCommand.RunAsync(args, context);
 
             string biakContent = await File.ReadAllTextAsync(biakBaselinePath);
             string rootContent = await File.ReadAllTextAsync(rootBaselinePath);
@@ -580,19 +560,17 @@ public class InspectCodeBaselineSyncCommandTests
         }
         finally
         {
-            Directory.SetCurrentDirectory(originalDirectory);
         }
     }
 
     [Fact]
     public async Task RunShouldFallbackToRootEditorconfigWhenNoBiakDirectoryExistsAsync()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new($"{nameof(InspectCodeBaselineSyncCommandTests)}_{nameof(RunShouldFallbackToRootEditorconfigWhenNoBiakDirectoryExistsAsync)}");
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
 
         try
         {
-            Directory.SetCurrentDirectory(testDir.Value);
             CopyInspectCodeTemplate(testDir.Value);
 
             string biakDir = Path.Join(testDir.Value, ".biak");
@@ -617,7 +595,7 @@ public class InspectCodeBaselineSyncCommandTests
                 CommandArgumentConstant.SYNC,
             ];
 
-            string result = await InspectCodeBaselineSyncCommand.RunAsync(args);
+            string result = await InspectCodeBaselineSyncCommand.RunAsync(args, context);
 
             string rootContent = await File.ReadAllTextAsync(rootBaselinePath);
             Assert.Equal("Sync complete. Removed 0 file(s); resolved 0 filter(s). 1 filter(s) still alive.", result);
@@ -626,21 +604,19 @@ public class InspectCodeBaselineSyncCommandTests
         }
         finally
         {
-            Directory.SetCurrentDirectory(originalDirectory);
         }
     }
 
     [Fact]
     public async Task RunShouldAskToRunInitWhenNoBaselineMarkerExistsInBiakAndRootAsync()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new($"{nameof(InspectCodeBaselineSyncCommandTests)}_{nameof(RunShouldAskToRunInitWhenNoBaselineMarkerExistsInBiakAndRootAsync)}");
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
 
         try
         {
-            Directory.SetCurrentDirectory(testDir.Value);
             CopyInspectCodeTemplate(testDir.Value);
-            await EnsureBiakStatusConfiguredAsync(testDir.Value);
+            await EnsureBiakStatusConfiguredAsync(context);
 
             await File.WriteAllTextAsync(Path.Join(testDir.Value, ".biak", ".editorconfig-empty"), "root = true");
 
@@ -650,7 +626,7 @@ public class InspectCodeBaselineSyncCommandTests
                 CommandArgumentConstant.SYNC,
             ];
 
-            Exception? exception = await Record.ExceptionAsync(() => InspectCodeBaselineSyncCommand.RunAsync(args));
+            Exception? exception = await Record.ExceptionAsync(() => InspectCodeBaselineSyncCommand.RunAsync(args, context));
 
             Assert.NotNull(exception);
             Assert.IsType<BiakApplicationException>(exception);
@@ -658,7 +634,6 @@ public class InspectCodeBaselineSyncCommandTests
         }
         finally
         {
-            Directory.SetCurrentDirectory(originalDirectory);
         }
     }
 
@@ -668,14 +643,13 @@ public class InspectCodeBaselineSyncCommandTests
     [InlineData("EditorConfigNotFound", ".editorconfig-missing", InspectCodeBaselineSyncCommandConstant.FILE_NOT_FOUND)]
     public async Task RunShouldThrowForInvalidPathScenariosAsync(string testCaseName, string editorconfigPath, string expectedMessage)
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new($"{nameof(InspectCodeBaselineSyncCommandTests)}_{nameof(RunShouldThrowForInvalidPathScenariosAsync)}_{testCaseName}");
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
 
         try
         {
-            Directory.SetCurrentDirectory(testDir.Value);
             await File.WriteAllTextAsync(Path.Join(testDir.Value, ".editorconfig"), "root = true\n");
-            await EnsureBiakStatusConfiguredAsync(testDir.Value);
+            await EnsureBiakStatusConfiguredAsync(context);
 
             string[] args =
             [
@@ -685,7 +659,7 @@ public class InspectCodeBaselineSyncCommandTests
                 editorconfigPath,
             ];
 
-            Exception? exception = await Record.ExceptionAsync(() => InspectCodeBaselineSyncCommand.RunAsync(args));
+            Exception? exception = await Record.ExceptionAsync(() => InspectCodeBaselineSyncCommand.RunAsync(args, context));
 
             Assert.NotNull(exception);
             Assert.IsType<BiakApplicationException>(exception);
@@ -693,23 +667,21 @@ public class InspectCodeBaselineSyncCommandTests
         }
         finally
         {
-            Directory.SetCurrentDirectory(originalDirectory);
         }
     }
 
     [Fact]
     public async Task RunAsyncWhenMappedEditorconfigKeyIsNullShouldSkipRuleAndRemoveStaleFilterAsync()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new(
             $"{nameof(InspectCodeBaselineSyncCommandTests)}_{nameof(RunAsyncWhenMappedEditorconfigKeyIsNullShouldSkipRuleAndRemoveStaleFilterAsync)}"
         );
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
 
         try
         {
-            Directory.SetCurrentDirectory(testDir.Value);
             CopyInspectCodeTemplate(testDir.Value);
-            await EnsureBiakStatusConfiguredAsync(testDir.Value);
+            await EnsureBiakStatusConfiguredAsync(context);
 
             string projectPath = Path.Join(testDir.Value, "InspectCodeBaselineTemplate.csproj");
             string projectContent = await File.ReadAllTextAsync(projectPath);
@@ -754,7 +726,7 @@ public class Ca1822ViolationService
                 dotnet_diagnostic.CA1822.severity = suggestion {{InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}}
                 """
             );
-            await EnableCommand.RunAsync();
+            await EnableCommand.RunAsync(context);
 
             string[] args =
             [
@@ -764,7 +736,7 @@ public class Ca1822ViolationService
                 ".biak/.editorconfig-InspectCodeBaseline",
             ];
 
-            string result = await InspectCodeBaselineSyncCommand.RunAsync(args);
+            string result = await InspectCodeBaselineSyncCommand.RunAsync(args, context);
             string syncedBaselineContent = await File.ReadAllTextAsync(baselinePath);
 
             Assert.Equal(InspectCodeBaselineSyncCommandConstant.ALL_ISSUES_FIXED, result);
@@ -773,23 +745,21 @@ public class Ca1822ViolationService
         }
         finally
         {
-            Directory.SetCurrentDirectory(originalDirectory);
         }
     }
 
     [Fact]
     public async Task RunAsyncWhenRuleIdOverrideMapsCa1822ShouldKeepBaselineFilterAsync()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new(
             $"{nameof(InspectCodeBaselineSyncCommandTests)}_{nameof(RunAsyncWhenRuleIdOverrideMapsCa1822ShouldKeepBaselineFilterAsync)}"
         );
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
 
         try
         {
-            Directory.SetCurrentDirectory(testDir.Value);
             CopyInspectCodeTemplate(testDir.Value);
-            await EnsureBiakStatusConfiguredAsync(testDir.Value);
+            await EnsureBiakStatusConfiguredAsync(context);
 
             string projectPath = Path.Join(testDir.Value, "InspectCodeBaselineTemplate.csproj");
             string projectContent = await File.ReadAllTextAsync(projectPath);
@@ -848,7 +818,7 @@ public class Ca1822ViolationService
                 dotnet_diagnostic.CA1822.severity = suggestion {{InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}}
                 """
             );
-            await EnableCommand.RunAsync();
+            await EnableCommand.RunAsync(context);
 
             string[] args =
             [
@@ -858,7 +828,7 @@ public class Ca1822ViolationService
                 ".biak/.editorconfig-InspectCodeBaseline",
             ];
 
-            string result = await InspectCodeBaselineSyncCommand.RunAsync(args);
+            string result = await InspectCodeBaselineSyncCommand.RunAsync(args, context);
             string syncedBaselineContent = await File.ReadAllTextAsync(baselinePath);
 
             Assert.Equal("Sync complete. Removed 0 file(s); resolved 0 filter(s). 1 filter(s) still alive.", result);
@@ -867,23 +837,21 @@ public class Ca1822ViolationService
         }
         finally
         {
-            Directory.SetCurrentDirectory(originalDirectory);
         }
     }
 
     [Fact]
     public async Task RunShouldRestoreBaselineFileWhenSyncFailsAfterOriginalContentCapturedAsync()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new(
             $"{nameof(InspectCodeBaselineSyncCommandTests)}_{nameof(RunShouldRestoreBaselineFileWhenSyncFailsAfterOriginalContentCapturedAsync)}"
         );
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
 
         try
         {
-            Directory.SetCurrentDirectory(testDir.Value);
             CopyInspectCodeTemplate(testDir.Value);
-            await EnsureBiakStatusConfiguredAsync(testDir.Value);
+            await EnsureBiakStatusConfiguredAsync(context);
 
             string baselinePath = Path.Join(testDir.Value, ".biak", ".editorconfig-InspectCodeBaseline");
             await File.WriteAllTextAsync(baselinePath, InspectCodeBaselineCommandTestConstants.BASELINE_FILTERS);
@@ -902,7 +870,7 @@ public class Ca1822ViolationService
                 ".biak/.editorconfig-InspectCodeBaseline",
             ];
 
-            Exception? exception = await Record.ExceptionAsync(() => InspectCodeBaselineSyncCommand.RunAsync(args));
+            Exception? exception = await Record.ExceptionAsync(() => InspectCodeBaselineSyncCommand.RunAsync(args, context));
 
             Assert.NotNull(exception);
             Assert.IsType<BiakApplicationException>(exception);
@@ -916,23 +884,21 @@ public class Ca1822ViolationService
         }
         finally
         {
-            Directory.SetCurrentDirectory(originalDirectory);
         }
     }
 
     [Fact]
     public async Task RunShouldRestoreRuntimeEditorconfigWhenSyncFailsAfterTemporaryModificationAsync()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new(
             $"{nameof(InspectCodeBaselineSyncCommandTests)}_{nameof(RunShouldRestoreRuntimeEditorconfigWhenSyncFailsAfterTemporaryModificationAsync)}"
         );
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
 
         try
         {
-            Directory.SetCurrentDirectory(testDir.Value);
             CopyInspectCodeTemplate(testDir.Value);
-            await EnsureBiakStatusConfiguredAsync(testDir.Value);
+            await EnsureBiakStatusConfiguredAsync(context);
 
             string baselinePath = Path.Join(testDir.Value, ".editorconfig-InspectCodeBaseline");
             await File.WriteAllTextAsync(baselinePath, InspectCodeBaselineCommandTestConstants.BASELINE_FILTERS);
@@ -965,7 +931,7 @@ public class Ca1822ViolationService
                 ".editorconfig-InspectCodeBaseline",
             ];
 
-            Exception? exception = await Record.ExceptionAsync(() => InspectCodeBaselineSyncCommand.RunAsync(args));
+            Exception? exception = await Record.ExceptionAsync(() => InspectCodeBaselineSyncCommand.RunAsync(args, context));
 
             Assert.NotNull(exception);
             Assert.IsType<BiakApplicationException>(exception);
@@ -979,7 +945,6 @@ public class Ca1822ViolationService
         }
         finally
         {
-            Directory.SetCurrentDirectory(originalDirectory);
         }
     }
 
@@ -1019,14 +984,14 @@ public class Ca1822ViolationService
         }
     }
 
-    private static async Task EnsureBiakStatusConfiguredAsync(string testDirectory)
+    private static async Task EnsureBiakStatusConfiguredAsync(AppExecutionContext context)
     {
-        string editorconfigPath = Path.Join(testDirectory, ".editorconfig");
+        string editorconfigPath = Path.Join(context.WorkingDirectory, ".editorconfig");
         if (!File.Exists(editorconfigPath))
         {
             await File.WriteAllTextAsync(editorconfigPath, "root = true\n");
         }
 
-        await SetupCommand.RunAsync();
+        await SetupCommand.RunAsync(context);
     }
 }

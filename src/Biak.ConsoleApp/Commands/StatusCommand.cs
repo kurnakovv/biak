@@ -34,14 +34,17 @@ public static class StatusCommand
     /// Run.
     /// </summary>
     /// <param name="args">User input arguments.</param>
+    /// <param name="executionContext">Execution context with working directory for command execution.</param>
     /// <returns><placeholder>A <see cref="Task"/> representing the asynchronous operation.</placeholder></returns>
-    public static async Task RunAsync(string[] args)
+    public static async Task RunAsync(string[] args, AppExecutionContext? executionContext = null)
     {
+        AppExecutionContext context = executionContext ?? AppExecutionContext.CreateDefault();
+
         bool isDebugInfoEnabled = args.Length == 2
             && args[0] == CommandArgumentConstant.STATUS
             && args[1] == CommandArgumentConstant.DEBUG_INFO;
 
-        BiakStatusResult result = await BiakStatusHelper.GetAsync(isDebugInfoEnabled);
+        BiakStatusResult result = await BiakStatusHelper.GetAsync(isDebugInfoEnabled, context);
         Console.WriteLine(result.Message);
     }
 }

@@ -5,6 +5,7 @@
 using System.Diagnostics;
 using Biak.ConsoleApp.Constants;
 using Biak.ConsoleApp.Exceptions;
+using Biak.ConsoleApp.Models;
 
 namespace Biak.ConsoleApp.Helpers;
 
@@ -17,10 +18,11 @@ public static class GitHelper
     /// Run git + arguments command.
     /// </summary>
     /// <param name="arguments">Arguments after git.</param>
+    /// <param name="executionContext">Execution context with working-directory settings; when <c>null</c>, the default context is used.</param>
     /// <returns>git output.</returns>
-    public static async Task<string> RunAsync(string arguments)
+    public static async Task<string> RunAsync(string arguments, AppExecutionContext? executionContext = null)
     {
-        GitResult model = await RunWithModelAsync(arguments);
+        GitResult model = await RunWithModelAsync(arguments, executionContext);
 
         if (model.ExitCode != 0)
         {
@@ -34,13 +36,17 @@ public static class GitHelper
     /// Run without exit code throw.
     /// </summary>
     /// <param name="arguments">Arguments after git.</param>
+    /// <param name="executionContext">Execution context with working-directory settings; when <c>null</c>, the default context is used.</param>
     /// <returns>A <see cref="GitResult"/> containing the exit code, standard output, and standard error from git.</returns>
-    public static async Task<GitResult> RunWithModelAsync(string arguments)
+    public static async Task<GitResult> RunWithModelAsync(string arguments, AppExecutionContext? executionContext = null)
     {
+        AppExecutionContext context = executionContext ?? AppExecutionContext.CreateDefault();
+
         using Process process = new();
 
         process.StartInfo.FileName = "git";
         process.StartInfo.Arguments = arguments;
+        process.StartInfo.WorkingDirectory = context.WorkingDirectory;
         process.StartInfo.RedirectStandardOutput = true;
         process.StartInfo.RedirectStandardError = true;
         process.StartInfo.UseShellExecute = false;

@@ -6,6 +6,7 @@ using System.Text;
 using Biak.ConsoleApp.Constants;
 using Biak.ConsoleApp.Exceptions;
 using Biak.ConsoleApp.Helpers.Baseline.Warnings;
+using Biak.ConsoleApp.Models;
 using SL = Microsoft.Build.Logging.StructuredLogger;
 
 namespace Biak.ConsoleApp.Commands.Baseline.Warnings;
@@ -43,21 +44,27 @@ public static class WarningsBaselineInitCommand
     /// Run.
     /// </summary>
     /// <param name="args">User input arguments.</param>
+    /// <param name="executionContext">Execution context with working directory for command execution.</param>
     /// <returns><placeholder>A <see cref="Task"/> representing the asynchronous operation.</placeholder></returns>
-    public static async Task<string> RunAsync(string[]? args = null)
+    public static async Task<string> RunAsync(string[]? args = null, AppExecutionContext? executionContext = null)
     {
+        AppExecutionContext context = executionContext ?? AppExecutionContext.CreateDefault();
+
         try
         {
             Console.WriteLine(WarningsBaselineInitCommandConstant.INIT_STARTED);
 
             string? buildTarget = ResolveBuildTarget(args);
+            string baseDirectory = context.WorkingDirectory;
+            string buildBinlogPath = Path.GetFullPath(WarningsBaselineInitCommandConstant.BUILD_BINLOG_PATH, baseDirectory);
 
             SL.Build build = await WarningsBaselineBuildHelper.BuildAndReadBuildAsync(
-                WarningsBaselineInitCommandConstant.BUILD_BINLOG_PATH,
-                buildTarget
+                buildBinlogPath,
+                buildTarget,
+                context
             );
 
-            string originalDirectory = Directory.GetCurrentDirectory();
+            string originalDirectory = baseDirectory;
 
             Dictionary<string, IReadOnlyList<string>> warnings = WarningsBaselineBuildHelper.GetSourceWarnings(build)
                 .GroupBy(x => x.Code)
@@ -99,9 +106,11 @@ public static class WarningsBaselineInitCommand
         }
         finally
         {
-            if (File.Exists(WarningsBaselineInitCommandConstant.BUILD_BINLOG_PATH))
+            string buildBinlogPath = Path.GetFullPath(WarningsBaselineInitCommandConstant.BUILD_BINLOG_PATH, context.WorkingDirectory);
+
+            if (File.Exists(buildBinlogPath))
             {
-                File.Delete(WarningsBaselineInitCommandConstant.BUILD_BINLOG_PATH);
+                File.Delete(buildBinlogPath);
             }
         }
     }

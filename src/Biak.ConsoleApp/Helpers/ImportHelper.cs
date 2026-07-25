@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using Biak.ConsoleApp.Constants;
 using Biak.ConsoleApp.Enums;
 using Biak.ConsoleApp.Exceptions;
+using Biak.ConsoleApp.Models;
 
 namespace Biak.ConsoleApp.Helpers;
 
@@ -39,16 +40,19 @@ public static class ImportHelper
     /// </summary>
     /// <param name="content">.editorconfig content.</param>
     /// <param name="onImportFailure">What to do on import failure.</param>
+    /// <param name="executionContext">Execution context with working-directory settings; when <c>null</c>, the default context is used.</param>
     /// <returns>Replaced content with imports.</returns>
-    public static async Task<string> ReplaceAsync(string content, FailureBehaviorType onImportFailure)
+    public static async Task<string> ReplaceAsync(string content, FailureBehaviorType onImportFailure, AppExecutionContext? executionContext = null)
     {
+        AppExecutionContext context = executionContext ?? AppExecutionContext.CreateDefault();
+
         MatchCollection matches = s_importRegex.Matches(content);
         if (matches.Count == 0)
         {
             return content;
         }
 
-        string biakDir = Path.Join(Directory.GetCurrentDirectory(), ".biak");
+        string biakDir = Path.Join(context.WorkingDirectory, ".biak");
         string biakFullPath = Path.GetFullPath(biakDir);
 
         string newline = content.Contains("\r\n", StringComparison.Ordinal)

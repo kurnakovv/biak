@@ -27,10 +27,12 @@ public static class SetupCommand
     /// <summary>
     /// Run.
     /// </summary>
+    /// <param name="executionContext">Execution context with working directory for command execution.</param>
     /// <returns><placeholder>A <see cref="Task"/> representing the asynchronous operation.</placeholder></returns>
-    public static async Task RunAsync()
+    public static async Task RunAsync(AppExecutionContext? executionContext = null)
     {
-        string currentDirectory = Directory.GetCurrentDirectory();
+        AppExecutionContext context = executionContext ?? AppExecutionContext.CreateDefault();
+        string currentDirectory = context.WorkingDirectory;
         string editorConfigPath = Path.Join(currentDirectory, ".editorconfig");
 
         if (!File.Exists(editorConfigPath))
@@ -39,7 +41,7 @@ public static class SetupCommand
             return;
         }
 
-        string targetDir = ".biak";
+        string targetDir = Path.Join(currentDirectory, ".biak");
 
         if (Directory.Exists(targetDir))
         {

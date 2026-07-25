@@ -17,12 +17,14 @@ public static class SetupHelper
     /// Get .editorconfig paths.
     /// </summary>
     /// <param name="suppressConsoleOutput">When true, does not write missing-file diagnostics to console output.</param>
+    /// <param name="executionContext">Execution context with working-directory settings; when <c>null</c>, the default context is used.</param>
     /// <returns>.editorconfig paths.</returns>
-    public static EditorconfigPaths GetEditorconfigPaths(bool suppressConsoleOutput = false)
+    public static EditorconfigPaths GetEditorconfigPaths(bool suppressConsoleOutput = false, AppExecutionContext? executionContext = null)
     {
+        AppExecutionContext context = executionContext ?? AppExecutionContext.CreateDefault();
         EditorconfigPaths result = new();
 
-        string currentDirectory = Directory.GetCurrentDirectory();
+        string currentDirectory = context.WorkingDirectory;
 
         string editorconfigMainPath = Path.Join(currentDirectory, ".biak", ".editorconfig-main");
 

@@ -6,6 +6,7 @@ using Biak.ConsoleApp.Commands.Baseline.InspectCode;
 using Biak.ConsoleApp.Constants;
 using Biak.ConsoleApp.Exceptions;
 using Biak.ConsoleApp.IntegrationTests.Mock;
+using Biak.ConsoleApp.Models;
 
 namespace Biak.ConsoleApp.IntegrationTests.Commands.Baseline.InspectCode;
 
@@ -22,10 +23,10 @@ public class InspectCodeBaselineInitCommandTests
     [Fact]
     public async Task RunShouldOutputBaselineToConsoleAsync()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new(
             $"{nameof(InspectCodeBaselineInitCommandTests)}_{nameof(RunShouldOutputBaselineToConsoleAsync)}"
         );
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
 
         TextWriter originalOut = Console.Out;
         await using StringWriter output = new();
@@ -33,8 +34,6 @@ public class InspectCodeBaselineInitCommandTests
 
         try
         {
-            Directory.SetCurrentDirectory(testDir.Value);
-
             string templatePath = Path.Join(
                 AppContext.BaseDirectory,
                 "Templates",
@@ -56,7 +55,7 @@ public class InspectCodeBaselineInitCommandTests
                 }
                 """);
 
-            string firstRunResult = await InspectCodeBaselineInitCommand.RunAsync();
+            string firstRunResult = await InspectCodeBaselineInitCommand.RunAsync(context);
 
             string firstRunOutput = output.ToString().Trim();
 
@@ -72,7 +71,7 @@ public class InspectCodeBaselineInitCommandTests
 
             output.GetStringBuilder().Clear();
 
-            string secondRunResult = await InspectCodeBaselineInitCommand.RunAsync();
+            string secondRunResult = await InspectCodeBaselineInitCommand.RunAsync(context);
             string secondRunOutput = output.ToString().Trim();
 
             Assert.Equal(InspectCodeBaselineInitCommandConstant.NO_ISSUES_FOUND, secondRunResult);
@@ -83,17 +82,16 @@ public class InspectCodeBaselineInitCommandTests
         finally
         {
             Console.SetOut(originalOut);
-            Directory.SetCurrentDirectory(originalDirectory);
         }
     }
 
     [Fact]
     public async Task RunAsyncWhenNoIssuesFoundShouldReturnNoIssuesFoundMessageAsync()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new(
             $"{nameof(InspectCodeBaselineInitCommandTests)}_{nameof(RunAsyncWhenNoIssuesFoundShouldReturnNoIssuesFoundMessageAsync)}"
         );
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
 
         TextWriter originalOut = Console.Out;
         await using StringWriter output = new();
@@ -101,8 +99,6 @@ public class InspectCodeBaselineInitCommandTests
 
         try
         {
-            Directory.SetCurrentDirectory(testDir.Value);
-
             string templatePath = Path.Join(
                 AppContext.BaseDirectory,
                 "Templates",
@@ -112,7 +108,7 @@ public class InspectCodeBaselineInitCommandTests
 
             testDir.CopyDirectory(templatePath);
 
-            string result = await InspectCodeBaselineInitCommand.RunAsync();
+            string result = await InspectCodeBaselineInitCommand.RunAsync(context);
 
             string actualOutput = output.ToString().Trim();
 
@@ -123,17 +119,16 @@ public class InspectCodeBaselineInitCommandTests
         finally
         {
             Console.SetOut(originalOut);
-            Directory.SetCurrentDirectory(originalDirectory);
         }
     }
 
     [Fact]
     public async Task RunAsyncWhenUnmappedRuleDetectedShouldOutputWarningToConsoleAsync()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new(
             $"{nameof(InspectCodeBaselineInitCommandTests)}_{nameof(RunAsyncWhenUnmappedRuleDetectedShouldOutputWarningToConsoleAsync)}"
         );
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
 
         TextWriter originalOut = Console.Out;
         await using StringWriter output = new();
@@ -141,8 +136,6 @@ public class InspectCodeBaselineInitCommandTests
 
         try
         {
-            Directory.SetCurrentDirectory(testDir.Value);
-
             string templatePath = Path.Join(
                 AppContext.BaseDirectory,
                 "Templates",
@@ -191,7 +184,7 @@ public class Ca1822ViolationService
 
             await File.WriteAllTextAsync(ca1822ViolationPath, CA1822_VIOLATION_CLASS);
 
-            string result = await InspectCodeBaselineInitCommand.RunAsync();
+            string result = await InspectCodeBaselineInitCommand.RunAsync(context);
 
             string actualOutput = output.ToString().Trim();
 
@@ -205,17 +198,16 @@ public class Ca1822ViolationService
         finally
         {
             Console.SetOut(originalOut);
-            Directory.SetCurrentDirectory(originalDirectory);
         }
     }
 
     [Fact]
     public async Task RunAsyncWhenOnlyUnmappedIssuesExistShouldReturnNoIssuesFoundAsync()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new(
             $"{nameof(InspectCodeBaselineInitCommandTests)}_{nameof(RunAsyncWhenOnlyUnmappedIssuesExistShouldReturnNoIssuesFoundAsync)}"
         );
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
 
         TextWriter originalOut = Console.Out;
         await using StringWriter output = new();
@@ -223,8 +215,6 @@ public class Ca1822ViolationService
 
         try
         {
-            Directory.SetCurrentDirectory(testDir.Value);
-
             string templatePath = Path.Join(
                 AppContext.BaseDirectory,
                 "Templates",
@@ -297,7 +287,7 @@ public static class Consumer
 
             await File.WriteAllTextAsync(consumerPath, CONSUMER_CLASS);
 
-            string result = await InspectCodeBaselineInitCommand.RunAsync();
+            string result = await InspectCodeBaselineInitCommand.RunAsync(context);
 
             string actualOutput = output.ToString().Trim();
 
@@ -310,7 +300,6 @@ public static class Consumer
         finally
         {
             Console.SetOut(originalOut);
-            Directory.SetCurrentDirectory(originalDirectory);
         }
     }
 
@@ -340,10 +329,10 @@ public static class Consumer
     [Fact]
     public async Task RunAsyncWhenRuleIdOverridesProvidedShouldUseOverrideKeysAsync()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new(
             $"{nameof(InspectCodeBaselineInitCommandTests)}_{nameof(RunAsyncWhenRuleIdOverridesProvidedShouldUseOverrideKeysAsync)}"
         );
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
 
         TextWriter originalOut = Console.Out;
         await using StringWriter output = new();
@@ -351,8 +340,6 @@ public static class Consumer
 
         try
         {
-            Directory.SetCurrentDirectory(testDir.Value);
-
             string templatePath = Path.Join(
                 AppContext.BaseDirectory,
                 "Templates",
@@ -414,7 +401,7 @@ public class Ca1822ViolationService
 """;
             await File.WriteAllTextAsync(ca1822ViolationPath, CA1822_VIOLATION_CLASS);
 
-            string result = await InspectCodeBaselineInitCommand.RunAsync();
+            string result = await InspectCodeBaselineInitCommand.RunAsync(context);
             string actualOutput = output.ToString().Trim();
 
             Assert.Contains("resharper_mocked_custom_ca_rule_highlighting", result, StringComparison.Ordinal);
@@ -425,7 +412,6 @@ public class Ca1822ViolationService
         finally
         {
             Console.SetOut(originalOut);
-            Directory.SetCurrentDirectory(originalDirectory);
         }
     }
 }

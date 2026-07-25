@@ -7,6 +7,7 @@ using Biak.ConsoleApp.Exceptions;
 using Biak.ConsoleApp.Helpers;
 using Biak.ConsoleApp.Helpers.Baseline;
 using Biak.ConsoleApp.Helpers.Baseline.Warnings;
+using Biak.ConsoleApp.Models;
 using SL = Microsoft.Build.Logging.StructuredLogger;
 
 namespace Biak.ConsoleApp.Commands.Baseline.Warnings;
@@ -55,13 +56,16 @@ public static class WarningsBaselineSyncCommand
     /// Run.
     /// </summary>
     /// <param name="args">User input arguments.</param>
+    /// <param name="executionContext">Execution context with working directory for command execution.</param>
     /// <returns><placeholder>A <see cref="Task"/> representing the asynchronous operation.</placeholder></returns>
-    public static async Task<string> RunAsync(string[] args)
+    public static async Task<string> RunAsync(string[] args, AppExecutionContext? executionContext = null)
     {
-        string baseDirectory = Directory.GetCurrentDirectory();
+        AppExecutionContext context = executionContext ?? AppExecutionContext.CreateDefault();
+        string baseDirectory = context.WorkingDirectory;
         string resolvedPath = string.Empty;
         string originalContent = string.Empty;
         string contentBeforeSync = string.Empty;
+        string buildBinlogPath = Path.GetFullPath(WarningsBaselineSyncCommandConstant.BUILD_BINLOG_PATH, baseDirectory);
         bool baselineWasActivated = false;
         bool completedSuccessfully = false;
 
@@ -110,8 +114,9 @@ public static class WarningsBaselineSyncCommand
             baselineWasActivated = true;
 
             SL.Build build = await WarningsBaselineBuildHelper.BuildAndReadBuildAsync(
-                WarningsBaselineSyncCommandConstant.BUILD_BINLOG_PATH,
-                buildTarget
+                buildBinlogPath,
+                buildTarget,
+                context
             );
 
             List<SL.Warning> sourceWarnings = WarningsBaselineBuildHelper.GetSourceWarnings(build).ToList();
@@ -195,9 +200,9 @@ public static class WarningsBaselineSyncCommand
                 await File.WriteAllTextAsync(resolvedPath, contentBeforeSync);
             }
 
-            if (File.Exists(WarningsBaselineSyncCommandConstant.BUILD_BINLOG_PATH))
+            if (File.Exists(buildBinlogPath))
             {
-                File.Delete(WarningsBaselineSyncCommandConstant.BUILD_BINLOG_PATH);
+                File.Delete(buildBinlogPath);
             }
         }
     }

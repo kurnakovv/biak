@@ -5,6 +5,7 @@
 using System.Diagnostics;
 using Biak.ConsoleApp.Constants;
 using Biak.ConsoleApp.Exceptions;
+using Biak.ConsoleApp.Models;
 using SL = Microsoft.Build.Logging.StructuredLogger;
 
 namespace Biak.ConsoleApp.Helpers.Baseline.Warnings;
@@ -21,15 +22,19 @@ public static class WarningsBaselineBuildHelper
     /// </summary>
     /// <param name="buildBinlogPath">Binlog path to write and read.</param>
     /// <param name="buildTarget">Optional explicit path to .sln/.slnx/.csproj build target.</param>
+    /// <param name="executionContext">Execution context with working-directory settings; when <c>null</c>, the default context is used.</param>
     /// <returns>Parsed MSBuild structured log build object.</returns>
-    public static async Task<SL.Build> BuildAndReadBuildAsync(string buildBinlogPath, string? buildTarget = null)
+    public static async Task<SL.Build> BuildAndReadBuildAsync(string buildBinlogPath, string? buildTarget = null, AppExecutionContext? executionContext = null)
     {
-        string baseDirectory = Directory.GetCurrentDirectory();
+        AppExecutionContext context = executionContext ?? AppExecutionContext.CreateDefault();
+        string baseDirectory = context.WorkingDirectory;
+        string fullBuildBinlogPath = Path.GetFullPath(buildBinlogPath, baseDirectory);
         string? resolvedBuildTarget = ResolveBuildTarget(buildTarget, baseDirectory);
 
         ProcessStartInfo psi = new()
         {
             FileName = "dotnet",
+            WorkingDirectory = baseDirectory,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             UseShellExecute = false,
@@ -44,7 +49,7 @@ public static class WarningsBaselineBuildHelper
 
         psi.ArgumentList.Add("--no-incremental");
         psi.ArgumentList.Add("/p:TreatWarningsAsErrors=false");
-        psi.ArgumentList.Add($"-bl:{buildBinlogPath}");
+        psi.ArgumentList.Add($"-bl:{fullBuildBinlogPath}");
 
         using Process process = Process.Start(psi)
             ?? throw new BiakApplicationException(WarningsBaselineBuildConstant.FAILED_TO_START_DOTNET_BUILD);
@@ -87,12 +92,12 @@ public static class WarningsBaselineBuildHelper
             );
         }
 
-        if (!File.Exists(buildBinlogPath))
+        if (!File.Exists(fullBuildBinlogPath))
         {
-            throw new BiakApplicationException($"{WarningsBaselineBuildConstant.BUILD_BINLOG_NOT_FOUND} Path: '{buildBinlogPath}'.");
+            throw new BiakApplicationException($"{WarningsBaselineBuildConstant.BUILD_BINLOG_NOT_FOUND} Path: '{fullBuildBinlogPath}'.");
         }
 
-        SL.Build build = SL.BinaryLog.ReadBuild(buildBinlogPath);
+        SL.Build build = SL.BinaryLog.ReadBuild(fullBuildBinlogPath);
 
         if (build.FindChildrenRecursive<SL.Error>().Any())
         {

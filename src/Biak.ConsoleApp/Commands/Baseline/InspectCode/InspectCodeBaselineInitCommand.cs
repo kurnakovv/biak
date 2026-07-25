@@ -31,16 +31,18 @@ public static class InspectCodeBaselineInitCommand
     /// <summary>
     /// Run.
     /// </summary>
+    /// <param name="executionContext">Execution context with working directory for command execution.</param>
     /// <returns>Generated editorconfig baseline content printed to console.</returns>
-    public static async Task<string> RunAsync()
+    public static async Task<string> RunAsync(AppExecutionContext? executionContext = null)
     {
+        AppExecutionContext context = executionContext ?? AppExecutionContext.CreateDefault();
         string sarifPath = string.Empty;
 
         try
         {
             Console.WriteLine(InspectCodeBaselineInitCommandConstant.INIT_STARTED);
 
-            (string? message, BiakConfig config) = await BiakConfigHelper.GetAsync();
+            (string? message, BiakConfig config) = await BiakConfigHelper.GetAsync(executionContext: context);
             if (message is not null)
             {
                 Console.WriteLine(message);
@@ -50,7 +52,8 @@ public static class InspectCodeBaselineInitCommand
 
             sarifPath = await InspectCodeBaselineRunHelper.RunAsync(
                 baselineConfig?.Target,
-                baselineConfig?.AdditionalArgs);
+                baselineConfig?.AdditionalArgs,
+                context);
 
             string sarifJson = await File.ReadAllTextAsync(sarifPath);
             IReadOnlyList<InspectCodeIssue> issues = InspectCodeBaselineSarifParser.Parse(sarifJson);
