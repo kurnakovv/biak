@@ -159,7 +159,7 @@ public class WarningsBaselineInitCommandTests
 
         string buildBinlogPath = Path.Join(testDir.Value, WarningsBaselineInitCommandConstant.BUILD_BINLOG_PATH);
 
-        Task<Exception?> exceptionTask = Record.ExceptionAsync(() => WarningsBaselineInitCommand.RunAsync(executionContext: context));
+        Task<Exception> exceptionTask = Record.ExceptionAsync(() => WarningsBaselineInitCommand.RunAsync(executionContext: context));
         await DeleteFileWhileTaskIsRunningAsync(exceptionTask, buildBinlogPath, TimeSpan.FromSeconds(30));
 
         Exception? exception = await exceptionTask;
@@ -247,7 +247,15 @@ public class WarningsBaselineInitCommandTests
         {
             File.Delete(filePath);
         }
-        catch (IOException) { }
-        catch (UnauthorizedAccessException) { }
+        catch (IOException ex)
+        {
+            // Best-effort cleanup during concurrent test execution; retry loop handles transient failures.
+            _ = ex;
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            // Best-effort cleanup during concurrent test execution; retry loop handles transient failures.
+            _ = ex;
+        }
     }
 }
