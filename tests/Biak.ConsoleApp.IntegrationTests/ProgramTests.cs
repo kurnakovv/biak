@@ -160,12 +160,12 @@ public class ProgramTests
 
             testDir.CopyDirectory(templateSimpleProject);
 
-            await GitHelper.RunAsync("init");
-            await GitHelper.RunAsync("branch -m master main");
-            await GitHelper.RunAsync("config --local user.email \"test@example.com\"");
-            await GitHelper.RunAsync("config --local user.name \"Test User\"");
-            await GitHelper.RunAsync("add .");
-            await GitHelper.RunAsync("commit -m \"Initial commit\"");
+            await GitHelper.RunAsync("init", context);
+            await GitHelper.RunAsync("branch -m master main", context);
+            await GitHelper.RunAsync("config --local user.email \"test@example.com\"", context);
+            await GitHelper.RunAsync("config --local user.name \"Test User\"", context);
+            await GitHelper.RunAsync("add .", context);
+            await GitHelper.RunAsync("commit -m \"Initial commit\"", context);
 
             await Program.MainInnerAsync([CommandArgumentConstant.FIND_ACTIVITY], context);
 
@@ -208,12 +208,12 @@ public class ProgramTests
 
             testDir.CopyDirectory(templateSimpleProject);
 
-            await GitHelper.RunAsync("init");
-            await GitHelper.RunAsync("branch -m master main");
-            await GitHelper.RunAsync("config --local user.email \"test@example.com\"");
-            await GitHelper.RunAsync("config --local user.name \"Test User\"");
-            await GitHelper.RunAsync("add .");
-            await GitHelper.RunAsync("commit -m \"Initial commit\"");
+            await GitHelper.RunAsync("init", context);
+            await GitHelper.RunAsync("branch -m master main", context);
+            await GitHelper.RunAsync("config --local user.email \"test@example.com\"", context);
+            await GitHelper.RunAsync("config --local user.name \"Test User\"", context);
+            await GitHelper.RunAsync("add .", context);
+            await GitHelper.RunAsync("commit -m \"Initial commit\"", context);
 
             await Program.MainInnerAsync([CommandArgumentConstant.FIND_CONFLICTS], context);
 
@@ -255,9 +255,9 @@ public class ProgramTests
 
             testDir.CopyDirectory(templateSimpleProject);
 
-            await GitHelper.RunAsync("init");
-            await GitHelper.RunAsync("branch -m master main");
-            await GitHelper.RunAsync("config --local user.email \"test@example.com\"");
+            await GitHelper.RunAsync("init", context);
+            await GitHelper.RunAsync("branch -m master main", context);
+            await GitHelper.RunAsync("config --local user.email \"test@example.com\"", context);
 
             Exception? exception = await Record.ExceptionAsync(async () => await Program.MainInnerAsync([CommandArgumentConstant.FIND_CONFLICTS], context));
             Assert.NotNull(exception);
