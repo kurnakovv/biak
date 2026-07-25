@@ -73,7 +73,6 @@ public class InspectCodeBaselineRunHelperTests
     [Fact]
     public async Task RunAsyncWhenSlnxFileExistsShouldAutoDiscoverItAsync()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new(
             $"{nameof(InspectCodeBaselineRunHelperTests)}_{nameof(RunAsyncWhenSlnxFileExistsShouldAutoDiscoverItAsync)}"
         );
@@ -97,7 +96,6 @@ public class InspectCodeBaselineRunHelperTests
         );
         AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
 
-        Directory.SetCurrentDirectory(testDir.Value);
         await File.WriteAllTextAsync(Path.Join(testDir.Value, "fake.sln"), "invalid content");
 
         Exception? exception = await Record.ExceptionAsync(() =>

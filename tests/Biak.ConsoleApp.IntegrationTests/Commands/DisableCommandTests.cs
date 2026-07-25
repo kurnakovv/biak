@@ -153,8 +153,6 @@ public class DisableCommandTests
             );
         }
 
-        Directory.SetCurrentDirectory(testDir.Value);
-
         TextWriter originalOut = Console.Out;
         await using StringWriter output = new();
         Console.SetOut(output);
@@ -228,8 +226,6 @@ public class DisableCommandTests
             destFileName: Path.Join(biakDir, ".editorconfig-main"),
             overwrite: true
         );
-
-        Directory.SetCurrentDirectory(testDir.Value);
 
         TextWriter originalOut = Console.Out;
         await using StringWriter output = new();
