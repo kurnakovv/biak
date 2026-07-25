@@ -25,6 +25,12 @@ public class AppExecutionContext
     public TextReader In { get; init; } = Console.In;
 
     /// <summary>
+    /// Additional environment variables applied to spawned processes.
+    /// </summary>
+    public IReadOnlyDictionary<string, string?> EnvironmentVariables { get; init; } =
+        new Dictionary<string, string?>();
+
+    /// <summary>
     /// Creates the default context for the current process.
     /// </summary>
     /// <returns>Default execution context.</returns>

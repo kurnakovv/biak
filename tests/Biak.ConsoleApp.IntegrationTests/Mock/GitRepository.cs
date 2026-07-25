@@ -69,16 +69,17 @@ public static class GitRepository
         testService9Content += " ";
         await File.WriteAllTextAsync(testService9Path, testService9Content);
         await GitHelper.RunAsync("add .", context);
-        string? originCommitterDate = Environment.GetEnvironmentVariable("GIT_COMMITTER_DATE");
-        try
+        AppExecutionContext oldBranchCommitContext = new()
         {
-            Environment.SetEnvironmentVariable("GIT_COMMITTER_DATE", "2021-01-01 12:12:00");
-            await GitHelper.RunAsync("commit --date=\"2021-01-01 12:12:00\" -m \"Update TestService9\"", context);
-        }
-        finally
-        {
-            Environment.SetEnvironmentVariable("GIT_COMMITTER_DATE", originCommitterDate);
-        }
+            WorkingDirectory = context.WorkingDirectory,
+            In = context.In,
+            Out = context.Out,
+            EnvironmentVariables = new Dictionary<string, string?>
+            {
+                ["GIT_COMMITTER_DATE"] = "2021-01-01 12:12:00",
+            },
+        };
+        await GitHelper.RunAsync("commit --date=\"2021-01-01 12:12:00\" -m \"Update TestService9\"", oldBranchCommitContext);
         await GitHelper.RunAsync($"checkout {defaultBranch}", context);
 
         await GitHelper.RunAsync("checkout -b change-testservice1", context);

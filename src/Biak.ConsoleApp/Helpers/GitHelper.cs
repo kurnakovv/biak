@@ -51,6 +51,18 @@ public static class GitHelper
         process.StartInfo.RedirectStandardError = true;
         process.StartInfo.UseShellExecute = false;
 
+        foreach ((string key, string? value) in context.EnvironmentVariables)
+        {
+            if (value == null)
+            {
+                process.StartInfo.Environment.Remove(key);
+            }
+            else
+            {
+                process.StartInfo.Environment[key] = value;
+            }
+        }
+
         process.Start();
 
         Task<string> outputTask = process.StandardOutput.ReadToEndAsync();
