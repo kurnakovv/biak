@@ -16,7 +16,7 @@ public static class BiakStatusHelper
     /// <summary>
     /// Resolves current biak status and a human-readable message.
     /// </summary>
-    /// <param name="executionContext">Execution context with working-directory settings; when <c>null</c>, the default context is used.</param>
+    /// <param name="executionContext">Provides the context required to perform the operation.</param>
     /// <param name="includeDebugDetails">Whether to include detailed broken-status reason.</param>
     /// <returns>Status type with rendered status message.</returns>
     public static async Task<BiakStatusResult> GetAsync(AppExecutionContext executionContext, bool includeDebugDetails = false)

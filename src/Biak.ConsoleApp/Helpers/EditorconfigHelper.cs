@@ -17,7 +17,7 @@ public static class EditorconfigHelper
     /// </summary>
     /// <param name="content">.editorconfig-main content.</param>
     /// <param name="config">Biak config.</param>
-    /// <param name="executionContext">Execution context with working-directory settings; when <c>null</c>, the default context is used.</param>
+    /// <param name="executionContext">Provides the context required to perform the operation.</param>
     /// <returns>Enabled .editorconfig content.</returns>
     public static async Task<string> GetEnabledContentAsync(string content, BiakConfig config, AppExecutionContext executionContext)
     {
@@ -38,7 +38,7 @@ public static class EditorconfigHelper
     /// </summary>
     /// <param name="content">.editorconfig-main content.</param>
     /// <param name="config">Biak config.</param>
-    /// <param name="executionContext">Execution context with working-directory settings; when <c>null</c>, the default context is used.</param>
+    /// <param name="executionContext">Provides the context required to perform the operation.</param>
     /// <returns>Disabled .editorconfig content.</returns>
     public static async Task<string> GetDisabledContentAsync(string content, BiakConfig config, AppExecutionContext executionContext)
     {

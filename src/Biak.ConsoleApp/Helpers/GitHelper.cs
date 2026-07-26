@@ -18,7 +18,7 @@ public static class GitHelper
     /// Run git + arguments command.
     /// </summary>
     /// <param name="arguments">Arguments after git.</param>
-    /// <param name="executionContext">Execution context with working-directory settings; when <c>null</c>, the default context is used.</param>
+    /// <param name="executionContext">Provides the context required to perform the operation.</param>
     /// <returns>git output.</returns>
     public static async Task<string> RunAsync(string arguments, AppExecutionContext executionContext)
     {
@@ -36,7 +36,7 @@ public static class GitHelper
     /// Run without exit code throw.
     /// </summary>
     /// <param name="arguments">Arguments after git.</param>
-    /// <param name="executionContext">Execution context with working-directory settings; when <c>null</c>, the default context is used.</param>
+    /// <param name="executionContext">Provides the context required to perform the operation.</param>
     /// <returns>A <see cref="GitResult"/> containing the exit code, standard output, and standard error from git.</returns>
     public static async Task<GitResult> RunWithModelAsync(string arguments, AppExecutionContext executionContext)
     {

@@ -17,7 +17,7 @@ public static class BiakConfigHelper
     /// <summary>
     /// Get .biak/config model.
     /// </summary>
-    /// <param name="executionContext">Execution context with working-directory settings; when <c>null</c>, the default context is used.</param>
+    /// <param name="executionContext">Provides the context required to perform the operation.</param>
     /// <param name="json">json content if you want to extract it not from '.biak/config.json' file.</param>
     /// <returns>Warning message and .biak/config model.</returns>
     public static async Task<(string? Message, BiakConfig Config)> GetAsync(AppExecutionContext executionContext, string? json = null)

@@ -21,7 +21,7 @@ public static class WarningsBaselineBuildHelper
     /// Runs <c>dotnet build</c>, validates the generated binlog and returns parsed build data.
     /// </summary>
     /// <param name="buildBinlogPath">Binlog path to write and read.</param>
-    /// <param name="executionContext">Execution context with working-directory settings; when <c>null</c>, the default context is used.</param>
+    /// <param name="executionContext">Provides the context required to perform the operation.</param>
     /// <param name="buildTarget">Optional explicit path to .sln/.slnx/.csproj build target.</param>
     /// <returns>Parsed MSBuild structured log build object.</returns>
     public static async Task<SL.Build> BuildAndReadBuildAsync(string buildBinlogPath, AppExecutionContext executionContext, string? buildTarget = null)

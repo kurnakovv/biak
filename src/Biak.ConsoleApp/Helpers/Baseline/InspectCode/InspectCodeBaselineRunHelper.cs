@@ -18,7 +18,7 @@ public static class InspectCodeBaselineRunHelper
     /// <summary>
     /// Runs InspectCode with SARIF output and returns the path to the produced report file.
     /// </summary>
-    /// <param name="executionContext">Execution context with working-directory settings; when <c>null</c>, the default context is used.</param>
+    /// <param name="executionContext">Provides the context required to perform the operation.</param>
     /// <param name="target">Explicit path to the <c>.slnx</c>, <c>.sln</c>, or <c>.csproj</c> file. When <c>null</c>, auto-discovery is used.</param>
     /// <param name="additionalArgs">Extra arguments forwarded to InspectCode unchanged.</param>
     /// <returns>Absolute path to the produced SARIF report file.</returns>

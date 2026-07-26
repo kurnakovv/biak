@@ -16,7 +16,7 @@ public static class SetupHelper
     /// <summary>
     /// Get .editorconfig paths.
     /// </summary>
-    /// <param name="executionContext">Execution context with working-directory settings; when <c>null</c>, the default context is used.</param>
+    /// <param name="executionContext">Provides the context required to perform the operation.</param>
     /// <param name="suppressConsoleOutput">When true, does not write missing-file diagnostics to console output.</param>
     /// <returns>.editorconfig paths.</returns>
     public static async Task<EditorconfigPaths> GetEditorconfigPathsAsync(AppExecutionContext executionContext, bool suppressConsoleOutput = false)

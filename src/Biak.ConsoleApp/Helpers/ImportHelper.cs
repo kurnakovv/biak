@@ -40,7 +40,7 @@ public static class ImportHelper
     /// </summary>
     /// <param name="content">.editorconfig content.</param>
     /// <param name="onImportFailure">What to do on import failure.</param>
-    /// <param name="executionContext">Execution context with working-directory settings; when <c>null</c>, the default context is used.</param>
+    /// <param name="executionContext">Provides the context required to perform the operation.</param>
     /// <returns>Replaced content with imports.</returns>
     public static async Task<string> ReplaceAsync(string content, FailureBehaviorType onImportFailure, AppExecutionContext executionContext)
     {
