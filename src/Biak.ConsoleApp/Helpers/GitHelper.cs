@@ -5,6 +5,7 @@
 using System.Diagnostics;
 using Biak.ConsoleApp.Constants;
 using Biak.ConsoleApp.Exceptions;
+using Biak.ConsoleApp.Models;
 
 namespace Biak.ConsoleApp.Helpers;
 
@@ -17,10 +18,11 @@ public static class GitHelper
     /// Run git + arguments command.
     /// </summary>
     /// <param name="arguments">Arguments after git.</param>
+    /// <param name="executionContext">Provides the context required to perform the operation.</param>
     /// <returns>git output.</returns>
-    public static async Task<string> RunAsync(string arguments)
+    public static async Task<string> RunAsync(string arguments, AppExecutionContext executionContext)
     {
-        GitResult model = await RunWithModelAsync(arguments);
+        GitResult model = await RunWithModelAsync(arguments, executionContext);
 
         if (model.ExitCode != 0)
         {
@@ -34,16 +36,30 @@ public static class GitHelper
     /// Run without exit code throw.
     /// </summary>
     /// <param name="arguments">Arguments after git.</param>
+    /// <param name="executionContext">Provides the context required to perform the operation.</param>
     /// <returns>A <see cref="GitResult"/> containing the exit code, standard output, and standard error from git.</returns>
-    public static async Task<GitResult> RunWithModelAsync(string arguments)
+    public static async Task<GitResult> RunWithModelAsync(string arguments, AppExecutionContext executionContext)
     {
         using Process process = new();
 
         process.StartInfo.FileName = "git";
         process.StartInfo.Arguments = arguments;
+        process.StartInfo.WorkingDirectory = executionContext.WorkingDirectory;
         process.StartInfo.RedirectStandardOutput = true;
         process.StartInfo.RedirectStandardError = true;
         process.StartInfo.UseShellExecute = false;
+
+        foreach ((string key, string? value) in executionContext.EnvironmentVariables)
+        {
+            if (value == null)
+            {
+                process.StartInfo.Environment.Remove(key);
+            }
+            else
+            {
+                process.StartInfo.Environment[key] = value;
+            }
+        }
 
         process.Start();
 

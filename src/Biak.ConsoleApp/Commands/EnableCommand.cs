@@ -26,28 +26,29 @@ public static class EnableCommand
     /// <summary>
     /// Run.
     /// </summary>
+    /// <param name="executionContext">Execution context with working directory for command execution.</param>
     /// <returns><placeholder>A <see cref="Task"/> representing the asynchronous operation.</placeholder></returns>
-    public static async Task RunAsync()
+    public static async Task RunAsync(AppExecutionContext executionContext)
     {
-        EditorconfigPaths editorconfigPaths = SetupHelper.GetEditorconfigPaths();
+        EditorconfigPaths editorconfigPaths = await SetupHelper.GetEditorconfigPathsAsync(executionContext: executionContext);
 
         if (editorconfigPaths.MainValue == null || editorconfigPaths.Value == null)
         {
             return;
         }
 
-        (string? message, BiakConfig config) = await BiakConfigHelper.GetAsync();
+        (string? message, BiakConfig config) = await BiakConfigHelper.GetAsync(executionContext: executionContext);
         if (message != null)
         {
-            Console.WriteLine(message);
+            await executionContext.Out.WriteLineAsync(message);
         }
 
-        Console.WriteLine(UIConstant.START_ENABLE);
+        await executionContext.Out.WriteLineAsync(UIConstant.START_ENABLE);
 
         string editorconfigMainContent = await File.ReadAllTextAsync(editorconfigPaths.MainValue);
-        string content = await EditorconfigHelper.GetEnabledContentAsync(editorconfigMainContent, config);
+        string content = await EditorconfigHelper.GetEnabledContentAsync(editorconfigMainContent, config, executionContext);
         await File.WriteAllTextAsync(editorconfigPaths.Value, content);
 
-        Console.WriteLine(UIConstant.END_ENABLE);
+        await executionContext.Out.WriteLineAsync(UIConstant.END_ENABLE);
     }
 }

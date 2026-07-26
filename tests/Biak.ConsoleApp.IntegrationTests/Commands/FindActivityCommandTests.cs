@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using Biak.ConsoleApp.Commands;
 using Biak.ConsoleApp.Constants;
 using Biak.ConsoleApp.IntegrationTests.Mock;
+using Biak.ConsoleApp.Models;
 
 namespace Biak.ConsoleApp.IntegrationTests.Commands;
 
@@ -277,77 +278,60 @@ public class FindActivityCommandTests
     )]
     public async Task RunTestAsync(string name, string inputText, string expectedOutputText, string? configFilePath, bool saveOutput)
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new($"{nameof(FindActivityCommandTests)}_{nameof(RunTestAsync)}_{name}");
-
-        TextWriter originalOut = Console.Out;
-        await using StringWriter output = new();
-        Console.SetOut(output);
-
-        TextReader originalIn = Console.In;
         using StringReader input = new(inputText);
-        Console.SetIn(input);
+        await using StringWriter output = new();
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value, In = input, Out = output };
 
-        try
+        string templateSimpleProject = Path.Join(
+            AppContext.BaseDirectory,
+            "Templates",
+            "SimpleProject",
+            "MySimpleProjectTemplate"
+        );
+
+        testDir.CopyDirectory(templateSimpleProject);
+
+        if (configFilePath != null)
         {
-            Directory.SetCurrentDirectory(testDir.Value);
-
-            string templateSimpleProject = Path.Join(
+            string templateConfigPath = Path.Join(
                 AppContext.BaseDirectory,
                 "Templates",
-                "SimpleProject",
-                "MySimpleProjectTemplate"
+                "FindActivityConfigs",
+                configFilePath
             );
-
-            testDir.CopyDirectory(templateSimpleProject);
-
-            if (configFilePath != null)
-            {
-                string templateConfigPath = Path.Join(
-                    AppContext.BaseDirectory,
-                    "Templates",
-                    "FindActivityConfigs",
-                    configFilePath
-                );
-                string biakDir = Path.Join(testDir.Value, ".biak");
-                Directory.CreateDirectory(biakDir);
-                File.Copy(
-                    sourceFileName: templateConfigPath,
-                    destFileName: Path.Join(biakDir, "config.json"),
-                    overwrite: true
-                );
-            }
-
-            await GitRepository.MockAsync();
-
-            await FindActivityCommand.RunAsync();
-
-            string result = output.ToString();
-            result = Regex.Replace(result, $@"({FindActivityCommandConstant.ACTIVITY})\s*\[.*?\]", "$1");
-
-            Assert.NotEmpty(result);
-            Assert.Equal(expectedOutputText, result);
-
-            string logsDir = Path.Join(Directory.GetCurrentDirectory(), ".biak", "logs");
-            if (saveOutput)
-            {
-                Assert.True(Directory.Exists(logsDir));
-                string? logFilePath = Directory.GetFiles(logsDir).FirstOrDefault(x => x.EndsWith(".txt"));
-                Assert.NotNull(logFilePath);
-                string logFileContent = await File.ReadAllTextAsync(logFilePath);
-                logFileContent = Regex.Replace(logFileContent, $@"({FindActivityCommandConstant.ACTIVITY})\s*\[.*?\]", "$1");
-                Assert.Contains(logFileContent, result, StringComparison.OrdinalIgnoreCase);
-            }
-            else
-            {
-                Assert.False(Directory.Exists(logsDir));
-            }
+            string biakDir = Path.Join(testDir.Value, ".biak");
+            Directory.CreateDirectory(biakDir);
+            File.Copy(
+                sourceFileName: templateConfigPath,
+                destFileName: Path.Join(biakDir, "config.json"),
+                overwrite: true
+            );
         }
-        finally
+
+        await GitRepository.MockAsync(context);
+
+        await FindActivityCommand.RunAsync(context);
+
+        string result = output.ToString();
+        result = Regex.Replace(result, $@"({FindActivityCommandConstant.ACTIVITY})\s*\[.*?\]", "$1");
+
+        Assert.NotEmpty(result);
+        Assert.Equal(expectedOutputText, result);
+
+        string logsDir = Path.Join(testDir.Value, ".biak", "logs");
+        if (saveOutput)
         {
-            Console.SetOut(originalOut);
-            Console.SetIn(originalIn);
-            Directory.SetCurrentDirectory(originalDirectory);
+            Assert.True(Directory.Exists(logsDir));
+            string? logFilePath = Directory.GetFiles(logsDir).FirstOrDefault(x => x.EndsWith(".txt"));
+            Assert.NotNull(logFilePath);
+            string logFileContent = await File.ReadAllTextAsync(logFilePath);
+            logFileContent = Regex.Replace(logFileContent, $@"({FindActivityCommandConstant.ACTIVITY})\s*\[.*?\]", "$1");
+            Assert.Contains(logFileContent, result, StringComparison.OrdinalIgnoreCase);
+        }
+        else
+        {
+            Assert.False(Directory.Exists(logsDir));
         }
     }
 }

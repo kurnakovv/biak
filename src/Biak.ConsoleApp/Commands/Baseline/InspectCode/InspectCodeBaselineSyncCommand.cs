@@ -54,9 +54,10 @@ public static class InspectCodeBaselineSyncCommand
     /// <summary>
     /// Run.
     /// </summary>
+    /// <param name="executionContext">Execution context with working directory for command execution.</param>
     /// <param name="args">User input arguments.</param>
     /// <returns><placeholder>A <see cref="Task"/> representing the asynchronous operation.</placeholder></returns>
-    public static async Task<string> RunAsync(string[]? args = null)
+    public static async Task<string> RunAsync(AppExecutionContext executionContext, string[]? args = null)
     {
         string sarifPath = string.Empty;
         string resolvedPath = string.Empty;
@@ -68,8 +69,8 @@ public static class InspectCodeBaselineSyncCommand
 
         try
         {
-            Console.WriteLine(InspectCodeBaselineSyncCommandConstant.SYNC_STARTED);
-            Console.WriteLine();
+            await executionContext.Out.WriteLineAsync(InspectCodeBaselineSyncCommandConstant.SYNC_STARTED);
+            await executionContext.Out.WriteLineAsync();
 
             string[] effectiveArgs = args
                 ?? new[]
@@ -78,16 +79,16 @@ public static class InspectCodeBaselineSyncCommand
                     CommandArgumentConstant.SYNC,
                 };
 
-            (string? message, BiakConfig config) = await BiakConfigHelper.GetAsync();
+            (string? message, BiakConfig config) = await BiakConfigHelper.GetAsync(executionContext: executionContext);
             if (message is not null)
             {
-                Console.WriteLine(message);
-                Console.WriteLine();
+                await executionContext.Out.WriteLineAsync(message);
+                await executionContext.Out.WriteLineAsync();
             }
 
             InspectCodeBaselineConfig? baselineConfig = config.InspectCodeBaseline;
 
-            string baseDirectory = Directory.GetCurrentDirectory();
+            string baseDirectory = executionContext.WorkingDirectory;
             runtimeEditorconfigPath = Path.Join(baseDirectory, ".editorconfig");
             if (!File.Exists(runtimeEditorconfigPath))
             {
@@ -99,7 +100,7 @@ public static class InspectCodeBaselineSyncCommand
 
             if (hasBiakDirectory)
             {
-                BiakStatusResult biakStatus = await BiakStatusHelper.GetAsync();
+                BiakStatusResult biakStatus = await BiakStatusHelper.GetAsync(executionContext: executionContext);
                 if (biakStatus.StatusType is not (BiakStatusType.Enabled or BiakStatusType.Disabled))
                 {
                     throw new BiakApplicationException(InspectCodeBaselineSyncCommandConstant.BIAK_STATUS_IS_NOT_SYNCHRONIZED);
@@ -140,8 +141,10 @@ public static class InspectCodeBaselineSyncCommand
             }
 
             sarifPath = await InspectCodeBaselineRunHelper.RunAsync(
+                executionContext,
                 baselineConfig?.Target,
-                baselineConfig?.AdditionalArgs);
+                baselineConfig?.AdditionalArgs
+                );
 
             string sarifJson = await File.ReadAllTextAsync(sarifPath);
             IReadOnlyList<InspectCodeIssue> issues = InspectCodeBaselineSarifParser.Parse(sarifJson);
@@ -193,14 +196,14 @@ public static class InspectCodeBaselineSyncCommand
 
             if (shouldResyncRootEditorconfig && biakStatusType.HasValue)
             {
-                EditorconfigPaths editorconfigPaths = SetupHelper.GetEditorconfigPaths();
+                EditorconfigPaths editorconfigPaths = await SetupHelper.GetEditorconfigPathsAsync(executionContext: executionContext);
 
                 if (editorconfigPaths.MainValue != null && editorconfigPaths.Value != null)
                 {
                     string editorconfigMainContent = await File.ReadAllTextAsync(editorconfigPaths.MainValue);
                     string rootEditorconfigContent = biakStatusType.Value == BiakStatusType.Enabled
-                        ? await EditorconfigHelper.GetEnabledContentAsync(editorconfigMainContent, config)
-                        : await EditorconfigHelper.GetDisabledContentAsync(editorconfigMainContent, config);
+                        ? await EditorconfigHelper.GetEnabledContentAsync(editorconfigMainContent, config, executionContext)
+                        : await EditorconfigHelper.GetDisabledContentAsync(editorconfigMainContent, config, executionContext);
 
                     await File.WriteAllTextAsync(editorconfigPaths.Value, rootEditorconfigContent);
                 }
@@ -223,17 +226,17 @@ public static class InspectCodeBaselineSyncCommand
                 foreach (KeyValuePair<string, IReadOnlySet<string>> synchronizedFile in synchronizedFiles.OrderBy(x => x.Key, StringComparer.OrdinalIgnoreCase))
                 {
                     string keys = string.Join(", ", synchronizedFile.Value.OrderBy(x => x, StringComparer.OrdinalIgnoreCase));
-                    Console.WriteLine($"{synchronizedFile.Key} ({keys})");
+                    await executionContext.Out.WriteLineAsync($"{synchronizedFile.Key} ({keys})");
                 }
 
                 if (synchronizedFiles.Count > 0)
                 {
-                    Console.WriteLine();
+                    await executionContext.Out.WriteLineAsync();
                 }
             }
 
-            Console.WriteLine(result);
-            Console.WriteLine();
+            await executionContext.Out.WriteLineAsync(result);
+            await executionContext.Out.WriteLineAsync();
 
             return result;
         }

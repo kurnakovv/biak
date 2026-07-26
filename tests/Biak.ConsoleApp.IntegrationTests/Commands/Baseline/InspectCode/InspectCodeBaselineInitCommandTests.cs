@@ -6,6 +6,7 @@ using Biak.ConsoleApp.Commands.Baseline.InspectCode;
 using Biak.ConsoleApp.Constants;
 using Biak.ConsoleApp.Exceptions;
 using Biak.ConsoleApp.IntegrationTests.Mock;
+using Biak.ConsoleApp.Models;
 
 namespace Biak.ConsoleApp.IntegrationTests.Commands.Baseline.InspectCode;
 
@@ -22,162 +23,129 @@ public class InspectCodeBaselineInitCommandTests
     [Fact]
     public async Task RunShouldOutputBaselineToConsoleAsync()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new(
             $"{nameof(InspectCodeBaselineInitCommandTests)}_{nameof(RunShouldOutputBaselineToConsoleAsync)}"
         );
-
-        TextWriter originalOut = Console.Out;
         await using StringWriter output = new();
-        Console.SetOut(output);
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value, Out = output };
 
-        try
-        {
-            Directory.SetCurrentDirectory(testDir.Value);
+        string templatePath = Path.Join(
+            AppContext.BaseDirectory,
+            "Templates",
+            "InspectCodeBaseline",
+            "InspectCodeBaselineTemplate"
+        );
 
-            string templatePath = Path.Join(
-                AppContext.BaseDirectory,
-                "Templates",
-                "InspectCodeBaseline",
-                "InspectCodeBaselineTemplate"
-            );
+        testDir.CopyDirectory(templatePath);
 
-            testDir.CopyDirectory(templatePath);
+        Directory.CreateDirectory(Path.Join(testDir.Value, ".biak"));
+        await File.WriteAllTextAsync(
+            Path.Join(testDir.Value, ".biak", "config.json"),
+            // language=json
+            """
+            {
+              "inspectCodeBaseline": {
+                "additionalArgs": ["--sEverity=WARNING"]
+              }
+            }
+            """);
 
-            Directory.CreateDirectory(Path.Join(testDir.Value, ".biak"));
-            await File.WriteAllTextAsync(
-                Path.Join(testDir.Value, ".biak", "config.json"),
-                // language=json
-                """
-                {
-                  "inspectCodeBaseline": {
-                    "additionalArgs": ["--sEverity=WARNING"]
-                  }
-                }
-                """);
+        string firstRunResult = await InspectCodeBaselineInitCommand.RunAsync(context);
 
-            string firstRunResult = await InspectCodeBaselineInitCommand.RunAsync();
+        string firstRunOutput = output.ToString().Trim();
 
-            string firstRunOutput = output.ToString().Trim();
+        Assert.Equal(InspectCodeBaselineCommandTestConstants.BASELINE_FILTERS, firstRunResult.Trim());
+        Assert.Equal(TEST_OUTPUT, firstRunOutput);
 
-            Assert.Equal(InspectCodeBaselineCommandTestConstants.BASELINE_FILTERS, firstRunResult.Trim());
-            Assert.Equal(TEST_OUTPUT, firstRunOutput);
+        string editorconfigPath = Path.Join(testDir.Value, ".editorconfig");
+        await File.AppendAllTextAsync(editorconfigPath, firstRunResult.Trim());
 
-            string editorconfigPath = Path.Join(testDir.Value, ".editorconfig");
-            await File.AppendAllTextAsync(editorconfigPath, firstRunResult.Trim());
+        // In rare cases, file-specific overrides are not detected reliably, clearing this source file removes the residual issue.
+        string serviceEPath = Path.Join(testDir.Value, "ServiceE.cs");
+        await File.WriteAllTextAsync(serviceEPath, string.Empty);
 
-            // In rare cases, file-specific overrides are not detected reliably, clearing this source file removes the residual issue.
-            string serviceEPath = Path.Join(testDir.Value, "ServiceE.cs");
-            await File.WriteAllTextAsync(serviceEPath, string.Empty);
+        output.GetStringBuilder().Clear();
 
-            output.GetStringBuilder().Clear();
+        string secondRunResult = await InspectCodeBaselineInitCommand.RunAsync(context);
+        string secondRunOutput = output.ToString().Trim();
 
-            string secondRunResult = await InspectCodeBaselineInitCommand.RunAsync();
-            string secondRunOutput = output.ToString().Trim();
-
-            Assert.Equal(InspectCodeBaselineInitCommandConstant.NO_ISSUES_FOUND, secondRunResult);
-            Assert.Contains(InspectCodeBaselineInitCommandConstant.INIT_STARTED, secondRunOutput, StringComparison.Ordinal);
-            Assert.Contains(InspectCodeBaselineInitCommandConstant.NO_ISSUES_FOUND, secondRunOutput, StringComparison.Ordinal);
-            Assert.DoesNotContain(InspectCodeBaselineInitCommandConstant.INSERT_FILTERS_NOTE, secondRunOutput, StringComparison.Ordinal);
-        }
-        finally
-        {
-            Console.SetOut(originalOut);
-            Directory.SetCurrentDirectory(originalDirectory);
-        }
+        Assert.Equal(InspectCodeBaselineInitCommandConstant.NO_ISSUES_FOUND, secondRunResult);
+        Assert.Contains(InspectCodeBaselineInitCommandConstant.INIT_STARTED, secondRunOutput, StringComparison.Ordinal);
+        Assert.Contains(InspectCodeBaselineInitCommandConstant.NO_ISSUES_FOUND, secondRunOutput, StringComparison.Ordinal);
+        Assert.DoesNotContain(InspectCodeBaselineInitCommandConstant.INSERT_FILTERS_NOTE, secondRunOutput, StringComparison.Ordinal);
     }
 
     [Fact]
     public async Task RunAsyncWhenNoIssuesFoundShouldReturnNoIssuesFoundMessageAsync()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new(
             $"{nameof(InspectCodeBaselineInitCommandTests)}_{nameof(RunAsyncWhenNoIssuesFoundShouldReturnNoIssuesFoundMessageAsync)}"
         );
-
-        TextWriter originalOut = Console.Out;
         await using StringWriter output = new();
-        Console.SetOut(output);
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value, Out = output };
 
-        try
-        {
-            Directory.SetCurrentDirectory(testDir.Value);
+        string templatePath = Path.Join(
+            AppContext.BaseDirectory,
+            "Templates",
+            "InspectCodeBaseline",
+            "InspectCodeBaselineNoIssuesTemplate"
+        );
 
-            string templatePath = Path.Join(
-                AppContext.BaseDirectory,
-                "Templates",
-                "InspectCodeBaseline",
-                "InspectCodeBaselineNoIssuesTemplate"
-            );
+        testDir.CopyDirectory(templatePath);
 
-            testDir.CopyDirectory(templatePath);
+        string result = await InspectCodeBaselineInitCommand.RunAsync(context);
 
-            string result = await InspectCodeBaselineInitCommand.RunAsync();
+        string actualOutput = output.ToString().Trim();
 
-            string actualOutput = output.ToString().Trim();
-
-            Assert.Equal(InspectCodeBaselineInitCommandConstant.NO_ISSUES_FOUND, result);
-            Assert.Contains(InspectCodeBaselineInitCommandConstant.INIT_STARTED, actualOutput, StringComparison.Ordinal);
-            Assert.Contains(InspectCodeBaselineInitCommandConstant.NO_ISSUES_FOUND, actualOutput, StringComparison.Ordinal);
-        }
-        finally
-        {
-            Console.SetOut(originalOut);
-            Directory.SetCurrentDirectory(originalDirectory);
-        }
+        Assert.Equal(InspectCodeBaselineInitCommandConstant.NO_ISSUES_FOUND, result);
+        Assert.Contains(InspectCodeBaselineInitCommandConstant.INIT_STARTED, actualOutput, StringComparison.Ordinal);
+        Assert.Contains(InspectCodeBaselineInitCommandConstant.NO_ISSUES_FOUND, actualOutput, StringComparison.Ordinal);
     }
 
     [Fact]
     public async Task RunAsyncWhenUnmappedRuleDetectedShouldOutputWarningToConsoleAsync()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new(
             $"{nameof(InspectCodeBaselineInitCommandTests)}_{nameof(RunAsyncWhenUnmappedRuleDetectedShouldOutputWarningToConsoleAsync)}"
         );
-
-        TextWriter originalOut = Console.Out;
         await using StringWriter output = new();
-        Console.SetOut(output);
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value, Out = output };
 
-        try
-        {
-            Directory.SetCurrentDirectory(testDir.Value);
+        string templatePath = Path.Join(
+            AppContext.BaseDirectory,
+            "Templates",
+            "InspectCodeBaseline",
+            "InspectCodeBaselineTemplate"
+        );
 
-            string templatePath = Path.Join(
-                AppContext.BaseDirectory,
-                "Templates",
-                "InspectCodeBaseline",
-                "InspectCodeBaselineTemplate"
+        testDir.CopyDirectory(templatePath);
+
+        string projectPath = Path.Join(testDir.Value, "InspectCodeBaselineTemplate.csproj");
+        string projectContent = await File.ReadAllTextAsync(projectPath);
+        projectContent = projectContent
+            .Replace("<EnableNETAnalyzers>false</EnableNETAnalyzers>", "<EnableNETAnalyzers>true</EnableNETAnalyzers>", StringComparison.Ordinal)
+            .Replace("<RunAnalyzers>false</RunAnalyzers>", "<RunAnalyzers>true</RunAnalyzers>", StringComparison.Ordinal)
+            .Replace("<RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>", "<RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>", StringComparison.Ordinal)
+            .Replace(
+                "<GenerateDocumentationFile>false</GenerateDocumentationFile>",
+                "<GenerateDocumentationFile>false</GenerateDocumentationFile>\n    <AnalysisMode>AllEnabledByDefault</AnalysisMode>\n    <AnalysisLevel>latest-all</AnalysisLevel>",
+                StringComparison.Ordinal
             );
 
-            testDir.CopyDirectory(templatePath);
+        await File.WriteAllTextAsync(projectPath, projectContent);
 
-            string projectPath = Path.Join(testDir.Value, "InspectCodeBaselineTemplate.csproj");
-            string projectContent = await File.ReadAllTextAsync(projectPath);
-            projectContent = projectContent
-                .Replace("<EnableNETAnalyzers>false</EnableNETAnalyzers>", "<EnableNETAnalyzers>true</EnableNETAnalyzers>", StringComparison.Ordinal)
-                .Replace("<RunAnalyzers>false</RunAnalyzers>", "<RunAnalyzers>true</RunAnalyzers>", StringComparison.Ordinal)
-                .Replace("<RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>", "<RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>", StringComparison.Ordinal)
-                .Replace(
-                    "<GenerateDocumentationFile>false</GenerateDocumentationFile>",
-                    "<GenerateDocumentationFile>false</GenerateDocumentationFile>\n    <AnalysisMode>AllEnabledByDefault</AnalysisMode>\n    <AnalysisLevel>latest-all</AnalysisLevel>",
-                    StringComparison.Ordinal
-                );
-
-            await File.WriteAllTextAsync(projectPath, projectContent);
-
-            string editorconfigPath = Path.Join(testDir.Value, ".editorconfig");
-            const string EDITORCONFIG_CONTENT = """
+        string editorconfigPath = Path.Join(testDir.Value, ".editorconfig");
+        const string EDITORCONFIG_CONTENT = """
 root = true
 
 [*.cs]
 dotnet_diagnostic.CA1822.severity = warning
 """;
 
-            await File.WriteAllTextAsync(editorconfigPath, EDITORCONFIG_CONTENT);
+        await File.WriteAllTextAsync(editorconfigPath, EDITORCONFIG_CONTENT);
 
-            string ca1822ViolationPath = Path.Join(testDir.Value, "Ca1822ViolationService.cs");
-            const string CA1822_VIOLATION_CLASS = """
+        string ca1822ViolationPath = Path.Join(testDir.Value, "Ca1822ViolationService.cs");
+        const string CA1822_VIOLATION_CLASS = """
 namespace InspectCodeBaselineTemplate;
 
 public class Ca1822ViolationService
@@ -189,73 +157,60 @@ public class Ca1822ViolationService
 }
 """;
 
-            await File.WriteAllTextAsync(ca1822ViolationPath, CA1822_VIOLATION_CLASS);
+        await File.WriteAllTextAsync(ca1822ViolationPath, CA1822_VIOLATION_CLASS);
 
-            string result = await InspectCodeBaselineInitCommand.RunAsync();
+        string result = await InspectCodeBaselineInitCommand.RunAsync(context);
 
-            string actualOutput = output.ToString().Trim();
+        string actualOutput = output.ToString().Trim();
 
-            Assert.Contains(InspectCodeBaselineInitCommandConstant.RULES_NOT_MAPPED_WARNING_HEADER, actualOutput, StringComparison.Ordinal);
-            Assert.Contains("CA1822", actualOutput, StringComparison.Ordinal);
-            Assert.Contains(InspectCodeBaselineInitCommandConstant.RULE_NOT_MAPPED_OPEN_ISSUE, actualOutput, StringComparison.Ordinal);
-            Assert.Contains(InspectCodeBaselineInitCommandConstant.RULE_NOT_MAPPED_LOCAL_WORKAROUND, actualOutput, StringComparison.Ordinal);
-            Assert.Contains(InspectCodeBaselineInitCommandConstant.INSERT_FILTERS_NOTE, actualOutput, StringComparison.Ordinal);
-            Assert.DoesNotContain("CA1822", result, StringComparison.Ordinal);
-        }
-        finally
-        {
-            Console.SetOut(originalOut);
-            Directory.SetCurrentDirectory(originalDirectory);
-        }
+        Assert.Contains(InspectCodeBaselineInitCommandConstant.RULES_NOT_MAPPED_WARNING_HEADER, actualOutput, StringComparison.Ordinal);
+        Assert.Contains("CA1822", actualOutput, StringComparison.Ordinal);
+        Assert.Contains(InspectCodeBaselineInitCommandConstant.RULE_NOT_MAPPED_OPEN_ISSUE, actualOutput, StringComparison.Ordinal);
+        Assert.Contains(InspectCodeBaselineInitCommandConstant.RULE_NOT_MAPPED_LOCAL_WORKAROUND, actualOutput, StringComparison.Ordinal);
+        Assert.Contains(InspectCodeBaselineInitCommandConstant.INSERT_FILTERS_NOTE, actualOutput, StringComparison.Ordinal);
+        Assert.DoesNotContain("CA1822", result, StringComparison.Ordinal);
     }
 
     [Fact]
     public async Task RunAsyncWhenOnlyUnmappedIssuesExistShouldReturnNoIssuesFoundAsync()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new(
             $"{nameof(InspectCodeBaselineInitCommandTests)}_{nameof(RunAsyncWhenOnlyUnmappedIssuesExistShouldReturnNoIssuesFoundAsync)}"
         );
-
-        TextWriter originalOut = Console.Out;
         await using StringWriter output = new();
-        Console.SetOut(output);
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value, Out = output };
 
-        try
-        {
-            Directory.SetCurrentDirectory(testDir.Value);
+        string templatePath = Path.Join(
+            AppContext.BaseDirectory,
+            "Templates",
+            "InspectCodeBaseline",
+            "InspectCodeBaselineTemplate"
+        );
 
-            string templatePath = Path.Join(
-                AppContext.BaseDirectory,
-                "Templates",
-                "InspectCodeBaseline",
-                "InspectCodeBaselineTemplate"
+        testDir.CopyDirectory(templatePath);
+
+        File.Delete(Path.Join(testDir.Value, "ServiceA.cs"));
+        File.Delete(Path.Join(testDir.Value, "ServiceB.cs"));
+        File.Delete(Path.Join(testDir.Value, "ServiceC.cs"));
+        File.Delete(Path.Join(testDir.Value, "ServiceD.cs"));
+        File.Delete(Path.Join(testDir.Value, "ServiceE.cs"));
+
+        string projectPath = Path.Join(testDir.Value, "InspectCodeBaselineTemplate.csproj");
+        string projectContent = await File.ReadAllTextAsync(projectPath);
+        projectContent = projectContent
+            .Replace("<EnableNETAnalyzers>false</EnableNETAnalyzers>", "<EnableNETAnalyzers>true</EnableNETAnalyzers>", StringComparison.Ordinal)
+            .Replace("<RunAnalyzers>false</RunAnalyzers>", "<RunAnalyzers>true</RunAnalyzers>", StringComparison.Ordinal)
+            .Replace("<RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>", "<RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>", StringComparison.Ordinal)
+            .Replace(
+                "<GenerateDocumentationFile>false</GenerateDocumentationFile>",
+                "<GenerateDocumentationFile>false</GenerateDocumentationFile>\n    <AnalysisMode>AllEnabledByDefault</AnalysisMode>\n    <AnalysisLevel>latest-all</AnalysisLevel>",
+                StringComparison.Ordinal
             );
 
-            testDir.CopyDirectory(templatePath);
+        await File.WriteAllTextAsync(projectPath, projectContent);
 
-            File.Delete(Path.Join(testDir.Value, "ServiceA.cs"));
-            File.Delete(Path.Join(testDir.Value, "ServiceB.cs"));
-            File.Delete(Path.Join(testDir.Value, "ServiceC.cs"));
-            File.Delete(Path.Join(testDir.Value, "ServiceD.cs"));
-            File.Delete(Path.Join(testDir.Value, "ServiceE.cs"));
-
-            string projectPath = Path.Join(testDir.Value, "InspectCodeBaselineTemplate.csproj");
-            string projectContent = await File.ReadAllTextAsync(projectPath);
-            projectContent = projectContent
-                .Replace("<EnableNETAnalyzers>false</EnableNETAnalyzers>", "<EnableNETAnalyzers>true</EnableNETAnalyzers>", StringComparison.Ordinal)
-                .Replace("<RunAnalyzers>false</RunAnalyzers>", "<RunAnalyzers>true</RunAnalyzers>", StringComparison.Ordinal)
-                .Replace("<RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>", "<RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>", StringComparison.Ordinal)
-                .Replace(
-                    "<GenerateDocumentationFile>false</GenerateDocumentationFile>",
-                    "<GenerateDocumentationFile>false</GenerateDocumentationFile>\n    <AnalysisMode>AllEnabledByDefault</AnalysisMode>\n    <AnalysisLevel>latest-all</AnalysisLevel>",
-                    StringComparison.Ordinal
-                );
-
-            await File.WriteAllTextAsync(projectPath, projectContent);
-
-            string editorconfigPath = Path.Join(testDir.Value, ".editorconfig");
-            const string EDITORCONFIG_CONTENT = """
+        string editorconfigPath = Path.Join(testDir.Value, ".editorconfig");
+        const string EDITORCONFIG_CONTENT = """
 root = true
 
 [*.cs]
@@ -264,10 +219,10 @@ resharper_unused_member_global_highlighting = none
 resharper_unused_type_global_highlighting = none
 """;
 
-            await File.WriteAllTextAsync(editorconfigPath, EDITORCONFIG_CONTENT);
+        await File.WriteAllTextAsync(editorconfigPath, EDITORCONFIG_CONTENT);
 
-            string ca1822ViolationPath = Path.Join(testDir.Value, "Ca1822ViolationService.cs");
-            const string CA1822_VIOLATION_CLASS = """
+        string ca1822ViolationPath = Path.Join(testDir.Value, "Ca1822ViolationService.cs");
+        const string CA1822_VIOLATION_CLASS = """
 namespace InspectCodeBaselineTemplate;
 
 public class Ca1822ViolationService
@@ -279,10 +234,10 @@ public class Ca1822ViolationService
 }
 """;
 
-            await File.WriteAllTextAsync(ca1822ViolationPath, CA1822_VIOLATION_CLASS);
+        await File.WriteAllTextAsync(ca1822ViolationPath, CA1822_VIOLATION_CLASS);
 
-            string consumerPath = Path.Join(testDir.Value, "Consumer.cs");
-            const string CONSUMER_CLASS = """
+        string consumerPath = Path.Join(testDir.Value, "Consumer.cs");
+        const string CONSUMER_CLASS = """
 namespace InspectCodeBaselineTemplate;
 
 public static class Consumer
@@ -295,100 +250,80 @@ public static class Consumer
 }
 """;
 
-            await File.WriteAllTextAsync(consumerPath, CONSUMER_CLASS);
+        await File.WriteAllTextAsync(consumerPath, CONSUMER_CLASS);
 
-            string result = await InspectCodeBaselineInitCommand.RunAsync();
+        string result = await InspectCodeBaselineInitCommand.RunAsync(context);
 
-            string actualOutput = output.ToString().Trim();
+        string actualOutput = output.ToString().Trim();
 
-            Assert.Equal(InspectCodeBaselineInitCommandConstant.NO_ISSUES_FOUND, result);
-            Assert.Contains(InspectCodeBaselineInitCommandConstant.RULES_NOT_MAPPED_WARNING_HEADER, actualOutput, StringComparison.Ordinal);
-            Assert.Contains("CA1822", actualOutput, StringComparison.Ordinal);
-            Assert.Contains(InspectCodeBaselineInitCommandConstant.NO_ISSUES_FOUND, actualOutput, StringComparison.Ordinal);
-            Assert.DoesNotContain(InspectCodeBaselineInitCommandConstant.INSERT_FILTERS_NOTE, actualOutput, StringComparison.Ordinal);
-        }
-        finally
-        {
-            Console.SetOut(originalOut);
-            Directory.SetCurrentDirectory(originalDirectory);
-        }
+        Assert.Equal(InspectCodeBaselineInitCommandConstant.NO_ISSUES_FOUND, result);
+        Assert.Contains(InspectCodeBaselineInitCommandConstant.RULES_NOT_MAPPED_WARNING_HEADER, actualOutput, StringComparison.Ordinal);
+        Assert.Contains("CA1822", actualOutput, StringComparison.Ordinal);
+        Assert.Contains(InspectCodeBaselineInitCommandConstant.NO_ISSUES_FOUND, actualOutput, StringComparison.Ordinal);
+        Assert.DoesNotContain(InspectCodeBaselineInitCommandConstant.INSERT_FILTERS_NOTE, actualOutput, StringComparison.Ordinal);
     }
 
     [Fact]
     public async Task RunAsyncWhenUnexpectedExceptionOccursShouldWrapIntoBiakApplicationExceptionAsync()
     {
-        TextWriter originalOut = Console.Out;
+        TestDirectory testDir = new($"{nameof(InspectCodeBaselineInitCommandTests)}_{nameof(RunAsyncWhenUnexpectedExceptionOccursShouldWrapIntoBiakApplicationExceptionAsync)}");
         await using StringWriter disposedOutput = new();
         // ReSharper disable once DisposeOnUsingVariable
         await disposedOutput.DisposeAsync();
-        Console.SetOut(disposedOutput);
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value, Out = disposedOutput };
 
-        try
-        {
-            Exception? exception = await Record.ExceptionAsync(() => InspectCodeBaselineInitCommand.RunAsync());
+        Exception? exception = await Record.ExceptionAsync(() => InspectCodeBaselineInitCommand.RunAsync(context));
 
-            Assert.NotNull(exception);
-            Assert.IsType<BiakApplicationException>(exception);
-            Assert.StartsWith(InspectCodeBaselineInitCommandConstant.INIT_FAILED, exception.Message, StringComparison.Ordinal);
-        }
-        finally
-        {
-            Console.SetOut(originalOut);
-        }
+        Assert.NotNull(exception);
+        Assert.IsType<BiakApplicationException>(exception);
+        Assert.StartsWith(InspectCodeBaselineInitCommandConstant.INIT_FAILED, exception.Message, StringComparison.Ordinal);
     }
 
     [Fact]
     public async Task RunAsyncWhenRuleIdOverridesProvidedShouldUseOverrideKeysAsync()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new(
             $"{nameof(InspectCodeBaselineInitCommandTests)}_{nameof(RunAsyncWhenRuleIdOverridesProvidedShouldUseOverrideKeysAsync)}"
         );
-
-        TextWriter originalOut = Console.Out;
         await using StringWriter output = new();
-        Console.SetOut(output);
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value, Out = output };
 
-        try
-        {
-            Directory.SetCurrentDirectory(testDir.Value);
+        string templatePath = Path.Join(
+            AppContext.BaseDirectory,
+            "Templates",
+            "InspectCodeBaseline",
+            "InspectCodeBaselineTemplate"
+        );
 
-            string templatePath = Path.Join(
-                AppContext.BaseDirectory,
-                "Templates",
-                "InspectCodeBaseline",
-                "InspectCodeBaselineTemplate"
+        testDir.CopyDirectory(templatePath);
+
+        string projectPath = Path.Join(testDir.Value, "InspectCodeBaselineTemplate.csproj");
+        string projectContent = await File.ReadAllTextAsync(projectPath);
+        projectContent = projectContent
+            .Replace("<EnableNETAnalyzers>false</EnableNETAnalyzers>", "<EnableNETAnalyzers>true</EnableNETAnalyzers>", StringComparison.Ordinal)
+            .Replace("<RunAnalyzers>false</RunAnalyzers>", "<RunAnalyzers>true</RunAnalyzers>", StringComparison.Ordinal)
+            .Replace("<RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>", "<RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>", StringComparison.Ordinal)
+            .Replace(
+                "<GenerateDocumentationFile>false</GenerateDocumentationFile>",
+                "<GenerateDocumentationFile>false</GenerateDocumentationFile>\n    <AnalysisMode>AllEnabledByDefault</AnalysisMode>\n    <AnalysisLevel>latest-all</AnalysisLevel>",
+                StringComparison.Ordinal
             );
+        await File.WriteAllTextAsync(projectPath, projectContent);
 
-            testDir.CopyDirectory(templatePath);
-
-            string projectPath = Path.Join(testDir.Value, "InspectCodeBaselineTemplate.csproj");
-            string projectContent = await File.ReadAllTextAsync(projectPath);
-            projectContent = projectContent
-                .Replace("<EnableNETAnalyzers>false</EnableNETAnalyzers>", "<EnableNETAnalyzers>true</EnableNETAnalyzers>", StringComparison.Ordinal)
-                .Replace("<RunAnalyzers>false</RunAnalyzers>", "<RunAnalyzers>true</RunAnalyzers>", StringComparison.Ordinal)
-                .Replace("<RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>", "<RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>", StringComparison.Ordinal)
-                .Replace(
-                    "<GenerateDocumentationFile>false</GenerateDocumentationFile>",
-                    "<GenerateDocumentationFile>false</GenerateDocumentationFile>\n    <AnalysisMode>AllEnabledByDefault</AnalysisMode>\n    <AnalysisLevel>latest-all</AnalysisLevel>",
-                    StringComparison.Ordinal
-                );
-            await File.WriteAllTextAsync(projectPath, projectContent);
-
-            string editorconfigPath = Path.Join(testDir.Value, ".editorconfig");
-            const string EDITORCONFIG_CONTENT = """
+        string editorconfigPath = Path.Join(testDir.Value, ".editorconfig");
+        const string EDITORCONFIG_CONTENT = """
 root = true
 
 [*.cs]
 dotnet_diagnostic.CA1822.severity = warning
 """;
-            await File.WriteAllTextAsync(editorconfigPath, EDITORCONFIG_CONTENT);
+        await File.WriteAllTextAsync(editorconfigPath, EDITORCONFIG_CONTENT);
 
-            Directory.CreateDirectory(Path.Join(testDir.Value, ".biak"));
-            string configPath = Path.Join(testDir.Value, ".biak", "config.json");
+        Directory.CreateDirectory(Path.Join(testDir.Value, ".biak"));
+        string configPath = Path.Join(testDir.Value, ".biak", "config.json");
 
-            // language=json
-            const string CONFIG_WITH_RULE_ID_OVERRIDES = """
+        // language=json
+        const string CONFIG_WITH_RULE_ID_OVERRIDES = """
 {
   "inspectCodeBaseline": {
     "ruleIdOverrides": {
@@ -398,10 +333,10 @@ dotnet_diagnostic.CA1822.severity = warning
   }
 }
 """;
-            await File.WriteAllTextAsync(configPath, CONFIG_WITH_RULE_ID_OVERRIDES);
+        await File.WriteAllTextAsync(configPath, CONFIG_WITH_RULE_ID_OVERRIDES);
 
-            string ca1822ViolationPath = Path.Join(testDir.Value, "Ca1822ViolationService.cs");
-            const string CA1822_VIOLATION_CLASS = """
+        string ca1822ViolationPath = Path.Join(testDir.Value, "Ca1822ViolationService.cs");
+        const string CA1822_VIOLATION_CLASS = """
 namespace InspectCodeBaselineTemplate;
 
 public class Ca1822ViolationService
@@ -412,20 +347,14 @@ public class Ca1822ViolationService
     }
 }
 """;
-            await File.WriteAllTextAsync(ca1822ViolationPath, CA1822_VIOLATION_CLASS);
+        await File.WriteAllTextAsync(ca1822ViolationPath, CA1822_VIOLATION_CLASS);
 
-            string result = await InspectCodeBaselineInitCommand.RunAsync();
-            string actualOutput = output.ToString().Trim();
+        string result = await InspectCodeBaselineInitCommand.RunAsync(context);
+        string actualOutput = output.ToString().Trim();
 
-            Assert.Contains("resharper_mocked_custom_ca_rule_highlighting", result, StringComparison.Ordinal);
-            Assert.Contains("resharper_mocked_unused_type_global_highlighting", result, StringComparison.Ordinal);
-            Assert.DoesNotContain("resharper_unused_type_global_highlighting", result, StringComparison.Ordinal);
-            Assert.DoesNotContain("CA1822", actualOutput, StringComparison.Ordinal);
-        }
-        finally
-        {
-            Console.SetOut(originalOut);
-            Directory.SetCurrentDirectory(originalDirectory);
-        }
+        Assert.Contains("resharper_mocked_custom_ca_rule_highlighting", result, StringComparison.Ordinal);
+        Assert.Contains("resharper_mocked_unused_type_global_highlighting", result, StringComparison.Ordinal);
+        Assert.DoesNotContain("resharper_unused_type_global_highlighting", result, StringComparison.Ordinal);
+        Assert.DoesNotContain("CA1822", actualOutput, StringComparison.Ordinal);
     }
 }

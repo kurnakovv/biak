@@ -6,6 +6,7 @@ using Biak.ConsoleApp.Commands;
 using Biak.ConsoleApp.Commands.Baseline.InspectCode;
 using Biak.ConsoleApp.Commands.Baseline.Warnings;
 using Biak.ConsoleApp.Constants;
+using Biak.ConsoleApp.Models;
 
 namespace Biak.ConsoleApp;
 
@@ -21,57 +22,70 @@ public static class Program
     /// <returns><placeholder>A <see cref="Task"/> representing the asynchronous operation.</placeholder></returns>
     public static async Task Main(string[] args)
     {
+        AppExecutionContext executionContext = AppExecutionContext.CreateDefault();
+
+        await MainInnerAsync(args, executionContext);
+    }
+
+    /// <summary>
+    /// Main inner for tests.
+    /// </summary>
+    /// <param name="args">args.</param>
+    /// <param name="executionContext">The execution context.</param>
+    /// <returns><placeholder>A <see cref="Task"/> representing the asynchronous operation.</placeholder></returns>
+    public static async Task MainInnerAsync(string[] args, AppExecutionContext executionContext)
+    {
         if (args.Length == 0)
         {
-            Console.WriteLine(DocsConstant.GREETING);
+            await executionContext.Out.WriteLineAsync(DocsConstant.GREETING);
         }
         else if (args.Length == 1 && args[0] == CommandArgumentConstant.HELP)
         {
-            Console.WriteLine(DocsConstant.HELP);
+            await executionContext.Out.WriteLineAsync(DocsConstant.HELP);
         }
         else if (SetupCommand.IsRunnable(args))
         {
-            await SetupCommand.RunAsync();
+            await SetupCommand.RunAsync(executionContext);
         }
         else if (DisableCommand.IsRunnable(args))
         {
-            await DisableCommand.RunAsync();
+            await DisableCommand.RunAsync(executionContext);
         }
         else if (EnableCommand.IsRunnable(args))
         {
-            await EnableCommand.RunAsync();
+            await EnableCommand.RunAsync(executionContext);
         }
         else if (StatusCommand.IsRunnable(args))
         {
-            await StatusCommand.RunAsync(args);
+            await StatusCommand.RunAsync(executionContext, args);
         }
         else if (FindActivityCommand.IsRunnable(args))
         {
-            await FindActivityCommand.RunAsync();
+            await FindActivityCommand.RunAsync(executionContext);
         }
         else if (FindConflictsCommand.IsRunnable(args))
         {
-            await FindConflictsCommand.RunAsync();
+            await FindConflictsCommand.RunAsync(executionContext);
         }
         else if (WarningsBaselineInitCommand.IsRunnable(args))
         {
-            await WarningsBaselineInitCommand.RunAsync(args);
+            await WarningsBaselineInitCommand.RunAsync(executionContext, args);
         }
         else if (WarningsBaselineSyncCommand.IsRunnable(args))
         {
-            await WarningsBaselineSyncCommand.RunAsync(args);
+            await WarningsBaselineSyncCommand.RunAsync(executionContext, args);
         }
         else if (InspectCodeBaselineInitCommand.IsRunnable(args))
         {
-            await InspectCodeBaselineInitCommand.RunAsync();
+            await InspectCodeBaselineInitCommand.RunAsync(executionContext);
         }
         else if (InspectCodeBaselineSyncCommand.IsRunnable(args))
         {
-            await InspectCodeBaselineSyncCommand.RunAsync(args);
+            await InspectCodeBaselineSyncCommand.RunAsync(executionContext, args);
         }
         else
         {
-            Console.WriteLine(UIConstant.NO_COMMAND);
+            await executionContext.Out.WriteLineAsync(UIConstant.NO_COMMAND);
         }
     }
 }

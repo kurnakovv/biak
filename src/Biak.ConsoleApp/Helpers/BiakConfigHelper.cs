@@ -17,13 +17,14 @@ public static class BiakConfigHelper
     /// <summary>
     /// Get .biak/config model.
     /// </summary>
+    /// <param name="executionContext">Provides the context required to perform the operation.</param>
     /// <param name="json">json content if you want to extract it not from '.biak/config.json' file.</param>
     /// <returns>Warning message and .biak/config model.</returns>
-    public static async Task<(string? Message, BiakConfig Config)> GetAsync(string? json = null)
+    public static async Task<(string? Message, BiakConfig Config)> GetAsync(AppExecutionContext executionContext, string? json = null)
     {
         if (json == null)
         {
-            string configPath = Path.Join(".biak", "config.json");
+            string configPath = Path.Join(executionContext.WorkingDirectory, ".biak", "config.json");
             if (!File.Exists(configPath))
             {
                 return (BiakConfigConstant.FILE_NOT_FOUND, new BiakConfig());

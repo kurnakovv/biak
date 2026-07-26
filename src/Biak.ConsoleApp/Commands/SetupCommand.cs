@@ -27,25 +27,26 @@ public static class SetupCommand
     /// <summary>
     /// Run.
     /// </summary>
+    /// <param name="executionContext">Execution context with working directory for command execution.</param>
     /// <returns><placeholder>A <see cref="Task"/> representing the asynchronous operation.</placeholder></returns>
-    public static async Task RunAsync()
+    public static async Task RunAsync(AppExecutionContext executionContext)
     {
-        string currentDirectory = Directory.GetCurrentDirectory();
+        string currentDirectory = executionContext.WorkingDirectory;
         string editorConfigPath = Path.Join(currentDirectory, ".editorconfig");
 
         if (!File.Exists(editorConfigPath))
         {
-            Console.WriteLine(UIConstant.EDITORCONFIG_NOT_FOUND + editorConfigPath);
+            await executionContext.Out.WriteLineAsync(UIConstant.EDITORCONFIG_NOT_FOUND + editorConfigPath);
             return;
         }
 
-        string targetDir = ".biak";
+        string targetDir = Path.Join(currentDirectory, ".biak");
 
         if (Directory.Exists(targetDir))
         {
-            Console.WriteLine(UIConstant.BIAK_FOLDER_ALREADY_EXISTS);
+            await executionContext.Out.WriteLineAsync(UIConstant.BIAK_FOLDER_ALREADY_EXISTS);
 
-            string? userInput = Console.ReadLine();
+            string? userInput = await executionContext.In.ReadLineAsync();
             bool recreateFolder = string.Equals(userInput, UIConstant.CONFIRM, StringComparison.OrdinalIgnoreCase);
 
             if (!recreateFolder)
@@ -56,7 +57,7 @@ public static class SetupCommand
             Directory.Delete(targetDir, recursive: true);
         }
 
-        Console.WriteLine(UIConstant.START_SETUP);
+        await executionContext.Out.WriteLineAsync(UIConstant.START_SETUP);
 
         Directory.CreateDirectory(targetDir);
 
@@ -99,6 +100,6 @@ public static class SetupCommand
             ) + Environment.NewLine
         );
 
-        Console.WriteLine(UIConstant.END_SETUP);
+        await executionContext.Out.WriteLineAsync(UIConstant.END_SETUP);
     }
 }

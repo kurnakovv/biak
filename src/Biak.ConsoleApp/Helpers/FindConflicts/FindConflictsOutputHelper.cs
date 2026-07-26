@@ -4,14 +4,16 @@
 
 using System.Text;
 using Biak.ConsoleApp.Constants;
+using Biak.ConsoleApp.Models;
 
 namespace Biak.ConsoleApp.Helpers.FindConflicts;
 
 internal static class FindConflictsOutputHelper
 {
-    internal static string Print(
+    internal static async Task<string> PrintAsync(
         Dictionary<string, List<string>> allConflictFiles,
-        List<string> notFoundBranches
+        List<string> notFoundBranches,
+        AppExecutionContext executionContext
     )
     {
         StringBuilder sb = new();
@@ -40,7 +42,7 @@ internal static class FindConflictsOutputHelper
         }
 
         string output = sb.ToString();
-        Console.Write(output);
+        await executionContext.Out.WriteAsync(output);
         return output;
     }
 }

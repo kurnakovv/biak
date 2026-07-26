@@ -22,8 +22,8 @@ public class BiakConfigHelperTests
     [InlineData("duplicate-severities-to-disable", BiakConfigConstant.SEVERITIES_TO_DISABLE_DUPLICATES, SeverityLevelType.None, FailureBehaviorType.Warning)]
     public async Task GetConfigModelAsync(string templateName, string? expectedMessage, SeverityLevelType expectedSeverity, FailureBehaviorType expectedOnImportFailure)
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new($"{nameof(BiakConfigHelperTests)}_{nameof(GetConfigModelAsync)}");
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
 
         string biakDir = Path.Join(testDir.Value, ".biak");
         Directory.CreateDirectory(biakDir);
@@ -39,21 +39,12 @@ public class BiakConfigHelperTests
             overwrite: true
         );
 
-        try
-        {
-            Directory.SetCurrentDirectory(testDir.Value);
+        (string? resultMessage, BiakConfig resultConfig) = await BiakConfigHelper.GetAsync(executionContext: context);
 
-            (string? resultMessage, BiakConfig resultConfig) = await BiakConfigHelper.GetAsync();
-
-            Assert.Equal(expectedMessage, resultMessage);
-            Assert.Equal(expectedSeverity, resultConfig.SeverityWhenDisabled);
-            Assert.NotNull(resultConfig.SeveritiesToDisable);
-            Assert.NotEmpty(resultConfig.SeveritiesToDisable);
-            Assert.Equal(expectedOnImportFailure, resultConfig.OnImportFailure);
-        }
-        finally
-        {
-            Directory.SetCurrentDirectory(originalDirectory);
-        }
+        Assert.Equal(expectedMessage, resultMessage);
+        Assert.Equal(expectedSeverity, resultConfig.SeverityWhenDisabled);
+        Assert.NotNull(resultConfig.SeveritiesToDisable);
+        Assert.NotEmpty(resultConfig.SeveritiesToDisable);
+        Assert.Equal(expectedOnImportFailure, resultConfig.OnImportFailure);
     }
 }

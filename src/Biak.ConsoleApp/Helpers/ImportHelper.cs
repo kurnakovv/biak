@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using Biak.ConsoleApp.Constants;
 using Biak.ConsoleApp.Enums;
 using Biak.ConsoleApp.Exceptions;
+using Biak.ConsoleApp.Models;
 
 namespace Biak.ConsoleApp.Helpers;
 
@@ -39,8 +40,9 @@ public static class ImportHelper
     /// </summary>
     /// <param name="content">.editorconfig content.</param>
     /// <param name="onImportFailure">What to do on import failure.</param>
+    /// <param name="executionContext">Provides the context required to perform the operation.</param>
     /// <returns>Replaced content with imports.</returns>
-    public static async Task<string> ReplaceAsync(string content, FailureBehaviorType onImportFailure)
+    public static async Task<string> ReplaceAsync(string content, FailureBehaviorType onImportFailure, AppExecutionContext executionContext)
     {
         MatchCollection matches = s_importRegex.Matches(content);
         if (matches.Count == 0)
@@ -48,7 +50,7 @@ public static class ImportHelper
             return content;
         }
 
-        string biakDir = Path.Join(Directory.GetCurrentDirectory(), ".biak");
+        string biakDir = Path.Join(executionContext.WorkingDirectory, ".biak");
         string biakFullPath = Path.GetFullPath(biakDir);
 
         string newline = content.Contains("\r\n", StringComparison.Ordinal)
@@ -65,7 +67,7 @@ public static class ImportHelper
                 ? match.Groups[1].Value
                 : match.Groups[2].Value;
 
-            string? replacement = await ResolveImportAsync(value, biakFullPath, newline, onImportFailure);
+            string? replacement = await ResolveImportAsync(value, biakFullPath, newline, onImportFailure, executionContext);
 
             if (replacement != null)
             {
@@ -81,14 +83,15 @@ public static class ImportHelper
         string value,
         string biakFullPath,
         string newline,
-        FailureBehaviorType onImportFailure
+        FailureBehaviorType onImportFailure,
+        AppExecutionContext executionContext
     )
     {
         if (Uri.TryCreate(value, UriKind.Absolute, out Uri? uri))
         {
             if (uri.Scheme != Uri.UriSchemeHttps || !await IsSafeUriAsync(uri))
             {
-                HandleFailureBehavior(onImportFailure, $"{ImportConstant.URL_NOT_ALLOWED} {value}");
+                await HandleFailureBehaviorAsync(onImportFailure, $"{ImportConstant.URL_NOT_ALLOWED} {value}", executionContext);
                 return null;
             }
 
@@ -98,19 +101,23 @@ public static class ImportHelper
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    HandleFailureBehavior(onImportFailure, $"{ImportConstant.UNABLE_TO_RETRIEVE_CONTENT_FROM_LINK} {value} (HTTP {(int)response.StatusCode} {response.ReasonPhrase})");
+                    await HandleFailureBehaviorAsync(
+                        onImportFailure,
+                        $"{ImportConstant.UNABLE_TO_RETRIEVE_CONTENT_FROM_LINK} {value} (HTTP {(int)response.StatusCode} {response.ReasonPhrase})",
+                        executionContext
+                    );
                     return null;
                 }
 
                 if (response.Content.Headers.ContentLength is > MAX_SIZE)
                 {
-                    HandleFailureBehavior(onImportFailure, $"{ImportConstant.RESPONSE_TOO_LARGE} {value}");
+                    await HandleFailureBehaviorAsync(onImportFailure, $"{ImportConstant.RESPONSE_TOO_LARGE} {value}", executionContext);
                     return null;
                 }
 
                 if (!response.Content.Headers.ContentType?.MediaType?.StartsWith("text/", StringComparison.OrdinalIgnoreCase) ?? true)
                 {
-                    HandleFailureBehavior(onImportFailure, $"{ImportConstant.INVALID_CONTENT_TYPE} {value}");
+                    await HandleFailureBehaviorAsync(onImportFailure, $"{ImportConstant.INVALID_CONTENT_TYPE} {value}", executionContext);
                     return null;
                 }
 
@@ -118,7 +125,7 @@ public static class ImportHelper
 
                 if (content == null)
                 {
-                    HandleFailureBehavior(onImportFailure, $"{ImportConstant.RESPONSE_TOO_LARGE} {value}");
+                    await HandleFailureBehaviorAsync(onImportFailure, $"{ImportConstant.RESPONSE_TOO_LARGE} {value}", executionContext);
                     return null;
                 }
 
@@ -126,7 +133,7 @@ public static class ImportHelper
             }
             catch (Exception ex) when (ex is not BiakApplicationException and NotImplementedException)
             {
-                HandleFailureBehavior(onImportFailure, $"{ImportConstant.UNABLE_TO_RETRIEVE_CONTENT_FROM_LINK} {value} (Reason: {ex.Message})");
+                await HandleFailureBehaviorAsync(onImportFailure, $"{ImportConstant.UNABLE_TO_RETRIEVE_CONTENT_FROM_LINK} {value} (Reason: {ex.Message})", executionContext);
                 return null;
             }
         }
@@ -137,13 +144,13 @@ public static class ImportHelper
 
         if (!fullPath.StartsWith(biakFullPath, StringComparison.OrdinalIgnoreCase))
         {
-            HandleFailureBehavior(onImportFailure, $"{ImportConstant.FORBIDDEN_OUTSIDE} {value}");
+            await HandleFailureBehaviorAsync(onImportFailure, $"{ImportConstant.FORBIDDEN_OUTSIDE} {value}", executionContext);
             return null;
         }
 
         if (!File.Exists(fullPath))
         {
-            HandleFailureBehavior(onImportFailure, $"{ImportConstant.FILE_NOT_FOUND} {value}");
+            await HandleFailureBehaviorAsync(onImportFailure, $"{ImportConstant.FILE_NOT_FOUND} {value}", executionContext);
             return null;
         }
 
@@ -213,7 +220,7 @@ public static class ImportHelper
         return false;
     }
 
-    private static void HandleFailureBehavior(FailureBehaviorType onImportFailure, string message)
+    private static async Task HandleFailureBehaviorAsync(FailureBehaviorType onImportFailure, string message, AppExecutionContext executionContext)
     {
         switch (onImportFailure)
         {
@@ -223,7 +230,7 @@ public static class ImportHelper
             }
             case FailureBehaviorType.Warning:
             {
-                Console.WriteLine(message);
+                await executionContext.Out.WriteLineAsync(message);
                 return;
             }
             case FailureBehaviorType.Error:

@@ -3,33 +3,34 @@
 // See the LICENSE file in the project root for full license information.
 
 using Biak.ConsoleApp.Constants;
+using Biak.ConsoleApp.Models;
 
 namespace Biak.ConsoleApp.Helpers.FindConflicts;
 
 internal static class FindConflictsInputHelper
 {
-    internal static FindConflictsInputModel Request()
+    internal static async Task<FindConflictsInputModel> RequestAsync(AppExecutionContext executionContext)
     {
-        Console.WriteLine(SharedFindCommandConstant.ENTER_CRITERIA);
+        await executionContext.Out.WriteLineAsync(SharedFindCommandConstant.ENTER_CRITERIA);
 
-        Console.Write(SharedFindCommandConstant.DEFAULT_BRANCH_INPUT);
-        string? defaultBranch = Console.ReadLine();
+        await executionContext.Out.WriteAsync(SharedFindCommandConstant.DEFAULT_BRANCH_INPUT);
+        string? defaultBranch = await executionContext.In.ReadLineAsync();
         defaultBranch = string.IsNullOrWhiteSpace(defaultBranch) ? "main" : defaultBranch.Trim();
 
-        Console.WriteLine();
+        await executionContext.Out.WriteLineAsync();
 
         IEnumerable<string> branches;
 
         while (true)
         {
-            Console.Write(FindConflictsCommandConstant.BRANCHES_INPUT);
-            string branchesInput = Console.ReadLine()
+            await executionContext.Out.WriteAsync(FindConflictsCommandConstant.BRANCHES_INPUT);
+            string branchesInput = await executionContext.In.ReadLineAsync()
                 ?? throw new OperationCanceledException("Input stream closed.");
 
             if (string.IsNullOrWhiteSpace(branchesInput))
             {
-                Console.WriteLine();
-                Console.WriteLine(FindConflictsCommandConstant.INVALID_BRANCHES_FORMAT);
+                await executionContext.Out.WriteLineAsync();
+                await executionContext.Out.WriteLineAsync(FindConflictsCommandConstant.INVALID_BRANCHES_FORMAT);
                 continue;
             }
 
@@ -37,7 +38,7 @@ internal static class FindConflictsInputHelper
             break;
         }
 
-        Console.WriteLine();
+        await executionContext.Out.WriteLineAsync();
 
         return new FindConflictsInputModel(
             defaultBranch: defaultBranch,
