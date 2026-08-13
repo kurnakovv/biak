@@ -210,7 +210,7 @@ internal class FindActivityInputModel
         SaveOutput = saveOutput;
     }
 
-    internal string DefaultBranch { get; } = null!;
+    internal string DefaultBranch { get; }
     internal int? ExpirationPeriod { get; }
     internal string? FileTypes { get; }
     internal IEnumerable<string> FileExtensions { get; }
