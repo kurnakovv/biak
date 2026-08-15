@@ -91,10 +91,10 @@ public class GitResult
     /// <summary>
     /// Output.
     /// </summary>
-    public string Output { get; init; } = null!;
+    public required string Output { get; init; }
 
     /// <summary>
     /// Error.
     /// </summary>
-    public string Error { get; init; } = null!;
+    public required string Error { get; init; }
 }
