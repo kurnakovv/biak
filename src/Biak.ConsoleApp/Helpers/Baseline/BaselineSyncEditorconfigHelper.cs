@@ -222,7 +222,7 @@ public static class BaselineSyncEditorconfigHelper
 
     private static bool TryGetSectionFiles(string line, out string[] sectionFiles)
     {
-        sectionFiles = Array.Empty<string>();
+        sectionFiles = [];
 
         string trimmed = line.Trim();
         if (!trimmed.StartsWith("[{", StringComparison.Ordinal)
