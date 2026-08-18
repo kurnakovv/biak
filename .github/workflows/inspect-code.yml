@@ -91,4 +91,6 @@ jobs:
 
           sys.exit(1)
           PY
-          
+
+    permissions:
+      security-events: write
