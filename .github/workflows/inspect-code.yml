@@ -37,24 +37,18 @@ jobs:
         uses: JetBrains/ReSharper-InspectCode@v0.9
         with:
           solution: ./biak.slnx
+          output: results.sarif.json
+          format: Sarif
+          upload-sarif: true
 
       - name: Check InspectCode violations
         shell: bash
         run: |
-          set -e
-
-          REPORT="inspectcode.sarif"
-
-          if [ ! -f "$REPORT" ]; then
-            echo "InspectCode report not found: $REPORT"
-            exit 1
-          fi
-
-          python3 - "$REPORT" <<'PY'
+          python3 - <<'PY'
           import json
           import sys
 
-          report_file = sys.argv[1]
+          report_file = "results.sarif.json"
 
           with open(report_file, "r", encoding="utf-8") as f:
               report = json.load(f)
@@ -86,12 +80,15 @@ jobs:
                   line = region.get("startLine", 1)
                   column = region.get("startColumn", 1)
 
-                  print(f"::error file={file},line={line},col={column}::{rule}: {message}")
+                  print(
+                      f"::error file={file},"
+                      f"line={line},"
+                      f"col={column}::"
+                      f"{rule}: {message}"
+                  )
               else:
                   print(f"::error::{rule}: {message}")
 
           sys.exit(1)
           PY
-
-    permissions:
-      security-events: write
+          
