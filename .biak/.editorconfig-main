@@ -1068,6 +1068,7 @@ dotnet_diagnostic.KUK0005.severity = none # .TagWithCallSite() on EF Core query 
 
 dotnet_diagnostic.KUK0001.excluded_methods = Foo,Bar # Optional | Ignore selected methods
 
+^biak^ always-enabled start
 [*]
 
 ##
@@ -4216,3 +4217,4 @@ resharper_html_path_error_highlighting = none
 resharper_suggest_base_type_for_parameter_highlighting = error
 
 ## **END** ReSharper Inspect Code **END**
+^biak^ always-enabled end
