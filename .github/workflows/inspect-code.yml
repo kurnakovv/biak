@@ -70,6 +70,9 @@ jobs:
               message = issue.get("message", {}).get("text", "Unknown issue")
 
               locations = issue.get("locations", [])
+              file = "unknown file"
+              line = 1
+              column = 1
 
               if locations:
                   physical = locations[0].get("physicalLocation", {})
@@ -80,6 +83,9 @@ jobs:
                   line = region.get("startLine", 1)
                   column = region.get("startColumn", 1)
 
+              print(f"Error: {rule} ({file}:{line}:{column}): {message}")
+
+              if file != "unknown file":
                   print(
                       f"::error file={file},"
                       f"line={line},"
