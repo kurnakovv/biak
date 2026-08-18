@@ -88,10 +88,10 @@ jobs:
                       f"::error file={file},"
                       f"line={line},"
                       f"col={column}::"
-                      f"{rule}: {message}"
+                      f"{rule} ({file}:{line}:{column}): {message}"
                   )
               else:
-                  print(f"::error::{rule}: {message}")
+                  print(f"::error::{rule} (unknown file): {message}")
 
           sys.exit(1)
           PY
