@@ -83,8 +83,6 @@ jobs:
                   line = region.get("startLine", 1)
                   column = region.get("startColumn", 1)
 
-              print(f"Error: {rule} ({file}:{line}:{column}): {message}")
-
               if file != "unknown file":
                   print(
                       f"::error file={file},"
