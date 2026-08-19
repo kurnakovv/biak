@@ -14,10 +14,10 @@ public class WarningsBaselineSyncHelperTests
         return new()
         {
             {
-                @"
+                """
                     [*.cs]
                     dotnet_diagnostic.CA1001.severity = error
-                ",
+                """,
                 Array.Empty<string>()
             },
             {

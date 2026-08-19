@@ -15,10 +15,10 @@ public class InspectCodeBaselineSyncHelperTests
         return new()
         {
             {
-                @"
+                """
                     [*.cs]
                     resharper_field_can_be_made_read_only_local_highlighting = error
-                ",
+                """,
                 Array.Empty<string>()
             },
             {

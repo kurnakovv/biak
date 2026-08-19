@@ -25,12 +25,14 @@ public class SeverityHelperTests
     [Fact]
     public void DisableDoesNotChangeNonSeverityLines()
     {
-        string input = @"
-root = true
-[*.cs]
-indent_style = space
-indent_size = 4
-";
+        string input = """
+
+            root = true
+            [*.cs]
+            indent_style = space
+            indent_size = 4
+
+            """;
 
         string result = SeverityHelper.Disable(input, BiakConfig.DefaultSeveritiesToDisable, SeverityLevelType.None);
 
@@ -40,16 +42,20 @@ indent_size = 4
     [Fact]
     public void DisableReplacesMultipleSeveritiesInOneContent()
     {
-        string input = @"
-dotnet_diagnostic.CA2000.severity = error
-dotnet_diagnostic.CA1001.severity = warning
-dotnet_diagnostic.CA1707.severity = suggestion
-";
-        string expected = @"
-dotnet_diagnostic.CA2000.severity = none
-dotnet_diagnostic.CA1001.severity = none
-dotnet_diagnostic.CA1707.severity = none
-";
+        string input = """
+
+            dotnet_diagnostic.CA2000.severity = error
+            dotnet_diagnostic.CA1001.severity = warning
+            dotnet_diagnostic.CA1707.severity = suggestion
+
+            """;
+        string expected = """
+
+            dotnet_diagnostic.CA2000.severity = none
+            dotnet_diagnostic.CA1001.severity = none
+            dotnet_diagnostic.CA1707.severity = none
+
+            """;
 
         string result = SeverityHelper.Disable(input, BiakConfig.DefaultSeveritiesToDisable, SeverityLevelType.None);
 
@@ -59,16 +65,20 @@ dotnet_diagnostic.CA1707.severity = none
     [Fact]
     public void DisableReplaceWithSuggestion()
     {
-        string input = @"
-dotnet_diagnostic.CA2000.severity = error
-dotnet_diagnostic.CA1001.severity = warning
-dotnet_diagnostic.CA1707.severity = suggestion
-";
-        string expected = @"
-dotnet_diagnostic.CA2000.severity = suggestion
-dotnet_diagnostic.CA1001.severity = suggestion
-dotnet_diagnostic.CA1707.severity = suggestion
-";
+        string input = """
+
+            dotnet_diagnostic.CA2000.severity = error
+            dotnet_diagnostic.CA1001.severity = warning
+            dotnet_diagnostic.CA1707.severity = suggestion
+
+            """;
+        string expected = """
+
+            dotnet_diagnostic.CA2000.severity = suggestion
+            dotnet_diagnostic.CA1001.severity = suggestion
+            dotnet_diagnostic.CA1707.severity = suggestion
+
+            """;
 
         string result = SeverityHelper.Disable(input, BiakConfig.DefaultSeveritiesToDisable, SeverityLevelType.Suggestion);
 
@@ -78,16 +88,20 @@ dotnet_diagnostic.CA1707.severity = suggestion
     [Fact]
     public void DisableReplaceOnlyError()
     {
-        string input = @"
-dotnet_diagnostic.CA2000.severity = error
-dotnet_diagnostic.CA1001.severity = warning
-dotnet_diagnostic.CA1707.severity = suggestion
-";
-        string expected = @"
-dotnet_diagnostic.CA2000.severity = none
-dotnet_diagnostic.CA1001.severity = warning
-dotnet_diagnostic.CA1707.severity = suggestion
-";
+        string input = """
+
+            dotnet_diagnostic.CA2000.severity = error
+            dotnet_diagnostic.CA1001.severity = warning
+            dotnet_diagnostic.CA1707.severity = suggestion
+
+            """;
+        string expected = """
+
+            dotnet_diagnostic.CA2000.severity = none
+            dotnet_diagnostic.CA1001.severity = warning
+            dotnet_diagnostic.CA1707.severity = suggestion
+
+            """;
 
         string result = SeverityHelper.Disable(input, [SeverityLevelType.Error], SeverityLevelType.None);
 
@@ -97,16 +111,20 @@ dotnet_diagnostic.CA1707.severity = suggestion
     [Fact]
     public void DisableReplaceErrorAndWarning()
     {
-        string input = @"
-dotnet_diagnostic.CA2000.severity = error
-dotnet_diagnostic.CA1001.severity = warning
-dotnet_diagnostic.CA1707.severity = suggestion
-";
-        string expected = @"
-dotnet_diagnostic.CA2000.severity = none
-dotnet_diagnostic.CA1001.severity = none
-dotnet_diagnostic.CA1707.severity = suggestion
-";
+        string input = """
+
+            dotnet_diagnostic.CA2000.severity = error
+            dotnet_diagnostic.CA1001.severity = warning
+            dotnet_diagnostic.CA1707.severity = suggestion
+
+            """;
+        string expected = """
+
+            dotnet_diagnostic.CA2000.severity = none
+            dotnet_diagnostic.CA1001.severity = none
+            dotnet_diagnostic.CA1707.severity = suggestion
+
+            """;
 
         string result = SeverityHelper.Disable(input, [SeverityLevelType.Error, SeverityLevelType.Warning], SeverityLevelType.None);
 
@@ -116,22 +134,26 @@ dotnet_diagnostic.CA1707.severity = suggestion
     [Fact]
     public void DisableShouldKeepAlwaysEnabledRules()
     {
-        string input = @"
-dotnet_diagnostic.CA2000.severity = error
-^biak^ always-enabled start
-dotnet_diagnostic.CA9999.severity = error
-dotnet_diagnostic.CA1001.severity = warning
-^biak^ always-enabled end
-dotnet_diagnostic.CA1707.severity = suggestion
-";
-        string expected = @"
-dotnet_diagnostic.CA2000.severity = none
-^biak^ always-enabled start
-dotnet_diagnostic.CA9999.severity = error
-dotnet_diagnostic.CA1001.severity = warning
-^biak^ always-enabled end
-dotnet_diagnostic.CA1707.severity = none
-";
+        string input = """
+
+            dotnet_diagnostic.CA2000.severity = error
+            ^biak^ always-enabled start
+            dotnet_diagnostic.CA9999.severity = error
+            dotnet_diagnostic.CA1001.severity = warning
+            ^biak^ always-enabled end
+            dotnet_diagnostic.CA1707.severity = suggestion
+
+            """;
+        string expected = """
+
+            dotnet_diagnostic.CA2000.severity = none
+            ^biak^ always-enabled start
+            dotnet_diagnostic.CA9999.severity = error
+            dotnet_diagnostic.CA1001.severity = warning
+            ^biak^ always-enabled end
+            dotnet_diagnostic.CA1707.severity = none
+
+            """;
 
         string result = SeverityHelper.Disable(input, BiakConfig.DefaultSeveritiesToDisable, SeverityLevelType.None);
 
@@ -141,18 +163,22 @@ dotnet_diagnostic.CA1707.severity = none
     [Fact]
     public void DisableShouldKeepAlwaysEnabledRulesWhenSeverityWhenDisabledIsSuggestion()
     {
-        string input = @"
-^biak^ always-enabled start
-dotnet_diagnostic.CA9999.severity = error
-^biak^ always-enabled end
-dotnet_diagnostic.CA2000.severity = warning
-";
-        string expected = @"
-^biak^ always-enabled start
-dotnet_diagnostic.CA9999.severity = error
-^biak^ always-enabled end
-dotnet_diagnostic.CA2000.severity = suggestion
-";
+        string input = """
+
+            ^biak^ always-enabled start
+            dotnet_diagnostic.CA9999.severity = error
+            ^biak^ always-enabled end
+            dotnet_diagnostic.CA2000.severity = warning
+
+            """;
+        string expected = """
+
+            ^biak^ always-enabled start
+            dotnet_diagnostic.CA9999.severity = error
+            ^biak^ always-enabled end
+            dotnet_diagnostic.CA2000.severity = suggestion
+
+            """;
 
         string result = SeverityHelper.Disable(input, BiakConfig.DefaultSeveritiesToDisable, SeverityLevelType.Suggestion);
 

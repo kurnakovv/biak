@@ -11,10 +11,12 @@ public class AlwaysEnabledRulesHelperTests
     [Fact]
     public void ProtectSeveritiesWhenStartMarkerHasNoEndMarkerReturnsSeveritiesUnprotected()
     {
-        string input = @"
-^biak^ always-enabled start
-dotnet_diagnostic.CA9999.severity = error
-";
+        string input = """
+
+            ^biak^ always-enabled start
+            dotnet_diagnostic.CA9999.severity = error
+
+            """;
 
         (string content, Dictionary<string, string> placeholders) = AlwaysEnabledRulesHelper.ProtectSeverities(input);
 

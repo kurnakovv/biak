@@ -31,7 +31,7 @@ public static class ImportHelper
     };
 
     private static readonly Regex s_importRegex = new(
-        @"^(?!\s*#)[ \t]*\^biak\^\s*import\s*(?:""([^""]+)""|(\S+))",
+        """^(?!\s*#)[ \t]*\^biak\^\s*import\s*(?:"([^"]+)"|(\S+))""",
         RegexOptions.Compiled | RegexOptions.Multiline
     );
 

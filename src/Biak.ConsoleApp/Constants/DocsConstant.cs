@@ -12,7 +12,7 @@ public static class DocsConstant
     /// <summary>
     /// `dotnet biak` greeting text.
     /// </summary>
-    public const string GREETING = @"
+    public const string GREETING = """
        __________________________________
       | Hi, I'm biak!                    |
       | I was made by kurnakovv          |
@@ -61,12 +61,13 @@ public static class DocsConstant
                                                                  | Need help?                        |
                                                                  | dotnet biak --help                |
                                                                  |___________________________________|
-";
+""";
 
     /// <summary>
     /// `dotnet biak --help` text.
     /// </summary>
-    public const string HELP = @"--------------------
+    public const string HELP = """
+--------------------
 Enable / Disable .editorconfig rules | Change severity level with one command without losing the original values.
 
 ---
@@ -104,5 +105,6 @@ InspectCode baseline | Tools for initializing and maintaining an Inspect Code ba
 * dotnet biak inspectcode-baseline init | Runs Inspect Code, groups current issues by .editorconfig rule key, and prints baseline filters marked for later synchronization. Optionally, you can configure target, snapshotSeverity, additionalArgs, and ruleIdOverrides via .biak/config.json https://github.com/kurnakovv/biak/wiki/InspectCodeBaselineInit
 
 * dotnet biak inspectcode-baseline sync [--path <path>] | Synchronizes Inspect Code baseline filters by removing entries for issues that are no longer present. By default, the baseline file is discovered by marker inside .biak/.editorconfig* or falls back to the root .editorconfig; use --path to target a specific .editorconfig file https://github.com/kurnakovv/biak/wiki/InspectCodeBaselineSync
---------------------";
+--------------------
+""";
 }
