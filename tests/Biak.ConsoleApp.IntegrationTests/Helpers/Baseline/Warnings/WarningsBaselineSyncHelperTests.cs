@@ -12,13 +12,13 @@ public class WarningsBaselineSyncHelperTests
     [Fact]
     public void RemoveFiltersShouldRemoveBlockWhenCodeIsNotInActiveFilesByCode()
     {
-        string content = $$"""
+        const string CONTENT = $$"""
             [{src/File.cs}]
             dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
             """;
 
         string result = WarningsBaselineSyncHelper.RemoveFilters(
-            content,
+            CONTENT,
             new HashSet<string>(["CA2000"], StringComparer.OrdinalIgnoreCase),
             new Dictionary<string, IReadOnlySet<string>>(StringComparer.OrdinalIgnoreCase)
         );
@@ -30,30 +30,30 @@ public class WarningsBaselineSyncHelperTests
     [Fact]
     public void RemoveFiltersShouldIgnoreBlockWhenDiagnosticLineHasInvalidFormat()
     {
-        string content = """
+        const string CONTENT = """
             [{src/File.cs}]
             dotnet_diagnostic.CA2000.severity = suggestion
             """;
 
         string result = WarningsBaselineSyncHelper.RemoveFilters(
-            content,
+            CONTENT,
             new HashSet<string>(["CA2000"], StringComparer.OrdinalIgnoreCase),
             new Dictionary<string, IReadOnlySet<string>>(StringComparer.OrdinalIgnoreCase)
         );
 
-        Assert.Equal(content, result);
+        Assert.Equal(CONTENT, result);
     }
 
     [Fact]
     public void GetSynchronizedFilesShouldTreatAllSectionFilesAsRemovedWhenCodeIsNotInActiveFilesByCode()
     {
-        string content = $$"""
+        const string CONTENT = $$"""
             [{src/File1.cs,src/File2.cs}]
             dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
             """;
 
         IReadOnlyDictionary<string, IReadOnlySet<string>> result = WarningsBaselineSyncHelper.GetSynchronizedFiles(
-            content,
+            CONTENT,
             new HashSet<string>(["CA2000"], StringComparer.OrdinalIgnoreCase),
             new Dictionary<string, IReadOnlySet<string>>(StringComparer.OrdinalIgnoreCase)
         );

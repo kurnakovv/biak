@@ -25,7 +25,7 @@ public class SeverityHelperTests
     [Fact]
     public void DisableDoesNotChangeNonSeverityLines()
     {
-        string input = """
+        const string INPUT = """
 
             root = true
             [*.cs]
@@ -34,22 +34,22 @@ public class SeverityHelperTests
 
             """;
 
-        string result = SeverityHelper.Disable(input, BiakConfig.DefaultSeveritiesToDisable, SeverityLevelType.None);
+        string result = SeverityHelper.Disable(INPUT, BiakConfig.DefaultSeveritiesToDisable, SeverityLevelType.None);
 
-        Assert.Equal(input, result);
+        Assert.Equal(INPUT, result);
     }
 
     [Fact]
     public void DisableReplacesMultipleSeveritiesInOneContent()
     {
-        string input = """
+        const string INPUT = """
 
             dotnet_diagnostic.CA2000.severity = error
             dotnet_diagnostic.CA1001.severity = warning
             dotnet_diagnostic.CA1707.severity = suggestion
 
             """;
-        string expected = """
+        const string EXPECTED = """
 
             dotnet_diagnostic.CA2000.severity = none
             dotnet_diagnostic.CA1001.severity = none
@@ -57,22 +57,22 @@ public class SeverityHelperTests
 
             """;
 
-        string result = SeverityHelper.Disable(input, BiakConfig.DefaultSeveritiesToDisable, SeverityLevelType.None);
+        string result = SeverityHelper.Disable(INPUT, BiakConfig.DefaultSeveritiesToDisable, SeverityLevelType.None);
 
-        Assert.Equal(expected, result);
+        Assert.Equal(EXPECTED, result);
     }
 
     [Fact]
     public void DisableReplaceWithSuggestion()
     {
-        string input = """
+        const string INPUT = """
 
             dotnet_diagnostic.CA2000.severity = error
             dotnet_diagnostic.CA1001.severity = warning
             dotnet_diagnostic.CA1707.severity = suggestion
 
             """;
-        string expected = """
+        const string EXPECTED = """
 
             dotnet_diagnostic.CA2000.severity = suggestion
             dotnet_diagnostic.CA1001.severity = suggestion
@@ -80,22 +80,22 @@ public class SeverityHelperTests
 
             """;
 
-        string result = SeverityHelper.Disable(input, BiakConfig.DefaultSeveritiesToDisable, SeverityLevelType.Suggestion);
+        string result = SeverityHelper.Disable(INPUT, BiakConfig.DefaultSeveritiesToDisable, SeverityLevelType.Suggestion);
 
-        Assert.Equal(expected, result);
+        Assert.Equal(EXPECTED, result);
     }
 
     [Fact]
     public void DisableReplaceOnlyError()
     {
-        string input = """
+        const string INPUT = """
 
             dotnet_diagnostic.CA2000.severity = error
             dotnet_diagnostic.CA1001.severity = warning
             dotnet_diagnostic.CA1707.severity = suggestion
 
             """;
-        string expected = """
+        const string EXPECTED = """
 
             dotnet_diagnostic.CA2000.severity = none
             dotnet_diagnostic.CA1001.severity = warning
@@ -103,22 +103,22 @@ public class SeverityHelperTests
 
             """;
 
-        string result = SeverityHelper.Disable(input, [SeverityLevelType.Error], SeverityLevelType.None);
+        string result = SeverityHelper.Disable(INPUT, [SeverityLevelType.Error], SeverityLevelType.None);
 
-        Assert.Equal(expected, result);
+        Assert.Equal(EXPECTED, result);
     }
 
     [Fact]
     public void DisableReplaceErrorAndWarning()
     {
-        string input = """
+        const string INPUT = """
 
             dotnet_diagnostic.CA2000.severity = error
             dotnet_diagnostic.CA1001.severity = warning
             dotnet_diagnostic.CA1707.severity = suggestion
 
             """;
-        string expected = """
+        const string EXPECTED = """
 
             dotnet_diagnostic.CA2000.severity = none
             dotnet_diagnostic.CA1001.severity = none
@@ -126,15 +126,15 @@ public class SeverityHelperTests
 
             """;
 
-        string result = SeverityHelper.Disable(input, [SeverityLevelType.Error, SeverityLevelType.Warning], SeverityLevelType.None);
+        string result = SeverityHelper.Disable(INPUT, [SeverityLevelType.Error, SeverityLevelType.Warning], SeverityLevelType.None);
 
-        Assert.Equal(expected, result);
+        Assert.Equal(EXPECTED, result);
     }
 
     [Fact]
     public void DisableShouldKeepAlwaysEnabledRules()
     {
-        string input = """
+        const string INPUT = """
 
             dotnet_diagnostic.CA2000.severity = error
             ^biak^ always-enabled start
@@ -144,7 +144,7 @@ public class SeverityHelperTests
             dotnet_diagnostic.CA1707.severity = suggestion
 
             """;
-        string expected = """
+        const string EXPECTED = """
 
             dotnet_diagnostic.CA2000.severity = none
             ^biak^ always-enabled start
@@ -155,15 +155,15 @@ public class SeverityHelperTests
 
             """;
 
-        string result = SeverityHelper.Disable(input, BiakConfig.DefaultSeveritiesToDisable, SeverityLevelType.None);
+        string result = SeverityHelper.Disable(INPUT, BiakConfig.DefaultSeveritiesToDisable, SeverityLevelType.None);
 
-        Assert.Equal(expected, result);
+        Assert.Equal(EXPECTED, result);
     }
 
     [Fact]
     public void DisableShouldKeepAlwaysEnabledRulesWhenSeverityWhenDisabledIsSuggestion()
     {
-        string input = """
+        const string INPUT = """
 
             ^biak^ always-enabled start
             dotnet_diagnostic.CA9999.severity = error
@@ -171,7 +171,7 @@ public class SeverityHelperTests
             dotnet_diagnostic.CA2000.severity = warning
 
             """;
-        string expected = """
+        const string EXPECTED = """
 
             ^biak^ always-enabled start
             dotnet_diagnostic.CA9999.severity = error
@@ -180,8 +180,8 @@ public class SeverityHelperTests
 
             """;
 
-        string result = SeverityHelper.Disable(input, BiakConfig.DefaultSeveritiesToDisable, SeverityLevelType.Suggestion);
+        string result = SeverityHelper.Disable(INPUT, BiakConfig.DefaultSeveritiesToDisable, SeverityLevelType.Suggestion);
 
-        Assert.Equal(expected, result);
+        Assert.Equal(EXPECTED, result);
     }
 }

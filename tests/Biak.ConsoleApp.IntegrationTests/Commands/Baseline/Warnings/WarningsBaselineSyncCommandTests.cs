@@ -623,7 +623,7 @@ public class WarningsBaselineSyncCommandTests
         string syncedContent = await File.ReadAllTextAsync(editorconfigPath);
         string consoleOutput = output.ToString();
 
-        string expectedResult = "Sync complete. Removed 3 file(s); resolved 3 filter(s). 5 filter(s) still alive.";
+        const string EXPECTED_RESULT = "Sync complete. Removed 3 file(s); resolved 3 filter(s). 5 filter(s) still alive.";
         string expectedOutput = WarningsBaselineSyncCommandConstant.SYNC_STARTED
             + Environment.NewLine
             + Environment.NewLine
@@ -634,11 +634,11 @@ public class WarningsBaselineSyncCommandTests
             + "ProgramCS0168Warning.cs (CS0168)"
             + Environment.NewLine
             + Environment.NewLine
-            + expectedResult
+            + EXPECTED_RESULT
             + Environment.NewLine
             + Environment.NewLine;
 
-        Assert.Equal(expectedResult, result);
+        Assert.Equal(EXPECTED_RESULT, result);
         Assert.Equal(expectedOutput, consoleOutput);
 
         Assert.DoesNotContain("[{ProgramCS0168Warning.cs}]", syncedContent, StringComparison.Ordinal);

@@ -681,7 +681,7 @@ public class WarningsBaselineSyncHelperTests
     [Fact]
     public void GetSynchronizedFilesReturnsRemovedAndPrunedFilesGroupedByFile()
     {
-        string content = $$"""
+        const string CONTENT = $$"""
             [{src/Fixed.cs}]
             dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
 
@@ -697,7 +697,7 @@ public class WarningsBaselineSyncHelperTests
             };
 
         IReadOnlyDictionary<string, IReadOnlySet<string>> result = WarningsBaselineSyncHelper.GetSynchronizedFiles(
-            content,
+            CONTENT,
             codesToKeep,
             activeFilesByCode
         );
