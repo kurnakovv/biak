@@ -13,6 +13,7 @@ public static class DocsConstant
     /// `dotnet biak` greeting text.
     /// </summary>
     public const string GREETING = """
+
        __________________________________
       | Hi, I'm biak!                    |
       | I was made by kurnakovv          |
