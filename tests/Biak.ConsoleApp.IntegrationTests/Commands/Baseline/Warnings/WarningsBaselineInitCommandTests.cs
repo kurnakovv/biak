@@ -225,7 +225,7 @@ public class WarningsBaselineInitCommandTests
         Assert.Equal(WarningsBaselineBuildConstant.INVALID_BUILD_TARGET_PATH, exception.Message);
     }
 
-    private static async Task DeleteFileWhileTaskIsRunningAsync(Task task, string filePath, TimeSpan timeout)
+    private static async Task DeleteFileWhileTaskIsRunningAsync(IAsyncResult task, string filePath, TimeSpan timeout)
     {
         DateTime deadline = DateTime.UtcNow.Add(timeout);
 

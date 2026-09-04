@@ -144,9 +144,9 @@ public static class BaselineSyncEditorconfigHelper
         );
     }
 
-    private static IEnumerable<BaselineBlock> EnumerateBlocks(string[] lines, Func<string, string?> tryGetIdentifier)
+    private static IEnumerable<BaselineBlock> EnumerateBlocks(IReadOnlyList<string> lines, Func<string, string?> tryGetIdentifier)
     {
-        for (int i = 0; i < lines.Length; i++)
+        for (int i = 0; i < lines.Count; i++)
         {
             if (!TryGetSectionFiles(lines[i], out string[] sectionFiles))
             {
@@ -154,12 +154,12 @@ public static class BaselineSyncEditorconfigHelper
             }
 
             int diagIndex = i + 1;
-            while (diagIndex < lines.Length && string.IsNullOrWhiteSpace(lines[diagIndex]))
+            while (diagIndex < lines.Count && string.IsNullOrWhiteSpace(lines[diagIndex]))
             {
                 diagIndex++;
             }
 
-            if (diagIndex >= lines.Length)
+            if (diagIndex >= lines.Count)
             {
                 continue;
             }
@@ -171,20 +171,20 @@ public static class BaselineSyncEditorconfigHelper
             }
 
             int blockEnd = diagIndex + 1;
-            while (blockEnd < lines.Length && string.IsNullOrWhiteSpace(lines[blockEnd]))
+            while (blockEnd < lines.Count && string.IsNullOrWhiteSpace(lines[blockEnd]))
             {
                 blockEnd++;
             }
 
             int nextSectionIndex = blockEnd;
-            while (nextSectionIndex < lines.Length
+            while (nextSectionIndex < lines.Count
                 && (string.IsNullOrWhiteSpace(lines[nextSectionIndex])
                     || IsCommentLine(lines[nextSectionIndex])))
             {
                 nextSectionIndex++;
             }
 
-            if (nextSectionIndex < lines.Length && !lines[nextSectionIndex].TrimStart().StartsWith('['))
+            if (nextSectionIndex < lines.Count && !lines[nextSectionIndex].TrimStart().StartsWith('['))
             {
                 continue;
             }
@@ -199,7 +199,7 @@ public static class BaselineSyncEditorconfigHelper
     }
 
     private static void RemoveTrailingAssociatedComment(
-        List<string> lines,
+        IList<string> lines,
         string identifier,
         Func<string, string, bool>? isAssociatedCommentLine)
     {
@@ -254,7 +254,7 @@ public static class BaselineSyncEditorconfigHelper
         return trimmed.StartsWith('#') || trimmed.StartsWith(';');
     }
 
-    private static void AddSynchronizedFile(Dictionary<string, HashSet<string>> synchronizedFiles, string filePath, string identifier)
+    private static void AddSynchronizedFile(IDictionary<string, HashSet<string>> synchronizedFiles, string filePath, string identifier)
     {
         if (!synchronizedFiles.TryGetValue(filePath, out HashSet<string>? identifiers))
         {

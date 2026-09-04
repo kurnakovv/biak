@@ -26,8 +26,7 @@ public static class StatusCommand
             return false;
         }
 
-        return args.Length == 1
-            || (args.Length == 2 && args[1] == CommandArgumentConstant.DEBUG_INFO);
+        return args is [_] or [_, CommandArgumentConstant.DEBUG_INFO];
     }
 
     /// <summary>

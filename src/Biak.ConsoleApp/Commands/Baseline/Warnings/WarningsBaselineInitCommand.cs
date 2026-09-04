@@ -62,15 +62,13 @@ public static class WarningsBaselineInitCommand
                 buildTarget
             );
 
-            string originalDirectory = baseDirectory;
-
             Dictionary<string, IReadOnlyList<string>> warnings = WarningsBaselineBuildHelper.GetSourceWarnings(build)
                 .GroupBy(x => x.Code)
                 .OrderBy(x => x.Key)
                 .ToDictionary(
                     x => x.Key,
                     y => (IReadOnlyList<string>)y
-                        .Select(x => Path.GetRelativePath(originalDirectory, x.File).Replace(Path.DirectorySeparatorChar, '/'))
+                        .Select(x => Path.GetRelativePath(baseDirectory, x.File).Replace(Path.DirectorySeparatorChar, '/'))
                         .Distinct()
                         .OrderBy(x => x)
                         .ToList()

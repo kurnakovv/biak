@@ -805,11 +805,11 @@ public class Ca1822ViolationService
         }
 
         string runtimeEditorconfigPath = Path.Join(testDir.Value, ".editorconfig");
-        const string EXPECTED_RUNTIME_EDITORCONFIG_CONTENT = $$"""
+        const string EXPECTED_RUNTIME_EDITORCONFIG_CONTENT = $"""
                 root = true
 
                 [*.cs]
-                dotnet_diagnostic.CA1822.severity = suggestion {{InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}}
+                dotnet_diagnostic.CA1822.severity = suggestion {InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}
                 """;
         await File.WriteAllTextAsync(runtimeEditorconfigPath, EXPECTED_RUNTIME_EDITORCONFIG_CONTENT);
 

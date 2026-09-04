@@ -20,7 +20,7 @@ public static class ImportHelper
     private const long MAX_SIZE = 5_000_000; // 5 MB
 
     private static readonly HttpClient s_httpClient = new(
-        new HttpClientHandler()
+        new HttpClientHandler
         {
             AllowAutoRedirect = false,
             CheckCertificateRevocationList = true,
