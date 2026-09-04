@@ -1519,10 +1519,10 @@ resharper_string_index_of_is_culture_specific_3_highlighting = error # + d
 resharper_string_last_index_of_is_culture_specific_1_highlighting = none # rejected for EF false-positive
 
 # String.LastIndexOf is culture-specific (string.LastIndexOf(string, int) is culture-specific) [StringLastIndexOfIsCultureSpecific.2] | https://www.jetbrains.com/help/resharper/StringLastIndexOfIsCultureSpecific.2.html
-resharper_string_last_index_of_is_culture_specific_2_highlighting resharper_string_last_index_of_is_culture_specific_1_highlighting = none # rejected for EF false-positive
+resharper_string_last_index_of_is_culture_specific_2_highlighting = none # rejected for EF false-positive
 
 # String.LastIndexOf is culture-specific (string.LastIndexOf(string, int) is culture-specific) [StringLastIndexOfIsCultureSpecific.3] | https://www.jetbrains.com/help/resharper/StringLastIndexOfIsCultureSpecific.3.html
-resharper_string_last_index_of_is_culture_specific_3_highlighting resharper_string_last_index_of_is_culture_specific_1_highlighting = none # rejected for EF false-positive
+resharper_string_last_index_of_is_culture_specific_3_highlighting = none # rejected for EF false-positive
 
 # String.StartsWith is culture-specific (string.StartsWith(string) is culture-specific) [StringStartsWithIsCultureSpecific] | https://www.jetbrains.com/help/resharper/StringStartsWithIsCultureSpecific.html
 resharper_string_starts_with_is_culture_specific_highlighting = none # + rejected for EF false positive
