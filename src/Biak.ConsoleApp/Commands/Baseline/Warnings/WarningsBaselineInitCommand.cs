@@ -36,8 +36,8 @@ public static class WarningsBaselineInitCommand
             return false;
         }
 
-        return args.Length == 2
-            || (args.Length == 4 && args[2] == CommandArgumentConstant.TARGET && !string.IsNullOrWhiteSpace(args[3]));
+        return args is [_, _]
+            || (args is [_, _, CommandArgumentConstant.TARGET, var target] && !string.IsNullOrWhiteSpace(target));
     }
 
     /// <summary>
@@ -115,10 +115,8 @@ public static class WarningsBaselineInitCommand
 
     private static string? ResolveBuildTarget(string[]? args)
     {
-        return args?.Length == 4
-            && args[2] == CommandArgumentConstant.TARGET
-            && !string.IsNullOrWhiteSpace(args[3])
-            ? args[3]
+        return args is [_, _, CommandArgumentConstant.TARGET, var target] && !string.IsNullOrWhiteSpace(target)
+            ? target
             : null;
     }
 }

@@ -109,8 +109,8 @@ public class InspectCodeBaselineSarifParserTests
         IReadOnlyList<InspectCodeIssue> result = InspectCodeBaselineSarifParser.Parse(SARIF);
 
         Assert.Equal(2, result.Count);
-        Assert.Contains(result, x => x.RuleId == "ConvertToConstant.Local" && x.FilePath == "src/ServiceA.cs");
-        Assert.Contains(result, x => x.RuleId == "MemberCanBePrivate.Global" && x.FilePath == "src/ServiceB.cs");
+        Assert.Contains(result, x => x is { RuleId: "ConvertToConstant.Local", FilePath: "src/ServiceA.cs" });
+        Assert.Contains(result, x => x is { RuleId: "MemberCanBePrivate.Global", FilePath: "src/ServiceB.cs" });
     }
 
     [Fact]

@@ -24,7 +24,7 @@ public static class FindConflictsCommand
     /// <returns>Can be run or not.</returns>
     public static bool IsRunnable(string[] args)
     {
-        return args.Length == 1 && args[0] == CommandArgumentConstant.FIND_CONFLICTS;
+        return args is [CommandArgumentConstant.FIND_CONFLICTS];
     }
 
     /// <summary>
