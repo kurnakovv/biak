@@ -125,9 +125,9 @@ public class BiakConfigHelperTests
     [Fact]
     public async Task GetAllPropertiesAsync()
     {
-        string json = /*lang=json,strict*/ "{\"severityWhenDisabled\": \"suggestion\", \"severitiesToDisable\": [\"error\", \"warning\"], \"onImportFailure\": \"error\"}";
+        const string JSON = /*lang=json,strict*/ "{\"severityWhenDisabled\": \"suggestion\", \"severitiesToDisable\": [\"error\", \"warning\"], \"onImportFailure\": \"error\"}";
 
-        (string? resultMessage, BiakConfig resultConfig) = await BiakConfigHelper.GetAsync(AppExecutionContext.CreateDefault(), json);
+        (string? resultMessage, BiakConfig resultConfig) = await BiakConfigHelper.GetAsync(AppExecutionContext.CreateDefault(), JSON);
 
         Assert.Null(resultMessage);
         Assert.NotNull(resultConfig);

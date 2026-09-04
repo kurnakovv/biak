@@ -12,14 +12,16 @@ internal static class FindActivityInputHelper
     internal static async Task<FindActivityInputModel> RequestAsync(BiakConfig config, AppExecutionContext executionContext)
     {
         FindActivityInputConfigModel? findActivity = config.FindActivity;
-        if (findActivity == null ||
-            findActivity.DefaultBranch == null ||
-            findActivity.ExpirationPeriod == null ||
-            findActivity.FileTypes == null ||
-            findActivity.FileExtensions == null ||
-            findActivity.ExcludeBranches == null ||
-            findActivity.IncludedFilePaths == null ||
-            findActivity.SaveOutput == null
+        if (findActivity is not
+            {
+                DefaultBranch: not null,
+                ExpirationPeriod: not null,
+                FileTypes: not null,
+                FileExtensions: not null,
+                ExcludeBranches: not null,
+                IncludedFilePaths: not null,
+                SaveOutput: not null
+            }
         )
         {
             await executionContext.Out.WriteLineAsync(SharedFindCommandConstant.ENTER_CRITERIA);
@@ -103,7 +105,7 @@ internal static class FindActivityInputHelper
             fileTypes = null;
         }
 
-        IEnumerable<string> fileExtensions = new List<string>() { ".cs" };
+        IEnumerable<string> fileExtensions = new List<string> { ".cs" };
 
         string? fileExtensionsInput = findActivity?.FileExtensions;
         if (string.IsNullOrWhiteSpace(fileExtensionsInput))

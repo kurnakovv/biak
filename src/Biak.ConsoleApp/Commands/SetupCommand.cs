@@ -21,7 +21,7 @@ public static class SetupCommand
     /// <returns>Can be run or not.</returns>
     public static bool IsRunnable(string[] args)
     {
-        return args.Length == 1 && args[0] == CommandArgumentConstant.SETUP;
+        return args is [CommandArgumentConstant.SETUP];
     }
 
     /// <summary>

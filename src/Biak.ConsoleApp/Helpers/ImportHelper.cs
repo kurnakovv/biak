@@ -20,7 +20,7 @@ public static class ImportHelper
     private const long MAX_SIZE = 5_000_000; // 5 MB
 
     private static readonly HttpClient s_httpClient = new(
-        new HttpClientHandler()
+        new HttpClientHandler
         {
             AllowAutoRedirect = false,
             CheckCertificateRevocationList = true,
@@ -31,7 +31,7 @@ public static class ImportHelper
     };
 
     private static readonly Regex s_importRegex = new(
-        @"^(?!\s*#)[ \t]*\^biak\^\s*import\s*(?:""([^""]+)""|(\S+))",
+        """^(?!\s*#)[ \t]*\^biak\^\s*import\s*(?:"([^"]+)"|(\S+))""",
         RegexOptions.Compiled | RegexOptions.Multiline
     );
 

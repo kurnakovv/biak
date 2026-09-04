@@ -805,13 +805,13 @@ public class Ca1822ViolationService
         }
 
         string runtimeEditorconfigPath = Path.Join(testDir.Value, ".editorconfig");
-        string expectedRuntimeEditorconfigContent = $$"""
+        const string EXPECTED_RUNTIME_EDITORCONFIG_CONTENT = $"""
                 root = true
 
                 [*.cs]
-                dotnet_diagnostic.CA1822.severity = suggestion {{InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}}
+                dotnet_diagnostic.CA1822.severity = suggestion {InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}
                 """;
-        await File.WriteAllTextAsync(runtimeEditorconfigPath, expectedRuntimeEditorconfigContent);
+        await File.WriteAllTextAsync(runtimeEditorconfigPath, EXPECTED_RUNTIME_EDITORCONFIG_CONTENT);
 
         DateTime expectedLastWriteTime = DateTime.UtcNow.AddMinutes(-5);
         File.SetLastWriteTimeUtc(runtimeEditorconfigPath, expectedLastWriteTime);
@@ -835,7 +835,7 @@ public class Ca1822ViolationService
         string actualRuntimeEditorconfigContent = await File.ReadAllTextAsync(runtimeEditorconfigPath);
         DateTime actualLastWriteTime = File.GetLastWriteTimeUtc(runtimeEditorconfigPath);
 
-        Assert.Equal(expectedRuntimeEditorconfigContent, actualRuntimeEditorconfigContent);
+        Assert.Equal(EXPECTED_RUNTIME_EDITORCONFIG_CONTENT, actualRuntimeEditorconfigContent);
         Assert.True(actualLastWriteTime > expectedLastWriteTime);
     }
 

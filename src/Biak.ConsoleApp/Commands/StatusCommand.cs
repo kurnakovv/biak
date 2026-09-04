@@ -20,14 +20,13 @@ public static class StatusCommand
     /// <returns>Can be run or not.</returns>
     public static bool IsRunnable(string[] args)
     {
-        bool isStatusCommand = args.Length > 0 && args[0] == CommandArgumentConstant.STATUS;
+        bool isStatusCommand = args is [CommandArgumentConstant.STATUS, ..];
         if (!isStatusCommand)
         {
             return false;
         }
 
-        return args.Length == 1
-            || (args.Length == 2 && args[1] == CommandArgumentConstant.DEBUG_INFO);
+        return args is [_] or [_, CommandArgumentConstant.DEBUG_INFO];
     }
 
     /// <summary>
@@ -38,9 +37,7 @@ public static class StatusCommand
     /// <returns><placeholder>A <see cref="Task"/> representing the asynchronous operation.</placeholder></returns>
     public static async Task RunAsync(AppExecutionContext executionContext, string[] args)
     {
-        bool isDebugInfoEnabled = args.Length == 2
-            && args[0] == CommandArgumentConstant.STATUS
-            && args[1] == CommandArgumentConstant.DEBUG_INFO;
+        bool isDebugInfoEnabled = args is [CommandArgumentConstant.STATUS, CommandArgumentConstant.DEBUG_INFO];
 
         BiakStatusResult result = await BiakStatusHelper.GetAsync(executionContext, isDebugInfoEnabled);
         await executionContext.Out.WriteLineAsync(result.Message);

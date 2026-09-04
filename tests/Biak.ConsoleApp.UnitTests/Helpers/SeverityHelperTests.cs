@@ -25,137 +25,163 @@ public class SeverityHelperTests
     [Fact]
     public void DisableDoesNotChangeNonSeverityLines()
     {
-        string input = @"
-root = true
-[*.cs]
-indent_style = space
-indent_size = 4
-";
+        const string INPUT = """
 
-        string result = SeverityHelper.Disable(input, BiakConfig.DefaultSeveritiesToDisable, SeverityLevelType.None);
+            root = true
+            [*.cs]
+            indent_style = space
+            indent_size = 4
 
-        Assert.Equal(input, result);
+            """;
+
+        string result = SeverityHelper.Disable(INPUT, BiakConfig.DefaultSeveritiesToDisable, SeverityLevelType.None);
+
+        Assert.Equal(INPUT, result);
     }
 
     [Fact]
     public void DisableReplacesMultipleSeveritiesInOneContent()
     {
-        string input = @"
-dotnet_diagnostic.CA2000.severity = error
-dotnet_diagnostic.CA1001.severity = warning
-dotnet_diagnostic.CA1707.severity = suggestion
-";
-        string expected = @"
-dotnet_diagnostic.CA2000.severity = none
-dotnet_diagnostic.CA1001.severity = none
-dotnet_diagnostic.CA1707.severity = none
-";
+        const string INPUT = """
 
-        string result = SeverityHelper.Disable(input, BiakConfig.DefaultSeveritiesToDisable, SeverityLevelType.None);
+            dotnet_diagnostic.CA2000.severity = error
+            dotnet_diagnostic.CA1001.severity = warning
+            dotnet_diagnostic.CA1707.severity = suggestion
 
-        Assert.Equal(expected, result);
+            """;
+        const string EXPECTED = """
+
+            dotnet_diagnostic.CA2000.severity = none
+            dotnet_diagnostic.CA1001.severity = none
+            dotnet_diagnostic.CA1707.severity = none
+
+            """;
+
+        string result = SeverityHelper.Disable(INPUT, BiakConfig.DefaultSeveritiesToDisable, SeverityLevelType.None);
+
+        Assert.Equal(EXPECTED, result);
     }
 
     [Fact]
     public void DisableReplaceWithSuggestion()
     {
-        string input = @"
-dotnet_diagnostic.CA2000.severity = error
-dotnet_diagnostic.CA1001.severity = warning
-dotnet_diagnostic.CA1707.severity = suggestion
-";
-        string expected = @"
-dotnet_diagnostic.CA2000.severity = suggestion
-dotnet_diagnostic.CA1001.severity = suggestion
-dotnet_diagnostic.CA1707.severity = suggestion
-";
+        const string INPUT = """
 
-        string result = SeverityHelper.Disable(input, BiakConfig.DefaultSeveritiesToDisable, SeverityLevelType.Suggestion);
+            dotnet_diagnostic.CA2000.severity = error
+            dotnet_diagnostic.CA1001.severity = warning
+            dotnet_diagnostic.CA1707.severity = suggestion
 
-        Assert.Equal(expected, result);
+            """;
+        const string EXPECTED = """
+
+            dotnet_diagnostic.CA2000.severity = suggestion
+            dotnet_diagnostic.CA1001.severity = suggestion
+            dotnet_diagnostic.CA1707.severity = suggestion
+
+            """;
+
+        string result = SeverityHelper.Disable(INPUT, BiakConfig.DefaultSeveritiesToDisable, SeverityLevelType.Suggestion);
+
+        Assert.Equal(EXPECTED, result);
     }
 
     [Fact]
     public void DisableReplaceOnlyError()
     {
-        string input = @"
-dotnet_diagnostic.CA2000.severity = error
-dotnet_diagnostic.CA1001.severity = warning
-dotnet_diagnostic.CA1707.severity = suggestion
-";
-        string expected = @"
-dotnet_diagnostic.CA2000.severity = none
-dotnet_diagnostic.CA1001.severity = warning
-dotnet_diagnostic.CA1707.severity = suggestion
-";
+        const string INPUT = """
 
-        string result = SeverityHelper.Disable(input, [SeverityLevelType.Error], SeverityLevelType.None);
+            dotnet_diagnostic.CA2000.severity = error
+            dotnet_diagnostic.CA1001.severity = warning
+            dotnet_diagnostic.CA1707.severity = suggestion
 
-        Assert.Equal(expected, result);
+            """;
+        const string EXPECTED = """
+
+            dotnet_diagnostic.CA2000.severity = none
+            dotnet_diagnostic.CA1001.severity = warning
+            dotnet_diagnostic.CA1707.severity = suggestion
+
+            """;
+
+        string result = SeverityHelper.Disable(INPUT, [SeverityLevelType.Error], SeverityLevelType.None);
+
+        Assert.Equal(EXPECTED, result);
     }
 
     [Fact]
     public void DisableReplaceErrorAndWarning()
     {
-        string input = @"
-dotnet_diagnostic.CA2000.severity = error
-dotnet_diagnostic.CA1001.severity = warning
-dotnet_diagnostic.CA1707.severity = suggestion
-";
-        string expected = @"
-dotnet_diagnostic.CA2000.severity = none
-dotnet_diagnostic.CA1001.severity = none
-dotnet_diagnostic.CA1707.severity = suggestion
-";
+        const string INPUT = """
 
-        string result = SeverityHelper.Disable(input, [SeverityLevelType.Error, SeverityLevelType.Warning], SeverityLevelType.None);
+            dotnet_diagnostic.CA2000.severity = error
+            dotnet_diagnostic.CA1001.severity = warning
+            dotnet_diagnostic.CA1707.severity = suggestion
 
-        Assert.Equal(expected, result);
+            """;
+        const string EXPECTED = """
+
+            dotnet_diagnostic.CA2000.severity = none
+            dotnet_diagnostic.CA1001.severity = none
+            dotnet_diagnostic.CA1707.severity = suggestion
+
+            """;
+
+        string result = SeverityHelper.Disable(INPUT, [SeverityLevelType.Error, SeverityLevelType.Warning], SeverityLevelType.None);
+
+        Assert.Equal(EXPECTED, result);
     }
 
     [Fact]
     public void DisableShouldKeepAlwaysEnabledRules()
     {
-        string input = @"
-dotnet_diagnostic.CA2000.severity = error
-^biak^ always-enabled start
-dotnet_diagnostic.CA9999.severity = error
-dotnet_diagnostic.CA1001.severity = warning
-^biak^ always-enabled end
-dotnet_diagnostic.CA1707.severity = suggestion
-";
-        string expected = @"
-dotnet_diagnostic.CA2000.severity = none
-^biak^ always-enabled start
-dotnet_diagnostic.CA9999.severity = error
-dotnet_diagnostic.CA1001.severity = warning
-^biak^ always-enabled end
-dotnet_diagnostic.CA1707.severity = none
-";
+        const string INPUT = """
 
-        string result = SeverityHelper.Disable(input, BiakConfig.DefaultSeveritiesToDisable, SeverityLevelType.None);
+            dotnet_diagnostic.CA2000.severity = error
+            ^biak^ always-enabled start
+            dotnet_diagnostic.CA9999.severity = error
+            dotnet_diagnostic.CA1001.severity = warning
+            ^biak^ always-enabled end
+            dotnet_diagnostic.CA1707.severity = suggestion
 
-        Assert.Equal(expected, result);
+            """;
+        const string EXPECTED = """
+
+            dotnet_diagnostic.CA2000.severity = none
+            ^biak^ always-enabled start
+            dotnet_diagnostic.CA9999.severity = error
+            dotnet_diagnostic.CA1001.severity = warning
+            ^biak^ always-enabled end
+            dotnet_diagnostic.CA1707.severity = none
+
+            """;
+
+        string result = SeverityHelper.Disable(INPUT, BiakConfig.DefaultSeveritiesToDisable, SeverityLevelType.None);
+
+        Assert.Equal(EXPECTED, result);
     }
 
     [Fact]
     public void DisableShouldKeepAlwaysEnabledRulesWhenSeverityWhenDisabledIsSuggestion()
     {
-        string input = @"
-^biak^ always-enabled start
-dotnet_diagnostic.CA9999.severity = error
-^biak^ always-enabled end
-dotnet_diagnostic.CA2000.severity = warning
-";
-        string expected = @"
-^biak^ always-enabled start
-dotnet_diagnostic.CA9999.severity = error
-^biak^ always-enabled end
-dotnet_diagnostic.CA2000.severity = suggestion
-";
+        const string INPUT = """
 
-        string result = SeverityHelper.Disable(input, BiakConfig.DefaultSeveritiesToDisable, SeverityLevelType.Suggestion);
+            ^biak^ always-enabled start
+            dotnet_diagnostic.CA9999.severity = error
+            ^biak^ always-enabled end
+            dotnet_diagnostic.CA2000.severity = warning
 
-        Assert.Equal(expected, result);
+            """;
+        const string EXPECTED = """
+
+            ^biak^ always-enabled start
+            dotnet_diagnostic.CA9999.severity = error
+            ^biak^ always-enabled end
+            dotnet_diagnostic.CA2000.severity = suggestion
+
+            """;
+
+        string result = SeverityHelper.Disable(INPUT, BiakConfig.DefaultSeveritiesToDisable, SeverityLevelType.Suggestion);
+
+        Assert.Equal(EXPECTED, result);
     }
 }

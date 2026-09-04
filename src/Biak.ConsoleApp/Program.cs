@@ -39,7 +39,7 @@ public static class Program
         {
             await executionContext.Out.WriteLineAsync(DocsConstant.GREETING);
         }
-        else if (args.Length == 1 && args[0] == CommandArgumentConstant.HELP)
+        else if (args is [CommandArgumentConstant.HELP])
         {
             await executionContext.Out.WriteLineAsync(DocsConstant.HELP);
         }

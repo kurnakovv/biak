@@ -7,6 +7,7 @@ namespace Biak.ConsoleApp.Exceptions;
 /// <summary>
 /// Exception for application errors that should terminate the application.
 /// </summary>
+// ReSharper disable once InheritdocConsiderUsage
 public class BiakApplicationException : Exception
 {
     /// <summary>
@@ -14,6 +15,7 @@ public class BiakApplicationException : Exception
     /// </summary>
     /// <param name="message">The error message.</param>
 #pragma warning disable SA1502 // Element should not be on a single line
+    // ReSharper disable once InheritdocConsiderUsage
     public BiakApplicationException(string message) : base(message) { }
 #pragma warning restore SA1502 // Element should not be on a single line
 

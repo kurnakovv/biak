@@ -37,6 +37,64 @@ jobs:
         uses: JetBrains/ReSharper-InspectCode@v0.9
         with:
           solution: ./biak.slnx
+          output: results.sarif.json
+          format: Sarif
+          upload-sarif: true
+
+      - name: Check InspectCode violations
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json
+          import sys
+
+          report_file = "results.sarif.json"
+
+          with open(report_file, "r", encoding="utf-8") as f:
+              report = json.load(f)
+
+          issues = []
+
+          for run in report.get("runs", []):
+              for result in run.get("results", []):
+                  issues.append(result)
+
+          if not issues:
+              print("InspectCode: no violations found.")
+              sys.exit(0)
+
+          print(f"InspectCode: {len(issues)} violation(s) found:\n")
+
+          for issue in issues:
+              rule = issue.get("ruleId", "Unknown rule")
+              message = issue.get("message", {}).get("text", "Unknown issue")
+
+              locations = issue.get("locations", [])
+              file = "unknown file"
+              line = 1
+              column = 1
+
+              if locations:
+                  physical = locations[0].get("physicalLocation", {})
+                  artifact = physical.get("artifactLocation", {})
+                  region = physical.get("region", {})
+
+                  file = artifact.get("uri", "unknown file")
+                  line = region.get("startLine", 1)
+                  column = region.get("startColumn", 1)
+
+              if file != "unknown file":
+                  print(
+                      f"::error file={file},"
+                      f"line={line},"
+                      f"col={column}::"
+                      f"{rule} ({file}:{line}:{column}): {message}"
+                  )
+              else:
+                  print(f"::error::{rule} (unknown file): {message}")
+
+          sys.exit(1)
+          PY
 
     permissions:
       security-events: write

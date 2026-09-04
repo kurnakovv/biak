@@ -198,7 +198,7 @@ public static class InspectCodeBaselineSyncCommand
             {
                 EditorconfigPaths editorconfigPaths = await SetupHelper.GetEditorconfigPathsAsync(executionContext: executionContext);
 
-                if (editorconfigPaths.MainValue != null && editorconfigPaths.Value != null)
+                if (editorconfigPaths is { MainValue: not null, Value: not null })
                 {
                     string editorconfigMainContent = await File.ReadAllTextAsync(editorconfigPaths.MainValue);
                     string rootEditorconfigContent = biakStatusType.Value == BiakStatusType.Enabled

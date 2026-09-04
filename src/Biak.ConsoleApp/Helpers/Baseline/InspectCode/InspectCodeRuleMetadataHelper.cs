@@ -14,7 +14,7 @@ public static class InspectCodeRuleMetadataHelper
     /// <summary>
     /// Gets all configured metadata keyed by RuleId.
     /// </summary>
-    public static IReadOnlyDictionary<string, InspectCodeRuleMetadata> MetadataByRuleId { get; }
+    private static IReadOnlyDictionary<string, InspectCodeRuleMetadata> MetadataByRuleId { get; }
         = new Dictionary<string, InspectCodeRuleMetadata>(StringComparer.OrdinalIgnoreCase)
         {
 #pragma warning disable RCS0056 // A line is too long
@@ -819,8 +819,6 @@ public static class InspectCodeRuleMetadataHelper
             return null;
         }
 
-        return MetadataByRuleId.TryGetValue(id, out InspectCodeRuleMetadata? metadata)
-            ? metadata
-            : null;
+        return MetadataByRuleId.GetValueOrDefault(id);
     }
 }

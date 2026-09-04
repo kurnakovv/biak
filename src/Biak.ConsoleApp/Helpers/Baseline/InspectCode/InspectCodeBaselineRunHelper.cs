@@ -92,7 +92,7 @@ public static class InspectCodeBaselineRunHelper
         string workingDirectory,
         IReadOnlyList<string>? additionalArgs)
     {
-        return new List<ProcessStartInfo>()
+        return new List<ProcessStartInfo>
         {
             CreateDotnetToolStartInfo(resolvedTarget, sarifPath, workingDirectory, additionalArgs),
             CreateJbStartInfo(resolvedTarget, sarifPath, workingDirectory, additionalArgs),

@@ -24,7 +24,7 @@ public static class FindActivityCommand
     /// <returns>Can be run or not.</returns>
     public static bool IsRunnable(string[] args)
     {
-        return args.Length == 1 && args[0] == CommandArgumentConstant.FIND_ACTIVITY;
+        return args is [CommandArgumentConstant.FIND_ACTIVITY];
     }
 
     /// <summary>
