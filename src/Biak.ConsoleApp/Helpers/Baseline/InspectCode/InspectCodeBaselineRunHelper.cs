@@ -24,6 +24,24 @@ public static class InspectCodeBaselineRunHelper
     /// <returns>Absolute path to the produced SARIF report file.</returns>
     public static async Task<string> RunAsync(AppExecutionContext executionContext, string? target = null, IReadOnlyList<string>? additionalArgs = null)
     {
+        InspectCodeBaselineRunResult result = await RunWithDetailsAsync(executionContext, target, additionalArgs);
+        return result.SarifPath;
+    }
+
+    /// <summary>
+    /// Runs InspectCode with SARIF output and returns execution details.
+    /// </summary>
+    /// <param name="executionContext">Provides the context required to perform the operation.</param>
+    /// <param name="target">Explicit path to the <c>.slnx</c>, <c>.sln</c>, or <c>.csproj</c> file. When <c>null</c>, auto-discovery is used.</param>
+    /// <param name="additionalArgs">Extra arguments forwarded to InspectCode unchanged.</param>
+    /// <param name="preserveGeneratedSarif">Whether to preserve the generated SARIF file in the debug logs directory.</param>
+    /// <returns>Execution details including the generated SARIF path and the executed command.</returns>
+    public static async Task<InspectCodeBaselineRunResult> RunWithDetailsAsync(
+        AppExecutionContext executionContext,
+        string? target = null,
+        IReadOnlyList<string>? additionalArgs = null,
+        bool preserveGeneratedSarif = false)
+    {
         string sarifPath = GenerateSarifPath(executionContext.WorkingDirectory);
 
         string? directoryPath = Path.GetDirectoryName(sarifPath);
@@ -42,6 +60,7 @@ public static class InspectCodeBaselineRunHelper
 
         bool startedAnyCandidate = false;
         string? errorOutput = null;
+        string? executedCommand = null;
 
         foreach (ProcessStartInfo candidate in candidates)
         {
@@ -53,6 +72,7 @@ public static class InspectCodeBaselineRunHelper
                 if (exitCode == 0)
                 {
                     errorOutput = null;
+                    executedCommand = FormatCommand(candidate);
                     break;
                 }
 
@@ -83,7 +103,11 @@ public static class InspectCodeBaselineRunHelper
             throw new BiakApplicationException(InspectCodeBaselineRunHelperConstant.SARIF_REPORT_NOT_FOUND);
         }
 
-        return sarifPath;
+        string? preservedSarifPath = preserveGeneratedSarif
+            ? PreserveGeneratedSarif(sarifPath, executionContext.WorkingDirectory)
+            : null;
+
+        return new InspectCodeBaselineRunResult(sarifPath, executedCommand ?? string.Empty, preservedSarifPath);
     }
 
     private static IReadOnlyList<ProcessStartInfo> BuildInspectCodeProcessCandidates(
@@ -243,6 +267,44 @@ public static class InspectCodeBaselineRunHelper
         }
 
         throw new BiakApplicationException(InspectCodeBaselineRunHelperConstant.NO_SOLUTION_OR_PROJECT_FOUND);
+    }
+
+    private static string PreserveGeneratedSarif(string sarifPath, string workingDirectory)
+    {
+        string preservedSarifPath = Path.GetFullPath(
+            Path.Join(
+                InspectCodeBaselineRunHelperConstant.DEBUG_REPORTS_DIRECTORY,
+                Path.GetFileName(sarifPath)),
+            workingDirectory);
+
+        string? directoryPath = Path.GetDirectoryName(preservedSarifPath);
+        if (!string.IsNullOrWhiteSpace(directoryPath))
+        {
+            Directory.CreateDirectory(directoryPath);
+        }
+
+        File.Copy(sarifPath, preservedSarifPath, overwrite: true);
+        return preservedSarifPath;
+    }
+
+    private static string FormatCommand(ProcessStartInfo psi)
+    {
+        List<string> parts = [EscapeCommandPart(psi.FileName)];
+        parts.AddRange(psi.ArgumentList.Select(EscapeCommandPart));
+        return string.Join(" ", parts);
+    }
+
+    private static string EscapeCommandPart(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return "\"\"";
+        }
+
+        bool requiresQuotes = value.Any(ch => char.IsWhiteSpace(ch) || ch == '"');
+        return requiresQuotes
+            ? $"\"{value.Replace("\"", "\\\"", StringComparison.Ordinal)}\""
+            : value;
     }
 
     private static string GenerateSarifPath(string workingDirectory)

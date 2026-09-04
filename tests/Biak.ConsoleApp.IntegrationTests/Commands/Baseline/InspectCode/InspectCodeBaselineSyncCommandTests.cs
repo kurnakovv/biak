@@ -839,6 +839,104 @@ public class Ca1822ViolationService
         Assert.True(actualLastWriteTime > expectedLastWriteTime);
     }
 
+    [Fact]
+    public async Task RunShouldWriteExecutedInspectCodeCommandAndPreserveGeneratedSarifWhenDebugModeEnabledAsync()
+    {
+        TestDirectory testDir = new(
+            $"{nameof(InspectCodeBaselineSyncCommandTests)}_{nameof(RunShouldWriteExecutedInspectCodeCommandAndPreserveGeneratedSarifWhenDebugModeEnabledAsync)}"
+        );
+        await using StringWriter output = new();
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value, Out = output };
+        CopyInspectCodeTemplate(testDir.Value);
+        await EnsureBiakStatusConfiguredAsync(context);
+
+        await File.WriteAllTextAsync(
+            Path.Join(testDir.Value, ".biak", "config.json"),
+            // language=json
+            """
+            {
+              "inspectCodeBaseline": {
+                "debugMode": true
+              }
+            }
+            """
+        );
+
+        string baselinePath = Path.Join(testDir.Value, ".biak", ".editorconfig-InspectCodeBaseline");
+        await File.WriteAllTextAsync(baselinePath, InspectCodeBaselineCommandTestConstants.BASELINE_FILTERS);
+
+        string[] args =
+        [
+            CommandArgumentConstant.INSPECTCODE_BASELINE,
+            CommandArgumentConstant.SYNC,
+            CommandArgumentConstant.PATH,
+            ".biak/.editorconfig-InspectCodeBaseline",
+        ];
+
+        _ = await InspectCodeBaselineSyncCommand.RunAsync(context, args);
+
+        string commandOutput = output.ToString();
+        string debugSarifDirectory = Path.Join(testDir.Value, ".biak", "logs", "inspectcode-baseline");
+        string[] generatedSarifFiles = Directory.Exists(debugSarifDirectory)
+            ? Directory.GetFiles(debugSarifDirectory, "*.sarif")
+            : [];
+
+        Assert.Contains("jb", commandOutput, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("inspectcode", commandOutput, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("-f=Sarif", commandOutput, StringComparison.OrdinalIgnoreCase);
+        Assert.Single(generatedSarifFiles);
+
+        string generatedSarifContent = await File.ReadAllTextAsync(generatedSarifFiles[0]);
+
+        Assert.Contains("\"runs\"", generatedSarifContent, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task RunShouldNotPreserveGeneratedSarifWhenDebugModeIsDisabledAsync()
+    {
+        TestDirectory testDir = new(
+            $"{nameof(InspectCodeBaselineSyncCommandTests)}_{nameof(RunShouldNotPreserveGeneratedSarifWhenDebugModeIsDisabledAsync)}"
+        );
+        await using StringWriter output = new();
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value, Out = output };
+        CopyInspectCodeTemplate(testDir.Value);
+        await EnsureBiakStatusConfiguredAsync(context);
+
+        await File.WriteAllTextAsync(
+            Path.Join(testDir.Value, ".biak", "config.json"),
+            // language=json
+            """
+            {
+              "inspectCodeBaseline": {
+                "debugMode": false
+              }
+            }
+            """
+        );
+
+        string baselinePath = Path.Join(testDir.Value, ".biak", ".editorconfig-InspectCodeBaseline");
+        await File.WriteAllTextAsync(baselinePath, InspectCodeBaselineCommandTestConstants.BASELINE_FILTERS);
+
+        string[] args =
+        [
+            CommandArgumentConstant.INSPECTCODE_BASELINE,
+            CommandArgumentConstant.SYNC,
+            CommandArgumentConstant.PATH,
+            ".biak/.editorconfig-InspectCodeBaseline",
+        ];
+
+        _ = await InspectCodeBaselineSyncCommand.RunAsync(context, args);
+
+        string commandOutput = output.ToString();
+        string debugSarifDirectory = Path.Join(testDir.Value, ".biak", "logs", "inspectcode-baseline");
+        string[] generatedSarifFiles = Directory.Exists(debugSarifDirectory)
+            ? Directory.GetFiles(debugSarifDirectory, "*.sarif")
+            : [];
+
+        Assert.DoesNotContain("-f=Sarif", commandOutput, StringComparison.OrdinalIgnoreCase);
+        Assert.Empty(generatedSarifFiles);
+    }
+
     private static void CopyInspectCodeTemplate(string testDirectory)
     {
         string templatePath = Path.Join(

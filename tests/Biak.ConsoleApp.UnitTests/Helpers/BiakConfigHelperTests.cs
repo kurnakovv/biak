@@ -122,10 +122,33 @@ public class BiakConfigHelperTests
         Assert.Equal(expectedOnImportFailure, resultConfig.OnImportFailure);
     }
 
+    [Theory]
+    [InlineData(/*lang=json,strict*/ "{\"inspectCodeBaseline\": {\"debugMode\": true}}", true)]
+    [InlineData(/*lang=json,strict*/ "{\"inspectCodeBaseline\": {\"debugMode\": false}}", false)]
+    public async Task GetValidStringsForInspectCodeBaselineDebugModeAsync(string json, bool expectedDebugMode)
+    {
+        (string? resultMessage, BiakConfig resultConfig) = await BiakConfigHelper.GetAsync(AppExecutionContext.CreateDefault(), json);
+
+        Assert.Null(resultMessage);
+        Assert.NotNull(resultConfig);
+        Assert.NotNull(resultConfig.InspectCodeBaseline);
+        Assert.Equal(expectedDebugMode, resultConfig.InspectCodeBaseline.DebugMode);
+    }
+
     [Fact]
     public async Task GetAllPropertiesAsync()
     {
-        const string JSON = /*lang=json,strict*/ "{\"severityWhenDisabled\": \"suggestion\", \"severitiesToDisable\": [\"error\", \"warning\"], \"onImportFailure\": \"error\"}";
+        // language=json
+        const string JSON = """
+            {
+              "severityWhenDisabled": "suggestion",
+              "severitiesToDisable": ["error", "warning"],
+              "onImportFailure": "error",
+              "inspectCodeBaseline": {
+                "debugMode": true
+              }
+            }
+            """;
 
         (string? resultMessage, BiakConfig resultConfig) = await BiakConfigHelper.GetAsync(AppExecutionContext.CreateDefault(), JSON);
 
@@ -134,5 +157,7 @@ public class BiakConfigHelperTests
         Assert.Equal(SeverityLevelType.Suggestion, resultConfig.SeverityWhenDisabled);
         Assert.Equal([SeverityLevelType.Error, SeverityLevelType.Warning], resultConfig.SeveritiesToDisable);
         Assert.Equal(FailureBehaviorType.Error, resultConfig.OnImportFailure);
+        Assert.NotNull(resultConfig.InspectCodeBaseline);
+        Assert.True(resultConfig.InspectCodeBaseline.DebugMode);
     }
 }

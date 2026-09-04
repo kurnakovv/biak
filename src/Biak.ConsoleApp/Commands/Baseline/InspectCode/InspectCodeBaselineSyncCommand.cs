@@ -87,6 +87,7 @@ public static class InspectCodeBaselineSyncCommand
             }
 
             InspectCodeBaselineConfig? baselineConfig = config.InspectCodeBaseline;
+            bool isDebugModeEnabled = baselineConfig?.DebugMode == true;
 
             string baseDirectory = executionContext.WorkingDirectory;
             runtimeEditorconfigPath = Path.Join(baseDirectory, ".editorconfig");
@@ -140,11 +141,27 @@ public static class InspectCodeBaselineSyncCommand
                 runtimeEditorconfigWasTemporarilyModified = true;
             }
 
-            sarifPath = await InspectCodeBaselineRunHelper.RunAsync(
+            InspectCodeBaselineRunResult runResult = await InspectCodeBaselineRunHelper.RunWithDetailsAsync(
                 executionContext,
                 baselineConfig?.Target,
-                baselineConfig?.AdditionalArgs
-                );
+                baselineConfig?.AdditionalArgs,
+                preserveGeneratedSarif: isDebugModeEnabled
+            );
+
+            sarifPath = runResult.SarifPath;
+
+            if (isDebugModeEnabled)
+            {
+                await executionContext.Out.WriteLineAsync($"InspectCode command: {runResult.ExecutedCommand}");
+
+                if (!string.IsNullOrWhiteSpace(runResult.PreservedSarifPath))
+                {
+                    string relativeSarifLogPath = Path.GetRelativePath(baseDirectory, runResult.PreservedSarifPath);
+                    await executionContext.Out.WriteLineAsync($"InspectCode SARIF log: {relativeSarifLogPath}");
+                }
+
+                await executionContext.Out.WriteLineAsync();
+            }
 
             string sarifJson = await File.ReadAllTextAsync(sarifPath);
             IReadOnlyList<InspectCodeIssue> issues = InspectCodeBaselineSarifParser.Parse(sarifJson);
