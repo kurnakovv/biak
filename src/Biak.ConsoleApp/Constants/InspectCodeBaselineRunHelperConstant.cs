@@ -31,14 +31,9 @@ public static class InspectCodeBaselineRunHelperConstant
     public const string SARIF_REPORT_NOT_FOUND = "InspectCode SARIF report was not produced at the expected path.";
 
     /// <summary>
-    /// Directory for temporary SARIF reports inside .biak folder.
+    /// Directory for generated SARIF reports inside .biak logs.
     /// </summary>
-    public const string REPORTS_DIRECTORY = ".biak/inspectcode-baseline";
-
-    /// <summary>
-    /// Directory for preserved debug SARIF reports.
-    /// </summary>
-    public const string DEBUG_REPORTS_DIRECTORY = ".biak/logs/inspectcode-baseline";
+    public const string REPORTS_DIRECTORY = ".biak/logs/inspectcode-baseline";
 
     /// <summary>
     /// No .slnx, .sln or .csproj file found in the current directory.

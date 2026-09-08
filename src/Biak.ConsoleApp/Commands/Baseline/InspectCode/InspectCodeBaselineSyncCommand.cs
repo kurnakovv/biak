@@ -65,6 +65,7 @@ public static class InspectCodeBaselineSyncCommand
         string runtimeEditorconfigPath = string.Empty;
         string runtimeEditorconfigOriginalContent = string.Empty;
         bool runtimeEditorconfigWasTemporarilyModified = false;
+        bool isDebugModeEnabled = false;
         bool completedSuccessfully = false;
 
         try
@@ -87,7 +88,7 @@ public static class InspectCodeBaselineSyncCommand
             }
 
             InspectCodeBaselineConfig? baselineConfig = config.InspectCodeBaseline;
-            bool isDebugModeEnabled = baselineConfig?.DebugMode == true;
+            isDebugModeEnabled = baselineConfig?.DebugMode == true;
 
             string baseDirectory = executionContext.WorkingDirectory;
             runtimeEditorconfigPath = Path.Join(baseDirectory, ".editorconfig");
@@ -144,8 +145,7 @@ public static class InspectCodeBaselineSyncCommand
             InspectCodeBaselineRunResult runResult = await InspectCodeBaselineRunHelper.RunWithDetailsAsync(
                 executionContext,
                 baselineConfig?.Target,
-                baselineConfig?.AdditionalArgs,
-                preserveGeneratedSarif: isDebugModeEnabled
+                baselineConfig?.AdditionalArgs
             );
 
             sarifPath = runResult.SarifPath;
@@ -154,12 +154,8 @@ public static class InspectCodeBaselineSyncCommand
             {
                 await executionContext.Out.WriteLineAsync($"InspectCode command: {runResult.ExecutedCommand}");
 
-                if (!string.IsNullOrWhiteSpace(runResult.PreservedSarifPath))
-                {
-                    string relativeSarifLogPath = Path.GetRelativePath(baseDirectory, runResult.PreservedSarifPath);
-                    await executionContext.Out.WriteLineAsync($"InspectCode SARIF log: {relativeSarifLogPath}");
-                }
-
+                string relativeSarifLogPath = Path.GetRelativePath(baseDirectory, runResult.SarifPath);
+                await executionContext.Out.WriteLineAsync($"InspectCode SARIF log: {relativeSarifLogPath}");
                 await executionContext.Out.WriteLineAsync();
             }
 
@@ -278,7 +274,9 @@ public static class InspectCodeBaselineSyncCommand
                 await File.WriteAllTextAsync(resolvedPath, originalContent);
             }
 
-            if (!string.IsNullOrWhiteSpace(sarifPath) && File.Exists(sarifPath))
+            if (!isDebugModeEnabled
+                && !string.IsNullOrWhiteSpace(sarifPath)
+                && File.Exists(sarifPath))
             {
                 File.Delete(sarifPath);
             }

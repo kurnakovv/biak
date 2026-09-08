@@ -34,13 +34,11 @@ public static class InspectCodeBaselineRunHelper
     /// <param name="executionContext">Provides the context required to perform the operation.</param>
     /// <param name="target">Explicit path to the <c>.slnx</c>, <c>.sln</c>, or <c>.csproj</c> file. When <c>null</c>, auto-discovery is used.</param>
     /// <param name="additionalArgs">Extra arguments forwarded to InspectCode unchanged.</param>
-    /// <param name="preserveGeneratedSarif">Whether to preserve the generated SARIF file in the debug logs directory.</param>
     /// <returns>Execution details including the generated SARIF path and the executed command.</returns>
     public static async Task<InspectCodeBaselineRunResult> RunWithDetailsAsync(
         AppExecutionContext executionContext,
         string? target = null,
-        IReadOnlyList<string>? additionalArgs = null,
-        bool preserveGeneratedSarif = false)
+        IReadOnlyList<string>? additionalArgs = null)
     {
         string sarifPath = GenerateSarifPath(executionContext.WorkingDirectory);
 
@@ -103,11 +101,7 @@ public static class InspectCodeBaselineRunHelper
             throw new BiakApplicationException(InspectCodeBaselineRunHelperConstant.SARIF_REPORT_NOT_FOUND);
         }
 
-        string? preservedSarifPath = preserveGeneratedSarif
-            ? PreserveGeneratedSarif(sarifPath, executionContext.WorkingDirectory)
-            : null;
-
-        return new InspectCodeBaselineRunResult(sarifPath, executedCommand ?? string.Empty, preservedSarifPath);
+        return new InspectCodeBaselineRunResult(sarifPath, executedCommand ?? string.Empty);
     }
 
     private static IReadOnlyList<ProcessStartInfo> BuildInspectCodeProcessCandidates(
@@ -267,24 +261,6 @@ public static class InspectCodeBaselineRunHelper
         }
 
         throw new BiakApplicationException(InspectCodeBaselineRunHelperConstant.NO_SOLUTION_OR_PROJECT_FOUND);
-    }
-
-    private static string PreserveGeneratedSarif(string sarifPath, string workingDirectory)
-    {
-        string preservedSarifPath = Path.GetFullPath(
-            Path.Join(
-                InspectCodeBaselineRunHelperConstant.DEBUG_REPORTS_DIRECTORY,
-                Path.GetFileName(sarifPath)),
-            workingDirectory);
-
-        string? directoryPath = Path.GetDirectoryName(preservedSarifPath);
-        if (!string.IsNullOrWhiteSpace(directoryPath))
-        {
-            Directory.CreateDirectory(directoryPath);
-        }
-
-        File.Copy(sarifPath, preservedSarifPath, overwrite: true);
-        return preservedSarifPath;
     }
 
     private static string FormatCommand(ProcessStartInfo psi)

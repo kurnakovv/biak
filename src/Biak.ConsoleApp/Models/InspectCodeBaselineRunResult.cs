@@ -7,7 +7,6 @@ namespace Biak.ConsoleApp.Models;
 /// <summary>
 /// Result of an InspectCode baseline run.
 /// </summary>
-/// <param name="SarifPath">Path to the generated temporary SARIF file.</param>
+/// <param name="SarifPath">Path to the generated SARIF file.</param>
 /// <param name="ExecutedCommand">The command line that successfully executed InspectCode.</param>
-/// <param name="PreservedSarifPath">Path to the preserved SARIF copy when debug mode is enabled.</param>
-public sealed record InspectCodeBaselineRunResult(string SarifPath, string ExecutedCommand, string? PreservedSarifPath);
+public sealed record InspectCodeBaselineRunResult(string SarifPath, string ExecutedCommand);
