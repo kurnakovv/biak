@@ -357,4 +357,98 @@ public class Ca1822ViolationService
         Assert.DoesNotContain("resharper_unused_type_global_highlighting", result, StringComparison.Ordinal);
         Assert.DoesNotContain("CA1822", actualOutput, StringComparison.Ordinal);
     }
+
+    [Fact]
+    public async Task RunShouldWriteExecutedInspectCodeCommandAndPreserveGeneratedSarifWhenDebugModeEnabledAsync()
+    {
+        TestDirectory testDir = new(
+            $"{nameof(InspectCodeBaselineInitCommandTests)}_{nameof(RunShouldWriteExecutedInspectCodeCommandAndPreserveGeneratedSarifWhenDebugModeEnabledAsync)}"
+        );
+        await using StringWriter output = new();
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value, Out = output };
+
+        string templatePath = Path.Join(
+            AppContext.BaseDirectory,
+            "Templates",
+            "InspectCodeBaseline",
+            "InspectCodeBaselineTemplate"
+        );
+
+        testDir.CopyDirectory(templatePath);
+
+        Directory.CreateDirectory(Path.Join(testDir.Value, ".biak"));
+        await File.WriteAllTextAsync(
+            Path.Join(testDir.Value, ".biak", "config.json"),
+            // language=json
+            """
+            {
+              "inspectCodeBaseline": {
+                "debugMode": true
+              }
+            }
+            """
+        );
+
+        _ = await InspectCodeBaselineInitCommand.RunAsync(context);
+
+        string commandOutput = output.ToString();
+        string sarifDirectory = Path.Join(testDir.Value, ".biak", "logs", "inspectcode-baseline");
+        string[] generatedSarifFiles = Directory.Exists(sarifDirectory)
+            ? Directory.GetFiles(sarifDirectory, "*.sarif")
+            : [];
+
+        Assert.Contains("jb", commandOutput, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("inspectcode", commandOutput, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("-f=Sarif", commandOutput, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("InspectCode SARIF log:", commandOutput, StringComparison.Ordinal);
+        Assert.Single(generatedSarifFiles);
+
+        string generatedSarifContent = await File.ReadAllTextAsync(generatedSarifFiles[0]);
+
+        Assert.Contains("\"runs\"", generatedSarifContent, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task RunShouldDeleteGeneratedSarifWhenDebugModeIsDisabledAsync()
+    {
+        TestDirectory testDir = new(
+            $"{nameof(InspectCodeBaselineInitCommandTests)}_{nameof(RunShouldDeleteGeneratedSarifWhenDebugModeIsDisabledAsync)}"
+        );
+        await using StringWriter output = new();
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value, Out = output };
+
+        string templatePath = Path.Join(
+            AppContext.BaseDirectory,
+            "Templates",
+            "InspectCodeBaseline",
+            "InspectCodeBaselineTemplate"
+        );
+
+        testDir.CopyDirectory(templatePath);
+
+        Directory.CreateDirectory(Path.Join(testDir.Value, ".biak"));
+        await File.WriteAllTextAsync(
+            Path.Join(testDir.Value, ".biak", "config.json"),
+            // language=json
+            """
+            {
+              "inspectCodeBaseline": {
+                "debugMode": false
+              }
+            }
+            """
+        );
+
+        _ = await InspectCodeBaselineInitCommand.RunAsync(context);
+
+        string commandOutput = output.ToString();
+        string sarifDirectory = Path.Join(testDir.Value, ".biak", "logs", "inspectcode-baseline");
+        string[] generatedSarifFiles = Directory.Exists(sarifDirectory)
+            ? Directory.GetFiles(sarifDirectory, "*.sarif")
+            : [];
+
+        Assert.DoesNotContain("InspectCode command:", commandOutput, StringComparison.Ordinal);
+        Assert.DoesNotContain("InspectCode SARIF log:", commandOutput, StringComparison.Ordinal);
+        Assert.Empty(generatedSarifFiles);
+    }
 }

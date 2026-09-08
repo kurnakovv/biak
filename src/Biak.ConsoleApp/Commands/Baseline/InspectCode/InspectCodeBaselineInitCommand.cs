@@ -34,6 +34,7 @@ public static class InspectCodeBaselineInitCommand
     public static async Task<string> RunAsync(AppExecutionContext executionContext)
     {
         string sarifPath = string.Empty;
+        bool isDebugModeEnabled = false;
 
         try
         {
@@ -46,12 +47,24 @@ public static class InspectCodeBaselineInitCommand
                 await executionContext.Out.WriteLineAsync();
             }
             InspectCodeBaselineConfig? baselineConfig = config.InspectCodeBaseline;
+            isDebugModeEnabled = baselineConfig?.DebugMode == true;
 
-            sarifPath = await InspectCodeBaselineRunHelper.RunAsync(
+            InspectCodeBaselineRunResult runResult = await InspectCodeBaselineRunHelper.RunWithDetailsAsync(
                 executionContext,
                 baselineConfig?.Target,
                 baselineConfig?.AdditionalArgs
             );
+
+            sarifPath = runResult.SarifPath;
+
+            if (isDebugModeEnabled)
+            {
+                await executionContext.Out.WriteLineAsync($"InspectCode command: {runResult.ExecutedCommand}");
+
+                string relativeSarifLogPath = Path.GetRelativePath(executionContext.WorkingDirectory, runResult.SarifPath);
+                await executionContext.Out.WriteLineAsync($"InspectCode SARIF log: {relativeSarifLogPath}");
+                await executionContext.Out.WriteLineAsync();
+            }
 
             string sarifJson = await File.ReadAllTextAsync(sarifPath);
             IReadOnlyList<InspectCodeIssue> issues = InspectCodeBaselineSarifParser.Parse(sarifJson);
@@ -115,7 +128,9 @@ public static class InspectCodeBaselineInitCommand
         }
         finally
         {
-            if (!string.IsNullOrWhiteSpace(sarifPath) && File.Exists(sarifPath))
+            if (!isDebugModeEnabled
+                && !string.IsNullOrWhiteSpace(sarifPath)
+                && File.Exists(sarifPath))
             {
                 File.Delete(sarifPath);
             }
