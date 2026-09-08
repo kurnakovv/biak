@@ -142,14 +142,12 @@ public static class InspectCodeBaselineSyncCommand
                 runtimeEditorconfigWasTemporarilyModified = true;
             }
 
-            InspectCodeBaselineRunResult runResult = await InspectCodeBaselineRunHelper.RunAsync(
+            sarifPath = await InspectCodeBaselineRunHelper.RunAsync(
                 executionContext,
                 baselineConfig?.Target,
                 baselineConfig?.AdditionalArgs,
                 isDebugModeEnabled
             );
-
-            sarifPath = runResult.SarifPath;
 
             string sarifJson = await File.ReadAllTextAsync(sarifPath);
             IReadOnlyList<InspectCodeIssue> issues = InspectCodeBaselineSarifParser.Parse(sarifJson);

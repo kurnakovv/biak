@@ -22,8 +22,8 @@ public static class InspectCodeBaselineRunHelper
     /// <param name="target">Explicit path to the <c>.slnx</c>, <c>.sln</c>, or <c>.csproj</c> file. When <c>null</c>, auto-discovery is used.</param>
     /// <param name="additionalArgs">Extra arguments forwarded to InspectCode unchanged.</param>
     /// <param name="debugMode">Enables verbose logging for every attempted InspectCode command.</param>
-    /// <returns>Execution details including the generated SARIF path and the executed command.</returns>
-    public static async Task<InspectCodeBaselineRunResult> RunAsync(
+    /// <returns>Absolute path to the generated SARIF report file.</returns>
+    public static async Task<string> RunAsync(
         AppExecutionContext executionContext,
         string? target = null,
         IReadOnlyList<string>? additionalArgs = null,
@@ -47,7 +47,6 @@ public static class InspectCodeBaselineRunHelper
 
         bool startedAnyCandidate = false;
         string? errorOutput = null;
-        string? executedCommand = null;
         string? lastAttemptErrorOutput = null;
         bool lastAttemptProducedErrorOutput = false;
 
@@ -70,7 +69,6 @@ public static class InspectCodeBaselineRunHelper
                 if (exitCode == 0)
                 {
                     errorOutput = null;
-                    executedCommand = formattedCommand;
 
                     if (debugMode)
                     {
@@ -134,7 +132,7 @@ public static class InspectCodeBaselineRunHelper
             throw new BiakApplicationException(InspectCodeBaselineRunHelperConstant.SARIF_REPORT_NOT_FOUND);
         }
 
-        return new InspectCodeBaselineRunResult(sarifPath, executedCommand ?? string.Empty);
+        return sarifPath;
     }
 
     private static IReadOnlyList<ProcessStartInfo> BuildInspectCodeProcessCandidates(
