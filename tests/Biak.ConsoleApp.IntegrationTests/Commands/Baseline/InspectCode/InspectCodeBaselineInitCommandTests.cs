@@ -447,7 +447,7 @@ public class Ca1822ViolationService
             ? Directory.GetFiles(sarifDirectory, "*.sarif")
             : [];
 
-        Assert.DoesNotContain("InspectCode command:", commandOutput, StringComparison.Ordinal);
+        Assert.DoesNotContain("InspectCode command attempt", commandOutput, StringComparison.Ordinal);
         Assert.DoesNotContain("InspectCode SARIF log:", commandOutput, StringComparison.Ordinal);
         Assert.Empty(generatedSarifFiles);
     }
