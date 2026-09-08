@@ -128,17 +128,17 @@ public static class InspectCodeBaselineRunHelper
                 throw new BiakApplicationException(InspectCodeBaselineRunHelperConstant.SARIF_REPORT_NOT_FOUND);
             }
 
-            if (debugMode)
+            return sarifPath;
+        }
+        finally
+        {
+            if (debugMode && File.Exists(sarifPath))
             {
                 string relativeSarifLogPath = Path.GetRelativePath(executionContext.WorkingDirectory, sarifPath);
                 await executionContext.Out.WriteLineAsync($"InspectCode SARIF log: {relativeSarifLogPath}");
                 await executionContext.Out.WriteLineAsync();
             }
 
-            return sarifPath;
-        }
-        finally
-        {
             if (!completedSuccessfully && !debugMode && File.Exists(sarifPath))
             {
                 File.Delete(sarifPath);
