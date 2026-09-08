@@ -44,7 +44,7 @@ public sealed class InspectCodeBaselineConfig
     public IReadOnlyList<string>? AdditionalArgs { get; init; }
 
     /// <summary>
-    /// Enables extra sync diagnostics such as printing the executed command and preserving generated SARIF output.
+    /// Enables extra init and sync diagnostics such as printing the executed command and preserving generated SARIF output.
     /// </summary>
     public bool? DebugMode { get; init; }
 }
