@@ -16,26 +16,13 @@ namespace Biak.ConsoleApp.Helpers.Baseline.InspectCode;
 public static class InspectCodeBaselineRunHelper
 {
     /// <summary>
-    /// Runs InspectCode with SARIF output and returns the path to the produced report file.
-    /// </summary>
-    /// <param name="executionContext">Provides the context required to perform the operation.</param>
-    /// <param name="target">Explicit path to the <c>.slnx</c>, <c>.sln</c>, or <c>.csproj</c> file. When <c>null</c>, auto-discovery is used.</param>
-    /// <param name="additionalArgs">Extra arguments forwarded to InspectCode unchanged.</param>
-    /// <returns>Absolute path to the produced SARIF report file.</returns>
-    public static async Task<string> RunAsync(AppExecutionContext executionContext, string? target = null, IReadOnlyList<string>? additionalArgs = null)
-    {
-        InspectCodeBaselineRunResult result = await RunWithDetailsAsync(executionContext, target, additionalArgs);
-        return result.SarifPath;
-    }
-
-    /// <summary>
     /// Runs InspectCode with SARIF output and returns execution details.
     /// </summary>
     /// <param name="executionContext">Provides the context required to perform the operation.</param>
     /// <param name="target">Explicit path to the <c>.slnx</c>, <c>.sln</c>, or <c>.csproj</c> file. When <c>null</c>, auto-discovery is used.</param>
     /// <param name="additionalArgs">Extra arguments forwarded to InspectCode unchanged.</param>
     /// <returns>Execution details including the generated SARIF path and the executed command.</returns>
-    public static async Task<InspectCodeBaselineRunResult> RunWithDetailsAsync(
+    public static async Task<InspectCodeBaselineRunResult> RunAsync(
         AppExecutionContext executionContext,
         string? target = null,
         IReadOnlyList<string>? additionalArgs = null)

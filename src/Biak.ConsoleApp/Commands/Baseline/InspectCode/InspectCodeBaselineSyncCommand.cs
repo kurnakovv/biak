@@ -142,7 +142,7 @@ public static class InspectCodeBaselineSyncCommand
                 runtimeEditorconfigWasTemporarilyModified = true;
             }
 
-            InspectCodeBaselineRunResult runResult = await InspectCodeBaselineRunHelper.RunWithDetailsAsync(
+            InspectCodeBaselineRunResult runResult = await InspectCodeBaselineRunHelper.RunAsync(
                 executionContext,
                 baselineConfig?.Target,
                 baselineConfig?.AdditionalArgs

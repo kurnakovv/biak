@@ -49,7 +49,7 @@ public static class InspectCodeBaselineInitCommand
             InspectCodeBaselineConfig? baselineConfig = config.InspectCodeBaseline;
             isDebugModeEnabled = baselineConfig?.DebugMode == true;
 
-            InspectCodeBaselineRunResult runResult = await InspectCodeBaselineRunHelper.RunWithDetailsAsync(
+            InspectCodeBaselineRunResult runResult = await InspectCodeBaselineRunHelper.RunAsync(
                 executionContext,
                 baselineConfig?.Target,
                 baselineConfig?.AdditionalArgs
