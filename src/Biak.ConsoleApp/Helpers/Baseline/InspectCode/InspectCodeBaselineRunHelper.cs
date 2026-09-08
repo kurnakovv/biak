@@ -272,11 +272,6 @@ public static class InspectCodeBaselineRunHelper
 
     private static string EscapeCommandPart(string value)
     {
-        if (string.IsNullOrEmpty(value))
-        {
-            return "\"\"";
-        }
-
         bool requiresQuotes = value.Any(ch => char.IsWhiteSpace(ch) || ch == '"');
         return requiresQuotes
             ? $"\"{value.Replace("\"", "\\\"", StringComparison.Ordinal)}\""
