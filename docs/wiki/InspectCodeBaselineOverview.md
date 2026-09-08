@@ -42,7 +42,8 @@ You can configure behavior via `.biak/config.json`:
     "additionalArgs": ["--severity=WARNING"],
     "ruleIdOverrides": {
       "RuleId1": "resharper_your_rule1_editorconfig_key_highlighting"
-    }
+    },
+    "debugMode": false
   }
 }
 ```

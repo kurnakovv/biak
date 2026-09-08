@@ -45,6 +45,11 @@ And your baseline file is synchronized.
   * baseline entries are converted to `error` (marker removed at runtime copy)
   * original root `.editorconfig` is restored after analysis
 * Run Inspect Code and parse active issues from SARIF.
+* If `inspectCodeBaseline.debugMode` is `true`:
+  * print the executed InspectCode command
+  * print the generated SARIF path
+  * keep the generated SARIF file in `.biak/logs/inspectcode-baseline`
+* If `inspectCodeBaseline.debugMode` is `false`, delete the generated SARIF after processing.
 * Remove resolved filters / stale file entries from baseline.
 * Normalize remaining baseline severity to `inspectCodeBaseline.snapshotSeverity` (default `suggestion`).
 * If the synced baseline file is located in `.biak/...`, re-synchronize root `.editorconfig` according to current biak status:

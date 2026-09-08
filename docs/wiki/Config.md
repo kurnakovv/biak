@@ -29,7 +29,8 @@ You can configure **biak** behavior via the `.biak/config.json` file.
     },
     "additionalArgs": [
       "--severity=WARNING"
-    ]
+    ],
+    "debugMode": false
   }
 }
 ```
@@ -51,6 +52,7 @@ You can configure **biak** behavior via the `.biak/config.json` file.
 | `inspectCodeBaseline:snapshotSeverity` | `none`, `error`, `warning`, `suggestion`, `silent`, `default`                                                 | `suggestion`                          | Severity written to alive baseline entries after `inspectcode-baseline init` / `inspectcode-baseline sync`.                                                     |
 | `inspectCodeBaseline:ruleIdOverrides`  | JSON object (`ruleId` -> `.editorconfig` key)                                                                 | ---                                   | Custom rule mapping used when a rule is missing in the built-in Inspect Code mapping.                                                                           |
 | `inspectCodeBaseline:additionalArgs`   | JSON string array                                                                                             | ---                                   | Extra arguments forwarded to `jb inspectcode` unchanged and in order.                                                                                           |
+| `inspectCodeBaseline:debugMode`        | `bool`                                                                                                        | `false`                               | Print the executed InspectCode command, print the generated SARIF path, and keep the generated SARIF file in `.biak/logs/inspectcode-baseline` for `inspectcode-baseline init` / `sync`. |
 
 ## 🗒️ Notes
 * You can use biak without a configuration file - default values will be used.

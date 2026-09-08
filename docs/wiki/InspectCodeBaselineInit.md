@@ -29,6 +29,11 @@ resharper_replace_with_string_is_null_or_empty_highlighting = suggestion # ^biak
   * Candidate launch order: `dotnet tool run jb inspectcode` -> `jb inspectcode` -> `InspectCode.exe` -> `inspectcode`.
   * Timeout: 30 minutes.
 * Resolve target automatically from current directory (`*.slnx` -> `*.sln` -> `*.csproj`) or from `.biak/config.json` (`inspectCodeBaseline.target`).
+* If `inspectCodeBaseline.debugMode` is `true`:
+  * print the executed InspectCode command
+  * print the generated SARIF path
+  * keep the generated SARIF file in `.biak/logs/inspectcode-baseline`
+* If `inspectCodeBaseline.debugMode` is `false`, delete the generated SARIF after processing.
 * Parse SARIF issues (`ruleId` + file locations).
 * Map `ruleId` to `.editorconfig` key using built-in metadata.
 * Apply optional `inspectCodeBaseline.ruleIdOverrides` from config.
