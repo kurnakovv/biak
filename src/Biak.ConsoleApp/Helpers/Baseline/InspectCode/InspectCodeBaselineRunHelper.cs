@@ -72,14 +72,6 @@ public static class InspectCodeBaselineRunHelper
                     if (exitCode == 0)
                     {
                         errorOutput = null;
-
-                        if (debugMode)
-                        {
-                            string relativeSarifLogPath = Path.GetRelativePath(executionContext.WorkingDirectory, sarifPath);
-                            await executionContext.Out.WriteLineAsync($"InspectCode SARIF log: {relativeSarifLogPath}");
-                            await executionContext.Out.WriteLineAsync();
-                        }
-
                         completedSuccessfully = true;
                         break;
                     }
@@ -134,6 +126,13 @@ public static class InspectCodeBaselineRunHelper
             if (!File.Exists(sarifPath))
             {
                 throw new BiakApplicationException(InspectCodeBaselineRunHelperConstant.SARIF_REPORT_NOT_FOUND);
+            }
+
+            if (debugMode)
+            {
+                string relativeSarifLogPath = Path.GetRelativePath(executionContext.WorkingDirectory, sarifPath);
+                await executionContext.Out.WriteLineAsync($"InspectCode SARIF log: {relativeSarifLogPath}");
+                await executionContext.Out.WriteLineAsync();
             }
 
             return sarifPath;
