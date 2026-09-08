@@ -21,11 +21,13 @@ public static class InspectCodeBaselineRunHelper
     /// <param name="executionContext">Provides the context required to perform the operation.</param>
     /// <param name="target">Explicit path to the <c>.slnx</c>, <c>.sln</c>, or <c>.csproj</c> file. When <c>null</c>, auto-discovery is used.</param>
     /// <param name="additionalArgs">Extra arguments forwarded to InspectCode unchanged.</param>
+    /// <param name="debugMode">Enables verbose logging for every attempted InspectCode command.</param>
     /// <returns>Execution details including the generated SARIF path and the executed command.</returns>
     public static async Task<InspectCodeBaselineRunResult> RunAsync(
         AppExecutionContext executionContext,
         string? target = null,
-        IReadOnlyList<string>? additionalArgs = null)
+        IReadOnlyList<string>? additionalArgs = null,
+        bool debugMode = false)
     {
         string sarifPath = GenerateSarifPath(executionContext.WorkingDirectory);
 
@@ -46,9 +48,20 @@ public static class InspectCodeBaselineRunHelper
         bool startedAnyCandidate = false;
         string? errorOutput = null;
         string? executedCommand = null;
+        string? lastAttemptErrorOutput = null;
+        bool lastAttemptProducedErrorOutput = false;
 
-        foreach (ProcessStartInfo candidate in candidates)
+        for (int i = 0; i < candidates.Count; i++)
         {
+            ProcessStartInfo candidate = candidates[i];
+            int attemptNumber = i + 1;
+            string formattedCommand = FormatCommand(candidate);
+
+            if (debugMode)
+            {
+                await executionContext.Out.WriteLineAsync($"InspectCode command attempt {attemptNumber}: {formattedCommand}");
+            }
+
             try
             {
                 (int exitCode, string standardOutput, string standardError) = await RunProcessAsync(candidate);
@@ -57,25 +70,58 @@ public static class InspectCodeBaselineRunHelper
                 if (exitCode == 0)
                 {
                     errorOutput = null;
-                    executedCommand = FormatCommand(candidate);
+                    executedCommand = formattedCommand;
+
+                    if (debugMode)
+                    {
+                        string relativeSarifLogPath = Path.GetRelativePath(executionContext.WorkingDirectory, sarifPath);
+                        await executionContext.Out.WriteLineAsync($"InspectCode SARIF log: {relativeSarifLogPath}");
+                        await executionContext.Out.WriteLineAsync();
+                    }
+
                     break;
                 }
 
                 errorOutput = string.IsNullOrWhiteSpace(standardError) ? standardOutput : standardError;
+                lastAttemptErrorOutput = errorOutput;
+                lastAttemptProducedErrorOutput = true;
+
+                if (debugMode)
+                {
+                    await executionContext.Out.WriteLineAsync($"InspectCode attempt {attemptNumber} exited with code {exitCode}.");
+                }
             }
             catch (Win32Exception)
             {
-                // Candidate executable is not available, try next one.
+                lastAttemptErrorOutput = null;
+                lastAttemptProducedErrorOutput = false;
+
+                if (debugMode)
+                {
+                    await executionContext.Out.WriteLineAsync($"InspectCode attempt {attemptNumber} failed to start.");
+                }
             }
         }
 
         if (!startedAnyCandidate)
         {
+            if (debugMode)
+            {
+                await executionContext.Out.WriteLineAsync();
+            }
+
             throw new BiakApplicationException(InspectCodeBaselineRunHelperConstant.FAILED_TO_START_INSPECTCODE);
         }
 
         if (errorOutput is not null)
         {
+            if (debugMode && lastAttemptProducedErrorOutput && !string.IsNullOrWhiteSpace(lastAttemptErrorOutput))
+            {
+                await executionContext.Out.WriteLineAsync("InspectCode last error output:");
+                await executionContext.Out.WriteLineAsync(lastAttemptErrorOutput.Trim());
+                await executionContext.Out.WriteLineAsync();
+            }
+
             throw new BiakApplicationException(
                 string.IsNullOrWhiteSpace(errorOutput)
                     ? InspectCodeBaselineRunHelperConstant.INSPECTCODE_FAILED

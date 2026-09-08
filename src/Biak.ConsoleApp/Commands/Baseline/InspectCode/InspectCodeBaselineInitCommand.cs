@@ -52,19 +52,11 @@ public static class InspectCodeBaselineInitCommand
             InspectCodeBaselineRunResult runResult = await InspectCodeBaselineRunHelper.RunAsync(
                 executionContext,
                 baselineConfig?.Target,
-                baselineConfig?.AdditionalArgs
+                baselineConfig?.AdditionalArgs,
+                isDebugModeEnabled
             );
 
             sarifPath = runResult.SarifPath;
-
-            if (isDebugModeEnabled)
-            {
-                await executionContext.Out.WriteLineAsync($"InspectCode command: {runResult.ExecutedCommand}");
-
-                string relativeSarifLogPath = Path.GetRelativePath(executionContext.WorkingDirectory, runResult.SarifPath);
-                await executionContext.Out.WriteLineAsync($"InspectCode SARIF log: {relativeSarifLogPath}");
-                await executionContext.Out.WriteLineAsync();
-            }
 
             string sarifJson = await File.ReadAllTextAsync(sarifPath);
             IReadOnlyList<InspectCodeIssue> issues = InspectCodeBaselineSarifParser.Parse(sarifJson);
