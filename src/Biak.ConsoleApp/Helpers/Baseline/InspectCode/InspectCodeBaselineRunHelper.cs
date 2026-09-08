@@ -30,109 +30,121 @@ public static class InspectCodeBaselineRunHelper
         bool debugMode = false)
     {
         string sarifPath = GenerateSarifPath(executionContext.WorkingDirectory);
+        bool completedSuccessfully = false;
 
-        string? directoryPath = Path.GetDirectoryName(sarifPath);
-        if (!string.IsNullOrWhiteSpace(directoryPath))
+        try
         {
-            Directory.CreateDirectory(directoryPath);
-        }
-
-        string resolvedTarget = ResolveTarget(target, executionContext.WorkingDirectory);
-
-        IReadOnlyList<ProcessStartInfo> candidates = BuildInspectCodeProcessCandidates(
-            resolvedTarget,
-            sarifPath,
-            executionContext.WorkingDirectory,
-            additionalArgs);
-
-        bool startedAnyCandidate = false;
-        string? errorOutput = null;
-        string? lastAttemptErrorOutput = null;
-        bool lastAttemptProducedErrorOutput = false;
-
-        for (int i = 0; i < candidates.Count; i++)
-        {
-            ProcessStartInfo candidate = candidates[i];
-            int attemptNumber = i + 1;
-            string formattedCommand = FormatCommand(candidate);
-
-            if (debugMode)
+            string? directoryPath = Path.GetDirectoryName(sarifPath);
+            if (!string.IsNullOrWhiteSpace(directoryPath))
             {
-                await executionContext.Out.WriteLineAsync($"InspectCode command attempt {attemptNumber}: {formattedCommand}");
+                Directory.CreateDirectory(directoryPath);
             }
 
-            try
-            {
-                (int exitCode, string standardOutput, string standardError) = await RunProcessAsync(candidate);
-                startedAnyCandidate = true;
+            string resolvedTarget = ResolveTarget(target, executionContext.WorkingDirectory);
 
-                if (exitCode == 0)
+            IReadOnlyList<ProcessStartInfo> candidates = BuildInspectCodeProcessCandidates(
+                resolvedTarget,
+                sarifPath,
+                executionContext.WorkingDirectory,
+                additionalArgs);
+
+            bool startedAnyCandidate = false;
+            string? errorOutput = null;
+            string? lastAttemptErrorOutput = null;
+            bool lastAttemptProducedErrorOutput = false;
+
+            for (int i = 0; i < candidates.Count; i++)
+            {
+                ProcessStartInfo candidate = candidates[i];
+                int attemptNumber = i + 1;
+                string formattedCommand = FormatCommand(candidate);
+
+                if (debugMode)
                 {
-                    errorOutput = null;
+                    await executionContext.Out.WriteLineAsync($"InspectCode command attempt {attemptNumber}: {formattedCommand}");
+                }
+
+                try
+                {
+                    (int exitCode, string standardOutput, string standardError) = await RunProcessAsync(candidate);
+                    startedAnyCandidate = true;
+
+                    if (exitCode == 0)
+                    {
+                        errorOutput = null;
+
+                        if (debugMode)
+                        {
+                            string relativeSarifLogPath = Path.GetRelativePath(executionContext.WorkingDirectory, sarifPath);
+                            await executionContext.Out.WriteLineAsync($"InspectCode SARIF log: {relativeSarifLogPath}");
+                            await executionContext.Out.WriteLineAsync();
+                        }
+
+                        completedSuccessfully = true;
+                        break;
+                    }
+
+                    errorOutput = string.IsNullOrWhiteSpace(standardError) ? standardOutput : standardError;
+                    lastAttemptErrorOutput = errorOutput;
+                    lastAttemptProducedErrorOutput = true;
 
                     if (debugMode)
                     {
-                        string relativeSarifLogPath = Path.GetRelativePath(executionContext.WorkingDirectory, sarifPath);
-                        await executionContext.Out.WriteLineAsync($"InspectCode SARIF log: {relativeSarifLogPath}");
-                        await executionContext.Out.WriteLineAsync();
+                        await executionContext.Out.WriteLineAsync($"InspectCode attempt {attemptNumber} exited with code {exitCode}.");
                     }
-
-                    break;
                 }
+                catch (Win32Exception)
+                {
+                    lastAttemptErrorOutput = null;
+                    lastAttemptProducedErrorOutput = false;
 
-                errorOutput = string.IsNullOrWhiteSpace(standardError) ? standardOutput : standardError;
-                lastAttemptErrorOutput = errorOutput;
-                lastAttemptProducedErrorOutput = true;
+                    if (debugMode)
+                    {
+                        await executionContext.Out.WriteLineAsync($"InspectCode attempt {attemptNumber} failed to start.");
+                    }
+                }
+            }
 
+            if (!startedAnyCandidate)
+            {
                 if (debugMode)
                 {
-                    await executionContext.Out.WriteLineAsync($"InspectCode attempt {attemptNumber} exited with code {exitCode}.");
+                    await executionContext.Out.WriteLineAsync();
                 }
-            }
-            catch (Win32Exception)
-            {
-                lastAttemptErrorOutput = null;
-                lastAttemptProducedErrorOutput = false;
 
-                if (debugMode)
+                throw new BiakApplicationException(InspectCodeBaselineRunHelperConstant.FAILED_TO_START_INSPECTCODE);
+            }
+
+            if (errorOutput is not null)
+            {
+                if (debugMode && lastAttemptProducedErrorOutput && !string.IsNullOrWhiteSpace(lastAttemptErrorOutput))
                 {
-                    await executionContext.Out.WriteLineAsync($"InspectCode attempt {attemptNumber} failed to start.");
+                    await executionContext.Out.WriteLineAsync("InspectCode last error output:");
+                    await executionContext.Out.WriteLineAsync(lastAttemptErrorOutput.Trim());
+                    await executionContext.Out.WriteLineAsync();
                 }
-            }
-        }
 
-        if (!startedAnyCandidate)
-        {
-            if (debugMode)
+                throw new BiakApplicationException(
+                    string.IsNullOrWhiteSpace(errorOutput)
+                        ? InspectCodeBaselineRunHelperConstant.INSPECTCODE_FAILED
+                        : $"{InspectCodeBaselineRunHelperConstant.INSPECTCODE_FAILED} {errorOutput.Trim()}"
+                );
+            }
+
+            if (!File.Exists(sarifPath))
             {
-                await executionContext.Out.WriteLineAsync();
+                throw new BiakApplicationException(InspectCodeBaselineRunHelperConstant.SARIF_REPORT_NOT_FOUND);
             }
 
-            throw new BiakApplicationException(InspectCodeBaselineRunHelperConstant.FAILED_TO_START_INSPECTCODE);
+            return sarifPath;
         }
-
-        if (errorOutput is not null)
+        finally
         {
-            if (debugMode && lastAttemptProducedErrorOutput && !string.IsNullOrWhiteSpace(lastAttemptErrorOutput))
+            if (!completedSuccessfully && !debugMode && File.Exists(sarifPath))
             {
-                await executionContext.Out.WriteLineAsync("InspectCode last error output:");
-                await executionContext.Out.WriteLineAsync(lastAttemptErrorOutput.Trim());
-                await executionContext.Out.WriteLineAsync();
+                File.Delete(sarifPath);
             }
-
-            throw new BiakApplicationException(
-                string.IsNullOrWhiteSpace(errorOutput)
-                    ? InspectCodeBaselineRunHelperConstant.INSPECTCODE_FAILED
-                    : $"{InspectCodeBaselineRunHelperConstant.INSPECTCODE_FAILED} {errorOutput.Trim()}"
-            );
         }
-
-        if (!File.Exists(sarifPath))
-        {
-            throw new BiakApplicationException(InspectCodeBaselineRunHelperConstant.SARIF_REPORT_NOT_FOUND);
-        }
-
-        return sarifPath;
     }
 
     private static IReadOnlyList<ProcessStartInfo> BuildInspectCodeProcessCandidates(
