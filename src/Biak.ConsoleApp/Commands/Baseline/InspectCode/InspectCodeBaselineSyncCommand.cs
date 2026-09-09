@@ -65,6 +65,7 @@ public static class InspectCodeBaselineSyncCommand
         string runtimeEditorconfigPath = string.Empty;
         string runtimeEditorconfigOriginalContent = string.Empty;
         bool runtimeEditorconfigWasTemporarilyModified = false;
+        bool isDebugModeEnabled = false;
         bool completedSuccessfully = false;
 
         try
@@ -87,6 +88,7 @@ public static class InspectCodeBaselineSyncCommand
             }
 
             InspectCodeBaselineConfig? baselineConfig = config.InspectCodeBaseline;
+            isDebugModeEnabled = baselineConfig?.DebugMode == true;
 
             string baseDirectory = executionContext.WorkingDirectory;
             runtimeEditorconfigPath = Path.Join(baseDirectory, ".editorconfig");
@@ -143,8 +145,9 @@ public static class InspectCodeBaselineSyncCommand
             sarifPath = await InspectCodeBaselineRunHelper.RunAsync(
                 executionContext,
                 baselineConfig?.Target,
-                baselineConfig?.AdditionalArgs
-                );
+                baselineConfig?.AdditionalArgs,
+                isDebugModeEnabled
+            );
 
             string sarifJson = await File.ReadAllTextAsync(sarifPath);
             IReadOnlyList<InspectCodeIssue> issues = InspectCodeBaselineSarifParser.Parse(sarifJson);
@@ -261,7 +264,9 @@ public static class InspectCodeBaselineSyncCommand
                 await File.WriteAllTextAsync(resolvedPath, originalContent);
             }
 
-            if (!string.IsNullOrWhiteSpace(sarifPath) && File.Exists(sarifPath))
+            if (!isDebugModeEnabled
+                && !string.IsNullOrWhiteSpace(sarifPath)
+                && File.Exists(sarifPath))
             {
                 File.Delete(sarifPath);
             }

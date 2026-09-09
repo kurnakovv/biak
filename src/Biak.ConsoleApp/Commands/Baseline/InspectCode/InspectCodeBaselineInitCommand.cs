@@ -34,6 +34,7 @@ public static class InspectCodeBaselineInitCommand
     public static async Task<string> RunAsync(AppExecutionContext executionContext)
     {
         string sarifPath = string.Empty;
+        bool isDebugModeEnabled = false;
 
         try
         {
@@ -46,11 +47,13 @@ public static class InspectCodeBaselineInitCommand
                 await executionContext.Out.WriteLineAsync();
             }
             InspectCodeBaselineConfig? baselineConfig = config.InspectCodeBaseline;
+            isDebugModeEnabled = baselineConfig?.DebugMode == true;
 
             sarifPath = await InspectCodeBaselineRunHelper.RunAsync(
                 executionContext,
                 baselineConfig?.Target,
-                baselineConfig?.AdditionalArgs
+                baselineConfig?.AdditionalArgs,
+                isDebugModeEnabled
             );
 
             string sarifJson = await File.ReadAllTextAsync(sarifPath);
@@ -115,7 +118,9 @@ public static class InspectCodeBaselineInitCommand
         }
         finally
         {
-            if (!string.IsNullOrWhiteSpace(sarifPath) && File.Exists(sarifPath))
+            if (!isDebugModeEnabled
+                && !string.IsNullOrWhiteSpace(sarifPath)
+                && File.Exists(sarifPath))
             {
                 File.Delete(sarifPath);
             }
