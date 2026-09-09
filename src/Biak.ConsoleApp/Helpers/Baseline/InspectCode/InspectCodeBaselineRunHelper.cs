@@ -16,7 +16,7 @@ namespace Biak.ConsoleApp.Helpers.Baseline.InspectCode;
 public static class InspectCodeBaselineRunHelper
 {
     /// <summary>
-    /// Runs InspectCode with SARIF output and returns execution details.
+    /// Runs InspectCode with SARIF output and returns the generated SARIF file path.
     /// </summary>
     /// <param name="executionContext">Provides the context required to perform the operation.</param>
     /// <param name="target">Explicit path to the <c>.slnx</c>, <c>.sln</c>, or <c>.csproj</c> file. When <c>null</c>, auto-discovery is used.</param>
@@ -314,7 +314,8 @@ public static class InspectCodeBaselineRunHelper
 
     private static string EscapeCommandPart(string value)
     {
-        bool requiresQuotes = value.Any(ch => char.IsWhiteSpace(ch) || ch == '"');
+        bool requiresQuotes = string.IsNullOrEmpty(value)
+            || value.Any(ch => char.IsWhiteSpace(ch) || ch == '"');
         return requiresQuotes
             ? $"\"{value.Replace("\"", "\\\"", StringComparison.Ordinal)}\""
             : value;
