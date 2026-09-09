@@ -83,6 +83,7 @@ public static class InspectCodeBaselineRunHelper
                     if (debugMode)
                     {
                         await executionContext.Out.WriteLineAsync($"InspectCode attempt {attemptNumber} exited with code {exitCode}.");
+                        await executionContext.Out.WriteLineAsync();
                     }
                 }
                 catch (Win32Exception)
@@ -93,6 +94,7 @@ public static class InspectCodeBaselineRunHelper
                     if (debugMode)
                     {
                         await executionContext.Out.WriteLineAsync($"InspectCode attempt {attemptNumber} failed to start.");
+                        await executionContext.Out.WriteLineAsync();
                     }
                 }
             }
