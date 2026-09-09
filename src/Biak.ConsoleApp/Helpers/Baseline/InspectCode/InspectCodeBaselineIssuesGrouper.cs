@@ -21,7 +21,8 @@ public static class InspectCodeBaselineIssuesGrouper
     /// </returns>
     public static InspectCodeBaselineIssuesGroupResult Group(
         IReadOnlyList<InspectCodeIssue> issues,
-        IReadOnlyDictionary<string, string>? ruleIdOverrides)
+        IReadOnlyDictionary<string, string>? ruleIdOverrides
+    )
     {
         Dictionary<string, InspectCodeBaselineIssueGroup> groupsByKey =
             new(StringComparer.OrdinalIgnoreCase);
@@ -50,7 +51,8 @@ public static class InspectCodeBaselineIssuesGrouper
 
     private static string? FindMappedEditorconfigKey(
         string ruleId,
-        IReadOnlyDictionary<string, string>? overrides)
+        IReadOnlyDictionary<string, string>? overrides
+    )
     {
         if (overrides is not null && overrides.TryGetValue(ruleId, out string? overrideKey))
         {
