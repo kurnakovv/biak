@@ -46,8 +46,8 @@ And your baseline file is synchronized.
   * original root `.editorconfig` is restored after analysis
 * Run Inspect Code and parse active issues from SARIF.
 * If `inspectCodeBaseline.debugMode` is `true`:
-  * print the executed InspectCode command
-  * print the generated SARIF path
+  * print each attempted InspectCode candidate command (in launch order)
+  * print the generated SARIF path (when the file exists)
   * keep the generated SARIF file in `.biak/logs/inspectcode-baseline`
 * If `inspectCodeBaseline.debugMode` is `false`, delete the generated SARIF after processing.
 * Remove resolved filters / stale file entries from baseline.

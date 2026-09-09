@@ -30,8 +30,8 @@ resharper_replace_with_string_is_null_or_empty_highlighting = suggestion # ^biak
   * Timeout: 30 minutes.
 * Resolve target automatically from current directory (`*.slnx` -> `*.sln` -> `*.csproj`) or from `.biak/config.json` (`inspectCodeBaseline.target`).
 * If `inspectCodeBaseline.debugMode` is `true`:
-  * print the executed InspectCode command
-  * print the generated SARIF path
+  * print each attempted InspectCode candidate command (in launch order)
+  * print the generated SARIF path (when the file exists)
   * keep the generated SARIF file in `.biak/logs/inspectcode-baseline`
 * If `inspectCodeBaseline.debugMode` is `false`, delete the generated SARIF after processing.
 * Parse SARIF issues (`ruleId` + file locations).
