@@ -19,7 +19,8 @@ public static class BaselineSyncEditorconfigHelper
     /// <returns>Unique baseline identifiers.</returns>
     public static HashSet<string> GetIdentifiers(
         string content,
-        Func<string, string?> tryGetIdentifier)
+        Func<string, string?> tryGetIdentifier
+    )
     {
         string newline = content.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
         string[] lines = content.Split(new[] { newline }, StringSplitOptions.None);
@@ -44,7 +45,8 @@ public static class BaselineSyncEditorconfigHelper
         IReadOnlySet<string> identifiersToKeep,
         Func<string, string?> tryGetIdentifier,
         IReadOnlyDictionary<string, IReadOnlySet<string>>? activeFilesByIdentifier = null,
-        Func<string, string, bool>? isAssociatedCommentLine = null)
+        Func<string, string, bool>? isAssociatedCommentLine = null
+    )
     {
         string newline = content.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
         string[] lines = content.Split(new[] { newline }, StringSplitOptions.None);
@@ -108,7 +110,8 @@ public static class BaselineSyncEditorconfigHelper
         string content,
         IReadOnlySet<string> identifiersToKeep,
         Func<string, string?> tryGetIdentifier,
-        IReadOnlyDictionary<string, IReadOnlySet<string>>? activeFilesByIdentifier = null)
+        IReadOnlyDictionary<string, IReadOnlySet<string>>? activeFilesByIdentifier = null
+    )
     {
         string newline = content.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
         string[] lines = content.Split(new[] { newline }, StringSplitOptions.None);
@@ -201,7 +204,8 @@ public static class BaselineSyncEditorconfigHelper
     private static void RemoveTrailingAssociatedComment(
         IList<string> lines,
         string identifier,
-        Func<string, string, bool>? isAssociatedCommentLine)
+        Func<string, string, bool>? isAssociatedCommentLine
+    )
     {
         if (isAssociatedCommentLine is null || lines.Count == 0)
         {
@@ -241,7 +245,8 @@ public static class BaselineSyncEditorconfigHelper
 
     private static IReadOnlySet<string> GetActiveFilesForIdentifier(
         IReadOnlyDictionary<string, IReadOnlySet<string>> activeFilesByIdentifier,
-        string identifier)
+        string identifier
+    )
     {
         return activeFilesByIdentifier.TryGetValue(identifier, out IReadOnlySet<string>? files)
             ? files

@@ -413,7 +413,8 @@ public class InspectCodeBaselineSyncHelperTests
         string[] activeFilesForRuleKey,
         string[] mustContain,
         string[] mustNotContain,
-        string? expectedExact)
+        string? expectedExact
+    )
     {
         _ = testName;
         IReadOnlyDictionary<string, IReadOnlySet<string>> activeFilesByRuleKey =
@@ -428,7 +429,8 @@ public class InspectCodeBaselineSyncHelperTests
         string result = InspectCodeBaselineSyncHelper.RemoveFilters(
             content,
             new HashSet<string>(ruleKeysToKeep, StringComparer.OrdinalIgnoreCase),
-            activeFilesByRuleKey);
+            activeFilesByRuleKey
+        );
 
         if (expectedExact is not null)
         {
@@ -538,7 +540,8 @@ public class InspectCodeBaselineSyncHelperTests
             CONTENT,
             new HashSet<string>(StringComparer.OrdinalIgnoreCase),
             new Dictionary<string, IReadOnlySet<string>>(StringComparer.OrdinalIgnoreCase),
-            ruleIdOverrides);
+            ruleIdOverrides
+        );
 
         Assert.Equal(string.Empty, result);
     }
@@ -570,7 +573,8 @@ public class InspectCodeBaselineSyncHelperTests
         IReadOnlyDictionary<string, IReadOnlySet<string>> result = InspectCodeBaselineSyncHelper.GetSynchronizedFiles(
             CONTENT,
             ruleKeysToKeep,
-            activeFilesByRuleKey);
+            activeFilesByRuleKey
+        );
 
         Assert.Equal(2, result.Count);
         Assert.Contains("src/Fixed.cs", result.Keys, StringComparer.Ordinal);

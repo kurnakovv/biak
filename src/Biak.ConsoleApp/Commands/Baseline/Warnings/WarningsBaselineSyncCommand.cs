@@ -49,7 +49,8 @@ public static class WarningsBaselineSyncCommand
             {
                 CommandArgumentConstant.PATH,
                 CommandArgumentConstant.TARGET,
-            });
+            }
+        );
     }
 
     /// <summary>
@@ -97,7 +98,8 @@ public static class WarningsBaselineSyncCommand
 
             bool hasLegacyMarker = originalContent.Contains(
                 WarningsBaselineInitCommandConstant.LEGACY_BASELINE_DIAGNOSTIC_MARKER,
-                StringComparison.Ordinal);
+                StringComparison.Ordinal
+            );
             if (hasLegacyMarker)
             {
                 originalContent = originalContent.Replace(
@@ -208,15 +210,18 @@ public static class WarningsBaselineSyncCommand
 
     private static string ResolveEditorConfigPath(string[] args, string baseDirectory)
     {
-        if (CommandArgumentHelper.TryParseOptions(
-            args,
-            out Dictionary<string, string> options,
-            new HashSet<string>(StringComparer.Ordinal)
-            {
-                CommandArgumentConstant.PATH,
-                CommandArgumentConstant.TARGET,
-            })
-            && options.TryGetValue(CommandArgumentConstant.PATH, out string? configuredPath))
+        if (
+            CommandArgumentHelper.TryParseOptions(
+                args,
+                out Dictionary<string, string> options,
+                new HashSet<string>(StringComparer.Ordinal)
+                {
+                    CommandArgumentConstant.PATH,
+                    CommandArgumentConstant.TARGET,
+                }
+            )
+            && options.TryGetValue(CommandArgumentConstant.PATH, out string? configuredPath)
+        )
         {
             return configuredPath;
         }
@@ -236,14 +241,16 @@ public static class WarningsBaselineSyncCommand
 
     private static string? ResolveBuildTarget(string[] args)
     {
-        if (CommandArgumentHelper.TryParseOptions(
-            args,
-            out Dictionary<string, string> options,
-            new HashSet<string>(StringComparer.Ordinal)
-            {
-                CommandArgumentConstant.PATH,
-                CommandArgumentConstant.TARGET,
-            })
+        if (
+            CommandArgumentHelper.TryParseOptions(
+                args,
+                out Dictionary<string, string> options,
+                new HashSet<string>(StringComparer.Ordinal)
+                {
+                    CommandArgumentConstant.PATH,
+                    CommandArgumentConstant.TARGET,
+                }
+            )
             && options.TryGetValue(CommandArgumentConstant.TARGET, out string? buildTarget))
         {
             return buildTarget;

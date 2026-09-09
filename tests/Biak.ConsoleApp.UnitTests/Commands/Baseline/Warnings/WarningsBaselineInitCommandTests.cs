@@ -46,11 +46,12 @@ public class WarningsBaselineInitCommandTests
     public void IsRunnableTrueForWarningsBaselineInitParams()
     {
         Assert.True(WarningsBaselineInitCommand.IsRunnable([CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.INIT]));
-        Assert.True(WarningsBaselineInitCommand.IsRunnable([
+        bool result = WarningsBaselineInitCommand.IsRunnable([
             CommandArgumentConstant.WARNINGS_BASELINE,
             CommandArgumentConstant.INIT,
             CommandArgumentConstant.TARGET,
             "path/to/app.csproj",
-        ]));
+        ]);
+        Assert.True(result);
     }
 }

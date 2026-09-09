@@ -665,7 +665,8 @@ public class WarningsBaselineSyncHelperTests
         string result = WarningsBaselineSyncHelper.RemoveFilters(
             content,
             new HashSet<string>(codesToKeep, StringComparer.OrdinalIgnoreCase),
-            activeFilesByCode);
+            activeFilesByCode
+        );
 
         foreach (string value in mustContain)
         {
