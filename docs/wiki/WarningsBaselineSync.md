@@ -10,28 +10,28 @@ dotnet biak warnings-baseline sync [--path <path>] [--target <path>]
 Let's imagine you have the following configuration:
 ```.editorconfig
 [{VisualBasicProject/Module1.vb}]
-dotnet_diagnostic.BC40000.severity = suggestion # ^biak^ baseline
+dotnet_diagnostic.BC40000.severity = suggestion # ^biak^ warnings-baseline
 
 [{DerivedClassCS0649.cs}]
-dotnet_diagnostic.CS0108.severity = suggestion # ^biak^ baseline
+dotnet_diagnostic.CS0108.severity = suggestion # ^biak^ warnings-baseline
 
 [{ProgramCS0168Warning.cs}]
-dotnet_diagnostic.CS0168.severity = suggestion # ^biak^ baseline
+dotnet_diagnostic.CS0168.severity = suggestion # ^biak^ warnings-baseline
 
 [{MyClassCS0169.cs}]
-dotnet_diagnostic.CS0169.severity = suggestion # ^biak^ baseline
+dotnet_diagnostic.CS0169.severity = suggestion # ^biak^ warnings-baseline
 
 [{ProgramCS0219Warning.cs}]
-dotnet_diagnostic.CS0219.severity = suggestion # ^biak^ baseline
+dotnet_diagnostic.CS0219.severity = suggestion # ^biak^ warnings-baseline
 
 [{ProgramCS0612.cs}]
-dotnet_diagnostic.CS0612.severity = suggestion # ^biak^ baseline
+dotnet_diagnostic.CS0612.severity = suggestion # ^biak^ warnings-baseline
 
 [{DerivedClassCS0649.cs}]
-dotnet_diagnostic.CS0649.severity = suggestion # ^biak^ baseline
+dotnet_diagnostic.CS0649.severity = suggestion # ^biak^ warnings-baseline
 
 [{MyTestForlder/MyTestModel1.cs,MyTestModel.cs}]
-dotnet_diagnostic.CS8618.severity = suggestion # ^biak^ baseline
+dotnet_diagnostic.CS8618.severity = suggestion # ^biak^ warnings-baseline
 ```
 
 Then you fix the warnings in the `DerivedClassCS0649.cs` and `MyTestForlder/MyTestModel1.cs` files.
@@ -51,7 +51,7 @@ And the `.editorconfig` file is synchronized.
 ## ⚙️ Logic
 * Find the config file (`.biak/.editorconfig-main`; if it is not found, use `.editorconfig`) or get the file path from `--path <path>`
 * Check that the file name starts with `.editorconfig` and the resolved path does not go beyond the root directory.
-* Check that the file contains the `# ^biak^ baseline` marker
+* Check that the file contains the `# ^biak^ warnings-baseline` marker
 * Change baseline filters in the config file from `suggestion` to `warning`
 * Execute a full project build (30-minute timeout), or build an explicit target from `--target <path>`
 * If build errors are detected, terminate execution
