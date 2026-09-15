@@ -18,32 +18,32 @@ Choose one: add this full snippet to `Directory.Build.props`, or if you configur
 
 Insert these filters into your .editorconfig file
 [{VisualBasicProject/Module1.vb}]
-dotnet_diagnostic.BC40000.severity = suggestion # ^biak^ baseline
+dotnet_diagnostic.BC40000.severity = suggestion # ^biak^ warnings-baseline
 
 [{DerivedClassCS0649.cs}]
-dotnet_diagnostic.CS0108.severity = suggestion # ^biak^ baseline
+dotnet_diagnostic.CS0108.severity = suggestion # ^biak^ warnings-baseline
 
 [{ProgramCS0168Warning.cs}]
-dotnet_diagnostic.CS0168.severity = suggestion # ^biak^ baseline
+dotnet_diagnostic.CS0168.severity = suggestion # ^biak^ warnings-baseline
 
 [{MyClassCS0169.cs}]
-dotnet_diagnostic.CS0169.severity = suggestion # ^biak^ baseline
+dotnet_diagnostic.CS0169.severity = suggestion # ^biak^ warnings-baseline
 
 [{ProgramCS0219Warning.cs}]
-dotnet_diagnostic.CS0219.severity = suggestion # ^biak^ baseline
+dotnet_diagnostic.CS0219.severity = suggestion # ^biak^ warnings-baseline
 
 [{ProgramCS0612.cs}]
-dotnet_diagnostic.CS0612.severity = suggestion # ^biak^ baseline
+dotnet_diagnostic.CS0612.severity = suggestion # ^biak^ warnings-baseline
 
 [{DerivedClassCS0649.cs}]
-dotnet_diagnostic.CS0649.severity = suggestion # ^biak^ baseline
+dotnet_diagnostic.CS0649.severity = suggestion # ^biak^ warnings-baseline
 
 [{MyTestForlder/MyTestModel1.cs,MyTestModel.cs}]
-dotnet_diagnostic.CS8618.severity = suggestion # ^biak^ baseline
+dotnet_diagnostic.CS8618.severity = suggestion # ^biak^ warnings-baseline
 ```
 
 > [!WARNING]
-> Do not remove the `# ^biak^ baseline` marker, as it is used for the [Sync](WarningsBaselineSync) command.
+> Do not remove the `# ^biak^ warnings-baseline` marker, as it is used for the [Sync](WarningsBaselineSync) command.
 
 ## ⚙️ Logic
 * Execute a full project build (30-minute timeout), or build an explicit target from `--target <path>`
@@ -60,7 +60,7 @@ If a warning originates from a global project-level configuration, such as a `.c
 
 ### Why `suggestion` and not `warning`?
 
-Unfortunately, if you write `... = warning # ^biak^ baseline` instead of `... = suggestion # ^biak^ baseline` and set `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>`, the filter will not be applied and all warnings will become errors.
+Unfortunately, if you write `... = warning # ^biak^ warnings-baseline` instead of `... = suggestion # ^biak^ warnings-baseline` and set `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>`, the filter will not be applied and all warnings will become errors.
 
 ## 🔗 Links
 * Issues: [#105](https://github.com/kurnakovv/biak/issues/105) | [#113](https://github.com/kurnakovv/biak/issues/113)
