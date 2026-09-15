@@ -27,7 +27,8 @@ public static class InspectCodeBaselineRunHelper
         AppExecutionContext executionContext,
         string? target = null,
         IReadOnlyList<string>? additionalArgs = null,
-        bool debugMode = false)
+        bool debugMode = false
+    )
     {
         string sarifPath = GenerateSarifPath(executionContext.WorkingDirectory);
         bool completedSuccessfully = false;
@@ -46,7 +47,8 @@ public static class InspectCodeBaselineRunHelper
                 resolvedTarget,
                 sarifPath,
                 executionContext.WorkingDirectory,
-                additionalArgs);
+                additionalArgs
+            );
 
             bool startedAnyCandidate = false;
             string? errorOutput = null;
@@ -152,7 +154,8 @@ public static class InspectCodeBaselineRunHelper
         string resolvedTarget,
         string sarifPath,
         string workingDirectory,
-        IReadOnlyList<string>? additionalArgs)
+        IReadOnlyList<string>? additionalArgs
+    )
     {
         return new List<ProcessStartInfo>
         {
@@ -167,7 +170,8 @@ public static class InspectCodeBaselineRunHelper
         string resolvedTarget,
         string sarifPath,
         string workingDirectory,
-        IReadOnlyList<string>? additionalArgs)
+        IReadOnlyList<string>? additionalArgs
+    )
     {
         ProcessStartInfo psi = CreateProcessStartInfo("dotnet", workingDirectory);
         psi.ArgumentList.Add("tool");
@@ -182,7 +186,8 @@ public static class InspectCodeBaselineRunHelper
         string resolvedTarget,
         string sarifPath,
         string workingDirectory,
-        IReadOnlyList<string>? additionalArgs)
+        IReadOnlyList<string>? additionalArgs
+    )
     {
         ProcessStartInfo psi = CreateProcessStartInfo("jb", workingDirectory);
         psi.ArgumentList.Add("inspectcode");
@@ -195,7 +200,8 @@ public static class InspectCodeBaselineRunHelper
         string resolvedTarget,
         string sarifPath,
         string workingDirectory,
-        IReadOnlyList<string>? additionalArgs)
+        IReadOnlyList<string>? additionalArgs
+    )
     {
         ProcessStartInfo psi = CreateProcessStartInfo(fileName, workingDirectory);
         ConfigureInspectCodeRunArguments(psi, resolvedTarget, sarifPath, additionalArgs);
@@ -206,7 +212,8 @@ public static class InspectCodeBaselineRunHelper
         ProcessStartInfo psi,
         string resolvedTarget,
         string sarifPath,
-        IReadOnlyList<string>? additionalArgs)
+        IReadOnlyList<string>? additionalArgs
+    )
     {
         psi.ArgumentList.Add(resolvedTarget);
         psi.ArgumentList.Add($"-o={sarifPath}");
@@ -280,7 +287,8 @@ public static class InspectCodeBaselineRunHelper
                 throw new BiakApplicationException(
                     InspectCodeBaselineRunHelperConstant.TARGET_NOT_FOUND_PREFIX +
                     fullPath +
-                    InspectCodeBaselineRunHelperConstant.TARGET_NOT_FOUND_SUFFIX);
+                    InspectCodeBaselineRunHelperConstant.TARGET_NOT_FOUND_SUFFIX
+                );
             }
 
             return fullPath;

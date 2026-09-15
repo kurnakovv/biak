@@ -48,7 +48,8 @@ public static class InspectCodeBaselineSyncCommand
             new HashSet<string>(StringComparer.Ordinal)
             {
                 CommandArgumentConstant.PATH,
-            });
+            }
+        );
     }
 
     /// <summary>
@@ -166,7 +167,8 @@ public static class InspectCodeBaselineSyncCommand
                 .ToDictionary(
                     x => x.Key,
                     x => (IReadOnlySet<string>)x.Value.Files,
-                    StringComparer.OrdinalIgnoreCase);
+                    StringComparer.OrdinalIgnoreCase
+                );
 
             HashSet<string> baselineRuleKeys = InspectCodeBaselineSyncHelper.GetRuleKeys(originalContent);
             HashSet<string> activeRuleKeys = activeFilesByRuleKey.Keys.ToHashSet(StringComparer.OrdinalIgnoreCase);
@@ -178,13 +180,15 @@ public static class InspectCodeBaselineSyncCommand
             IReadOnlyDictionary<string, IReadOnlySet<string>> synchronizedFiles = InspectCodeBaselineSyncHelper.GetSynchronizedFiles(
                 originalContent,
                 keysToKeep,
-                activeFilesByRuleKey);
+                activeFilesByRuleKey
+            );
 
             string syncedContent = InspectCodeBaselineSyncHelper.RemoveFilters(
                 originalContent,
                 keysToKeep,
                 activeFilesByRuleKey,
-                ruleIdOverrides);
+                ruleIdOverrides
+            );
 
             string snapshotSeverity = baselineConfig?.SnapshotSeverity
                 ?? InspectCodeBaselineConfig.DEFAULT_SNAPSHOT_SEVERITY;
@@ -195,7 +199,8 @@ public static class InspectCodeBaselineSyncCommand
             string biakDirectory = Path.GetFullPath(".biak", baseDirectory);
             bool shouldResyncRootEditorconfig = resolvedPath.StartsWith(
                 biakDirectory + Path.DirectorySeparatorChar,
-                StringComparison.OrdinalIgnoreCase);
+                StringComparison.OrdinalIgnoreCase
+            );
 
             if (shouldResyncRootEditorconfig && biakStatusType.HasValue)
             {
@@ -275,14 +280,17 @@ public static class InspectCodeBaselineSyncCommand
 
     private static string ResolveBaselinePath(string[] args, InspectCodeBaselineConfig? baselineConfig, string baseDirectory)
     {
-        if (CommandArgumentHelper.TryParseOptions(
-            args,
-            out Dictionary<string, string> options,
-            new HashSet<string>(StringComparer.Ordinal)
-            {
-                CommandArgumentConstant.PATH,
-            })
-            && options.TryGetValue(CommandArgumentConstant.PATH, out string? pathFromCli))
+        if (
+            CommandArgumentHelper.TryParseOptions(
+                args,
+                out Dictionary<string, string> options,
+                new HashSet<string>(StringComparer.Ordinal)
+                {
+                    CommandArgumentConstant.PATH,
+                }
+            )
+            && options.TryGetValue(CommandArgumentConstant.PATH, out string? pathFromCli)
+        )
         {
             return pathFromCli;
         }

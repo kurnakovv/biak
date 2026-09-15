@@ -16,7 +16,8 @@ public sealed class InspectCodeBaselineIssuesGroupResult
     /// <param name="unmappedRuleIds">Rule IDs that had no .editorconfig key mapping.</param>
     public InspectCodeBaselineIssuesGroupResult(
         Dictionary<string, InspectCodeBaselineIssueGroup> groupsByKey,
-        HashSet<string> unmappedRuleIds)
+        HashSet<string> unmappedRuleIds
+    )
     {
         GroupsByKey = groupsByKey;
         UnmappedRuleIds = unmappedRuleIds;

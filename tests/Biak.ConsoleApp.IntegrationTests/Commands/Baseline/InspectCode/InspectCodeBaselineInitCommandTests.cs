@@ -48,7 +48,8 @@ public class InspectCodeBaselineInitCommandTests
                 "additionalArgs": ["--sEverity=WARNING"]
               }
             }
-            """);
+            """
+        );
 
         string firstRunResult = await InspectCodeBaselineInitCommand.RunAsync(context);
 

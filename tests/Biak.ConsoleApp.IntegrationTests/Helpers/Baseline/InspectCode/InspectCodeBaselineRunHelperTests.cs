@@ -33,7 +33,8 @@ public class InspectCodeBaselineRunHelperTests
         await File.WriteAllTextAsync(targetPath, "this is not valid xml");
 
         Exception? exception = await Record.ExceptionAsync(() =>
-            InspectCodeBaselineRunHelper.RunAsync(context, targetPath));
+            InspectCodeBaselineRunHelper.RunAsync(context, targetPath)
+        );
 
         Assert.NotNull(exception);
         Assert.IsType<BiakApplicationException>(exception);
@@ -51,7 +52,8 @@ public class InspectCodeBaselineRunHelperTests
         string nonExistentPath = Path.Join(Path.GetTempPath(), "nonexistent-biak-test", "Missing.csproj");
 
         Exception? exception = await Record.ExceptionAsync(() =>
-            InspectCodeBaselineRunHelper.RunAsync(context, nonExistentPath));
+            InspectCodeBaselineRunHelper.RunAsync(context, nonExistentPath)
+        );
 
         Assert.NotNull(exception);
         Assert.IsType<BiakApplicationException>(exception);
@@ -69,7 +71,8 @@ public class InspectCodeBaselineRunHelperTests
         AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
 
         Exception? exception = await Record.ExceptionAsync(() =>
-            InspectCodeBaselineRunHelper.RunAsync(executionContext: context));
+            InspectCodeBaselineRunHelper.RunAsync(executionContext: context)
+        );
 
         Assert.NotNull(exception);
         Assert.IsType<BiakApplicationException>(exception);
@@ -87,7 +90,8 @@ public class InspectCodeBaselineRunHelperTests
         await File.WriteAllTextAsync(Path.Join(testDir.Value, "fake.slnx"), "invalid content");
 
         Exception? exception = await Record.ExceptionAsync(() =>
-            InspectCodeBaselineRunHelper.RunAsync(executionContext: context));
+            InspectCodeBaselineRunHelper.RunAsync(executionContext: context)
+        );
 
         Assert.NotNull(exception);
         Assert.IsType<BiakApplicationException>(exception);
@@ -105,7 +109,8 @@ public class InspectCodeBaselineRunHelperTests
         await File.WriteAllTextAsync(Path.Join(testDir.Value, "fake.sln"), "invalid content");
 
         Exception? exception = await Record.ExceptionAsync(() =>
-            InspectCodeBaselineRunHelper.RunAsync(executionContext: context));
+            InspectCodeBaselineRunHelper.RunAsync(executionContext: context)
+        );
 
         Assert.NotNull(exception);
         Assert.IsType<BiakApplicationException>(exception);

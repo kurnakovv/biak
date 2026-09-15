@@ -88,7 +88,8 @@ public class WarningsBaselineSyncCommandTests
         string? editorconfigPath,
         bool isDefaultCommand,
         string expected,
-        bool useStartsWith)
+        bool useStartsWith
+    )
     {
         TestDirectory testDir = new(
             $"{nameof(WarningsBaselineSyncCommandTests)}_{nameof(RunShouldThrowBiakApplicationExceptionAsync)}_{testCaseName}"
@@ -329,7 +330,8 @@ public class WarningsBaselineSyncCommandTests
 
         string result = await WarningsBaselineSyncCommand.RunAsync(
             executionContext: context,
-            [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC]);
+            [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC]
+        );
 
         string syncedContent = await File.ReadAllTextAsync(editorconfigPath);
         string consoleOutput = output.ToString();
@@ -419,7 +421,8 @@ public class WarningsBaselineSyncCommandTests
 
         string result = await WarningsBaselineSyncCommand.RunAsync(
             executionContext: context,
-            [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC]);
+            [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC]
+        );
 
         string syncedContent = await File.ReadAllTextAsync(editorconfigPath);
         string consoleOutput = output.ToString();
@@ -497,7 +500,8 @@ public class WarningsBaselineSyncCommandTests
 
         string result = await WarningsBaselineSyncCommand.RunAsync(
             executionContext: context,
-            [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC]);
+            [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC]
+        );
 
         string syncedContent = await File.ReadAllTextAsync(editorconfigPath);
         string consoleOutput = output.ToString();
@@ -618,7 +622,8 @@ public class WarningsBaselineSyncCommandTests
 
         string result = await WarningsBaselineSyncCommand.RunAsync(
             executionContext: context,
-            [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC]);
+            [CommandArgumentConstant.WARNINGS_BASELINE, CommandArgumentConstant.SYNC]
+        );
 
         string syncedContent = await File.ReadAllTextAsync(editorconfigPath);
         string consoleOutput = output.ToString();
