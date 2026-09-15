@@ -7,6 +7,7 @@ using Biak.ConsoleApp.Exceptions;
 using Biak.ConsoleApp.Helpers;
 using Biak.ConsoleApp.Helpers.Baseline;
 using Biak.ConsoleApp.Helpers.Baseline.Warnings;
+using Biak.ConsoleApp.Models;
 using SL = Microsoft.Build.Logging.StructuredLogger;
 
 namespace Biak.ConsoleApp.Commands.Baseline.Warnings;
@@ -48,27 +49,30 @@ public static class WarningsBaselineSyncCommand
             {
                 CommandArgumentConstant.PATH,
                 CommandArgumentConstant.TARGET,
-            });
+            }
+        );
     }
 
     /// <summary>
     /// Run.
     /// </summary>
+    /// <param name="executionContext">Execution context with working directory for command execution.</param>
     /// <param name="args">User input arguments.</param>
     /// <returns><placeholder>A <see cref="Task"/> representing the asynchronous operation.</placeholder></returns>
-    public static async Task<string> RunAsync(string[] args)
+    public static async Task<string> RunAsync(AppExecutionContext executionContext, string[] args)
     {
-        string baseDirectory = Directory.GetCurrentDirectory();
+        string baseDirectory = executionContext.WorkingDirectory;
         string resolvedPath = string.Empty;
         string originalContent = string.Empty;
         string contentBeforeSync = string.Empty;
+        string buildBinlogPath = Path.GetFullPath(WarningsBaselineSyncCommandConstant.BUILD_BINLOG_PATH, baseDirectory);
         bool baselineWasActivated = false;
         bool completedSuccessfully = false;
 
         try
         {
-            Console.WriteLine(WarningsBaselineSyncCommandConstant.SYNC_STARTED);
-            Console.WriteLine();
+            await executionContext.Out.WriteLineAsync(WarningsBaselineSyncCommandConstant.SYNC_STARTED);
+            await executionContext.Out.WriteLineAsync();
 
             string editorConfigPath = ResolveEditorConfigPath(args, baseDirectory);
             string? buildTarget = ResolveBuildTarget(args);
@@ -94,7 +98,8 @@ public static class WarningsBaselineSyncCommand
 
             bool hasLegacyMarker = originalContent.Contains(
                 WarningsBaselineInitCommandConstant.LEGACY_BASELINE_DIAGNOSTIC_MARKER,
-                StringComparison.Ordinal);
+                StringComparison.Ordinal
+            );
             if (hasLegacyMarker)
             {
                 originalContent = originalContent.Replace(
@@ -110,7 +115,8 @@ public static class WarningsBaselineSyncCommand
             baselineWasActivated = true;
 
             SL.Build build = await WarningsBaselineBuildHelper.BuildAndReadBuildAsync(
-                WarningsBaselineSyncCommandConstant.BUILD_BINLOG_PATH,
+                buildBinlogPath,
+                executionContext,
                 buildTarget
             );
 
@@ -164,23 +170,23 @@ public static class WarningsBaselineSyncCommand
                 foreach (KeyValuePair<string, IReadOnlySet<string>> synchronizedFile in synchronizedFiles.OrderBy(x => x.Key, StringComparer.OrdinalIgnoreCase))
                 {
                     string codes = string.Join(", ", synchronizedFile.Value.OrderBy(x => x, StringComparer.OrdinalIgnoreCase));
-                    Console.WriteLine($"{synchronizedFile.Key} ({codes})");
+                    await executionContext.Out.WriteLineAsync($"{synchronizedFile.Key} ({codes})");
                 }
 
                 if (synchronizedFiles.Count > 0)
                 {
-                    Console.WriteLine();
+                    await executionContext.Out.WriteLineAsync();
                 }
             }
 
             if (hasLegacyMarker)
             {
-                Console.WriteLine(WarningsBaselineSyncCommandConstant.LEGACY_MARKER_MIGRATED_WARNING);
-                Console.WriteLine();
+                await executionContext.Out.WriteLineAsync(WarningsBaselineSyncCommandConstant.LEGACY_MARKER_MIGRATED_WARNING);
+                await executionContext.Out.WriteLineAsync();
             }
 
-            Console.WriteLine(result);
-            Console.WriteLine();
+            await executionContext.Out.WriteLineAsync(result);
+            await executionContext.Out.WriteLineAsync();
 
             return result;
         }
@@ -195,24 +201,27 @@ public static class WarningsBaselineSyncCommand
                 await File.WriteAllTextAsync(resolvedPath, contentBeforeSync);
             }
 
-            if (File.Exists(WarningsBaselineSyncCommandConstant.BUILD_BINLOG_PATH))
+            if (File.Exists(buildBinlogPath))
             {
-                File.Delete(WarningsBaselineSyncCommandConstant.BUILD_BINLOG_PATH);
+                File.Delete(buildBinlogPath);
             }
         }
     }
 
     private static string ResolveEditorConfigPath(string[] args, string baseDirectory)
     {
-        if (CommandArgumentHelper.TryParseOptions(
-            args,
-            out Dictionary<string, string> options,
-            new HashSet<string>(StringComparer.Ordinal)
-            {
-                CommandArgumentConstant.PATH,
-                CommandArgumentConstant.TARGET,
-            })
-            && options.TryGetValue(CommandArgumentConstant.PATH, out string? configuredPath))
+        if (
+            CommandArgumentHelper.TryParseOptions(
+                args,
+                out Dictionary<string, string> options,
+                new HashSet<string>(StringComparer.Ordinal)
+                {
+                    CommandArgumentConstant.PATH,
+                    CommandArgumentConstant.TARGET,
+                }
+            )
+            && options.TryGetValue(CommandArgumentConstant.PATH, out string? configuredPath)
+        )
         {
             return configuredPath;
         }
@@ -232,14 +241,16 @@ public static class WarningsBaselineSyncCommand
 
     private static string? ResolveBuildTarget(string[] args)
     {
-        if (CommandArgumentHelper.TryParseOptions(
-            args,
-            out Dictionary<string, string> options,
-            new HashSet<string>(StringComparer.Ordinal)
-            {
-                CommandArgumentConstant.PATH,
-                CommandArgumentConstant.TARGET,
-            })
+        if (
+            CommandArgumentHelper.TryParseOptions(
+                args,
+                out Dictionary<string, string> options,
+                new HashSet<string>(StringComparer.Ordinal)
+                {
+                    CommandArgumentConstant.PATH,
+                    CommandArgumentConstant.TARGET,
+                }
+            )
             && options.TryGetValue(CommandArgumentConstant.TARGET, out string? buildTarget))
         {
             return buildTarget;

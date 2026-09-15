@@ -13,43 +13,51 @@ public class AlwaysEnabledRulesHelperTests
     [Fact]
     public void DisableWhenNoStartMarkerReplacesAllSeverities()
     {
-        string input = @"
-dotnet_diagnostic.CA9999.severity = error
-dotnet_diagnostic.CA1001.severity = warning
-";
-        string expected = @"
-dotnet_diagnostic.CA9999.severity = none
-dotnet_diagnostic.CA1001.severity = none
-";
+        const string INPUT = """
 
-        string result = SeverityHelper.Disable(input, BiakConfig.DefaultSeveritiesToDisable, SeverityLevelType.None);
+            dotnet_diagnostic.CA9999.severity = error
+            dotnet_diagnostic.CA1001.severity = warning
 
-        Assert.Equal(expected, result);
+            """;
+        const string EXPECTED = """
+
+            dotnet_diagnostic.CA9999.severity = none
+            dotnet_diagnostic.CA1001.severity = none
+
+            """;
+
+        string result = SeverityHelper.Disable(INPUT, BiakConfig.DefaultSeveritiesToDisable, SeverityLevelType.None);
+
+        Assert.Equal(EXPECTED, result);
     }
 
     [Fact]
     public void DisableWhenStartMarkerHasNoEndMarkerReplacesAllSeverities()
     {
-        string input = @"
-^biak^ always-enabled start
-dotnet_diagnostic.CA9999.severity = error
-dotnet_diagnostic.CA1001.severity = warning
-";
-        string expected = @"
-^biak^ always-enabled start
-dotnet_diagnostic.CA9999.severity = none
-dotnet_diagnostic.CA1001.severity = none
-";
+        const string INPUT = """
 
-        string result = SeverityHelper.Disable(input, BiakConfig.DefaultSeveritiesToDisable, SeverityLevelType.None);
+            ^biak^ always-enabled start
+            dotnet_diagnostic.CA9999.severity = error
+            dotnet_diagnostic.CA1001.severity = warning
 
-        Assert.Equal(expected, result);
+            """;
+        const string EXPECTED = """
+
+            ^biak^ always-enabled start
+            dotnet_diagnostic.CA9999.severity = none
+            dotnet_diagnostic.CA1001.severity = none
+
+            """;
+
+        string result = SeverityHelper.Disable(INPUT, BiakConfig.DefaultSeveritiesToDisable, SeverityLevelType.None);
+
+        Assert.Equal(EXPECTED, result);
     }
 
     [Fact]
     public void DisableWhenBlockIsEmptyReplacesOutsideSeverities()
     {
-        string input =
+        const string INPUT =
             """
 
             ^biak^ always-enabled start
@@ -57,7 +65,7 @@ dotnet_diagnostic.CA1001.severity = none
             dotnet_diagnostic.CA9999.severity = error
 
             """;
-        string expected =
+        const string EXPECTED =
             """
 
             ^biak^ always-enabled start
@@ -66,8 +74,8 @@ dotnet_diagnostic.CA1001.severity = none
 
             """;
 
-        string result = SeverityHelper.Disable(input, BiakConfig.DefaultSeveritiesToDisable, SeverityLevelType.None);
+        string result = SeverityHelper.Disable(INPUT, BiakConfig.DefaultSeveritiesToDisable, SeverityLevelType.None);
 
-        Assert.Equal(expected, result);
+        Assert.Equal(EXPECTED, result);
     }
 }

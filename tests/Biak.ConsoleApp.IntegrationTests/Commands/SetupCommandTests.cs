@@ -5,6 +5,7 @@
 using Biak.ConsoleApp.Commands;
 using Biak.ConsoleApp.Constants;
 using Biak.ConsoleApp.IntegrationTests.Mock;
+using Biak.ConsoleApp.Models;
 
 namespace Biak.ConsoleApp.IntegrationTests.Commands;
 
@@ -13,29 +14,22 @@ public class SetupCommandTests
     [Fact]
     public async Task RunWithoutEditorconfigFileAsync()
     {
-        TextWriter originalOut = Console.Out;
+        TestDirectory testDir = new($"{nameof(SetupCommandTests)}_{nameof(RunWithoutEditorconfigFileAsync)}");
         await using StringWriter output = new();
-        Console.SetOut(output);
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value, Out = output };
 
-        try
-        {
-            await SetupCommand.RunAsync();
+        await SetupCommand.RunAsync(context);
 
-            string result = output.ToString();
-            Assert.Contains(UIConstant.EDITORCONFIG_NOT_FOUND, result, StringComparison.OrdinalIgnoreCase);
-        }
-        finally
-        {
-            Console.SetOut(originalOut);
-        }
+        string result = output.ToString();
+        Assert.Contains(UIConstant.EDITORCONFIG_NOT_FOUND, result, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
     public async Task RunWithEditorconfigAsync()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
-
         TestDirectory testDir = new($"{nameof(SetupCommandTests)}_{nameof(RunWithEditorconfigAsync)}");
+        await using StringWriter output = new();
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value, Out = output };
 
         string template = Path.Join(
             AppContext.BaseDirectory,
@@ -44,71 +38,52 @@ public class SetupCommandTests
         );
         testDir.CopyTemplateEditorconfig(template);
 
-        try
-        {
-            Directory.SetCurrentDirectory(testDir.Value);
+        await SetupCommand.RunAsync(context);
 
-            TextWriter originalOut = Console.Out;
-            await using StringWriter output = new();
-            Console.SetOut(output);
+        string result = output.ToString();
+        Assert.Contains(UIConstant.START_SETUP, result, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains(UIConstant.END_SETUP, result, StringComparison.OrdinalIgnoreCase);
 
-            try
-            {
-                await SetupCommand.RunAsync();
+        string editorconfigMainFile = Path.Join(testDir.Value, ".biak", ".editorconfig-main");
 
-                string result = output.ToString();
-                Assert.Contains(UIConstant.START_SETUP, result, StringComparison.OrdinalIgnoreCase);
-                Assert.Contains(UIConstant.END_SETUP, result, StringComparison.OrdinalIgnoreCase);
-            }
-            finally
-            {
-                Console.SetOut(originalOut);
-            }
+        Assert.True(File.Exists(editorconfigMainFile));
+        string templateContent = await File.ReadAllTextAsync(template);
+        string editorconfigMainContent = await File.ReadAllTextAsync(editorconfigMainFile);
 
-            string editorconfigMainFile = Path.Join(testDir.Value, ".biak", ".editorconfig-main");
+        Assert.Equal(templateContent, editorconfigMainContent);
 
-            Assert.True(File.Exists(editorconfigMainFile));
-            string templateContent = await File.ReadAllTextAsync(template);
-            string editorconfigMainContent = await File.ReadAllTextAsync(editorconfigMainFile);
+        string editorconfigFile = Path.Join(testDir.Value, ".editorconfig");
+        string editorconfigContent = await File.ReadAllTextAsync(editorconfigFile);
 
-            Assert.Equal(templateContent, editorconfigMainContent);
+        string newline = editorconfigContent.Contains("\r\n", StringComparison.Ordinal)
+            ? "\r\n"
+            : "\n";
 
-            string editorconfigFile = Path.Join(testDir.Value, ".editorconfig");
-            string editorconfigContent = await File.ReadAllTextAsync(editorconfigFile);
+        string up = EditorconfigConstant.UP_TEXT.Replace("\r\n", newline, StringComparison.Ordinal);
+        string bottom = EditorconfigConstant.BOTTOM_TEXT.Replace("\r\n", newline, StringComparison.Ordinal);
 
-            string newline = editorconfigContent.Contains("\r\n", StringComparison.Ordinal)
-                ? "\r\n"
-                : "\n";
+        Assert.Contains(up, editorconfigContent, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains(bottom, editorconfigContent, StringComparison.OrdinalIgnoreCase);
 
-            string up = EditorconfigConstant.UP_TEXT.Replace("\r\n", newline, StringComparison.Ordinal);
-            string bottom = EditorconfigConstant.BOTTOM_TEXT.Replace("\r\n", newline, StringComparison.Ordinal);
-
-            Assert.Contains(up, editorconfigContent, StringComparison.OrdinalIgnoreCase);
-            Assert.Contains(bottom, editorconfigContent, StringComparison.OrdinalIgnoreCase);
-
-            string configPath = Path.Join(testDir.Value, ".biak", "config.json");
-            string templateConfigPath = Path.Join(
-                AppContext.BaseDirectory,
-                "Templates",
-                "default-config.json"
-            );
-            Assert.True(File.Exists(configPath));
-            string templateConfigContent = await File.ReadAllTextAsync(templateConfigPath);
-            string configContent = await File.ReadAllTextAsync(configPath);
-            Assert.Equal(templateConfigContent, configContent);
-        }
-        finally
-        {
-            Directory.SetCurrentDirectory(originalDirectory);
-        }
+        string configPath = Path.Join(testDir.Value, ".biak", "config.json");
+        string templateConfigPath = Path.Join(
+            AppContext.BaseDirectory,
+            "Templates",
+            "default-config.json"
+        );
+        Assert.True(File.Exists(configPath));
+        string templateConfigContent = await File.ReadAllTextAsync(templateConfigPath);
+        string configContent = await File.ReadAllTextAsync(configPath);
+        Assert.Equal(templateConfigContent, configContent);
     }
 
     [Fact]
     public async Task RunWhenBiakFolderExistsAndUserPressesEnterShouldNotRecreateAsync()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
-
         TestDirectory testDir = new($"{nameof(SetupCommandTests)}_{nameof(RunWhenBiakFolderExistsAndUserPressesEnterShouldNotRecreateAsync)}");
+        using StringReader input = new(string.Empty);
+        await using StringWriter output = new();
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value, In = input, Out = output };
 
         string template = Path.Join(
             AppContext.BaseDirectory,
@@ -122,47 +97,22 @@ public class SetupCommandTests
         string oldFile = Path.Join(biakDir, "old.txt");
         await File.WriteAllTextAsync(oldFile, "old");
 
-        try
-        {
-            Directory.SetCurrentDirectory(testDir.Value);
+        await SetupCommand.RunAsync(context);
 
-            TextWriter originalOut = Console.Out;
-            TextReader originalIn = Console.In;
+        string result = output.ToString();
+        Assert.Contains(UIConstant.BIAK_FOLDER_ALREADY_EXISTS, result, StringComparison.OrdinalIgnoreCase);
 
-            await using StringWriter output = new();
-            using StringReader input = new(string.Empty);
-
-            Console.SetOut(output);
-            Console.SetIn(input);
-
-            try
-            {
-                await SetupCommand.RunAsync();
-
-                string result = output.ToString();
-                Assert.Contains(UIConstant.BIAK_FOLDER_ALREADY_EXISTS, result, StringComparison.OrdinalIgnoreCase);
-            }
-            finally
-            {
-                Console.SetOut(originalOut);
-                Console.SetIn(originalIn);
-            }
-
-            Assert.True(File.Exists(oldFile));
-            Assert.False(File.Exists(Path.Join(biakDir, ".editorconfig-main")));
-        }
-        finally
-        {
-            Directory.SetCurrentDirectory(originalDirectory);
-        }
+        Assert.True(File.Exists(oldFile));
+        Assert.False(File.Exists(Path.Join(biakDir, ".editorconfig-main")));
     }
 
     [Fact]
     public async Task RunWhenBiakFolderExistsAndUserTypesYShouldRecreateAsync()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
-
         TestDirectory testDir = new($"{nameof(SetupCommandTests)}_{nameof(RunWhenBiakFolderExistsAndUserTypesYShouldRecreateAsync)}");
+        using StringReader input = new(UIConstant.CONFIRM);
+        await using StringWriter output = new();
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value, In = input, Out = output };
 
         string template = Path.Join(
             AppContext.BaseDirectory,
@@ -177,52 +127,24 @@ public class SetupCommandTests
         string oldFile = Path.Join(biakDir, "old.txt");
         await File.WriteAllTextAsync(oldFile, "old");
 
-        try
-        {
-            Directory.SetCurrentDirectory(testDir.Value);
+        await SetupCommand.RunAsync(context);
 
-            TextWriter originalOut = Console.Out;
-            TextReader originalIn = Console.In;
+        string result = output.ToString();
+        Assert.Contains(UIConstant.BIAK_FOLDER_ALREADY_EXISTS, result, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains(UIConstant.START_SETUP, result, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains(UIConstant.END_SETUP, result, StringComparison.OrdinalIgnoreCase);
 
-            await using StringWriter output = new();
-            using StringReader input = new(UIConstant.CONFIRM);
-
-            Console.SetOut(output);
-            Console.SetIn(input);
-
-            try
-            {
-                await SetupCommand.RunAsync();
-
-                string result = output.ToString();
-                Assert.Contains(UIConstant.BIAK_FOLDER_ALREADY_EXISTS, result, StringComparison.OrdinalIgnoreCase);
-                Assert.Contains(UIConstant.START_SETUP, result, StringComparison.OrdinalIgnoreCase);
-                Assert.Contains(UIConstant.END_SETUP, result, StringComparison.OrdinalIgnoreCase);
-            }
-            finally
-            {
-                Console.SetOut(originalOut);
-                Console.SetIn(originalIn);
-            }
-
-            string editorconfigMainPath = Path.Join(biakDir, ".editorconfig-main");
-            Assert.False(File.Exists(oldFile));
-            Assert.True(File.Exists(editorconfigMainPath));
-            string editorconfigMainContent = await File.ReadAllTextAsync(editorconfigMainPath);
-            Assert.DoesNotContain(EditorconfigConstant.UP_TEXT, editorconfigMainContent, StringComparison.OrdinalIgnoreCase);
-            Assert.DoesNotContain(EditorconfigConstant.BOTTOM_TEXT, editorconfigMainContent, StringComparison.OrdinalIgnoreCase);
-        }
-        finally
-        {
-            Directory.SetCurrentDirectory(originalDirectory);
-        }
+        string editorconfigMainPath = Path.Join(biakDir, ".editorconfig-main");
+        Assert.False(File.Exists(oldFile));
+        Assert.True(File.Exists(editorconfigMainPath));
+        string editorconfigMainContent = await File.ReadAllTextAsync(editorconfigMainPath);
+        Assert.DoesNotContain(EditorconfigConstant.UP_TEXT, editorconfigMainContent, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(EditorconfigConstant.BOTTOM_TEXT, editorconfigMainContent, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
     public async Task RunWithLFEditorconfigAsync()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
-
         TestDirectory testDir = new($"{nameof(SetupCommandTests)}_{nameof(RunWithLFEditorconfigAsync)}");
 
         string template = Path.Join(
@@ -233,24 +155,16 @@ public class SetupCommandTests
         );
         testDir.CopyTemplateEditorconfig(template);
 
-        try
-        {
-            Directory.SetCurrentDirectory(testDir.Value);
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value };
+        await SetupCommand.RunAsync(context);
 
-            await SetupCommand.RunAsync();
+        string editorconfigFile = Path.Join(testDir.Value, ".editorconfig");
+        string editorconfigContent = await File.ReadAllTextAsync(editorconfigFile);
 
-            string editorconfigFile = Path.Join(testDir.Value, ".editorconfig");
-            string editorconfigContent = await File.ReadAllTextAsync(editorconfigFile);
-
-            Assert.DoesNotContain("\r\n", editorconfigContent, StringComparison.OrdinalIgnoreCase);
-            Assert.DoesNotContain(EditorconfigConstant.UP_TEXT, editorconfigContent, StringComparison.Ordinal);
-            Assert.DoesNotContain(EditorconfigConstant.BOTTOM_TEXT, editorconfigContent, StringComparison.Ordinal);
-            Assert.Contains(EditorconfigConstant.UP_TEXT.Replace("\r\n", "\n", StringComparison.Ordinal), editorconfigContent, StringComparison.Ordinal);
-            Assert.Contains(EditorconfigConstant.BOTTOM_TEXT.Replace("\r\n", "\n", StringComparison.Ordinal), editorconfigContent, StringComparison.Ordinal);
-        }
-        finally
-        {
-            Directory.SetCurrentDirectory(originalDirectory);
-        }
+        Assert.DoesNotContain("\r\n", editorconfigContent, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(EditorconfigConstant.UP_TEXT, editorconfigContent, StringComparison.Ordinal);
+        Assert.DoesNotContain(EditorconfigConstant.BOTTOM_TEXT, editorconfigContent, StringComparison.Ordinal);
+        Assert.Contains(EditorconfigConstant.UP_TEXT.Replace("\r\n", "\n", StringComparison.Ordinal), editorconfigContent, StringComparison.Ordinal);
+        Assert.Contains(EditorconfigConstant.BOTTOM_TEXT.Replace("\r\n", "\n", StringComparison.Ordinal), editorconfigContent, StringComparison.Ordinal);
     }
 }

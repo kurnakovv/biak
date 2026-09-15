@@ -14,10 +14,10 @@ public class WarningsBaselineSyncHelperTests
         return new()
         {
             {
-                @"
+                """
                     [*.cs]
                     dotnet_diagnostic.CA1001.severity = error
-                ",
+                """,
                 Array.Empty<string>()
             },
             {
@@ -665,7 +665,8 @@ public class WarningsBaselineSyncHelperTests
         string result = WarningsBaselineSyncHelper.RemoveFilters(
             content,
             new HashSet<string>(codesToKeep, StringComparer.OrdinalIgnoreCase),
-            activeFilesByCode);
+            activeFilesByCode
+        );
 
         foreach (string value in mustContain)
         {
@@ -681,7 +682,7 @@ public class WarningsBaselineSyncHelperTests
     [Fact]
     public void GetSynchronizedFilesReturnsRemovedAndPrunedFilesGroupedByFile()
     {
-        string content = $$"""
+        const string CONTENT = $$"""
             [{src/Fixed.cs}]
             dotnet_diagnostic.CA2000.severity = suggestion {{WarningsBaselineInitCommandConstant.BASELINE_DIAGNOSTIC_MARKER}}
 
@@ -697,7 +698,7 @@ public class WarningsBaselineSyncHelperTests
             };
 
         IReadOnlyDictionary<string, IReadOnlySet<string>> result = WarningsBaselineSyncHelper.GetSynchronizedFiles(
-            content,
+            CONTENT,
             codesToKeep,
             activeFilesByCode
         );

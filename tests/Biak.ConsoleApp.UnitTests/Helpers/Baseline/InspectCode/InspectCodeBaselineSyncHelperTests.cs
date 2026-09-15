@@ -15,10 +15,10 @@ public class InspectCodeBaselineSyncHelperTests
         return new()
         {
             {
-                @"
+                """
                     [*.cs]
                     resharper_field_can_be_made_read_only_local_highlighting = error
-                ",
+                """,
                 Array.Empty<string>()
             },
             {
@@ -413,7 +413,8 @@ public class InspectCodeBaselineSyncHelperTests
         string[] activeFilesForRuleKey,
         string[] mustContain,
         string[] mustNotContain,
-        string? expectedExact)
+        string? expectedExact
+    )
     {
         _ = testName;
         IReadOnlyDictionary<string, IReadOnlySet<string>> activeFilesByRuleKey =
@@ -428,7 +429,8 @@ public class InspectCodeBaselineSyncHelperTests
         string result = InspectCodeBaselineSyncHelper.RemoveFilters(
             content,
             new HashSet<string>(ruleKeysToKeep, StringComparer.OrdinalIgnoreCase),
-            activeFilesByRuleKey);
+            activeFilesByRuleKey
+        );
 
         if (expectedExact is not null)
         {
@@ -449,7 +451,7 @@ public class InspectCodeBaselineSyncHelperTests
     [Fact]
     public void RemoveFiltersProducesExpectedFullTextWithPrunedRemovedAndPreservedRules()
     {
-        string content = $$"""
+        const string CONTENT = $$"""
             [*.cs]
 
             # Field can be made readonly [FieldCanBeMadeReadOnly.Local] | https://www.jetbrains.com/help/resharper/FieldCanBeMadeReadOnly.Local.html
@@ -493,9 +495,9 @@ public class InspectCodeBaselineSyncHelperTests
                 ),
             };
 
-        string result = InspectCodeBaselineSyncHelper.RemoveFilters(content, keysToKeep, activeFilesByRuleKey);
+        string result = InspectCodeBaselineSyncHelper.RemoveFilters(CONTENT, keysToKeep, activeFilesByRuleKey);
 
-        string expected = $$"""
+        const string EXPECTED = $$"""
             [*.cs]
 
             # Field can be made readonly [FieldCanBeMadeReadOnly.Local] | https://www.jetbrains.com/help/resharper/FieldCanBeMadeReadOnly.Local.html
@@ -516,13 +518,13 @@ public class InspectCodeBaselineSyncHelperTests
             resharper_member_can_be_private_local_highlighting = suggestion {{InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}}
             """;
 
-        Assert.Equal(expected, result);
+        Assert.Equal(EXPECTED, result);
     }
 
     [Fact]
     public void RemoveFiltersRemovesAssociatedCommentWhenRuleIdOverrideMapsToBlockKey()
     {
-        string content = $$"""
+        const string CONTENT = $$"""
             # Use 'String.IsNullOrEmpty' [ReplaceWithStringIsNullOrEmpty] | https://www.jetbrains.com/help/resharper/ReplaceWithStringIsNullOrEmpty.html
             [{src/File.cs}]
             custom_override_rule_key = suggestion {{InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}}
@@ -535,10 +537,11 @@ public class InspectCodeBaselineSyncHelperTests
             };
 
         string result = InspectCodeBaselineSyncHelper.RemoveFilters(
-            content,
+            CONTENT,
             new HashSet<string>(StringComparer.OrdinalIgnoreCase),
             new Dictionary<string, IReadOnlySet<string>>(StringComparer.OrdinalIgnoreCase),
-            ruleIdOverrides);
+            ruleIdOverrides
+        );
 
         Assert.Equal(string.Empty, result);
     }
@@ -546,7 +549,7 @@ public class InspectCodeBaselineSyncHelperTests
     [Fact]
     public void GetSynchronizedFilesReturnsRemovedAndPrunedFilesGroupedByFile()
     {
-        string content = $$"""
+        const string CONTENT = $$"""
             [{src/Fixed.cs}]
             resharper_field_can_be_made_read_only_local_highlighting = suggestion {{InspectCodeBaselineInitCommandConstant.BASELINE_MARKER}}
 
@@ -568,9 +571,10 @@ public class InspectCodeBaselineSyncHelperTests
             };
 
         IReadOnlyDictionary<string, IReadOnlySet<string>> result = InspectCodeBaselineSyncHelper.GetSynchronizedFiles(
-            content,
+            CONTENT,
             ruleKeysToKeep,
-            activeFilesByRuleKey);
+            activeFilesByRuleKey
+        );
 
         Assert.Equal(2, result.Count);
         Assert.Contains("src/Fixed.cs", result.Keys, StringComparer.Ordinal);

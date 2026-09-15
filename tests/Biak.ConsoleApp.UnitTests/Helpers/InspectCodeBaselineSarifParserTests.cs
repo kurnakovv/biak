@@ -24,9 +24,9 @@ public class InspectCodeBaselineSarifParserTests
     public void ParseReturnsEmptyWhenNoRunsProperty()
     {
         // language=json
-        string sarif = """{ "version": "2.1.0" }""";
+        const string SARIF = """{ "version": "2.1.0" }""";
 
-        IReadOnlyList<InspectCodeIssue> result = InspectCodeBaselineSarifParser.Parse(sarif);
+        IReadOnlyList<InspectCodeIssue> result = InspectCodeBaselineSarifParser.Parse(SARIF);
 
         Assert.Empty(result);
     }
@@ -35,9 +35,9 @@ public class InspectCodeBaselineSarifParserTests
     public void ParseReturnsEmptyWhenRunsIsEmpty()
     {
         // language=json
-        string sarif = """{ "runs": [] }""";
+        const string SARIF = """{ "runs": [] }""";
 
-        IReadOnlyList<InspectCodeIssue> result = InspectCodeBaselineSarifParser.Parse(sarif);
+        IReadOnlyList<InspectCodeIssue> result = InspectCodeBaselineSarifParser.Parse(SARIF);
 
         Assert.Empty(result);
     }
@@ -46,9 +46,9 @@ public class InspectCodeBaselineSarifParserTests
     public void ParseReturnsEmptyWhenNoResults()
     {
         // language=json
-        string sarif = """{ "runs": [{ "results": [] }] }""";
+        const string SARIF = """{ "runs": [{ "results": [] }] }""";
 
-        IReadOnlyList<InspectCodeIssue> result = InspectCodeBaselineSarifParser.Parse(sarif);
+        IReadOnlyList<InspectCodeIssue> result = InspectCodeBaselineSarifParser.Parse(SARIF);
 
         Assert.Empty(result);
     }
@@ -57,7 +57,7 @@ public class InspectCodeBaselineSarifParserTests
     public void ParseReturnsSingleIssue()
     {
         // language=json
-        string sarif = """
+        const string SARIF = """
             {
               "runs": [{
                 "results": [{
@@ -74,7 +74,7 @@ public class InspectCodeBaselineSarifParserTests
             }
             """;
 
-        IReadOnlyList<InspectCodeIssue> result = InspectCodeBaselineSarifParser.Parse(sarif);
+        IReadOnlyList<InspectCodeIssue> result = InspectCodeBaselineSarifParser.Parse(SARIF);
 
         Assert.Single(result);
         Assert.Equal("ConvertToConstant.Local", result[0].RuleId);
@@ -85,7 +85,7 @@ public class InspectCodeBaselineSarifParserTests
     public void ParseReturnsMultipleIssuesFromMultipleResults()
     {
         // language=json
-        string sarif = """
+        const string SARIF = """
             {
               "runs": [{
                 "results": [
@@ -106,18 +106,18 @@ public class InspectCodeBaselineSarifParserTests
             }
             """;
 
-        IReadOnlyList<InspectCodeIssue> result = InspectCodeBaselineSarifParser.Parse(sarif);
+        IReadOnlyList<InspectCodeIssue> result = InspectCodeBaselineSarifParser.Parse(SARIF);
 
         Assert.Equal(2, result.Count);
-        Assert.Contains(result, x => x.RuleId == "ConvertToConstant.Local" && x.FilePath == "src/ServiceA.cs");
-        Assert.Contains(result, x => x.RuleId == "MemberCanBePrivate.Global" && x.FilePath == "src/ServiceB.cs");
+        Assert.Contains(result, x => x is { RuleId: "ConvertToConstant.Local", FilePath: "src/ServiceA.cs" });
+        Assert.Contains(result, x => x is { RuleId: "MemberCanBePrivate.Global", FilePath: "src/ServiceB.cs" });
     }
 
     [Fact]
     public void ParseReturnsSameRuleForMultipleLocations()
     {
         // language=json
-        string sarif = """
+        const string SARIF = """
             {
               "runs": [{
                 "results": [{
@@ -131,7 +131,7 @@ public class InspectCodeBaselineSarifParserTests
             }
             """;
 
-        IReadOnlyList<InspectCodeIssue> result = InspectCodeBaselineSarifParser.Parse(sarif);
+        IReadOnlyList<InspectCodeIssue> result = InspectCodeBaselineSarifParser.Parse(SARIF);
 
         Assert.Equal(2, result.Count);
         Assert.All(result, x => Assert.Equal("UseArrayEmptyMethod", x.RuleId));
@@ -143,7 +143,7 @@ public class InspectCodeBaselineSarifParserTests
     public void ParseUsesOnlyFirstRun()
     {
         // language=json
-        string sarif = """
+        const string SARIF = """
             {
               "runs": [
                 {
@@ -162,7 +162,7 @@ public class InspectCodeBaselineSarifParserTests
             }
             """;
 
-        IReadOnlyList<InspectCodeIssue> result = InspectCodeBaselineSarifParser.Parse(sarif);
+        IReadOnlyList<InspectCodeIssue> result = InspectCodeBaselineSarifParser.Parse(SARIF);
 
         Assert.Single(result);
         Assert.Equal("ConvertToConstant.Local", result[0].RuleId);

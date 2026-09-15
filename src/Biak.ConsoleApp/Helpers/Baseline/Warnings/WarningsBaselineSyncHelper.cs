@@ -124,7 +124,8 @@ public static class WarningsBaselineSyncHelper
     public static IReadOnlyDictionary<string, IReadOnlySet<string>> GetSynchronizedFiles(
         string content,
         IReadOnlySet<string> codesToKeep,
-        IReadOnlyDictionary<string, IReadOnlySet<string>>? activeFilesByCode = null)
+        IReadOnlyDictionary<string, IReadOnlySet<string>>? activeFilesByCode = null
+    )
     {
         return BaselineSyncEditorconfigHelper.GetSynchronizedFiles(
             content,

@@ -16,13 +16,14 @@ public static class SetupHelper
     /// <summary>
     /// Get .editorconfig paths.
     /// </summary>
+    /// <param name="executionContext">Provides the context required to perform the operation.</param>
     /// <param name="suppressConsoleOutput">When true, does not write missing-file diagnostics to console output.</param>
     /// <returns>.editorconfig paths.</returns>
-    public static EditorconfigPaths GetEditorconfigPaths(bool suppressConsoleOutput = false)
+    public static async Task<EditorconfigPaths> GetEditorconfigPathsAsync(AppExecutionContext executionContext, bool suppressConsoleOutput = false)
     {
         EditorconfigPaths result = new();
 
-        string currentDirectory = Directory.GetCurrentDirectory();
+        string currentDirectory = executionContext.WorkingDirectory;
 
         string editorconfigMainPath = Path.Join(currentDirectory, ".biak", ".editorconfig-main");
 
@@ -30,8 +31,8 @@ public static class SetupHelper
         {
             if (!suppressConsoleOutput)
             {
-                Console.WriteLine(UIConstant.BIAK_NOT_INITIALIZED);
-                Console.WriteLine(UIConstant.RUN_BIAK_SETUP);
+                await executionContext.Out.WriteLineAsync(UIConstant.BIAK_NOT_INITIALIZED);
+                await executionContext.Out.WriteLineAsync(UIConstant.RUN_BIAK_SETUP);
             }
 
             return result;
@@ -44,7 +45,7 @@ public static class SetupHelper
         {
             if (!suppressConsoleOutput)
             {
-                Console.WriteLine(UIConstant.EDITORCONFIG_NOT_FOUND + editorConfigPath);
+                await executionContext.Out.WriteLineAsync(UIConstant.EDITORCONFIG_NOT_FOUND + editorConfigPath);
             }
 
             return result;

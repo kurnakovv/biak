@@ -11,8 +11,8 @@ public class BiakApplicationExceptionTests
     [Fact]
     public void ToStringTest()
     {
-        string message = "Test error message";
-        BiakApplicationException exception = new(message);
-        Assert.Equal(message, exception.ToString());
+        const string MESSAGE = "Test error message";
+        BiakApplicationException exception = new(MESSAGE);
+        Assert.Equal(MESSAGE, exception.ToString());
     }
 }

@@ -11,21 +11,23 @@ public class AlwaysEnabledRulesHelperTests
     [Fact]
     public void ProtectSeveritiesWhenStartMarkerHasNoEndMarkerReturnsSeveritiesUnprotected()
     {
-        string input = @"
-^biak^ always-enabled start
-dotnet_diagnostic.CA9999.severity = error
-";
+        const string INPUT = """
 
-        (string content, Dictionary<string, string> placeholders) = AlwaysEnabledRulesHelper.ProtectSeverities(input);
+            ^biak^ always-enabled start
+            dotnet_diagnostic.CA9999.severity = error
 
-        Assert.Equal(input, content);
+            """;
+
+        (string content, Dictionary<string, string> placeholders) = AlwaysEnabledRulesHelper.ProtectSeverities(INPUT);
+
+        Assert.Equal(INPUT, content);
         Assert.Empty(placeholders);
     }
 
     [Fact]
     public void ProtectSeveritiesWhenBlockIsEmptySkipsBlockAndContinues()
     {
-        string input =
+        const string INPUT =
             """
 
             ^biak^ always-enabled start
@@ -34,9 +36,9 @@ dotnet_diagnostic.CA9999.severity = error
 
             """;
 
-        (string content, Dictionary<string, string> placeholders) = AlwaysEnabledRulesHelper.ProtectSeverities(input);
+        (string content, Dictionary<string, string> placeholders) = AlwaysEnabledRulesHelper.ProtectSeverities(INPUT);
 
-        Assert.Equal(input, content);
+        Assert.Equal(INPUT, content);
         Assert.Empty(placeholders);
     }
 }

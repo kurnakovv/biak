@@ -22,7 +22,8 @@ public static class PathSafetyHelper
         string filePath,
         string baseDirectory,
         out string fullFilePath,
-        out string relativePath)
+        out string relativePath
+    )
     {
         string fullBasePath = Path.GetFullPath(baseDirectory);
         fullFilePath = Path.GetFullPath(filePath, fullBasePath);

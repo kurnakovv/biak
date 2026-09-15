@@ -78,14 +78,16 @@ public static class InspectCodeBaselineSyncHelper
         string content,
         IReadOnlySet<string> keysToKeep,
         IReadOnlyDictionary<string, IReadOnlySet<string>> activeFilesByRuleKey,
-        IReadOnlyDictionary<string, string>? ruleIdOverrides = null)
+        IReadOnlyDictionary<string, string>? ruleIdOverrides = null
+    )
     {
         return BaselineSyncEditorconfigHelper.RemoveFilters(
             content,
             keysToKeep,
             TryGetRuleKey,
             activeFilesByRuleKey,
-            (line, ruleKey) => IsAssociatedInspectCodeRuleCommentLine(line, ruleKey, ruleIdOverrides));
+            (line, ruleKey) => IsAssociatedInspectCodeRuleCommentLine(line, ruleKey, ruleIdOverrides)
+        );
     }
 
     /// <summary>
@@ -98,13 +100,15 @@ public static class InspectCodeBaselineSyncHelper
     public static IReadOnlyDictionary<string, IReadOnlySet<string>> GetSynchronizedFiles(
         string content,
         IReadOnlySet<string> keysToKeep,
-        IReadOnlyDictionary<string, IReadOnlySet<string>> activeFilesByRuleKey)
+        IReadOnlyDictionary<string, IReadOnlySet<string>> activeFilesByRuleKey
+    )
     {
         return BaselineSyncEditorconfigHelper.GetSynchronizedFiles(
             content,
             keysToKeep,
             TryGetRuleKey,
-            activeFilesByRuleKey);
+            activeFilesByRuleKey
+        );
     }
 
     /// <summary>
@@ -139,7 +143,8 @@ public static class InspectCodeBaselineSyncHelper
     private static bool IsAssociatedInspectCodeRuleCommentLine(
         string line,
         string ruleKey,
-        IReadOnlyDictionary<string, string>? ruleIdOverrides)
+        IReadOnlyDictionary<string, string>? ruleIdOverrides
+    )
     {
         Match match = s_inspectCodeRuleCommentRegex.Match(line);
         if (!match.Success)

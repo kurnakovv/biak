@@ -72,7 +72,7 @@ public class BiakConfigHelperTests
     [InlineData(/*lang=json,strict*/ "{\"severitiesToDisable\": [\"someValue\", \"someValue2\"]}", BiakConfigConstant.INVALID_FORMAT)]
     public async Task GetInvalidStringsAsync(string? json, string expectedMessage)
     {
-        (string? resultMessage, _) = await BiakConfigHelper.GetAsync(json);
+        (string? resultMessage, _) = await BiakConfigHelper.GetAsync(AppExecutionContext.CreateDefault(), json);
 
         Assert.Equal(expectedMessage, resultMessage);
     }
@@ -88,7 +88,7 @@ public class BiakConfigHelperTests
     [InlineData(/*lang=json,strict*/ "{\"severityWhenDisabled\": \"default\"}", SeverityLevelType.Default)]
     public async Task GetValidStringsForSeverityWhenDisabledAsync(string json, SeverityLevelType expectedSeverity)
     {
-        (string? resultMessage, BiakConfig resultConfig) = await BiakConfigHelper.GetAsync(json);
+        (string? resultMessage, BiakConfig resultConfig) = await BiakConfigHelper.GetAsync(AppExecutionContext.CreateDefault(), json);
 
         Assert.Null(resultMessage);
         Assert.NotNull(resultConfig);
@@ -99,7 +99,7 @@ public class BiakConfigHelperTests
     [MemberData(nameof(SeveritiesToDisableData))]
     public async Task GetValidStringsForSeveritiesToDisableAsync(string? expectedMessage, string json, IEnumerable<SeverityLevelType> expectedSeveritiesToDisable)
     {
-        (string? resultMessage, BiakConfig resultConfig) = await BiakConfigHelper.GetAsync(json);
+        (string? resultMessage, BiakConfig resultConfig) = await BiakConfigHelper.GetAsync(AppExecutionContext.CreateDefault(), json);
 
         Assert.Equal(expectedMessage, resultMessage);
         Assert.NotNull(resultConfig);
@@ -115,24 +115,49 @@ public class BiakConfigHelperTests
     [InlineData(/*lang=json,strict*/ "{\"onImportFailure\": \"error\"}", FailureBehaviorType.Error)]
     public async Task GetValidStringsForOnImportFailureAsync(string json, FailureBehaviorType expectedOnImportFailure)
     {
-        (string? resultMessage, BiakConfig resultConfig) = await BiakConfigHelper.GetAsync(json);
+        (string? resultMessage, BiakConfig resultConfig) = await BiakConfigHelper.GetAsync(AppExecutionContext.CreateDefault(), json);
 
         Assert.Null(resultMessage);
         Assert.NotNull(resultConfig);
         Assert.Equal(expectedOnImportFailure, resultConfig.OnImportFailure);
     }
 
+    [Theory]
+    [InlineData(/*lang=json,strict*/ "{\"inspectCodeBaseline\": {\"debugMode\": true}}", true)]
+    [InlineData(/*lang=json,strict*/ "{\"inspectCodeBaseline\": {\"debugMode\": false}}", false)]
+    public async Task GetValidStringsForInspectCodeBaselineDebugModeAsync(string json, bool expectedDebugMode)
+    {
+        (string? resultMessage, BiakConfig resultConfig) = await BiakConfigHelper.GetAsync(AppExecutionContext.CreateDefault(), json);
+
+        Assert.Null(resultMessage);
+        Assert.NotNull(resultConfig);
+        Assert.NotNull(resultConfig.InspectCodeBaseline);
+        Assert.Equal(expectedDebugMode, resultConfig.InspectCodeBaseline.DebugMode);
+    }
+
     [Fact]
     public async Task GetAllPropertiesAsync()
     {
-        string json = /*lang=json,strict*/ "{\"severityWhenDisabled\": \"suggestion\", \"severitiesToDisable\": [\"error\", \"warning\"], \"onImportFailure\": \"error\"}";
+        // language=json
+        const string JSON = """
+            {
+              "severityWhenDisabled": "suggestion",
+              "severitiesToDisable": ["error", "warning"],
+              "onImportFailure": "error",
+              "inspectCodeBaseline": {
+                "debugMode": true
+              }
+            }
+            """;
 
-        (string? resultMessage, BiakConfig resultConfig) = await BiakConfigHelper.GetAsync(json);
+        (string? resultMessage, BiakConfig resultConfig) = await BiakConfigHelper.GetAsync(AppExecutionContext.CreateDefault(), JSON);
 
         Assert.Null(resultMessage);
         Assert.NotNull(resultConfig);
         Assert.Equal(SeverityLevelType.Suggestion, resultConfig.SeverityWhenDisabled);
         Assert.Equal([SeverityLevelType.Error, SeverityLevelType.Warning], resultConfig.SeveritiesToDisable);
         Assert.Equal(FailureBehaviorType.Error, resultConfig.OnImportFailure);
+        Assert.NotNull(resultConfig.InspectCodeBaseline);
+        Assert.True(resultConfig.InspectCodeBaseline.DebugMode);
     }
 }

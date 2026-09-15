@@ -53,6 +53,11 @@ public class TestDirectory
 
         foreach (DirectoryInfo subDir in dir.GetDirectories())
         {
+            if (subDir.Name is "bin" or "obj")
+            {
+                continue;
+            }
+
             string newDestinationDir = Path.Join(destinationDir, subDir.Name);
             CopyDirectory(subDir.FullName, newDestinationDir, overwrite);
         }

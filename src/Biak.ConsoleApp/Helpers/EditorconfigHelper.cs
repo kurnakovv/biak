@@ -17,15 +17,16 @@ public static class EditorconfigHelper
     /// </summary>
     /// <param name="content">.editorconfig-main content.</param>
     /// <param name="config">Biak config.</param>
+    /// <param name="executionContext">Provides the context required to perform the operation.</param>
     /// <returns>Enabled .editorconfig content.</returns>
-    public static async Task<string> GetEnabledContentAsync(string content, BiakConfig config)
+    public static async Task<string> GetEnabledContentAsync(string content, BiakConfig config, AppExecutionContext executionContext)
     {
         if (string.IsNullOrWhiteSpace(content))
         {
             return content;
         }
 
-        content = await ImportHelper.ReplaceAsync(content, config.OnImportFailure);
+        content = await ImportHelper.ReplaceAsync(content, config.OnImportFailure, executionContext);
         content = IncludeExcludeFilterHelper.Apply(content);
         content = VariableHelper.Substitute(content);
         content = AlwaysEnabledRulesHelper.RemoveMarkers(content);
@@ -37,15 +38,16 @@ public static class EditorconfigHelper
     /// </summary>
     /// <param name="content">.editorconfig-main content.</param>
     /// <param name="config">Biak config.</param>
+    /// <param name="executionContext">Provides the context required to perform the operation.</param>
     /// <returns>Disabled .editorconfig content.</returns>
-    public static async Task<string> GetDisabledContentAsync(string content, BiakConfig config)
+    public static async Task<string> GetDisabledContentAsync(string content, BiakConfig config, AppExecutionContext executionContext)
     {
         if (string.IsNullOrWhiteSpace(content))
         {
             return content;
         }
 
-        content = await ImportHelper.ReplaceAsync(content, config.OnImportFailure);
+        content = await ImportHelper.ReplaceAsync(content, config.OnImportFailure, executionContext);
         content = IncludeExcludeFilterHelper.Apply(content);
         content = SeverityHelper.Disable(
             content: content,

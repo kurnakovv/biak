@@ -5,6 +5,7 @@
 using Biak.ConsoleApp.Constants;
 using Biak.ConsoleApp.Exceptions;
 using Biak.ConsoleApp.Helpers;
+using Biak.ConsoleApp.Models;
 
 namespace Biak.ConsoleApp.UnitTests.Helpers;
 
@@ -13,7 +14,7 @@ public class GitHelperTests
     [Fact]
     public async Task RunTestInvalidCommandAsync()
     {
-        Exception? exception = await Record.ExceptionAsync(async () => await GitHelper.RunAsync("invalid-command"));
+        Exception? exception = await Record.ExceptionAsync(async () => await GitHelper.RunAsync("invalid-command", AppExecutionContext.CreateDefault()));
         Assert.NotNull(exception);
         Assert.IsType<BiakApplicationException>(exception);
         Assert.Equal(GitHelperConstant.GIT_ERROR + "git: 'invalid-command' is not a git command. See 'git --help'.", exception.Message.Trim());

@@ -13,9 +13,9 @@ public class EditorconfigHelperTests
     [Fact]
     public void AddAttentionBannersShouldUseLfWhenContentUsesLf()
     {
-        string content = "root = true\n[*]\nindent_style = space\n";
+        const string CONTENT = "root = true\n[*]\nindent_style = space\n";
 
-        string result = EditorconfigHelper.AddAttentionBanners(content);
+        string result = EditorconfigHelper.AddAttentionBanners(CONTENT);
 
         Assert.StartsWith(
             EditorconfigConstant.UP_TEXT.Replace("\r\n", "\n", StringComparison.Ordinal),
@@ -36,9 +36,9 @@ public class EditorconfigHelperTests
     [Fact]
     public void AddAttentionBannersShouldUseCrLfWhenContentUsesCrLf()
     {
-        string content = "root = true\r\n[*]\r\nindent_style = space\r\n";
+        const string CONTENT = "root = true\r\n[*]\r\nindent_style = space\r\n";
 
-        string result = EditorconfigHelper.AddAttentionBanners(content);
+        string result = EditorconfigHelper.AddAttentionBanners(CONTENT);
 
         Assert.StartsWith(EditorconfigConstant.UP_TEXT, result, StringComparison.Ordinal);
         Assert.EndsWith(EditorconfigConstant.BOTTOM_TEXT, result, StringComparison.Ordinal);
@@ -49,11 +49,11 @@ public class EditorconfigHelperTests
     [Fact]
     public void AddAttentionBannersShouldNotModifyOriginalContent()
     {
-        string content = "root = true\ncustom=value\ncustom=value2\r\n";
+        const string CONTENT = "root = true\ncustom=value\ncustom=value2\r\n";
 
-        string result = EditorconfigHelper.AddAttentionBanners(content);
+        string result = EditorconfigHelper.AddAttentionBanners(CONTENT);
 
-        Assert.Contains(content, result, StringComparison.Ordinal);
+        Assert.Contains(CONTENT, result, StringComparison.Ordinal);
     }
 
     [Theory]
@@ -61,7 +61,7 @@ public class EditorconfigHelperTests
     [InlineData("   ")]
     public async Task GetEnabledContentAsyncWhenContentIsWhiteSpaceReturnsContentUnchangedAsync(string content)
     {
-        string result = await EditorconfigHelper.GetEnabledContentAsync(content, new BiakConfig());
+        string result = await EditorconfigHelper.GetEnabledContentAsync(content, new BiakConfig(), AppExecutionContext.CreateDefault());
 
         Assert.Equal(content, result);
     }
@@ -71,7 +71,7 @@ public class EditorconfigHelperTests
     [InlineData("   ")]
     public async Task GetDisabledContentAsyncWhenContentIsWhiteSpaceReturnsContentUnchangedAsync(string content)
     {
-        string result = await EditorconfigHelper.GetDisabledContentAsync(content, new BiakConfig());
+        string result = await EditorconfigHelper.GetDisabledContentAsync(content, new BiakConfig(), AppExecutionContext.CreateDefault());
 
         Assert.Equal(content, result);
     }

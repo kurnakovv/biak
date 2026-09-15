@@ -9,6 +9,7 @@ using Biak.ConsoleApp.Constants;
 using Biak.ConsoleApp.Exceptions;
 using Biak.ConsoleApp.Helpers;
 using Biak.ConsoleApp.IntegrationTests.Mock;
+using Biak.ConsoleApp.Models;
 
 namespace Biak.ConsoleApp.IntegrationTests.Commands;
 
@@ -149,179 +150,127 @@ public class FindConflictsCommandTests
     )]
     public async Task RunTestAsync(string name, string inputText, string expectedOutputText, bool runDotnetFormat, string? filePathsToChangeInput)
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new($"{nameof(FindConflictsCommandTests)}_{nameof(RunTestAsync)}_{name}");
-
-        TextWriter originalOut = Console.Out;
-        await using StringWriter output = new();
-        Console.SetOut(output);
-
-        TextReader originalIn = Console.In;
         using StringReader input = new(inputText);
-        Console.SetIn(input);
+        await using StringWriter output = new();
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value, In = input, Out = output };
 
-        try
+        string templateSimpleProject = Path.Join(
+            AppContext.BaseDirectory,
+            "Templates",
+            "SimpleProject",
+            "MySimpleProjectTemplate"
+        );
+
+        testDir.CopyDirectory(templateSimpleProject);
+
+        await GitRepository.MockAsync(context);
+
+        if (runDotnetFormat)
         {
-            Directory.SetCurrentDirectory(testDir.Value);
-
-            string templateSimpleProject = Path.Join(
-                AppContext.BaseDirectory,
-                "Templates",
-                "SimpleProject",
-                "MySimpleProjectTemplate"
-            );
-
-            testDir.CopyDirectory(templateSimpleProject);
-
-            await GitRepository.MockAsync();
-
-            if (runDotnetFormat)
-            {
-                _ = await RunDotnetAsync();
-                await GitHelper.RunAsync("add .");
-                await GitHelper.RunAsync("commit -m \"Update after dotnet format\"");
-            }
-
-            if (filePathsToChangeInput != null)
-            {
-                foreach (string filePath in filePathsToChangeInput.Split(" ", StringSplitOptions.TrimEntries))
-                {
-                    await File.WriteAllTextAsync(filePath, "TestContent");
-                }
-                await GitHelper.RunAsync("add .");
-                await GitHelper.RunAsync("commit -m \"Update after file changes\"");
-            }
-
-            if (name == LOCAL_CHANGES_DETECTED)
-            {
-                await File.WriteAllTextAsync("TestService1.cs", "TestContent");
-                await GitHelper.RunAsync("add .");
-                await File.WriteAllTextAsync("TestService2.cs", "TestContent");
-
-                Exception? exception = await Record.ExceptionAsync(FindConflictsCommand.RunAsync);
-                Assert.NotNull(exception);
-                Assert.IsType<BiakApplicationException>(exception);
-                Assert.Equal(FindConflictsCommandConstant.LOCAL_CHANGES_DETECTED, exception.Message);
-                return;
-            }
-
-            await FindConflictsCommand.RunAsync();
-
-            string result = output.ToString();
-            result = Regex.Replace(result, $@"({FindConflictsCommandConstant.CONFLICTING_FILES})\s*\[.*?\]", "$1");
-
-            Assert.NotEmpty(result);
-            Assert.Equal(expectedOutputText, result);
+            _ = await RunDotnetAsync(context);
+            await GitHelper.RunAsync("add .", context);
+            await GitHelper.RunAsync("commit -m \"Update after dotnet format\"", context);
         }
-        finally
+
+        if (filePathsToChangeInput != null)
         {
-            Console.SetOut(originalOut);
-            Console.SetIn(originalIn);
-            Directory.SetCurrentDirectory(originalDirectory);
+            foreach (string filePath in filePathsToChangeInput.Split(" ", StringSplitOptions.TrimEntries))
+            {
+                await File.WriteAllTextAsync(Path.Join(testDir.Value, filePath), "TestContent");
+            }
+            await GitHelper.RunAsync("add .", context);
+            await GitHelper.RunAsync("commit -m \"Update after file changes\"", context);
         }
+
+        if (name == LOCAL_CHANGES_DETECTED)
+        {
+            await File.WriteAllTextAsync(Path.Join(testDir.Value, "TestService1.cs"), "TestContent");
+            await GitHelper.RunAsync("add .", context);
+            await File.WriteAllTextAsync(Path.Join(testDir.Value, "TestService2.cs"), "TestContent");
+
+            Exception? exception = await Record.ExceptionAsync(() => FindConflictsCommand.RunAsync(context));
+            Assert.NotNull(exception);
+            Assert.IsType<BiakApplicationException>(exception);
+            Assert.Equal(FindConflictsCommandConstant.LOCAL_CHANGES_DETECTED, exception.Message);
+            return;
+        }
+
+        await FindConflictsCommand.RunAsync(context);
+
+        string result = output.ToString();
+        result = Regex.Replace(result, $@"({FindConflictsCommandConstant.CONFLICTING_FILES})\s*\[.*?\]", "$1");
+
+        Assert.NotEmpty(result);
+        Assert.Equal(expectedOutputText, result);
     }
 
     [Fact]
     public async Task RunShouldThrowWhenBranchesInputReachedEofAsync()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new(
             $"{nameof(FindConflictsCommandTests)}_{nameof(RunShouldThrowWhenBranchesInputReachedEofAsync)}"
         );
-
-        TextWriter originalOut = Console.Out;
-        await using StringWriter output = new();
-        Console.SetOut(output);
-
-        TextReader originalIn = Console.In;
-
         using StringReader input = new("main\n");
+        await using StringWriter output = new();
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value, In = input, Out = output };
 
-        Console.SetIn(input);
+        string templateSimpleProject = Path.Join(
+            AppContext.BaseDirectory,
+            "Templates",
+            "SimpleProject",
+            "MySimpleProjectTemplate"
+        );
 
-        try
-        {
-            Directory.SetCurrentDirectory(testDir.Value);
+        testDir.CopyDirectory(templateSimpleProject);
 
-            string templateSimpleProject = Path.Join(
-                AppContext.BaseDirectory,
-                "Templates",
-                "SimpleProject",
-                "MySimpleProjectTemplate"
-            );
+        await GitRepository.MockAsync(context);
 
-            testDir.CopyDirectory(templateSimpleProject);
-
-            await GitRepository.MockAsync();
-
-            await Assert.ThrowsAsync<OperationCanceledException>(
-                FindConflictsCommand.RunAsync
-            );
-        }
-        finally
-        {
-            Console.SetOut(originalOut);
-            Console.SetIn(originalIn);
-            Directory.SetCurrentDirectory(originalDirectory);
-        }
+        await Assert.ThrowsAsync<OperationCanceledException>(
+            () => FindConflictsCommand.RunAsync(context)
+        );
     }
 
     [Fact]
     public async Task RunShouldThrowWhenInvalidMergeAsync()
     {
-        string originalDirectory = Directory.GetCurrentDirectory();
         TestDirectory testDir = new(
             $"{nameof(FindConflictsCommandTests)}_{nameof(RunShouldThrowWhenInvalidMergeAsync)}"
         );
-
-        TextWriter originalOut = Console.Out;
-        await using StringWriter output = new();
-        Console.SetOut(output);
-
-        TextReader originalIn = Console.In;
         using StringReader input = new("\nunrelated\n");
-        Console.SetIn(input);
+        await using StringWriter output = new();
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value, In = input, Out = output };
 
-        try
-        {
-            Directory.SetCurrentDirectory(testDir.Value);
+        string templateSimpleProject = Path.Join(
+            AppContext.BaseDirectory,
+            "Templates",
+            "SimpleProject",
+            "MySimpleProjectTemplate"
+        );
 
-            string templateSimpleProject = Path.Join(
-                AppContext.BaseDirectory,
-                "Templates",
-                "SimpleProject",
-                "MySimpleProjectTemplate"
-            );
+        testDir.CopyDirectory(templateSimpleProject);
 
-            testDir.CopyDirectory(templateSimpleProject);
+        await GitRepository.MockAsync(context);
 
-            await GitRepository.MockAsync();
+        await GitHelper.RunAsync("checkout --orphan unrelated", context);
+        await File.WriteAllTextAsync(Path.Join(testDir.Value, "orphan.txt"), "test");
+        await GitHelper.RunAsync("add .", context);
+        await GitHelper.RunAsync("commit -m orphan", context);
+        await GitHelper.RunAsync("checkout main", context);
 
-            await GitHelper.RunAsync("checkout --orphan unrelated");
-            await File.WriteAllTextAsync("orphan.txt", "test");
-            await GitHelper.RunAsync("add .");
-            await GitHelper.RunAsync("commit -m orphan");
-            await GitHelper.RunAsync("checkout main");
-
-            Exception? exception = await Record.ExceptionAsync(FindConflictsCommand.RunAsync);
-            Assert.NotNull(exception);
-            Assert.IsType<BiakApplicationException>(exception);
-            Assert.Equal(GitHelperConstant.GIT_ERROR + "fatal: refusing to merge unrelated histories", exception.Message.Trim());
-        }
-        finally
-        {
-            Console.SetOut(originalOut);
-            Console.SetIn(originalIn);
-            Directory.SetCurrentDirectory(originalDirectory);
-        }
+        Exception? exception = await Record.ExceptionAsync(() => FindConflictsCommand.RunAsync(context));
+        Assert.NotNull(exception);
+        Assert.IsType<BiakApplicationException>(exception);
+        Assert.Equal(GitHelperConstant.GIT_ERROR + "fatal: refusing to merge unrelated histories", exception.Message.Trim());
     }
 
-    private static async Task<string> RunDotnetAsync()
+    private static async Task<string> RunDotnetAsync(AppExecutionContext executionContext)
     {
         using Process process = new();
 
         process.StartInfo.FileName = "dotnet";
         process.StartInfo.Arguments = " format --exclude-diagnostics IDE0130";
+        process.StartInfo.WorkingDirectory = executionContext.WorkingDirectory;
         process.StartInfo.RedirectStandardOutput = true;
         process.StartInfo.RedirectStandardError = true;
         process.StartInfo.UseShellExecute = false;
