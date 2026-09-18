@@ -1,7 +1,7 @@
 ---
 name: Bug report
 about: Report a problem in biak behavior
-title: "[BUG-REPORT]: "
+title: "[Bug]: "
 labels: bug
 assignees: ""
 ---
