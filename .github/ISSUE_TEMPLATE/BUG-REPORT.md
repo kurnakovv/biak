@@ -28,8 +28,9 @@ What happened instead?
 
 ## Relevant configuration or context
 Provide minimal reproducible snippets when possible:
-- `.editorconfig`
-- biak env
+ - Relevant `.editorconfig` snippets
+ - Affected rule names, imports, variables, formatting expectations, or conflict details
+ - The biak command and environment
 
 ## Additional context
 Add logs, screenshots, or related issues/PRs if available.

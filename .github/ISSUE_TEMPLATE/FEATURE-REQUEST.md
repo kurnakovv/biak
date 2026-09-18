@@ -14,8 +14,9 @@ What problem are you trying to solve?
 
 ## Relevant configuration or context
 If this relates to configuration processing, include:
-- `.editorconfig` snippets
-- biak env
+ - Relevant `.editorconfig` snippets
+ - Affected rule names, imports, variables, formatting expectations, or conflict details
+ - The biak command and environment
 
 ## Additional context
 Add examples, links, or constraints that help implementation.

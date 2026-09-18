@@ -14,8 +14,9 @@ Share attempted commands/config changes and outcomes.
 
 ## Relevant configuration or context
 Please include details needed to reproduce your situation:
-- `.editorconfig` snippets
-- biak env
+ - Relevant `.editorconfig` snippets
+ - Affected rule names, imports, variables, formatting expectations, or conflict details
+ - The biak command and environment
 
 ## Additional details
 Provide logs, error messages, version info, or sample files.
