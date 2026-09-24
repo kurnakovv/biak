@@ -1271,11 +1271,8 @@ resharper_nested_string_interpolation_highlighting = error # +
 # Nullability attribute usage with declaration of void or value type [AnnotationRedundancyAtValueType] | https://www.jetbrains.com/help/resharper/AnnotationRedundancyAtValueType.html
 resharper_annotation_redundancy_at_value_type_highlighting = error # +
 
-# Nullability attribute used with declaration that cannot be directly referenced from other code
-resharper_not_observable_annotation_redundancy_highlighting = none
-
 # Nullability attribute used with declaration that cannot be directly referenced from other code [NotObservableAnnotationRedundancy] | https://www.jetbrains.com/help/resharper/NotObservableAnnotationRedundancy.html
-resharper_not_observable_annotation_redundancy_highlighting = error # +
+resharper_not_observable_annotation_redundancy_highlighting = none
 
 # Parameter can be declared with the base type [SuggestBaseTypeForParameter] | https://www.jetbrains.com/help/resharper/SuggestBaseTypeForParameter.html
 resharper_suggest_base_type_for_parameter_highlighting = error
