@@ -1271,11 +1271,11 @@ resharper_nested_string_interpolation_highlighting = error # +
 # Nullability attribute usage with declaration of void or value type [AnnotationRedundancyAtValueType] | https://www.jetbrains.com/help/resharper/AnnotationRedundancyAtValueType.html
 resharper_annotation_redundancy_at_value_type_highlighting = error # +
 
-# Nullability attribute used with declaration that cannot be directly referenced from other code
+# Nullability attribute used with declaration that cannot be directly referenced from other code [NotObservableAnnotationRedundancy] | https://www.jetbrains.com/help/resharper/NotObservableAnnotationRedundancy.html
 resharper_not_observable_annotation_redundancy_highlighting = none
 
-# Parameter can be declared with the base type [NotObservableAnnotationRedundancy] | https://www.jetbrains.com/help/resharper/NotObservableAnnotationRedundancy.html
-resharper_suggest_base_type_for_parameter_highlighting = error # +
+# Parameter can be declared with the base type [SuggestBaseTypeForParameter] | https://www.jetbrains.com/help/resharper/SuggestBaseTypeForParameter.html
+resharper_suggest_base_type_for_parameter_highlighting = error
 
 # Parameter of the constructor can be declared with the base type [SuggestBaseTypeForParameterInConstructor] | https://www.jetbrains.com/help/resharper/SuggestBaseTypeForParameterInConstructor.html
 resharper_suggest_base_type_for_parameter_in_constructor_highlighting = none # -
@@ -4220,9 +4220,6 @@ resharper_html_obsolete_highlighting = none
 
 # Path error
 resharper_html_path_error_highlighting = none
-
-# Parameter can be declared with the base type [SuggestBaseTypeForParameter] | https://www.jetbrains.com/help/resharper/SuggestBaseTypeForParameter.html
-resharper_suggest_base_type_for_parameter_highlighting = error
 
 ## **END** ReSharper Inspect Code **END**
 

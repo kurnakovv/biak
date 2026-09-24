@@ -78,7 +78,8 @@ public static class InspectCodeRuleMetadataHelper
             { "MultipleNullableAttributesUsage", new("resharper_multiple_nullable_attributes_usage_highlighting", "Multiple nullable attributes usage", "https://www.jetbrains.com/help/resharper/MultipleNullableAttributesUsage.html") },
             { "NestedStringInterpolation", new("resharper_nested_string_interpolation_highlighting", "Nested string interpolation can be inlined", "https://www.jetbrains.com/help/resharper/NestedStringInterpolation.html") },
             { "AnnotationRedundancyAtValueType", new("resharper_annotation_redundancy_at_value_type_highlighting", "Nullability attribute usage with declaration of void or value type", "https://www.jetbrains.com/help/resharper/AnnotationRedundancyAtValueType.html") },
-            { "NotObservableAnnotationRedundancy", new("resharper_suggest_base_type_for_parameter_highlighting", "Parameter can be declared with the base type", "https://www.jetbrains.com/help/resharper/NotObservableAnnotationRedundancy.html") },
+            { "NotObservableAnnotationRedundancy", new("resharper_not_observable_annotation_redundancy_highlighting", "Nullability attribute used with declaration that cannot be directly referenced from other code", "https://www.jetbrains.com/help/resharper/NotObservableAnnotationRedundancy.html") },
+            { "SuggestBaseTypeForParameter", new("resharper_suggest_base_type_for_parameter_highlighting", "Parameter can be declared with the base type﻿", "https://www.jetbrains.com/help/resharper/SuggestBaseTypeForParameter.html") },
             { "SuggestBaseTypeForParameterInConstructor", new("resharper_suggest_base_type_for_parameter_in_constructor_highlighting", "Parameter of the constructor can be declared with the base type", "https://www.jetbrains.com/help/resharper/SuggestBaseTypeForParameterInConstructor.html") },
             { "ParameterTypeCanBeEnumerable.Global", new("resharper_parameter_type_can_be_enumerable_global_highlighting", "Parameter type can be IEnumerable<T> (non-private accessibility)", "https://www.jetbrains.com/help/resharper/ParameterTypeCanBeEnumerable.Global.html") },
             { "ParameterTypeCanBeEnumerable.Local", new("resharper_parameter_type_can_be_enumerable_local_highlighting", "Parameter type can be IEnumerable<T> (private accessibility)", "https://www.jetbrains.com/help/resharper/ParameterTypeCanBeEnumerable.Local.html") },
@@ -803,7 +804,6 @@ public static class InspectCodeRuleMetadataHelper
             { "Xunit.XunitTestWithConsoleOutput", new("resharper_xunit_xunit_test_with_console_output_highlighting", "Console output in Xunit tests", "https://www.jetbrains.com/help/resharper/Xunit.XunitTestWithConsoleOutput.html") },
             { "CSharp14OverloadResolutionWithSpanBreakingChange", new("resharper_c_sharp14_overload_resolution_with_span_breaking_change_highlighting", "C# 14 breaking change in overload resolution with span parameters", "https://www.jetbrains.com/help/resharper/CSharp14OverloadResolutionWithSpanBreakingChange.html") },
             { "ShortLivedHttpClient", new("resharper_short_lived_http_client_highlighting", "Short-lived 'HttpClient'", "https://www.jetbrains.com/help/resharper/ShortLivedHttpClient.html") },
-            { "SuggestBaseTypeForParameter", new("resharper_suggest_base_type_for_parameter_highlighting", "Parameter can be declared with the base type﻿", "https://www.jetbrains.com/help/resharper/SuggestBaseTypeForParameter.html") },
 #pragma warning restore RCS0056 // A line is too long
         };
 
