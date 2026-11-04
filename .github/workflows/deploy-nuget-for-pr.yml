@@ -6,6 +6,7 @@ on:
 
 permissions:
   pull-requests: write
+  id-token: write
 
 env:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
@@ -71,13 +72,17 @@ jobs:
             /p:PackageVersion=$env:PACKAGE_VERSION `
             --no-build
 
+      - name: NuGet Login
+        id: nuget-login
+        uses: NuGet/login@v1
+        with:
+          user: kurnakovv
+
       - name: Publish NuGet
-        env:
-          NUGET_API_KEY: ${{ secrets.NUGET_PR_APIKEY }}
         run: |
           foreach ($file in Get-ChildItem "${{ env.NuGetDirectory }}/*.nupkg") {
             dotnet nuget push $file `
-              --api-key "$env:NUGET_API_KEY" `
+              --api-key "${{ steps.nuget-login.outputs.NUGET_API_KEY }}" `
               --source https://api.nuget.org/v3/index.json `
               --skip-duplicate
           }

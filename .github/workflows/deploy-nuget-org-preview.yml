@@ -23,6 +23,10 @@ jobs:
   build_test_pack_publish:
     runs-on: ubuntu-latest
 
+    permissions:
+      id-token: write
+      contents: read
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -33,19 +37,6 @@ jobs:
         with:
           dotnet-version: 8.0.x
 
-      - name: Cache dotnet tools
-        uses: actions/cache@v4
-        with:
-          path: ~/.dotnet/tools
-          key: dotnet-tools-${{ hashFiles('.config/dotnet-tools.json') }}
-          restore-keys: dotnet-tools-
-
-      - name: Restore dotnet tools
-        run: dotnet tool restore
-
-      - name: Run tests
-        run: dotnet test --configuration Release
-
       - name: Pack NuGet (preview)
         run: |
           dotnet pack `
@@ -53,11 +44,17 @@ jobs:
             --output ${{ env.NuGetDirectory }} `
             /p:PackageVersion=${{ env.PACKAGE_VERSION }}
 
+      - name: NuGet Login
+        id: nuget-login
+        uses: NuGet/login@v1
+        with:
+          user: kurnakovv
+
       - name: Publish NuGet preview
         run: |
           foreach ($file in Get-ChildItem "${{ env.NuGetDirectory }}/*.nupkg") {
             dotnet nuget push $file `
-              --api-key "${{ secrets.NUGET_PREVIEW_APIKEY }}" `
+              --api-key "${{ steps.nuget-login.outputs.NUGET_API_KEY }}" `
               --source https://api.nuget.org/v3/index.json `
               --skip-duplicate
           }
