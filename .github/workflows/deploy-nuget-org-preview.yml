@@ -48,7 +48,7 @@ jobs:
         id: nuget-login
         uses: NuGet/login@v1
         with:
-          user: kurnakovv
+          user: Kurnakovv
 
       - name: Publish NuGet preview
         run: |
