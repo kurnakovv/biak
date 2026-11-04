@@ -15,7 +15,7 @@ public static class DocsConstant
     public const string GREETING = """
 
        __________________________________
-      | Hi, I'm biak!                    |
+      | Hi, I'm biak!  BIIIIAAAAAAKKKK   |
       | I was made by kurnakovv          |
       | To work with .editorconfig       |
       |__________________________________|
