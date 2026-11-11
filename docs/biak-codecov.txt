@@ -1,0 +1,3 @@
+dotnet test --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutput=TestResults\Coverage\coverage.xml /p:CoverletOutputFormat=cobertura
+
+reportgenerator -reports:"D:\eProjects\biak\tests\Biak.ConsoleApp.IntegrationTests\TestResults\Coverage\coverage.xml" -targetdir:"D:\eProjects\biak\tests\Biak.ConsoleApp.IntegrationTests\TestResults\Coverage\html-report" -reporttypes:Html
