@@ -202,7 +202,7 @@ public class FindConflictsCommandTests
         result = Regex.Replace(result, $@"({FindConflictsCommandConstant.CONFLICTING_FILES})\s*\[.*?\]", "$1");
 
         Assert.NotEmpty(result);
-        Assert.Equal(expectedOutputText, result);
+        Assert.Equal(expectedOutputText.Replace("{0}", "main", StringComparison.Ordinal), result);
     }
 
     [Fact]

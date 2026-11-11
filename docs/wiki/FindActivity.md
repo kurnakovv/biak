@@ -45,9 +45,11 @@ dotnet biak find-activity
 
 Next, you need to enter
 ```
-Default branch ('main' by default): 
+Default branch ('dev' by default):
 ```
-The branch into which all feature branches are eventually merged
+The branch into which all feature branches are eventually merged. The default is the branch checked out in the repository when the command starts (`dev` in this example). Enter another branch to override it. A non-empty `findActivity.defaultBranch` configuration value takes precedence and skips this prompt.
+
+If the current branch cannot be determined (for example, in detached HEAD state), you must enter an explicit branch or configure `findActivity.defaultBranch`; blank input reports an error.
 
 ---
 

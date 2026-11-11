@@ -317,7 +317,7 @@ public class FindActivityCommandTests
         result = Regex.Replace(result, $@"({FindActivityCommandConstant.ACTIVITY})\s*\[.*?\]", "$1");
 
         Assert.NotEmpty(result);
-        Assert.Equal(expectedOutputText, result);
+        Assert.Equal(expectedOutputText.Replace("{0}", "main", StringComparison.Ordinal), result);
 
         string logsDir = Path.Join(testDir.Value, ".biak", "logs");
         if (saveOutput)

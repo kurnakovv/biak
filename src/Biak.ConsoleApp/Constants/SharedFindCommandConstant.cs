@@ -17,7 +17,12 @@ public static class SharedFindCommandConstant
     /// <summary>
     /// Default branch input message.
     /// </summary>
-    public const string DEFAULT_BRANCH_INPUT = "Default branch ('main' by default): ";
+    public const string DEFAULT_BRANCH_INPUT = "Default branch ('{0}' by default): ";
+
+    /// <summary>
+    /// Branch input message when the current branch is unavailable.
+    /// </summary>
+    public const string EXPLICIT_BRANCH_INPUT = "Current branch could not be determined (for example, detached HEAD). Enter an explicit branch: ";
 
     /// <summary>
     /// No entries message.

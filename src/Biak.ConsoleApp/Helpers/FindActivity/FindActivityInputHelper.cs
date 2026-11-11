@@ -30,13 +30,7 @@ internal static class FindActivityInputHelper
         string? defaultBranch = findActivity?.DefaultBranch;
         if (string.IsNullOrWhiteSpace(defaultBranch))
         {
-            await executionContext.Out.WriteAsync(SharedFindCommandConstant.DEFAULT_BRANCH_INPUT);
-            defaultBranch = await executionContext.In.ReadLineAsync();
-            if (string.IsNullOrWhiteSpace(defaultBranch))
-            {
-                defaultBranch = "main";
-            }
-            await executionContext.Out.WriteLineAsync();
+            defaultBranch = await FindBranchInputHelper.RequestAsync(executionContext);
         }
 
         int? expirationPeriod = 30;
