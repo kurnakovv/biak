@@ -13,7 +13,7 @@ namespace Biak.ConsoleApp.Helpers;
 internal static class FindBranchInputHelper
 {
     private static readonly CompositeFormat s_defaultBranchInputFormat =
-        CompositeFormat.Parse(SharedFindCommandConstant.DEFAULT_BRANCH_INPUT);
+        CompositeFormat.Parse(SharedFindCommandConstant.TARGET_BRANCH_INPUT);
 
     internal static async Task<string> RequestAsync(AppExecutionContext executionContext)
     {

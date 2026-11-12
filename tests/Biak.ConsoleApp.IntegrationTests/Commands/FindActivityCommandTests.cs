@@ -14,7 +14,7 @@ public class FindActivityCommandTests
 {
     private const string DEFAULT_INPUT_OUTPUT = $"""
         {SharedFindCommandConstant.ENTER_CRITERIA}
-        {SharedFindCommandConstant.DEFAULT_BRANCH_INPUT}
+        {SharedFindCommandConstant.TARGET_BRANCH_INPUT}
         {FindActivityCommandConstant.EXPIRATION_PERIOD_INPUT}
         {FindActivityCommandConstant.ABOUT_FILE_TYPES}
         {FindActivityCommandConstant.FILE_TYPES_INPUT}
@@ -33,7 +33,7 @@ public class FindActivityCommandTests
         "main\n-10\ndfassfds\n35\nMD\n.cs,.vb\nbranch-for-exclude\n\nfdsdfsdasf\ntrue\n",
         $"""
         {SharedFindCommandConstant.ENTER_CRITERIA}
-        {SharedFindCommandConstant.DEFAULT_BRANCH_INPUT}
+        {SharedFindCommandConstant.TARGET_BRANCH_INPUT}
         {FindActivityCommandConstant.EXPIRATION_PERIOD_INPUT}
         {FindActivityCommandConstant.INVALID_EXPIRATION_PERIOD_FORMAT}
         {FindActivityCommandConstant.EXPIRATION_PERIOD_INPUT}

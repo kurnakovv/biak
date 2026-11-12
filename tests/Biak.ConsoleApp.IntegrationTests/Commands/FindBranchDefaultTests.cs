@@ -31,7 +31,7 @@ public class FindBranchDefaultTests
 
         await RunAsync(activity, context);
 
-        Assert.Contains("Default branch ('dev' by default): ", output.ToString(), StringComparison.Ordinal);
+        Assert.Contains("Target branch ('dev' by default): ", output.ToString(), StringComparison.Ordinal);
         Assert.Equal(hasEntry, output.ToString().Contains(activity ? "dev-copy" : "Shared.cs", StringComparison.Ordinal));
         await AssertRestoredAsync(context, "dev");
     }
@@ -71,7 +71,7 @@ public class FindBranchDefaultTests
         await FindActivityCommand.RunAsync(context);
 
         Assert.Equal(hasEntry, output.ToString().Contains("dev-copy", StringComparison.Ordinal));
-        Assert.Equal(string.IsNullOrWhiteSpace(configuredBranch), output.ToString().Contains("Default branch (", StringComparison.Ordinal));
+        Assert.Equal(string.IsNullOrWhiteSpace(configuredBranch), output.ToString().Contains("Target branch (", StringComparison.Ordinal));
     }
 
     [Theory]

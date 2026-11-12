@@ -19,9 +19,9 @@ dotnet biak find-conflicts
 
 Next, you need to enter
 ```
-Default branch ('dev' by default):
+Target branch ('your-current-branch' by default):
 ```
-The branch into which the specified branches will be merged. The default is the branch checked out in the repository before the command performs any checkout (`dev` in this example). Enter another branch to override it.
+The branch into which the specified branches will be merged. The default is the branch checked out in the repository before the command performs any checkout (`your-current-branch` in this example). Enter another branch to override it.
 
 If the current branch cannot be determined (for example, in detached HEAD state), you must enter an explicit branch; blank input reports an error. After checking conflicts, merges are aborted and the original branch (or detached commit) is restored.
 
