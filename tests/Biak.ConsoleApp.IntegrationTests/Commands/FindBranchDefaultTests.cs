@@ -51,19 +51,21 @@ public class FindBranchDefaultTests
         await CreateRepositoryAsync(context);
         string configDirectory = Path.Join(testDir.Value, ".biak");
         Directory.CreateDirectory(configDirectory);
-        string config = System.Text.Json.JsonSerializer.Serialize(new
-        {
-            findActivity = new
+        string config = System.Text.Json.JsonSerializer.Serialize(
+            new
             {
-                defaultBranch = configuredBranch,
-                expirationPeriod = "*",
-                fileTypes = "MDR",
-                fileExtensions = ".cs",
-                excludeBranches = "",
-                includedFilePaths = "",
-                saveOutput = false,
-            },
-        });
+                findActivity = new
+                {
+                    defaultBranch = configuredBranch,
+                    expirationPeriod = "*",
+                    fileTypes = "MDR",
+                    fileExtensions = ".cs",
+                    excludeBranches = string.Empty,
+                    includedFilePaths = string.Empty,
+                    saveOutput = false,
+                },
+            }
+        );
         await File.WriteAllTextAsync(Path.Join(configDirectory, "config.json"), config);
 
         await FindActivityCommand.RunAsync(context);
@@ -100,7 +102,7 @@ public class FindBranchDefaultTests
         Assert.Contains("Current branch could not be determined", output.ToString(), StringComparison.Ordinal);
         Assert.DoesNotContain("'main' by default", output.ToString(), StringComparison.Ordinal);
         Assert.Equal(originalCommit, await GitHelper.RunAsync("rev-parse HEAD", context));
-        await AssertRestoredAsync(context, "");
+        await AssertRestoredAsync(context, string.Empty);
     }
 
     [Fact]
