@@ -12,9 +12,10 @@ internal static class FindActivityInputHelper
     internal static async Task<FindActivityInputModel> RequestAsync(BiakConfig config, AppExecutionContext executionContext)
     {
         FindActivityInputConfigModel? findActivity = config.FindActivity;
-        if (findActivity is not
+        bool hasTargetBranch = findActivity?.TargetBranch is not null || findActivity?.DefaultBranch is not null;
+        if (!hasTargetBranch
+            || findActivity is not
             {
-                DefaultBranch: not null,
                 ExpirationPeriod: not null,
                 FileTypes: not null,
                 FileExtensions: not null,
@@ -27,7 +28,12 @@ internal static class FindActivityInputHelper
             await executionContext.Out.WriteLineAsync(SharedFindCommandConstant.ENTER_CRITERIA);
         }
 
-        string? defaultBranch = findActivity?.DefaultBranch;
+        string? defaultBranch = findActivity?.TargetBranch;
+        if (string.IsNullOrWhiteSpace(defaultBranch))
+        {
+            defaultBranch = findActivity?.DefaultBranch;
+        }
+
         if (string.IsNullOrWhiteSpace(defaultBranch))
         {
             defaultBranch = await FindBranchInputHelper.RequestAsync(executionContext);

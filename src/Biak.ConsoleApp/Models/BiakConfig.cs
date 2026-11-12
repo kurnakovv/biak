@@ -56,7 +56,12 @@ public class BiakConfig
 public class FindActivityInputConfigModel
 {
     /// <summary>
-    /// Default git branch.
+    /// Target git branch.
+    /// </summary>
+    public string? TargetBranch { get; init; }
+
+    /// <summary>
+    /// Legacy target branch setting. Use <see cref="TargetBranch"/> instead.
     /// </summary>
     public string? DefaultBranch { get; init; }
 

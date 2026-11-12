@@ -47,9 +47,9 @@ Next, you need to enter
 ```
 Target branch ('your-current-branch' by default):
 ```
-The branch into which all feature branches are eventually merged. The default is the branch checked out in the repository when the command starts (`your-current-branch` in this example). Enter another branch to override it. A non-empty `findActivity.defaultBranch` configuration value takes precedence and skips this prompt.
+The branch into which all feature branches are eventually merged. The default is the branch checked out in the repository when the command starts (`your-current-branch` in this example). Enter another branch to override it. A non-empty `findActivity.targetBranch` configuration value takes precedence and skips this prompt. The legacy `findActivity.defaultBranch` key is also supported.
 
-If the current branch cannot be determined (for example, in detached HEAD state), you must enter an explicit branch or configure `findActivity.defaultBranch`; blank input reports an error.
+If the current branch cannot be determined (for example, in detached HEAD state), you must enter an explicit branch or configure `findActivity.targetBranch`; blank input reports an error.
 
 ---
 

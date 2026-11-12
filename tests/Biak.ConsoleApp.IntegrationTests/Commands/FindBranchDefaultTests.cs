@@ -56,7 +56,7 @@ public class FindBranchDefaultTests
             {
                 findActivity = new
                 {
-                    defaultBranch = configuredBranch,
+                    targetBranch = configuredBranch,
                     expirationPeriod = "*",
                     fileTypes = "MDR",
                     fileExtensions = ".cs",
@@ -116,12 +116,30 @@ public class FindBranchDefaultTests
         await GitHelper.RunAsync("checkout --detach", context);
         string configDirectory = Path.Join(testDir.Value, ".biak");
         Directory.CreateDirectory(configDirectory);
-        await File.WriteAllTextAsync(Path.Join(configDirectory, "config.json"), """{"findActivity":{"defaultBranch":"main"}}""");
+        await File.WriteAllTextAsync(Path.Join(configDirectory, "config.json"), """{"findActivity":{"targetBranch":"main"}}""");
 
         await FindActivityCommand.RunAsync(context);
 
         Assert.Contains("dev-copy", output.ToString(), StringComparison.Ordinal);
         Assert.DoesNotContain("Enter an explicit branch", output.ToString(), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task ActivityConfigurationSupportsLegacyDefaultBranchAsync()
+    {
+        TestDirectory testDir = new(nameof(ActivityConfigurationSupportsLegacyDefaultBranchAsync));
+        using StringReader input = new("\n");
+        await using StringWriter output = new();
+        AppExecutionContext context = new() { WorkingDirectory = testDir.Value, In = input, Out = output };
+        await CreateRepositoryAsync(context);
+        string configDirectory = Path.Join(testDir.Value, ".biak");
+        Directory.CreateDirectory(configDirectory);
+        await File.WriteAllTextAsync(Path.Join(configDirectory, "config.json"), """{"findActivity":{"defaultBranch":"main"}}""");
+
+        await FindActivityCommand.RunAsync(context);
+
+        Assert.Contains("dev-copy", output.ToString(), StringComparison.Ordinal);
+        Assert.DoesNotContain("Target branch (", output.ToString(), StringComparison.Ordinal);
     }
 
     private static Task RunAsync(bool activity, AppExecutionContext context)
