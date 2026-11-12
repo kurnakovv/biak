@@ -25,6 +25,11 @@ public static class FindActivityCommandConstant
     public const string INVALID_EXPIRATION_PERIOD_FORMAT_IN_CONFIG = INVALID_EXPIRATION_PERIOD_FORMAT + " in a config file";
 
     /// <summary>
+    /// Warning for the deprecated branch configuration key.
+    /// </summary>
+    public const string LEGACY_BRANCH_CONFIG_WARNING = "⚠️ Warning: 'defaultBranch' is deprecated and will not be supported in a future version. Use 'targetBranch' instead.";
+
+    /// <summary>
     /// About file types message.
     /// </summary>
     public const string ABOUT_FILE_TYPES = "About file types https://git-scm.com/docs/git-diff#Documentation/git-diff.txt---diff-filterACDMRTUXB";

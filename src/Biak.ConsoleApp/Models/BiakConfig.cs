@@ -61,7 +61,7 @@ public class FindActivityInputConfigModel
     public string? TargetBranch { get; init; }
 
     /// <summary>
-    /// Legacy target branch setting. Use <see cref="TargetBranch"/> instead.
+    /// Deprecated compatibility setting. Use <see cref="TargetBranch"/> instead.
     /// </summary>
     public string? DefaultBranch { get; init; }
 

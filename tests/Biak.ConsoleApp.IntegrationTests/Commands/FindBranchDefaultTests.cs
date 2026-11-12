@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for full license information.
 
 using Biak.ConsoleApp.Commands;
+using Biak.ConsoleApp.Constants;
 using Biak.ConsoleApp.Exceptions;
 using Biak.ConsoleApp.Helpers;
 using Biak.ConsoleApp.IntegrationTests.Mock;
@@ -140,6 +141,7 @@ public class FindBranchDefaultTests
 
         Assert.Contains("dev-copy", output.ToString(), StringComparison.Ordinal);
         Assert.DoesNotContain("Target branch (", output.ToString(), StringComparison.Ordinal);
+        Assert.Contains(FindActivityCommandConstant.LEGACY_BRANCH_CONFIG_WARNING, output.ToString(), StringComparison.Ordinal);
     }
 
     private static Task RunAsync(bool activity, AppExecutionContext context)

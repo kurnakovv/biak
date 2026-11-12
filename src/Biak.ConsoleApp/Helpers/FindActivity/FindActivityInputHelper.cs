@@ -32,6 +32,10 @@ internal static class FindActivityInputHelper
         if (string.IsNullOrWhiteSpace(defaultBranch))
         {
             defaultBranch = findActivity?.DefaultBranch;
+            if (!string.IsNullOrWhiteSpace(defaultBranch))
+            {
+                await executionContext.Out.WriteLineAsync(FindActivityCommandConstant.LEGACY_BRANCH_CONFIG_WARNING);
+            }
         }
 
         if (string.IsNullOrWhiteSpace(defaultBranch))
