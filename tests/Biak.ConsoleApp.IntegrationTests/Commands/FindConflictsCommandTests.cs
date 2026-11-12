@@ -19,7 +19,7 @@ public class FindConflictsCommandTests
 
     private const string DEFAULT_START_TEXT = $"""
         {SharedFindCommandConstant.ENTER_CRITERIA}
-        {SharedFindCommandConstant.DEFAULT_BRANCH_INPUT}
+        {SharedFindCommandConstant.TARGET_BRANCH_INPUT}
         {FindConflictsCommandConstant.BRANCHES_INPUT}
         {FindConflictsCommandConstant.START}
         {FindConflictsCommandConstant.CONFLICTING_FILES}
@@ -104,7 +104,7 @@ public class FindConflictsCommandTests
         "\n\ntest-f-1 test-f-2 test-f-3\n",
         $"""
         {SharedFindCommandConstant.ENTER_CRITERIA}
-        {SharedFindCommandConstant.DEFAULT_BRANCH_INPUT}
+        {SharedFindCommandConstant.TARGET_BRANCH_INPUT}
         {FindConflictsCommandConstant.BRANCHES_INPUT}
         {FindConflictsCommandConstant.INVALID_BRANCHES_FORMAT}
         {FindConflictsCommandConstant.BRANCHES_INPUT}
@@ -202,7 +202,7 @@ public class FindConflictsCommandTests
         result = Regex.Replace(result, $@"({FindConflictsCommandConstant.CONFLICTING_FILES})\s*\[.*?\]", "$1");
 
         Assert.NotEmpty(result);
-        Assert.Equal(expectedOutputText, result);
+        Assert.Equal(expectedOutputText.Replace("{0}", "main", StringComparison.Ordinal), result);
     }
 
     [Fact]

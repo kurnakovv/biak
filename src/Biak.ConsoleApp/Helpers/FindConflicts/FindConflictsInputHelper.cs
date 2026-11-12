@@ -13,11 +13,7 @@ internal static class FindConflictsInputHelper
     {
         await executionContext.Out.WriteLineAsync(SharedFindCommandConstant.ENTER_CRITERIA);
 
-        await executionContext.Out.WriteAsync(SharedFindCommandConstant.DEFAULT_BRANCH_INPUT);
-        string? defaultBranch = await executionContext.In.ReadLineAsync();
-        defaultBranch = string.IsNullOrWhiteSpace(defaultBranch) ? "main" : defaultBranch.Trim();
-
-        await executionContext.Out.WriteLineAsync();
+        string defaultBranch = (await FindBranchInputHelper.RequestAsync(executionContext)).Trim();
 
         IEnumerable<string> branches;
 

@@ -4,7 +4,7 @@
     "error"
   ],
   "findActivity": {
-    "defaultBranch": "main",
+    "targetBranch": "main",
     "expirationPeriod": "-30",
     "fileTypes": "MDR",
     "fileExtensions": ".cs",

@@ -45,6 +45,10 @@ public static class FindConflictsCommand
         await executionContext.Out.WriteLineAsync(FindConflictsCommandConstant.START);
 
         string originalBranch = (await GitHelper.RunAsync("branch --show-current", executionContext)).Trim();
+        if (string.IsNullOrWhiteSpace(originalBranch))
+        {
+            originalBranch = (await GitHelper.RunAsync("rev-parse HEAD", executionContext)).Trim();
+        }
 
         try
         {
