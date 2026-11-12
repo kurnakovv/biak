@@ -98,7 +98,7 @@ public static class WarningsBaselineBuildHelper
 
         SL.Build build = SL.BinaryLog.ReadBuild(fullBuildBinlogPath);
 
-        if (build.FindChildrenRecursive<SL.Error>().Any())
+        if (build.FindChildrenRecursive<SL.Error>().Count > 0)
         {
             throw new BiakApplicationException(WarningsBaselineBuildConstant.BUILD_CONTAINS_ERRORS);
         }
